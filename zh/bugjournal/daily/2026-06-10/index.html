@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-06-10 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="调整了错误恢复基准测试评估方案与权威项目文档的一致性，同时摒弃了过时的论文指标；通过深入代码审计解决了Research Gadget中的关键数据污染问题；在TokenMonitor中处理了公共存储库的安全问题，并新增了模型支持功能。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-06-10/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-06-10/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-06-10/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-06-10/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-06-10">
+  <meta property="og:description" content="调整了错误恢复基准测试评估方案与权威项目文档的一致性，同时摒弃了过时的论文指标；通过深入代码审计解决了Research Gadget中的关键数据污染问题；在TokenMonitor中处理了公共存储库的安全问题，并新增了模型支持功能。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-06-10T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-06-10T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-06-10">
+  <meta name="twitter:description" content="调整了错误恢复基准测试评估方案与权威项目文档的一致性，同时摒弃了过时的论文指标；通过深入代码审计解决了Research Gadget中的关键数据污染问题；在TokenMonitor中处理了公共存储库的安全问题，并新增了模型支持功能。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-06-10",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-06-10/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-06-10",
+  "name": "Bug Journal 2026-06-10",
+  "description": "调整了错误恢复基准测试评估方案与权威项目文档的一致性，同时摒弃了过时的论文指标；通过深入代码审计解决了Research Gadget中的关键数据污染问题；在TokenMonitor中处理了公共存储库的安全问题，并新增了模型支持功能。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-06-10 日常概述 已完成工作： 修正了错误恢复基准测试的基础评估策略，根据论文规范否定了之前的做法，并重新依据“全景”文档进行评估；对Research Gadget代码库进行了全面审计，发现了关键的缓存污染问题，同时在AI Dev Companion中公开了相关成果，并更新了TokenMonitor的定价逻辑。 实施方法： 使用多智能体工作流来比对2000多行文档和代码，采用分层采样定义用于新基准测试，通过静态分析检测错误；实施严格的gitignore规则和环境感知安装逻辑，解决了数据泄露和硬编码配置过时问题。 影响： 通过建立科学有效的实验方案，避免了因不兼容评估指标而产生的大量无效工作，降低了研究工具中持续数据污染的风险，并确保了公共AI开发成果的可移植性和隐私安全性。 将错误恢复基准测试评估方案与权威项目文档对齐，同时放弃过时的论文指标，通过深度代码审计解决了Research Gadget中的关键数据污染问题，并在TokenMonitor中解决了公共仓库安全问题和新模型支持问题。\n任务 架构与策略 ✅ 错误恢复基准测试协议调整 — 放弃基于论文的指标（CSR-RSR差距），采用权威的“全景”规范（SR + 连续恢复测试 + 费舍尔精确检验）；为Tianhe2上的130k验证集定义了确定性的分层采样计划（每种类型约50个场景）。 ✅ Research Gadget代码库审计 — 使用79个智能体工作流对Research Gadget的文档进行审计，发现58个确认错误，包括关键的硬编码配置绕过和Rust/Python组件中的无限缓存污染。 ✅ JEPA/World Models研究方向生成 — 筛选了高影响文献（iMaC、HiMem-WAM、CAPE），并提出了三个新的研究方向：用于跨表现JEPA的视觉动作令牌、分层WAMs和以几何为中心的导航。 ✅ 公共仓库成果安全与Git清理 — 通过更新.gitignore、删除缓存文件以及定义安装逻辑，解决了TokenMonitor和ErrorRecoveryBenchmark中机器特定绝对路径的公开问题，使公共和私有仓库的可见性得以区分。 实施与修复 🔄 TokenMonitor新模型支持 — 调查了为何新的Anthropic模型（如claude-fable-5）显示为“未知”；在pricing.rs枚举中发现了缺失条目，并制定了纳入新模型ID和速率的更新策略。 问题与解决方案 关键问题 1. 关键意图不一致：评估代码实施了基于“EVALUATION.md”论文规范的指标（CSR-RSR差距、单一种子），这与权威的“全景摘要”（恢复进度0-1连续、多种子）相矛盾，威胁到实验有效性。 解决方案： 通过多智能体验证执行了全面的意图与代码记录，证明“全景”是真实来源；放弃500步/差距指标工作，重新规划评估以匹配SR + Bootstrap CI + RP。\n关键洞察： 技术文档（论文规范）往往与高层项目策略不一致；始终先根据“全景”或执行摘要验证代码的意图。框架层中的死代码不应假设为活跃状态。\n2. Research Gadget LLM失败结果（超时/速率限制）被永久缓存，没有TTL，导致后续运行立即返回所有论文的零分结果，因为缓存键相同。 解决方案： 通过工作流审计发现；修复方法是在evaluate.py和insight.py中为失败的LLM响应添加TTL或唯一请求哈希键。\n关键洞察： 如果失败状态与成功状态在缓存中相同且没有过期时间，临时API错误可能导致持续数据污染。在缓存系统中区分“临时失败”和“永久状态”至关重要。\n3. 提交文件如CLAUDE.md和settings.json中的绝对本地路径（例如D:\\GitHub\\ai-companion）被公开，存在私有路径泄露风险。 解决方案： 实施三层修复：立即对现有暴露进行git rm –cached，更新.gitignore以阻止未来生成，并设计安装程序增强功能以区分公共与私有仓库的可见性。\n关键洞察： 配置文件中的绝对路径本质上不可移植；将其视为“临时”而非“永久”成果需要严格的gitignore执行或环境变量注入。\n一般问题 4. TokenMonitor将新的Anthropic模型（如Fable 5）显示为“未知”，无令牌。 解决方案： 发现src-tauri/src/usage/pricing.rs缺少特定新模型ID的条目。修复方法是将这些ID添加到ModelFamily枚举中，并更新get_rates()。\n关键洞察： 硬编码定价表需要严格维护以跟上供应商发布；回退逻辑通常掩盖缺失数据点而非表明需要更新。\n人类与AI方法 战略层面 评估权威与意图来源 角色 方法 人类 用户提供权威的“全景项目摘要”作为唯一真实来源，取代基于NeurIPS论文规范的先前假设。 AI 最初与论文/EVALUATION.md指标一致；修正后使用多智能体工作流检索~2300行全景内容，数学证明不存在CSR/RSR指标，并证明与SR/RP一致。 差异分析： 人类优先关注内部项目一致性和战略意图，而非学术一致性；AI最初依赖标准学术层次（论文\u003e文档），需要修正以信任本地项目成果。人类提供战略锚点，而AI执行大规模相关性验证任务。\n实施层面 Research Gadget审计范围与检测 角色 方法 人类 用户指示查询路径，要求解释工具内容，然后根据解释进行严格审计以查找差异。 AI AI基于TUTORIAL.md生成教程，然后启动多智能体“对抗性”工作流阅读8500行代码，与声明对比，发现58个错误，包括Rust中的罕见“死回退”路径。 关键洞察： 技术文档中的绝对路径本质上不可移植；将其视为“临时”而非“永久”成果需要严格的gitignore执行或环境变量注入。**差异分析：**该人工智能的价值在于并行验证的规模（74.6KB的审计输出），能够隔离那些人类逐行执行会极其缓慢的问题，尤其能识别无法访问的代码路径和逻辑分歧。\n人工智能局限性 关键局限 最初依赖 ‘EVALUATION.md’ 来制定错误恢复基准测试策略，导致架构严重失调且浪费了大量精力，直到用户修正后才恢复正常；这表明在没有明确依据的情况下，自动区分“论文规格”与“执行意图”存在困难。 一般局限 在 Tianhe2 上无法通过明确的路径输入发现远程文件，需要反复使用 SSH 命令才能在众多候选文件中定位特定的文档文件。 由于 LLM 速率限制要求顺序执行，Research Gadget 审计流程耗时超过 30 分钟，使得非常大的代码库实时审计变得缓慢。 学习成果 关键收获 当项目规格与学术论文和内部文档冲突时，内部文档（尤其是 ‘Panorama’ 或 ‘Master Guide’ 文件）应被视为实现细节的权威来源。不应假设死代码仍然处于活动状态。 生成的配置文件中使用的绝对路径必须严格从公共仓库中排除；安装程序应检测仓库可见性（公开/私有），从而动态调整包含策略，防止机器特定的本地路径泄露。 在具身人工智能研究中，‘JEPA’ 和 ‘World Models’ 正在融合；特别是使用视觉动作令牌（如 iMaC）和分层记忆门（HiMem-WAM）来处理长期操控似乎处于前沿水平。 在缓存系统中，区分“临时故障”与“永久状态”至关重要。对 JSON 解析错误或 API 超时进行缓存且没有 TTL 设置，会破坏缓存剩余时间内的数据完整性。 对话总结 错误恢复基准测试 ✅ 协议修正与最终实施计划制定 02:28:01.264 | claude_code 在发现论文衍生指标（二进制成功、CSR-RSR 差距）与权威 ‘Panorama’ 文档（SR + Fisher 精确检验）之间存在冲突后，修正了错误恢复基准测试的评估协议。通过 SSH 确认 130k 验证集存在于 Tianhe2 上。制定了最终实施计划，包括分层采样（每种子类型约 50 个场景）、新的轻量级评估模块以及针对 M16 里程碑的 Fisher 检验，待用户批准后开始编码。\nAI 开发辅助 ✅ Git 清理、公共产物安全与模型支持 03:24:42.470 | claude_code 解决了机器特定绝对路径被无意中提交到公共仓库的关键问题（TokenMonitor、ErrorRecoveryBenchmark）。对主仓库中的 node_modules/dist 进行了全面的 git 清理，修复了 .gitignore 规则，并通过标记安装流程以跳过公共仓库中的敏感文件，来防止未来泄露。此外，针对新 Anthropic 模型（Fable 5）的 TokenMonitor ‘unknown’ 状态进行了调查，发现 pricing.rs 中缺失条目是根本原因。\nResearch Gadget 与 JEPA 研究 ✅ JEPA 研究方向与代码库审计 03:24:42.470 | claude_code 对基于 JEPA 的世界模型进行了深入文献综述，筛选了高影响论文（iMaC、HiMem-WAM、CAPE），并提出了 3 个新研究方向：用于跨具身 JEPA 的视觉动作令牌、分层 WAMs 以及以几何为中心的导航。同时，使用 79 个代理工作流对 Research Gadget 代码库进行审计，发现 58 个确认问题，包括关键的硬编码配置绕过和故障状态下的无限缓存污染。\n令牌使用情况 总计：85.14 美元 — 1870 万个令牌\n",
+  "wordCount" : "226",
+  "inLanguage": "zh",
+  "datePublished": "2026-06-10T00:00:00-05:00",
+  "dateModified": "2026-06-10T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-06-10/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon2.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="zh"
+                        data-translation-url="https://tzj2006.github.io/bugjournal/daily/2026-06-10/">EN
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-06-10
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-06-10 00:00:00 -0500 -0500'>2026年6月10日</span>&nbsp;·&nbsp;<span>2 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-06-10">每日报告 — 2026-06-10<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-06-10">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>已完成工作：</strong> 修正了错误恢复基准测试的基础评估策略，根据论文规范否定了之前的做法，并重新依据“全景”文档进行评估；对Research Gadget代码库进行了全面审计，发现了关键的缓存污染问题，同时在AI Dev Companion中公开了相关成果，并更新了TokenMonitor的定价逻辑。</li>
+<li><strong>实施方法：</strong> 使用多智能体工作流来比对2000多行文档和代码，采用分层采样定义用于新基准测试，通过静态分析检测错误；实施严格的gitignore规则和环境感知安装逻辑，解决了数据泄露和硬编码配置过时问题。</li>
+<li><strong>影响：</strong> 通过建立科学有效的实验方案，避免了因不兼容评估指标而产生的大量无效工作，降低了研究工具中持续数据污染的风险，并确保了公共AI开发成果的可移植性和隐私安全性。</li>
+</ul>
+<blockquote>
+<p>将错误恢复基准测试评估方案与权威项目文档对齐，同时放弃过时的论文指标，通过深度代码审计解决了Research Gadget中的关键数据污染问题，并在TokenMonitor中解决了公共仓库安全问题和新模型支持问题。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>✅ <strong>错误恢复基准测试协议调整</strong> — 放弃基于论文的指标（CSR-RSR差距），采用权威的“全景”规范（SR + 连续恢复测试 + 费舍尔精确检验）；为Tianhe2上的130k验证集定义了确定性的分层采样计划（每种类型约50个场景）。</li>
+<li>✅ <strong>Research Gadget代码库审计</strong> — 使用79个智能体工作流对Research Gadget的文档进行审计，发现58个确认错误，包括关键的硬编码配置绕过和Rust/Python组件中的无限缓存污染。</li>
+<li>✅ <strong>JEPA/World Models研究方向生成</strong> — 筛选了高影响文献（iMaC、HiMem-WAM、CAPE），并提出了三个新的研究方向：用于跨表现JEPA的视觉动作令牌、分层WAMs和以几何为中心的导航。</li>
+<li>✅ <strong>公共仓库成果安全与Git清理</strong> — 通过更新.gitignore、删除缓存文件以及定义安装逻辑，解决了TokenMonitor和ErrorRecoveryBenchmark中机器特定绝对路径的公开问题，使公共和私有仓库的可见性得以区分。</li>
+</ul>
+<h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
+<ul>
+<li>🔄 <strong>TokenMonitor新模型支持</strong> — 调查了为何新的Anthropic模型（如claude-fable-5）显示为“未知”；在<code>pricing.rs</code>枚举中发现了缺失条目，并制定了纳入新模型ID和速率的更新策略。</li>
+<li>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+</li>
+</ul>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-关键意图不一致评估代码实施了基于evaluationmd论文规范的指标csr-rsr差距单一种子这与权威的全景摘要恢复进度0-1连续多种子相矛盾威胁到实验有效性">1. 关键意图不一致：评估代码实施了基于“EVALUATION.md”论文规范的指标（CSR-RSR差距、单一种子），这与权威的“全景摘要”（恢复进度0-1连续、多种子）相矛盾，威胁到实验有效性。<a hidden class="anchor" aria-hidden="true" href="#1-关键意图不一致评估代码实施了基于evaluationmd论文规范的指标csr-rsr差距单一种子这与权威的全景摘要恢复进度0-1连续多种子相矛盾威胁到实验有效性">#</a></h4>
+<p><strong>解决方案：</strong> 通过多智能体验证执行了全面的意图与代码记录，证明“全景”是真实来源；放弃500步/差距指标工作，重新规划评估以匹配SR + Bootstrap CI + RP。</p>
+<p><strong>关键洞察：</strong> 技术文档（论文规范）往往与高层项目策略不一致；始终先根据“全景”或执行摘要验证代码的意图。框架层中的死代码不应假设为活跃状态。</p>
+<h4 id="2-research-gadget-llm失败结果超时速率限制被永久缓存没有ttl导致后续运行立即返回所有论文的零分结果因为缓存键相同">2. Research Gadget LLM失败结果（超时/速率限制）被永久缓存，没有TTL，导致后续运行立即返回所有论文的零分结果，因为缓存键相同。<a hidden class="anchor" aria-hidden="true" href="#2-research-gadget-llm失败结果超时速率限制被永久缓存没有ttl导致后续运行立即返回所有论文的零分结果因为缓存键相同">#</a></h4>
+<p><strong>解决方案：</strong> 通过工作流审计发现；修复方法是在<code>evaluate.py</code>和<code>insight.py</code>中为失败的LLM响应添加TTL或唯一请求哈希键。</p>
+<p><strong>关键洞察：</strong> 如果失败状态与成功状态在缓存中相同且没有过期时间，临时API错误可能导致持续数据污染。在缓存系统中区分“临时失败”和“永久状态”至关重要。</p>
+<h4 id="3-提交文件如claudemd和settingsjson中的绝对本地路径例如dgithubai-companion被公开存在私有路径泄露风险">3. 提交文件如CLAUDE.md和settings.json中的绝对本地路径（例如D:\GitHub\ai-companion）被公开，存在私有路径泄露风险。<a hidden class="anchor" aria-hidden="true" href="#3-提交文件如claudemd和settingsjson中的绝对本地路径例如dgithubai-companion被公开存在私有路径泄露风险">#</a></h4>
+<p><strong>解决方案：</strong> 实施三层修复：立即对现有暴露进行git rm &ndash;cached，更新.gitignore以阻止未来生成，并设计安装程序增强功能以区分公共与私有仓库的可见性。</p>
+<p><strong>关键洞察：</strong> 配置文件中的绝对路径本质上不可移植；将其视为“临时”而非“永久”成果需要严格的gitignore执行或环境变量注入。</p>
+<h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
+<h4 id="4-tokenmonitor将新的anthropic模型如fable-5显示为未知无令牌">4. TokenMonitor将新的Anthropic模型（如Fable 5）显示为“未知”，无令牌。<a hidden class="anchor" aria-hidden="true" href="#4-tokenmonitor将新的anthropic模型如fable-5显示为未知无令牌">#</a></h4>
+<p><strong>解决方案：</strong> 发现<code>src-tauri/src/usage/pricing.rs</code>缺少特定新模型ID的条目。修复方法是将这些ID添加到<code>ModelFamily</code>枚举中，并更新<code>get_rates()</code>。</p>
+<p><strong>关键洞察：</strong> 硬编码定价表需要严格维护以跟上供应商发布；回退逻辑通常掩盖缺失数据点而非表明需要更新。</p>
+<h2 id="人类与ai方法">人类与AI方法<a hidden class="anchor" aria-hidden="true" href="#人类与ai方法">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="评估权威与意图来源">评估权威与意图来源<a hidden class="anchor" aria-hidden="true" href="#评估权威与意图来源">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户提供权威的“全景项目摘要”作为唯一真实来源，取代基于NeurIPS论文规范的先前假设。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初与论文/EVALUATION.md指标一致；修正后使用多智能体工作流检索~2300行全景内容，数学证明不存在CSR/RSR指标，并证明与SR/RP一致。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类优先关注内部项目一致性和战略意图，而非学术一致性；AI最初依赖标准学术层次（论文&gt;文档），需要修正以信任本地项目成果。人类提供战略锚点，而AI执行大规模相关性验证任务。</p>
+<h3 id="实施层面">实施层面<a hidden class="anchor" aria-hidden="true" href="#实施层面">#</a></h3>
+<h4 id="research-gadget审计范围与检测">Research Gadget审计范围与检测<a hidden class="anchor" aria-hidden="true" href="#research-gadget审计范围与检测">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户指示查询路径，要求解释工具内容，然后根据解释进行严格审计以查找差异。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI基于TUTORIAL.md生成教程，然后启动多智能体“对抗性”工作流阅读8500行代码，与声明对比，发现58个错误，包括Rust中的罕见“死回退”路径。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>关键洞察：</strong> 技术文档中的绝对路径本质上不可移植；将其视为“临时”而非“永久”成果需要严格的gitignore执行或环境变量注入。**差异分析：**该人工智能的价值在于并行验证的规模（74.6KB的审计输出），能够隔离那些人类逐行执行会极其缓慢的问题，尤其能识别无法访问的代码路径和逻辑分歧。</p>
+<h2 id="人工智能局限性">人工智能局限性<a hidden class="anchor" aria-hidden="true" href="#人工智能局限性">#</a></h2>
+<h3 id="关键局限">关键局限<a hidden class="anchor" aria-hidden="true" href="#关键局限">#</a></h3>
+<ul>
+<li>最初依赖 ‘EVALUATION.md’ 来制定错误恢复基准测试策略，导致架构严重失调且浪费了大量精力，直到用户修正后才恢复正常；这表明在没有明确依据的情况下，自动区分“论文规格”与“执行意图”存在困难。</li>
+</ul>
+<h3 id="一般局限">一般局限<a hidden class="anchor" aria-hidden="true" href="#一般局限">#</a></h3>
+<ul>
+<li>在 Tianhe2 上无法通过明确的路径输入发现远程文件，需要反复使用 SSH 命令才能在众多候选文件中定位特定的文档文件。</li>
+<li>由于 LLM 速率限制要求顺序执行，Research Gadget 审计流程耗时超过 30 分钟，使得非常大的代码库实时审计变得缓慢。</li>
+</ul>
+<h2 id="学习成果">学习成果<a hidden class="anchor" aria-hidden="true" href="#学习成果">#</a></h2>
+<h3 id="关键收获">关键收获<a hidden class="anchor" aria-hidden="true" href="#关键收获">#</a></h3>
+<ul>
+<li>当项目规格与学术论文和内部文档冲突时，内部文档（尤其是 ‘Panorama’ 或 ‘Master Guide’ 文件）应被视为实现细节的权威来源。不应假设死代码仍然处于活动状态。</li>
+<li>生成的配置文件中使用的绝对路径必须严格从公共仓库中排除；安装程序应检测仓库可见性（公开/私有），从而动态调整包含策略，防止机器特定的本地路径泄露。</li>
+<li>在具身人工智能研究中，‘JEPA’ 和 ‘World Models’ 正在融合；特别是使用视觉动作令牌（如 iMaC）和分层记忆门（HiMem-WAM）来处理长期操控似乎处于前沿水平。</li>
+<li>在缓存系统中，区分“临时故障”与“永久状态”至关重要。对 JSON 解析错误或 API 超时进行缓存且没有 TTL 设置，会破坏缓存剩余时间内的数据完整性。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<h3 id="错误恢复基准测试">错误恢复基准测试<a hidden class="anchor" aria-hidden="true" href="#错误恢复基准测试">#</a></h3>
+<p><strong>✅ 协议修正与最终实施计划制定</strong>
+<em>02:28:01.264 | claude_code</em>
+在发现论文衍生指标（二进制成功、CSR-RSR 差距）与权威 ‘Panorama’ 文档（SR + Fisher 精确检验）之间存在冲突后，修正了错误恢复基准测试的评估协议。通过 SSH 确认 130k 验证集存在于 Tianhe2 上。制定了最终实施计划，包括分层采样（每种子类型约 50 个场景）、新的轻量级评估模块以及针对 M16 里程碑的 Fisher 检验，待用户批准后开始编码。</p>
+<h3 id="ai-开发辅助">AI 开发辅助<a hidden class="anchor" aria-hidden="true" href="#ai-开发辅助">#</a></h3>
+<p><strong>✅ Git 清理、公共产物安全与模型支持</strong>
+<em>03:24:42.470 | claude_code</em>
+解决了机器特定绝对路径被无意中提交到公共仓库的关键问题（TokenMonitor、ErrorRecoveryBenchmark）。对主仓库中的 node_modules/dist 进行了全面的 git 清理，修复了 .gitignore 规则，并通过标记安装流程以跳过公共仓库中的敏感文件，来防止未来泄露。此外，针对新 Anthropic 模型（Fable 5）的 TokenMonitor ‘unknown’ 状态进行了调查，发现 <code>pricing.rs</code> 中缺失条目是根本原因。</p>
+<h3 id="research-gadget-与-jepa-研究">Research Gadget 与 JEPA 研究<a hidden class="anchor" aria-hidden="true" href="#research-gadget-与-jepa-研究">#</a></h3>
+<p><strong>✅ JEPA 研究方向与代码库审计</strong>
+<em>03:24:42.470 | claude_code</em>
+对基于 JEPA 的世界模型进行了深入文献综述，筛选了高影响论文（iMaC、HiMem-WAM、CAPE），并提出了 3 个新研究方向：用于跨具身 JEPA 的视觉动作令牌、分层 WAMs 以及以几何为中心的导航。同时，使用 79 个代理工作流对 Research Gadget 代码库进行审计，发现 58 个确认问题，包括关键的硬编码配置绕过和故障状态下的无限缓存污染。</p>
+<h2 id="令牌使用情况">令牌使用情况<a hidden class="anchor" aria-hidden="true" href="#令牌使用情况">#</a></h2>
+<p><img alt="Token Usage" loading="lazy" src="2026-06-10-usage.png"></p>
+<p><strong>总计：85.14 美元</strong> — 1870 万个令牌</p>
+<!-- gadget:src-hash:f35aedbebc0d2cd9 -->
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

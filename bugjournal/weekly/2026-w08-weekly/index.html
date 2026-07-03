@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Weekly Summary 2026-W08 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal, Weekly Summary">
+<meta name="description" content="This week, with the MIHD spatial transcriptomics project as the main focus, a systematic investigation was completed on H&amp;E Image-Only clustering (establishing a literature baseline of ARI 0.11–0.16), three self-supervised enhancement methods were implemented (SCAN increased ARI from 0.251 to 0.303, &#43;20.6%), and a two-stage fusion framework for Vision Refinement was established; meanwhile, on the tianhe cluster, the Error Recovery Benchmark (M14 evaluation infrastructure verification, full assessment of 649 scenarios started) and the Phoenix pi0.5 reproduction data pipeline (18.4GB MimicGen dataset stored, training configuration in place) were advanced in parallel. Throughout the week, multiple engineering bottlenecks such as STEGO NaN, double normalization bug, lerobot version conflicts, and HuggingFace proxy issues were resolved. The two bottlenecks related to Pi0.5 OOM and visualize_scene.py video validation will be postponed to next week.">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/bugjournal/weekly/2026-w08-weekly/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/weekly/2026-w08-weekly/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w08-weekly/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/bugjournal/weekly/2026-w08-weekly/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Weekly Summary 2026-W08">
+  <meta property="og:description" content="This week, with the MIHD spatial transcriptomics project as the main focus, a systematic investigation was completed on H&amp;E Image-Only clustering (establishing a literature baseline of ARI 0.11–0.16), three self-supervised enhancement methods were implemented (SCAN increased ARI from 0.251 to 0.303, &#43;20.6%), and a two-stage fusion framework for Vision Refinement was established; meanwhile, on the tianhe cluster, the Error Recovery Benchmark (M14 evaluation infrastructure verification, full assessment of 649 scenarios started) and the Phoenix pi0.5 reproduction data pipeline (18.4GB MimicGen dataset stored, training configuration in place) were advanced in parallel. Throughout the week, multiple engineering bottlenecks such as STEGO NaN, double normalization bug, lerobot version conflicts, and HuggingFace proxy issues were resolved. The two bottlenecks related to Pi0.5 OOM and visualize_scene.py video validation will be postponed to next week.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-02-22T23:59:00-05:00">
+    <meta property="article:modified_time" content="2026-02-22T23:59:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Weekly Summary 2026-W08">
+  <meta name="twitter:description" content="This week, with the MIHD spatial transcriptomics project as the main focus, a systematic investigation was completed on H&amp;E Image-Only clustering (establishing a literature baseline of ARI 0.11–0.16), three self-supervised enhancement methods were implemented (SCAN increased ARI from 0.251 to 0.303, &#43;20.6%), and a two-stage fusion framework for Vision Refinement was established; meanwhile, on the tianhe cluster, the Error Recovery Benchmark (M14 evaluation infrastructure verification, full assessment of 649 scenarios started) and the Phoenix pi0.5 reproduction data pipeline (18.4GB MimicGen dataset stored, training configuration in place) were advanced in parallel. Throughout the week, multiple engineering bottlenecks such as STEGO NaN, double normalization bug, lerobot version conflicts, and HuggingFace proxy issues were resolved. The two bottlenecks related to Pi0.5 OOM and visualize_scene.py video validation will be postponed to next week.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Weekly Summaries",
+      "item": "https://tzj2006.github.io/bugjournal/weekly/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Weekly Summary 2026-W08",
+      "item": "https://tzj2006.github.io/bugjournal/weekly/2026-w08-weekly/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Weekly Summary 2026-W08",
+  "name": "Weekly Summary 2026-W08",
+  "description": "This week, with the MIHD spatial transcriptomics project as the main focus, a systematic investigation was completed on H\u0026amp;E Image-Only clustering (establishing a literature baseline of ARI 0.11–0.16), three self-supervised enhancement methods were implemented (SCAN increased ARI from 0.251 to 0.303, +20.6%), and a two-stage fusion framework for Vision Refinement was established; meanwhile, on the tianhe cluster, the Error Recovery Benchmark (M14 evaluation infrastructure verification, full assessment of 649 scenarios started) and the Phoenix pi0.5 reproduction data pipeline (18.4GB MimicGen dataset stored, training configuration in place) were advanced in parallel. Throughout the week, multiple engineering bottlenecks such as STEGO NaN, double normalization bug, lerobot version conflicts, and HuggingFace proxy issues were resolved. The two bottlenecks related to Pi0.5 OOM and visualize_scene.py video validation will be postponed to next week.",
+  "keywords": [
+    "Bug Journal", "Weekly Summary"
+  ],
+  "articleBody": "Weekly Report — 2026-W08 (2026-02-16 ~ 2026-02-22) This week, with the MIHD spatial transcriptomics project as the main focus, we completed a systematic investigation of H\u0026E Image-Only clustering (establishing the ARI literature baseline of 0.11–0.16), implemented three self-supervised enhancement schemes (SCAN increased ARI from 0.251 to 0.303, +20.6%), and built a two-stage fusion framework for Vision Refinement; simultaneously, on the tianhe cluster, we advanced the Error Recovery Benchmark (verification of M14 evaluation infrastructure, full assessment start for 649 scenarios) and the Phoenix pi0.5 reproduction data pipeline (18.4GB MimicGen dataset uploaded, training configuration in place). Throughout the week, we resolved multiple engineering bottlenecks such as STEGO NaN, double normalization bug, lerobot version conflicts, and HuggingFace proxy issues, while two bottlenecks related to Pi0.5 OOM and visualize_scene.py video validation were postponed to next week.\nWeekly Overview Metric Value Date Range 2026-02-16 ~ 2026-02-22 Active Days 3 / 7 Total Conversation Count 9 Projects Involved 4 Tasks Completed 11 Ongoing Tasks 5 Total Tokens 28,509,501 Total Cost $14.13 Average Daily Cost $4.71 Project Progress MIHD (Spatial Transcriptomics Clustering) (3 active days) — 🔄 active Completed:\nCompleted four core technical documents: RM-IDEAL bilingual guide, visual encoder usage manual, pathological PFM literature review, and UNI/UNI2 original paper evaluation analysis. Conducted a systematic investigation of H\u0026E Image-Only methods, established the DLPFC ARI literature baseline (SpaConTDS=0.16, stLearn=0.11), and analyzed the five root causes of Foundation Model failure. Implemented and verified three self-supervised enhancement schemes: STEGO/BYOL+GAT/SCAN. SCAN achieved the best result with ARI=0.303 (baseline 0.251, +20.6%), and its integration with gene feature fusion was validated as complementary (mean fusion +0.065 ARI). Identified and fixed the STAIG double normalization bug in eval_scan_fusion.py, deciding to use the correct path in run_benchmark.py. Integrated a CacheManager embedding cache in run_benchmark.py (loaded in seconds, supports custom cache names for scan_uni2). Implemented the Vision Refinement two-stage fusion framework (–vision_refine parameter, ~60 lines minimal intrusion), and started batch experiments with 7 fusion strategies in the background. Re-generated all 11 sections visually in batches (using .npz cache, no re-inference required), and added an H\u0026E original image panel. Bottlenecks:\n⚠️ The coordinate dimension bug in eval_scan_fusion.py caused incomplete debugging of the SCAN fusion joint evaluation script. ⚠️ The first experiment of Vision Refinement (scan_cluster + concat, ARI=0.313) was lower than direct concat (0.387), and the issue of feature diversity in self-supervised compression losses needs further analysis. ⚠️ The implementation of ImageEncoder enhancement for the large goal 7 in ENHANCEMENT_PLAN_CN.md has not started. Error Recovery Benchmark \u0026 Phoenix pi0.5 Reproduction (1 active day) — 🔄 active Completed:\nDeveloped a complete Phase II execution plan with 7 steps, covering large goals G1–G7 and milestones M12–M15, with a key path of approximately 16 days. Verified the M14 baseline evaluation infrastructure for 10 scenarios (sanity check passed), and started full CPU assessment for 649 scenarios (exceeded expectations by 454, +43%). Completed the full data pipeline for Phoenix pi0.5 reproduction: convert_mimicgen_to_lerobot.py, evaluate_mimicgen.py, OpenPI training configuration (100K steps, 4-GPU), and download/format conversion of the 18.4GB MimicGen dataset (7–8/9 tasks completed). Diagnosed the Pi0.5 OOM bottleneck, and standardized GPU access to srun –overlap. Resolved the incompatibility issue between lerobot 0.1.0 and datasets\u003e=4.0 (downgraded to 3.6.0). Established hf-mirror.com as the standard solution for cluster HuggingFace data retrieval. Bottlenecks:\n⚠️ Pi0.5 OOM remains unresolved (GPU memory insufficient at 150MB), and the baseline assessment is still blocked. ⚠️ The extension of force parameters in visualize_scene.py is complete, but video validation is blocked due to SLURM node permissions issues. ⚠️ Port conflict on Pi0 VLA Server (port 5555 occupied) caused session interruption. Key Tasks ✅ Systematic Investigation of H\u0026E Image-Only Clustering Methods (2026-02-19) — Collected a comprehensive overview of methods such as MILWRM/F-SEG/Deep Contrastive Clustering, verified the image-only DLPFC ARI values (SpaConTDS=0.16, stLearn=0.11) through ablation experiments, and deeply investigated the applications of BYOL/STEGO/SCAN in pathology, along with a four-level domain gap resolution framework in the CV community. ✅ Establishment of MIHD Technical Documentation System (2026-02-19) — Created four core technical documents: RM-IDEAL bilingual structure document, visual encoder usage guide (12 chapters), pathological PFM literature review, and UNI/UNI2 original paper evaluation analysis (34 clinical tasks). ✅ Analysis of Root Causes of Foundation Model Failure in Spatial Domain (2026-02-19) — Conducted a systematic analysis from five dimensions: domain mismatch in training data, pre-training task mismatch, minimal morphological differences between brain tissue layers, feature redundancy, and lack of spatial context. Supported by cases involving the brown repeated patches in UNI2. ✅ Implementation of Image-Only Clustering Enhancement Schemes (STEGO/BYOL+GAT/SCAN) (2026-02-19) — Created four model files: STEGOHead/BYOLAdapter/SpatialGATRefiner/SCANHead. Completed comparative tests on 151673 sections, with SCAN achieving the best result with ARI=0.303 (+20.6%). ✅ Investigation and Architecture Decision for STAIG Fusion Double Normalization Bug (2026-02-20) — Confirmed that the missing staig_alignment_config in eval_scan_fusion.py caused internal StandardScaler in STAIGTrainer; decided to use the correct path in run_benchmark.py instead of fixing a separate script. ✅ Integration of Embedding Cache Mechanism in run_benchmark.py (2026-02-20) — Introduced CacheManager, checking the cache before gene/vision encoding, and skipping encoder instantiation if hit (loaded in seconds). Supports custom cache names for scan_uni2, with three variants for vision cache: standard, freq, staig_strict. 🔄 Verification of M14 Baseline Evaluation Infrastructure and Full Assessment Start (2026-02-22) — Sanity check (60 episodes, ~7 minutes, SR=0% as expected), followed by start of full CPU assessment for 649 scenarios × 2 strategies × 3 seeds (≈ 3894 episodes), running in the background. 🔄 Construction of Full Data Pipeline for Phoenix pi0.5 Reproduction (2026-02-22) — Written convert_mimicgen_to_lerobot.py and evaluate_mimicgen.py, configured pi05_base_mimicgen_phoenix training parameters, downloaded the 18.4GB MimicGen dataset via hf-mirror.com (9 tasks, 9000 demos), and completed format conversion (7–8/9 tasks). 🔄 Joint Evaluation of SCAN Embedding and Multimodal Fusion (2026-02-19) — Written eval_scan_fusion.py, comparing the optimized 256-dimensional visual embedding of SCAN with PCA gene features across all fusion methods; mean fusion achieved ARI +0.065, partially resolved the coords dimension bug, and script debugging in progress. 🔄 Implementation and Batch Experiments of MIHD Vision Refinement Two-Stage Fusion Framework (2026-02-22) — Added –vision_refine parameter (scan_cluster/stego_refine/byol_spatial), with ~60 lines of code minimal intrusion, first experiment showed ARI=0.313 lower than baseline concat 0.387; 7 fusion strategies running in the background. ✅ Completion of Full Phase II Execution Plan for Error Recovery Benchmark (2026-02-22) — Analyzed the dependencies between large goals G1–G7 and milestones M12–M15, developed a 7-step execution plan, and clarified the GPU allocation strategy (srun –overlap, ≥50% free memory), with a key path of approximately 16 days. ✅ Diagnosis of Error Recovery Benchmark Baseline and Update of GPU Access Specification (2026-02-22) — Resolved Pi0.5 OOM (150MB memory shortage), BC-RNN obs key issue, and 649 scenario readiness; standardized GPU access in CLAUDE.md and MEMORY.md to srun –overlap. 🚫 Extension of force parameters in visualize_scene.py (2026-02-22) — Completed addition of force_override/duration_override/settle_steps parameters and Phase 3 neutral action logic; video validation blocked due to SLURM node permissions issues. ✅ Special Comparative Experiment for STAIG Fusion (151673) (2026-02-20) — Tested staig_fusion × {UNI2_raw, SCAN(UNI2)} separately, ARI values were 0.3929/0.3880, almost equal; verified that STAIG internal StandardScaler+PCA offset the effects of SCAN optimization. ✅ Addition of H\u0026E Panel and Batch Update of UNI2 Visualization (2026-02-19) — Changed to a 1×3 layout (H\u0026E + GT + prediction), re-generated all 11 sections visually using .npz cache, 151510 fixed via hires→lowres symlink. Issues and Solutions 1. STEGO Training loss is NaN throughout, 3639×3639 dense similarity matrix overflows in float32 operations at temperature=0.07 [MIHD] (2026-02-19) Solution: Two-step fix: perform L2 normalization on the input image_emb;Change InfoNCE to the numerical stability version (subtract the maximum value of rows before computing logsumexp, and increase temperature to 0.1).\n2. MILWRM was incorrectly classified as an Image-Only method; the initial AI summary will mix multimodal methods with image-only results. The initial research conclusion needs significant revision [MIHD] (2026-02-19)Solution: Use WebFetch to read the full PMC text and confirm that MILWRM is actually based on gene expression, specifically mining only image-only data points from ablation experiments on articles like SpaConTDS. 3. There is a double normalization bug in staig_fusion in eval_scan_fusion.py (STAIGTrainer internally applies StandardScaler again) [MIHD] (2026-02-20) Solution: Abandon fixing the standalone script and directly use run_benchmark.py that correctly passes staig_alignment_config, reusing the verified path.\n4. run_benchmark.py instantiates the encoder each time to extract embeddings, lacking pipeline-level cache support [MIHD] (2026-02-20) Solution: Integrate CacheManager from pipeline/cache_manager.py, load from cache before encoding, and write back to cache after extraction; skip encoder instantiation when a cache hit occurs.\n5. Lerobot 0.1.0 is incompatible with datasets \u003e=4.0 (torch.stack reports TypeError: Column object replaces list) [Error Recovery Benchmark / Phoenix pi0.5] (2026-02-22) Solution: Downgrade datasets from 4.4.1 to 3.6.0 (\u003c4.0); datasets 4.0 changes the return value of dataset[‘column’] from a list to a Column object, and Lerobot expects a list/tuple of tensors.\n6. The official HuggingFace download fails due to proxy (Squid 503), and the Python download script cannot connect [Error Recovery Benchmark / Phoenix pi0.5] (2026-02-22) Solution: Use hf-mirror.com + wget; URL format: https://hf-mirror.com/datasets/{repo_id}/resolve/main/{file_path}，通过集群 HTTP proxy reaches 40–200MB/s.\n7. Unstable access to SLurm GPU nodes: srun lacks –overlap, causing command hangs; direct SSH connection is unreliable, and multi-partition submissions are rejected [Error Recovery Benchmark / Phoenix pi0.5] (2026-02-22) Solution: Standardize the workflow: source set-XY-I.sh → squeue → srun –jobid= –overlap; avoid direct SSH to GPU nodes.\n8. Abnormal spatial coordinate dimension in eval_scan_fusion.py (turns into (1,2)), causing errors in multiple fusion methods [MIHD] (2026-02-19) Solution: Abandon calling load_spatial_coordinates() (barcode matching fails), and directly read coordinates from adata.obsm[‘spatial’]; fix the unpacking error in load_dlpfc_data return value.\nLearning Gains Domain Knowledge (domain) Pure image-only achieves only 0.11–0.16 ARI in DLPFC fine-grained stratification tasks (multimodal reaches 0.45–0.64), which is a combination of extremely small morphological differences between brain layers and mismatch in the Foundation Model training domain; ablation experiments of multimodal methods almost never test image-only separately—this is a noteworthy research gap. Five main reasons for failure in space domain recognition by Foundation Models: ① Training mainly on cancer tissue (domain gap); ② Pre-training task mismatch with inter-layer gradient recognition; ③ Extremely small morphological differences between cerebral cortex layers; ④ High redundancy between image features and gene expression; ⑤ Lack of spatial context in independent encoding of a single patch. STAIG uses BYOL for unsupervised domain adaptation on target dataset H\u0026E patches (keep encoder after training, discard projector/predictor)—this is a direct precedent for introducing unsupervised domain adaptation into spatial transcriptomics; the design of BYOL without negative samples is naturally suitable for small batch ST scenarios (thousands of patches per section). The CV community has a four-stage framework for handling “domain gap + fine-grained task + unlabeled data”: Level 1: direct pre-trained feature clustering → Level 2: STEGO/SCAN feature refinement → Level 3: domain-specific SSL re-training (BYOL/MAE) → Level 4: dedicated Foundation Model; GPFM/CHIEF are the optimal PFM for space domain recognition ARI, and UNI2 are the optimal spot retrieval. Architecture (architecture) SCAN is the optimal ARI (0.303, +20.6%) in image-only spatial transcriptomics scenarios. Its core advantage is that offline feature k-NN mining decouples embedding learning and clustering; its 256-dimensional optimized embeddings complement gene features (mean fusion +0.065 ARI). Two-stage fusion is not necessarily better than single-stage: after scanning_cluster compresses visual embeddings from 1536d to 256d, multimodal fusion ARI (0.313) is lower than direct concat (0.387), indicating that self-supervised compression loses the original feature diversity required for fusion tasks, and the optimization objectives of self-supervised clustering conflict with downstream fusion tasks. Internal StandardScaler+PCA preprocessing in STAIG fusion absorbs the external embedding optimization effect (the ARI difference between SCAN and UNI2_raw is only 0.005); embedding cache should store raw embeddings before normalization, and post-encoder normalization should be performed after loading to ensure consistent results across different call paths. VLA baseline evaluation must explicitly state the checkpoint source: using non-target task fine-tuning models (pi0_libero, pi05_base) to evaluate zero-sample cross-domain recovery capacity—the paper must actively declare this experimental setup, and subsequent comparative experiments after fine-tuning are needed to fully demonstrate the usefulness of the dataset. In complex experimental systems, prefer using existing, verified tool paths (such as run_benchmark.py); standalone scripts easily introduce hidden bugs such as inconsistent preprocessing; before calling internal project functions, read the source code in real time to verify the function signature, rather than relying on memory. Debugging (debugging) When computing large-scale dense similarity matrix (n\u003e3000) and InfoNCE contrast loss, use numerically stable log-sum-exp (subtracting row maximum), otherwise exponential operations with temperature=0.07 at float32 precision will overflow and produce NaN; this is a key engineering constraint for large-scale contrast learning implementation. Tools (tools) Lerobot 0.1.0 has strict constraints on datasets versions; it must be pinned to \u003c4.0 (recommended 3.x); datasets 4.0 change the return value of dataset[‘column’] to a Column object, causing torch.stack to report TypeError; MimicGen is fully compatible with LIBERO obs/action format (84×84 images, 8D state, 7D action)—OpenPI’s LeRobotLiberoDataConfig can be directly reused. The standard solution for accessing HuggingFace on Chinese mainland HPC clusters is hf-mirror.com; URL format: https://hf-mirror.com/datasets/{repo_id}/resolve/main/{file_path}，通过 wget + HTTP proxy reaches 40–200MB/s—this should be used as the default solution. OpenPI’s JAX training naturally supports multi-GPU data parallelism; just specify the GPU list in CUDA_VISIBLE_DEVICES, and JAX automatically builds a 2D mesh parallel—no changes to TrainConfig are needed; Slurm –overlap is a key parameter for running new commands on existing interactive jobs—it is a core technique for calling cluster GPUs in Claude Code environment. AI Usage Notes Effective Modes:\n✓ Parallel sub-tasks explore the project structure and formulate cleanup plans (MIHD organizes tasks), reducing serial exploration time. ✓ Parallel background execution on GPU with three schemes (STEGO/BYOL/SCAN) for comparison and validation, significantly reducing total experimental time. ✓ Use .npz caching to generate visualizations in bulk, completely decoupling inference and visualization—11/11 sections succeed. ✓ Independent temporary script (_test_staig_scan.py) isolates testing a single fusion method, shortening a 2-hour task to 30 seconds. ✓ Independent exploration of JAX multi-GPU mechanisms (no config changes) and the hf-mirror.com alternative download method—no user intervention required. ✓ Minimal invasive code change (about 60 lines): insert a Vision Refinement stage in run_benchmark.py, maintaining architecture stability. Limitations:\n✗ Inadequate accuracy in literature classification: MILWRM is incorrectly classified as image-only method; initial research aggregation mixes with multimodal results—requires two user interventions to converge on the correct research boundary. ✗ Lack of awareness to actively expose key experimental assumptions: No explicit mention of the impact of using LIBERO fine-tuning checkpoint in VLA evaluation on experiment effectiveness—needs user inquiry to discuss further. ✗ API usage tends to rely on memory rather than real-time verification: Multiple function signature/return value unpacking errors occur in eval_scan_fusion.py—source code should be read before calling. ✗ Slurm permission issues tend to involve listing multiple partitions (5+ times)—no quick query to the user about correct account/partition information. ✗ Insufficient status judgment for background tasks: Data conversion is still running when LeRobot dataset validation triggers, leading to false timestamp violation errors; frequent sleep polling is interrupted multiple times. ✗ Using CPU by default for model validation in HPC environments hides real performance issues, causing additional interaction overhead. Next Week’s Plan Next week will focus on three parallel lines: ①MIHD: fix the coordinate bug in eval_scan_fusion.py, complete joint evaluation of SCAN embedding and full fusion strategies, analyze batch results of 7 fusion strategies and diagnose the root cause of Vision Refinement compression losses, and consider adjusting refinement hidden_dim or switching to stego_refine/byol_spatial; ②Error Recovery Benchmark: organize full CPU evaluation results for M14 649 scenario, solve Pi0.5 OOM problem (apply larger memory GPU or reduce batch size), start Phoenix pi0.5 100K steps 4-GPU training; ③Engineering blocking removal: resolve SLURM node permission issues and complete visualize_scene.py video validation, resolve Pi0 VLA Server port conflict (detect with lsof -i:5555 + backup port mechanism), and advance implementation of ImageEncoder enhancement for goal 7 in ENHANCEMENT_PLAN_CN.md.\nToken Usage Statistics Daily Cost Trend Date Tokens (million) Cost ($) 2026-02-19 3.2 2.14 2026-02-20 19.3 10.00 2026-02-22 6.0 1.99 Peak Day: 2026-02-20 — $10.00 / 19.3M tokens\nClaude Code| Metric | Value | |——|——| | Total Tokens | 28,509,501 | | Input Tokens | 93,255 | | Output Tokens | 16,437 | | Cache Creation | 2,761,832 | | Cache Reads | 25,637,977 | | Total Cost | $14.13 |\nModel Usage Distribution Model Cost ($) Input Tokens Output Tokens claude-opus-4-6 9.57 15,496 14,319 claude-haiku-4-5-20251001 4.14 77,744 2,084 claude-sonnet-4-6 0.42 15 34 ",
+  "wordCount" : "2676",
+  "inLanguage": "en",
+  "datePublished": "2026-02-22T23:59:00-05:00",
+  "dateModified": "2026-02-22T23:59:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/bugjournal/weekly/2026-w08-weekly/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon2.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="en"
+                        data-translation-url="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w08-weekly/">中文
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/bugjournal/daily/" title="bugJournal">
+                    <span>bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/weekly/">Weekly Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Weekly Summary 2026-W08
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-02-22 23:59:00 -0500 EST'>February 22, 2026</span>&nbsp;·&nbsp;<span>13 min</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="weekly-report--2026-w08-2026-02-16--2026-02-22">Weekly Report — 2026-W08 (2026-02-16 ~ 2026-02-22)<a hidden class="anchor" aria-hidden="true" href="#weekly-report--2026-w08-2026-02-16--2026-02-22">#</a></h1>
+<blockquote>
+<p>This week, with the MIHD spatial transcriptomics project as the main focus, we completed a systematic investigation of H&amp;E Image-Only clustering (establishing the ARI literature baseline of 0.11–0.16), implemented three self-supervised enhancement schemes (SCAN increased ARI from 0.251 to 0.303, +20.6%), and built a two-stage fusion framework for Vision Refinement; simultaneously, on the tianhe cluster, we advanced the Error Recovery Benchmark (verification of M14 evaluation infrastructure, full assessment start for 649 scenarios) and the Phoenix pi0.5 reproduction data pipeline (18.4GB MimicGen dataset uploaded, training configuration in place). Throughout the week, we resolved multiple engineering bottlenecks such as STEGO NaN, double normalization bug, lerobot version conflicts, and HuggingFace proxy issues, while two bottlenecks related to Pi0.5 OOM and visualize_scene.py video validation were postponed to next week.</p>
+</blockquote>
+<h2 id="weekly-overview">Weekly Overview<a hidden class="anchor" aria-hidden="true" href="#weekly-overview">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>Metric</th>
+          <th>Value</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Date Range</td>
+          <td>2026-02-16 ~ 2026-02-22</td>
+      </tr>
+      <tr>
+          <td>Active Days</td>
+          <td>3 / 7</td>
+      </tr>
+      <tr>
+          <td>Total Conversation Count</td>
+          <td>9</td>
+      </tr>
+      <tr>
+          <td>Projects Involved</td>
+          <td>4</td>
+      </tr>
+      <tr>
+          <td>Tasks Completed</td>
+          <td>11</td>
+      </tr>
+      <tr>
+          <td>Ongoing Tasks</td>
+          <td>5</td>
+      </tr>
+      <tr>
+          <td>Total Tokens</td>
+          <td>28,509,501</td>
+      </tr>
+      <tr>
+          <td>Total Cost</td>
+          <td>$14.13</td>
+      </tr>
+      <tr>
+          <td>Average Daily Cost</td>
+          <td>$4.71</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="project-progress">Project Progress<a hidden class="anchor" aria-hidden="true" href="#project-progress">#</a></h2>
+<h3 id="mihd-spatial-transcriptomics-clustering-3-active-days---active">MIHD (Spatial Transcriptomics Clustering) (3 active days) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#mihd-spatial-transcriptomics-clustering-3-active-days---active">#</a></h3>
+<p><strong>Completed:</strong></p>
+<ul>
+<li>Completed four core technical documents: RM-IDEAL bilingual guide, visual encoder usage manual, pathological PFM literature review, and UNI/UNI2 original paper evaluation analysis.</li>
+<li>Conducted a systematic investigation of H&amp;E Image-Only methods, established the DLPFC ARI literature baseline (SpaConTDS=0.16, stLearn=0.11), and analyzed the five root causes of Foundation Model failure.</li>
+<li>Implemented and verified three self-supervised enhancement schemes: STEGO/BYOL+GAT/SCAN. SCAN achieved the best result with ARI=0.303 (baseline 0.251, +20.6%), and its integration with gene feature fusion was validated as complementary (mean fusion +0.065 ARI).</li>
+<li>Identified and fixed the STAIG double normalization bug in eval_scan_fusion.py, deciding to use the correct path in run_benchmark.py.</li>
+<li>Integrated a CacheManager embedding cache in run_benchmark.py (loaded in seconds, supports custom cache names for scan_uni2).</li>
+<li>Implemented the Vision Refinement two-stage fusion framework (&ndash;vision_refine parameter, ~60 lines minimal intrusion), and started batch experiments with 7 fusion strategies in the background.</li>
+<li>Re-generated all 11 sections visually in batches (using .npz cache, no re-inference required), and added an H&amp;E original image panel.</li>
+</ul>
+<p><strong>Bottlenecks:</strong></p>
+<ul>
+<li>⚠️ The coordinate dimension bug in eval_scan_fusion.py caused incomplete debugging of the SCAN fusion joint evaluation script.</li>
+<li>⚠️ The first experiment of Vision Refinement (scan_cluster + concat, ARI=0.313) was lower than direct concat (0.387), and the issue of feature diversity in self-supervised compression losses needs further analysis.</li>
+<li>⚠️ The implementation of ImageEncoder enhancement for the large goal 7 in ENHANCEMENT_PLAN_CN.md has not started.</li>
+</ul>
+<h3 id="error-recovery-benchmark--phoenix-pi05-reproduction-1-active-day---active">Error Recovery Benchmark &amp; Phoenix pi0.5 Reproduction (1 active day) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#error-recovery-benchmark--phoenix-pi05-reproduction-1-active-day---active">#</a></h3>
+<p><strong>Completed:</strong></p>
+<ul>
+<li>Developed a complete Phase II execution plan with 7 steps, covering large goals G1–G7 and milestones M12–M15, with a key path of approximately 16 days.</li>
+<li>Verified the M14 baseline evaluation infrastructure for 10 scenarios (sanity check passed), and started full CPU assessment for 649 scenarios (exceeded expectations by 454, +43%).</li>
+<li>Completed the full data pipeline for Phoenix pi0.5 reproduction: convert_mimicgen_to_lerobot.py, evaluate_mimicgen.py, OpenPI training configuration (100K steps, 4-GPU), and download/format conversion of the 18.4GB MimicGen dataset (7–8/9 tasks completed).</li>
+<li>Diagnosed the Pi0.5 OOM bottleneck, and standardized GPU access to srun &ndash;overlap.</li>
+<li>Resolved the incompatibility issue between lerobot 0.1.0 and datasets&gt;=4.0 (downgraded to 3.6.0).</li>
+<li>Established hf-mirror.com as the standard solution for cluster HuggingFace data retrieval.</li>
+</ul>
+<p><strong>Bottlenecks:</strong></p>
+<ul>
+<li>⚠️ Pi0.5 OOM remains unresolved (GPU memory insufficient at 150MB), and the baseline assessment is still blocked.</li>
+<li>⚠️ The extension of force parameters in visualize_scene.py is complete, but video validation is blocked due to SLURM node permissions issues.</li>
+<li>⚠️ Port conflict on Pi0 VLA Server (port 5555 occupied) caused session interruption.</li>
+</ul>
+<h2 id="key-tasks">Key Tasks<a hidden class="anchor" aria-hidden="true" href="#key-tasks">#</a></h2>
+<ul>
+<li>✅ <strong>Systematic Investigation of H&amp;E Image-Only Clustering Methods</strong> (2026-02-19) — Collected a comprehensive overview of methods such as MILWRM/F-SEG/Deep Contrastive Clustering, verified the image-only DLPFC ARI values (SpaConTDS=0.16, stLearn=0.11) through ablation experiments, and deeply investigated the applications of BYOL/STEGO/SCAN in pathology, along with a four-level domain gap resolution framework in the CV community.</li>
+<li>✅ <strong>Establishment of MIHD Technical Documentation System</strong> (2026-02-19) — Created four core technical documents: RM-IDEAL bilingual structure document, visual encoder usage guide (12 chapters), pathological PFM literature review, and UNI/UNI2 original paper evaluation analysis (34 clinical tasks).</li>
+<li>✅ <strong>Analysis of Root Causes of Foundation Model Failure in Spatial Domain</strong> (2026-02-19) — Conducted a systematic analysis from five dimensions: domain mismatch in training data, pre-training task mismatch, minimal morphological differences between brain tissue layers, feature redundancy, and lack of spatial context. Supported by cases involving the brown repeated patches in UNI2.</li>
+<li>✅ <strong>Implementation of Image-Only Clustering Enhancement Schemes (STEGO/BYOL+GAT/SCAN)</strong> (2026-02-19) — Created four model files: STEGOHead/BYOLAdapter/SpatialGATRefiner/SCANHead. Completed comparative tests on 151673 sections, with SCAN achieving the best result with ARI=0.303 (+20.6%).</li>
+<li>✅ <strong>Investigation and Architecture Decision for STAIG Fusion Double Normalization Bug</strong> (2026-02-20) — Confirmed that the missing staig_alignment_config in eval_scan_fusion.py caused internal StandardScaler in STAIGTrainer; decided to use the correct path in run_benchmark.py instead of fixing a separate script.</li>
+<li>✅ <strong>Integration of Embedding Cache Mechanism in run_benchmark.py</strong> (2026-02-20) — Introduced CacheManager, checking the cache before gene/vision encoding, and skipping encoder instantiation if hit (loaded in seconds). Supports custom cache names for scan_uni2, with three variants for vision cache: standard, freq, staig_strict.</li>
+<li>🔄 <strong>Verification of M14 Baseline Evaluation Infrastructure and Full Assessment Start</strong> (2026-02-22) — Sanity check (60 episodes, ~7 minutes, SR=0% as expected), followed by start of full CPU assessment for 649 scenarios × 2 strategies × 3 seeds (≈ 3894 episodes), running in the background.</li>
+<li>🔄 <strong>Construction of Full Data Pipeline for Phoenix pi0.5 Reproduction</strong> (2026-02-22) — Written convert_mimicgen_to_lerobot.py and evaluate_mimicgen.py, configured pi05_base_mimicgen_phoenix training parameters, downloaded the 18.4GB MimicGen dataset via hf-mirror.com (9 tasks, 9000 demos), and completed format conversion (7–8/9 tasks).</li>
+<li>🔄 <strong>Joint Evaluation of SCAN Embedding and Multimodal Fusion</strong> (2026-02-19) — Written eval_scan_fusion.py, comparing the optimized 256-dimensional visual embedding of SCAN with PCA gene features across all fusion methods; mean fusion achieved ARI +0.065, partially resolved the coords dimension bug, and script debugging in progress.</li>
+<li>🔄 <strong>Implementation and Batch Experiments of MIHD Vision Refinement Two-Stage Fusion Framework</strong> (2026-02-22) — Added &ndash;vision_refine parameter (scan_cluster/stego_refine/byol_spatial), with ~60 lines of code minimal intrusion, first experiment showed ARI=0.313 lower than baseline concat 0.387; 7 fusion strategies running in the background.</li>
+<li>✅ <strong>Completion of Full Phase II Execution Plan for Error Recovery Benchmark</strong> (2026-02-22) — Analyzed the dependencies between large goals G1–G7 and milestones M12–M15, developed a 7-step execution plan, and clarified the GPU allocation strategy (srun &ndash;overlap, ≥50% free memory), with a key path of approximately 16 days.</li>
+<li>✅ <strong>Diagnosis of Error Recovery Benchmark Baseline and Update of GPU Access Specification</strong> (2026-02-22) — Resolved Pi0.5 OOM (150MB memory shortage), BC-RNN obs key issue, and 649 scenario readiness; standardized GPU access in CLAUDE.md and MEMORY.md to srun &ndash;overlap.</li>
+<li>🚫 <strong>Extension of force parameters in visualize_scene.py</strong> (2026-02-22) — Completed addition of force_override/duration_override/settle_steps parameters and Phase 3 neutral action logic; video validation blocked due to SLURM node permissions issues.</li>
+<li>✅ <strong>Special Comparative Experiment for STAIG Fusion (151673)</strong> (2026-02-20) — Tested staig_fusion × {UNI2_raw, SCAN(UNI2)} separately, ARI values were 0.3929/0.3880, almost equal; verified that STAIG internal StandardScaler+PCA offset the effects of SCAN optimization.</li>
+<li>✅ <strong>Addition of H&amp;E Panel and Batch Update of UNI2 Visualization</strong> (2026-02-19) — Changed to a 1×3 layout (H&amp;E + GT + prediction), re-generated all 11 sections visually using .npz cache, 151510 fixed via hires→lowres symlink.</li>
+</ul>
+<h2 id="issues-and-solutions">Issues and Solutions<a hidden class="anchor" aria-hidden="true" href="#issues-and-solutions">#</a></h2>
+<h3 id="1-stego-training-loss-is-nan-throughout-36393639-dense-similarity-matrix-overflows-in-float32-operations-at-temperature007-mihd-2026-02-19">1. STEGO Training loss is NaN throughout, 3639×3639 dense similarity matrix overflows in float32 operations at temperature=0.07 [MIHD] (2026-02-19)<a hidden class="anchor" aria-hidden="true" href="#1-stego-training-loss-is-nan-throughout-36393639-dense-similarity-matrix-overflows-in-float32-operations-at-temperature007-mihd-2026-02-19">#</a></h3>
+<p><strong>Solution:</strong> Two-step fix: perform L2 normalization on the input image_emb;Change InfoNCE to the numerical stability version (subtract the maximum value of rows before computing logsumexp, and increase temperature to 0.1).</p>
+<h3 id="2-milwrm-was-incorrectly-classified-as-an-image-only-method-the-initial-ai-summary-will-mix-multimodal-methods-with-image-only-results-the-initial-research-conclusion-needs-significant-revision-mihd-2026-02-19solution-use-webfetch-to-read-the-full-pmc-text-and-confirm-that-milwrm-is-actually-based-on-gene-expression-specifically-mining-only-image-only-data-points-from-ablation-experiments-on-articles-like-spacontds">2. MILWRM was incorrectly classified as an Image-Only method; the initial AI summary will mix multimodal methods with image-only results. The initial research conclusion needs significant revision [MIHD] (2026-02-19)<strong>Solution:</strong> Use WebFetch to read the full PMC text and confirm that MILWRM is actually based on gene expression, specifically mining only image-only data points from ablation experiments on articles like SpaConTDS.<a hidden class="anchor" aria-hidden="true" href="#2-milwrm-was-incorrectly-classified-as-an-image-only-method-the-initial-ai-summary-will-mix-multimodal-methods-with-image-only-results-the-initial-research-conclusion-needs-significant-revision-mihd-2026-02-19solution-use-webfetch-to-read-the-full-pmc-text-and-confirm-that-milwrm-is-actually-based-on-gene-expression-specifically-mining-only-image-only-data-points-from-ablation-experiments-on-articles-like-spacontds">#</a></h3>
+<h3 id="3-there-is-a-double-normalization-bug-in-staig_fusion-in-eval_scan_fusionpy-staigtrainer-internally-applies-standardscaler-again-mihd-2026-02-20">3. There is a double normalization bug in staig_fusion in eval_scan_fusion.py (STAIGTrainer internally applies StandardScaler again) [MIHD] (2026-02-20)<a hidden class="anchor" aria-hidden="true" href="#3-there-is-a-double-normalization-bug-in-staig_fusion-in-eval_scan_fusionpy-staigtrainer-internally-applies-standardscaler-again-mihd-2026-02-20">#</a></h3>
+<p><strong>Solution:</strong> Abandon fixing the standalone script and directly use run_benchmark.py that correctly passes staig_alignment_config, reusing the verified path.</p>
+<h3 id="4-run_benchmarkpy-instantiates-the-encoder-each-time-to-extract-embeddings-lacking-pipeline-level-cache-support-mihd-2026-02-20">4. run_benchmark.py instantiates the encoder each time to extract embeddings, lacking pipeline-level cache support [MIHD] (2026-02-20)<a hidden class="anchor" aria-hidden="true" href="#4-run_benchmarkpy-instantiates-the-encoder-each-time-to-extract-embeddings-lacking-pipeline-level-cache-support-mihd-2026-02-20">#</a></h3>
+<p><strong>Solution:</strong> Integrate CacheManager from pipeline/cache_manager.py, load from cache before encoding, and write back to cache after extraction; skip encoder instantiation when a cache hit occurs.</p>
+<h3 id="5-lerobot-010-is-incompatible-with-datasets-40-torchstack-reports-typeerror-column-object-replaces-list-error-recovery-benchmark--phoenix-pi05-2026-02-22">5. Lerobot 0.1.0 is incompatible with datasets &gt;=4.0 (torch.stack reports TypeError: Column object replaces list) [Error Recovery Benchmark / Phoenix pi0.5] (2026-02-22)<a hidden class="anchor" aria-hidden="true" href="#5-lerobot-010-is-incompatible-with-datasets-40-torchstack-reports-typeerror-column-object-replaces-list-error-recovery-benchmark--phoenix-pi05-2026-02-22">#</a></h3>
+<p><strong>Solution:</strong> Downgrade datasets from 4.4.1 to 3.6.0 (&lt;4.0); datasets 4.0 changes the return value of dataset[&lsquo;column&rsquo;] from a list to a Column object, and Lerobot expects a list/tuple of tensors.</p>
+<h3 id="6-the-official-huggingface-download-fails-due-to-proxy-squid-503-and-the-python-download-script-cannot-connect-error-recovery-benchmark--phoenix-pi05-2026-02-22">6. The official HuggingFace download fails due to proxy (Squid 503), and the Python download script cannot connect [Error Recovery Benchmark / Phoenix pi0.5] (2026-02-22)<a hidden class="anchor" aria-hidden="true" href="#6-the-official-huggingface-download-fails-due-to-proxy-squid-503-and-the-python-download-script-cannot-connect-error-recovery-benchmark--phoenix-pi05-2026-02-22">#</a></h3>
+<p><strong>Solution:</strong> Use hf-mirror.com + wget; URL format: <a href="https://hf-mirror.com/datasets/%7Brepo_id%7D/resolve/main/%7Bfile_path%7D">https://hf-mirror.com/datasets/{repo_id}/resolve/main/{file_path}</a>，通过集群 HTTP proxy reaches 40–200MB/s.</p>
+<h3 id="7-unstable-access-to-slurm-gpu-nodes-srun-lacks-overlap-causing-command-hangs-direct-ssh-connection-is-unreliable-and-multi-partition-submissions-are-rejected-error-recovery-benchmark--phoenix-pi05-2026-02-22">7. Unstable access to SLurm GPU nodes: srun lacks &ndash;overlap, causing command hangs; direct SSH connection is unreliable, and multi-partition submissions are rejected [Error Recovery Benchmark / Phoenix pi0.5] (2026-02-22)<a hidden class="anchor" aria-hidden="true" href="#7-unstable-access-to-slurm-gpu-nodes-srun-lacks-overlap-causing-command-hangs-direct-ssh-connection-is-unreliable-and-multi-partition-submissions-are-rejected-error-recovery-benchmark--phoenix-pi05-2026-02-22">#</a></h3>
+<p><strong>Solution:</strong> Standardize the workflow: source set-XY-I.sh → squeue → srun &ndash;jobid=<JOBID> &ndash;overlap; avoid direct SSH to GPU nodes.</p>
+<h3 id="8-abnormal-spatial-coordinate-dimension-in-eval_scan_fusionpy-turns-into-12-causing-errors-in-multiple-fusion-methods-mihd-2026-02-19">8. Abnormal spatial coordinate dimension in eval_scan_fusion.py (turns into (1,2)), causing errors in multiple fusion methods [MIHD] (2026-02-19)<a hidden class="anchor" aria-hidden="true" href="#8-abnormal-spatial-coordinate-dimension-in-eval_scan_fusionpy-turns-into-12-causing-errors-in-multiple-fusion-methods-mihd-2026-02-19">#</a></h3>
+<p><strong>Solution:</strong> Abandon calling load_spatial_coordinates() (barcode matching fails), and directly read coordinates from adata.obsm[&lsquo;spatial&rsquo;]; fix the unpacking error in load_dlpfc_data return value.</p>
+<h2 id="learning-gains">Learning Gains<a hidden class="anchor" aria-hidden="true" href="#learning-gains">#</a></h2>
+<h3 id="domain-knowledge-domain">Domain Knowledge (domain)<a hidden class="anchor" aria-hidden="true" href="#domain-knowledge-domain">#</a></h3>
+<ul>
+<li>Pure image-only achieves only 0.11–0.16 ARI in DLPFC fine-grained stratification tasks (multimodal reaches 0.45–0.64), which is a combination of extremely small morphological differences between brain layers and mismatch in the Foundation Model training domain; ablation experiments of multimodal methods almost never test image-only separately—this is a noteworthy research gap.</li>
+<li>Five main reasons for failure in space domain recognition by Foundation Models: ① Training mainly on cancer tissue (domain gap); ② Pre-training task mismatch with inter-layer gradient recognition; ③ Extremely small morphological differences between cerebral cortex layers; ④ High redundancy between image features and gene expression; ⑤ Lack of spatial context in independent encoding of a single patch.</li>
+<li>STAIG uses BYOL for unsupervised domain adaptation on target dataset H&amp;E patches (keep encoder after training, discard projector/predictor)—this is a direct precedent for introducing unsupervised domain adaptation into spatial transcriptomics; the design of BYOL without negative samples is naturally suitable for small batch ST scenarios (thousands of patches per section).</li>
+<li>The CV community has a four-stage framework for handling “domain gap + fine-grained task + unlabeled data”: Level 1: direct pre-trained feature clustering → Level 2: STEGO/SCAN feature refinement → Level 3: domain-specific SSL re-training (BYOL/MAE) → Level 4: dedicated Foundation Model; GPFM/CHIEF are the optimal PFM for space domain recognition ARI, and UNI2 are the optimal spot retrieval.</li>
+</ul>
+<h3 id="architecture-architecture">Architecture (architecture)<a hidden class="anchor" aria-hidden="true" href="#architecture-architecture">#</a></h3>
+<ul>
+<li>SCAN is the optimal ARI (0.303, +20.6%) in image-only spatial transcriptomics scenarios. Its core advantage is that offline feature k-NN mining decouples embedding learning and clustering; its 256-dimensional optimized embeddings complement gene features (mean fusion +0.065 ARI).</li>
+<li>Two-stage fusion is not necessarily better than single-stage: after scanning_cluster compresses visual embeddings from 1536d to 256d, multimodal fusion ARI (0.313) is lower than direct concat (0.387), indicating that self-supervised compression loses the original feature diversity required for fusion tasks, and the optimization objectives of self-supervised clustering conflict with downstream fusion tasks.</li>
+<li>Internal StandardScaler+PCA preprocessing in STAIG fusion absorbs the external embedding optimization effect (the ARI difference between SCAN and UNI2_raw is only 0.005); embedding cache should store raw embeddings before normalization, and post-encoder normalization should be performed after loading to ensure consistent results across different call paths.</li>
+<li>VLA baseline evaluation must explicitly state the checkpoint source: using non-target task fine-tuning models (pi0_libero, pi05_base) to evaluate zero-sample cross-domain recovery capacity—the paper must actively declare this experimental setup, and subsequent comparative experiments after fine-tuning are needed to fully demonstrate the usefulness of the dataset.</li>
+<li>In complex experimental systems, prefer using existing, verified tool paths (such as run_benchmark.py); standalone scripts easily introduce hidden bugs such as inconsistent preprocessing; before calling internal project functions, read the source code in real time to verify the function signature, rather than relying on memory.</li>
+</ul>
+<h3 id="debugging-debugging">Debugging (debugging)<a hidden class="anchor" aria-hidden="true" href="#debugging-debugging">#</a></h3>
+<ul>
+<li>When computing large-scale dense similarity matrix (n&gt;3000) and InfoNCE contrast loss, use numerically stable log-sum-exp (subtracting row maximum), otherwise exponential operations with temperature=0.07 at float32 precision will overflow and produce NaN; this is a key engineering constraint for large-scale contrast learning implementation.</li>
+</ul>
+<h3 id="tools-tools">Tools (tools)<a hidden class="anchor" aria-hidden="true" href="#tools-tools">#</a></h3>
+<ul>
+<li>Lerobot 0.1.0 has strict constraints on datasets versions; it must be pinned to &lt;4.0 (recommended 3.x); datasets 4.0 change the return value of dataset[&lsquo;column&rsquo;] to a Column object, causing torch.stack to report TypeError; MimicGen is fully compatible with LIBERO obs/action format (84×84 images, 8D state, 7D action)—OpenPI’s LeRobotLiberoDataConfig can be directly reused.</li>
+<li>The standard solution for accessing HuggingFace on Chinese mainland HPC clusters is hf-mirror.com; URL format: <a href="https://hf-mirror.com/datasets/%7Brepo_id%7D/resolve/main/%7Bfile_path%7D">https://hf-mirror.com/datasets/{repo_id}/resolve/main/{file_path}</a>，通过 wget + HTTP proxy reaches 40–200MB/s—this should be used as the default solution.</li>
+<li>OpenPI’s JAX training naturally supports multi-GPU data parallelism; just specify the GPU list in CUDA_VISIBLE_DEVICES, and JAX automatically builds a 2D mesh parallel—no changes to TrainConfig are needed; Slurm &ndash;overlap is a key parameter for running new commands on existing interactive jobs—it is a core technique for calling cluster GPUs in Claude Code environment.</li>
+</ul>
+<h2 id="ai-usage-notes">AI Usage Notes<a hidden class="anchor" aria-hidden="true" href="#ai-usage-notes">#</a></h2>
+<p><strong>Effective Modes:</strong></p>
+<ul>
+<li>✓ Parallel sub-tasks explore the project structure and formulate cleanup plans (MIHD organizes tasks), reducing serial exploration time.</li>
+<li>✓ Parallel background execution on GPU with three schemes (STEGO/BYOL/SCAN) for comparison and validation, significantly reducing total experimental time.</li>
+<li>✓ Use .npz caching to generate visualizations in bulk, completely decoupling inference and visualization—11/11 sections succeed.</li>
+<li>✓ Independent temporary script (_test_staig_scan.py) isolates testing a single fusion method, shortening a 2-hour task to 30 seconds.</li>
+<li>✓ Independent exploration of JAX multi-GPU mechanisms (no config changes) and the hf-mirror.com alternative download method—no user intervention required.</li>
+<li>✓ Minimal invasive code change (about 60 lines): insert a Vision Refinement stage in run_benchmark.py, maintaining architecture stability.</li>
+</ul>
+<p><strong>Limitations:</strong></p>
+<ul>
+<li>✗ Inadequate accuracy in literature classification: MILWRM is incorrectly classified as image-only method; initial research aggregation mixes with multimodal results—requires two user interventions to converge on the correct research boundary.</li>
+<li>✗ Lack of awareness to actively expose key experimental assumptions: No explicit mention of the impact of using LIBERO fine-tuning checkpoint in VLA evaluation on experiment effectiveness—needs user inquiry to discuss further.</li>
+<li>✗ API usage tends to rely on memory rather than real-time verification: Multiple function signature/return value unpacking errors occur in eval_scan_fusion.py—source code should be read before calling.</li>
+<li>✗ Slurm permission issues tend to involve listing multiple partitions (5+ times)—no quick query to the user about correct account/partition information.</li>
+<li>✗ Insufficient status judgment for background tasks: Data conversion is still running when LeRobot dataset validation triggers, leading to false timestamp violation errors; frequent sleep polling is interrupted multiple times.</li>
+<li>✗ Using CPU by default for model validation in HPC environments hides real performance issues, causing additional interaction overhead.</li>
+</ul>
+<h2 id="next-weeks-plan">Next Week’s Plan<a hidden class="anchor" aria-hidden="true" href="#next-weeks-plan">#</a></h2>
+<p>Next week will focus on three parallel lines: ①MIHD: fix the coordinate bug in eval_scan_fusion.py, complete joint evaluation of SCAN embedding and full fusion strategies, analyze batch results of 7 fusion strategies and diagnose the root cause of Vision Refinement compression losses, and consider adjusting refinement hidden_dim or switching to stego_refine/byol_spatial; ②Error Recovery Benchmark: organize full CPU evaluation results for M14 649 scenario, solve Pi0.5 OOM problem (apply larger memory GPU or reduce batch size), start Phoenix pi0.5 100K steps 4-GPU training; ③Engineering blocking removal: resolve SLURM node permission issues and complete visualize_scene.py video validation, resolve Pi0 VLA Server port conflict (detect with lsof -i:5555 + backup port mechanism), and advance implementation of ImageEncoder enhancement for goal 7 in ENHANCEMENT_PLAN_CN.md.</p>
+<h2 id="token-usage-statistics">Token Usage Statistics<a hidden class="anchor" aria-hidden="true" href="#token-usage-statistics">#</a></h2>
+<h3 id="daily-cost-trend">Daily Cost Trend<a hidden class="anchor" aria-hidden="true" href="#daily-cost-trend">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Date</th>
+          <th>Tokens (million)</th>
+          <th>Cost ($)</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>2026-02-19</td>
+          <td>3.2</td>
+          <td>2.14</td>
+      </tr>
+      <tr>
+          <td>2026-02-20</td>
+          <td>19.3</td>
+          <td>10.00</td>
+      </tr>
+      <tr>
+          <td>2026-02-22</td>
+          <td>6.0</td>
+          <td>1.99</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Peak Day:</strong> 2026-02-20 — $10.00 / 19.3M tokens</p>
+<h3 id="claude-code-metric--value-">Claude Code| Metric | Value |<a hidden class="anchor" aria-hidden="true" href="#claude-code-metric--value-">#</a></h3>
+<p>|&mdash;&mdash;|&mdash;&mdash;|
+| Total Tokens | 28,509,501 |
+| Input Tokens | 93,255 |
+| Output Tokens | 16,437 |
+| Cache Creation | 2,761,832 |
+| Cache Reads | 25,637,977 |
+| Total Cost | $14.13 |</p>
+<h4 id="model-usage-distribution">Model Usage Distribution<a hidden class="anchor" aria-hidden="true" href="#model-usage-distribution">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Model</th>
+          <th>Cost ($)</th>
+          <th>Input Tokens</th>
+          <th>Output Tokens</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>claude-opus-4-6</td>
+          <td>9.57</td>
+          <td>15,496</td>
+          <td>14,319</td>
+      </tr>
+      <tr>
+          <td>claude-haiku-4-5-20251001</td>
+          <td>4.14</td>
+          <td>77,744</td>
+          <td>2,084</td>
+      </tr>
+      <tr>
+          <td>claude-sonnet-4-6</td>
+          <td>0.42</td>
+          <td>15</td>
+          <td>34</td>
+      </tr>
+  </tbody>
+</table>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

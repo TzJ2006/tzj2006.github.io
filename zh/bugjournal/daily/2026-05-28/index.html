@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-05-28 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="对 LifeCopilot 实施了关键基础设施修复工作（包括 CLI 死锁、会话上下文优化以及启动器整合），并对 TokenMonitor 进行了优化（包括磁盘缓存延迟问题及成本显示逻辑改进），同时优化了个人简历相关资源。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-05-28/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-05-28/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-05-28/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-05-28/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-05-28">
+  <meta property="og:description" content="对 LifeCopilot 实施了关键基础设施修复工作（包括 CLI 死锁、会话上下文优化以及启动器整合），并对 TokenMonitor 进行了优化（包括磁盘缓存延迟问题及成本显示逻辑改进），同时优化了个人简历相关资源。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-05-28T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-05-28T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-05-28">
+  <meta name="twitter:description" content="对 LifeCopilot 实施了关键基础设施修复工作（包括 CLI 死锁、会话上下文优化以及启动器整合），并对 TokenMonitor 进行了优化（包括磁盘缓存延迟问题及成本显示逻辑改进），同时优化了个人简历相关资源。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-05-28",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-05-28/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-05-28",
+  "name": "Bug Journal 2026-05-28",
+  "description": "对 LifeCopilot 实施了关键基础设施修复工作（包括 CLI 死锁、会话上下文优化以及启动器整合），并对 TokenMonitor 进行了优化（包括磁盘缓存延迟问题及成本显示逻辑改进），同时优化了个人简历相关资源。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-05-28 日常概述 完成工作： 在 LifeCopilot 中解决了复杂的 Windows CLI stdio 死锁问题，该问题会导致超时和上下文丢失，通过切换为子进程隔离和原生会话管理来解决问题；同时修复了 TokenMonitor 的 Rust/Tauri 后端中的持久性磁盘缓存问题，该问题导致远程设备的成本显示不准确。 实现方式： 重构 claude_adapter.py 以使用 shell=False，通过 launcher.py 实现统一入口，并更新了所有 CLI 适配器以支持原生会话 ID；在 TokenMonitor 中，增加了 SSH 同步循环中的磁盘缓存前缀清除功能，并修正了 Rust/TypeScript 存储中的默认配置标志。 影响： 消除了误报超时情况，恢复了 LifeCopilot 用户的准确对话记忆；确保 TokenMonitor 仪表板中的实时财务数据准确性和设备列表一致性，避免了来自陈旧缓存的数据不一致问题。 对 LifeCopilot（CLI 死锁、会话上下文、启动器整合）和 TokenMonitor（磁盘缓存阻塞、成本显示逻辑）进行了关键基础设施修复，同时优化了个人恢复资源。\n任务 架构与策略 ✅ 解决 Claude CLI + MCP 管道死锁 — 诊断并解决了 Windows 上的 shell=True 导致 Claude CLI 为 MCP 工具（如 Google Calendar）生成子进程时引发 stdio 死锁的问题。切换至 shell=False 并通过直接子进程测试验证。 ✅ 解决主界面成本显示与缓存阻塞问题 — 调查了为何“设备成本”在 main App.svelte 中缺失但存在于 DevicesView 中；确定磁盘缓存阻塞是根本原因。在 SSH 同步和使用情况视图更新函数中实现了 clear_prefix 以处理负载的磁盘缓存，防止数据陈旧检索。 ✅ 实现原生会话上下文 — 用 Claude CLI 的原生 --resume/--session-id 功能取代了手动提示注入历史机制。更新了所有适配器（Claude、Codex、Gemini）以传递用户 ID 进行会话隔离。 ✅ 整合启动入口 — 创建 launcher.py 作为服务器启动逻辑的单一真实来源（预检查、PID 管理、端口绑定）。重构 start.bat、start.ps1 和 start.sh 为仅处理 conda 激活的薄层包装器。 实施与修复 ✅ 修正默认配置标志 — 将 include_in_stats 默认值更新为 true，适用于新设备和 Rust 后端（ssh.rs, ssh_remote.rs）和 TypeScript 前端存储中的反序列化。修改了聚合逻辑，依赖 enabled 状态而非单独标志。 ✅ 恢复优化与转换 — 审查并优化了 CVPR 网络领域的恢复内容，重点在于叙述结构和作者格式。在安装必要依赖后，使用 python-docx 将 resume.md 转换为 resume.docx。 问题与解决方案 关键问题 1. TokenMonitor 的主界面显示陈旧成本，因为 SSH 同步后磁盘缓存从未被清除，只有内存缓存被失效。 解决方案： 在 sync_ssh_host、clear_usage_view_cache 和后台 SSH 同步循环中添加 disk_cache.clear_prefix(\"usage-view:\") 调用，确保始终重新计算最新数据。确认尽管之前担心“天和”设备记录，但并未发生原始数据丢失。\n关键洞察： 在持久化桌面环境如 Tauri 中，一个层（内存缓存）的状态持续存在，而另一个层（磁盘缓存）却被清除，导致视图不一致；在无效化过程中必须同步两者。\n2. Claude CLI 在处理复杂的日历请求时始终超时（120秒）且无输出，原因是 Windows shell=True 在生成子 MCP 进程时导致 stdio 死锁。 解决方案： 发现继承的管道句柄导致隐式死锁。通过在子进程调用中设置 shell=False 并使用原生会话持久性（--resume）来管理上下文，从而解决死锁问题，确保可靠执行和内存保留。\n关键洞察： Windows cmd.exe shell 行为中的 Popen 和子进程继承可能导致不可见的 silent stdio 死锁；需要经验性隔离测试来识别具体原因。\n一般问题 3. LifeCopilot 中启动服务器的多种方式导致配置漂移，而 TokenMonitor 中的新 SSH 设备因配置不匹配默认排除统计信息。 解决方案： 将所有预检查逻辑集中到 launcher.py 中用于 LifeCopilot。在 TokenMonitor 的 Rust/TS 层标准化默认标志，确保“已连接”设备自动包含在成本报告中，除非明确选择排除。\n关键洞察： 配置管理应编码为单一可执行脚本或统一存储，而非分散处理，从而减少认知负担并防止配置漂移。\n人类与 AI 方法 战略层面 调试方法：证据与假设 角色 方法 人类 在 LifeCopilot 中，用户要求提供具体的证据以解释超时原因，而非接受理论解释（如 MCP 冷启动）。在 TokenMonitor 中，用户提供成本差异的视觉对比来打破调试模糊性。 AI AI 最初猜测原因，但根据实际需求改进分析，从假设驱动的调试转向控制变量测试（子进程隔离）和将代码路径与视觉 UI 状态进行交叉比对。 差异分析： 人类优先验证经验数据而非理论解释，迫使 AI 通过直接系统交互和视觉数据关联来验证假设，而非仅依赖代码逻辑分析。\n上下文和持久性的架构要求 角色 方法 人类 用户拒绝手动提示注入以处理上下文，坚持使用与 Claude Code 类似的原生会话处理。对于 TokenMonitor，对 Tauri 持久性的直觉推动调查方向转向文件系统状态而非仅代码逻辑。 AI AI 识别并实现了所有适配器中的 --resume/--session-id 支持，并在最初对内存内变化感到困惑后，正确推断出持久化 Tauri 进程中需要磁盘缓存失效。 差异分析： 用户定义了高层架构要求（原生会话、持久状态感知）；AI 执行了实现细节和系统特定优化。\nAI 限制 关键限制 3. LifeCopilot 中启动服务器的多种方式导致配置漂移，而 TokenMonitor 中的新 SSH 设备因配置不匹配默认排除统计信息。- 最初猜测了 CLI 超时错误的原因不正确，且在处理 Tauri 的持久化模型时遇到困难，未能立即意识到除了内存缓存修复外还需要清除磁盘缓存。 未能立即意识到 shell=True 在 Windows 上导致 stdio 与子进程之间的死锁，需要大量手动测试以及用户提供的可视化证据才能定位问题。 经验教训 关键经验 在 Windows 上，使用 subprocess.Popen 与 shell=True 启动生成自身子进程的过程（如 MCP 服务器）可能导致 handle 继承引起的 stdio 死锁。除非严格必要，否则避免使用 shell=True 进行命令解析。 在 Tauri/桌面应用中，状态变更时务必同时清除磁盘缓存和内存缓存，以防止旧数据泄露；远程同步缓存是临时的，没有持久性归档。 实际经验 在调试 CLI 工具或 UI 差异时，始终通过可视化证据验证原始负载和缓存键，以区分缓存层与计算逻辑，而非仅依赖代码追踪。 对话总结 LifeCopilot ✅ CLI 调试、会话上下文和启动器整合 01:24:24.057 | claude_code 通过诊断由 shell=True 引起的 Windows 特定 stdio 死锁，解决了严重的 CLI 超时和上下文丢失问题，并转而使用原生会话管理 --resume。将所有启动入口点整合到统一的 launcher.py 中，防止配置漂移。此外，审查了 CVPR 网络领域的恢复内容，并将其从 Markdown 转换为 DOCX 格式。\nTokenMonitor ✅ 成本显示和缓存清除修复 00:39:12.553 | claude_code 诊断了为什么尽管 DevicesView 中可见详细信息，主仪表板中仍缺失远程 SSH 设备的成本信息。发现 get_usage_data 在 SSH 同步仅清除内存后，仍从磁盘缓存中加载旧负载。实施了修复方案，在同步/切换操作期间清除磁盘缓存前缀，并修正了 Rust/TypeScript 层中的 include_in_stats 默认值，确保新设备默认被包含在内。\n",
+  "wordCount" : "331",
+  "inLanguage": "zh",
+  "datePublished": "2026-05-28T00:00:00-05:00",
+  "dateModified": "2026-05-28T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-05-28/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon2.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="zh"
+                        data-translation-url="https://tzj2006.github.io/bugjournal/daily/2026-05-28/">EN
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-05-28
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-05-28 00:00:00 -0500 -0500'>2026年5月28日</span>&nbsp;·&nbsp;<span>2 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-05-28">每日报告 — 2026-05-28<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-05-28">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>完成工作：</strong> 在 LifeCopilot 中解决了复杂的 Windows CLI stdio 死锁问题，该问题会导致超时和上下文丢失，通过切换为子进程隔离和原生会话管理来解决问题；同时修复了 TokenMonitor 的 Rust/Tauri 后端中的持久性磁盘缓存问题，该问题导致远程设备的成本显示不准确。</li>
+<li><strong>实现方式：</strong> 重构 <code>claude_adapter.py</code> 以使用 <code>shell=False</code>，通过 <code>launcher.py</code> 实现统一入口，并更新了所有 CLI 适配器以支持原生会话 ID；在 TokenMonitor 中，增加了 SSH 同步循环中的磁盘缓存前缀清除功能，并修正了 Rust/TypeScript 存储中的默认配置标志。</li>
+<li><strong>影响：</strong> 消除了误报超时情况，恢复了 LifeCopilot 用户的准确对话记忆；确保 TokenMonitor 仪表板中的实时财务数据准确性和设备列表一致性，避免了来自陈旧缓存的数据不一致问题。</li>
+</ul>
+<blockquote>
+<p>对 LifeCopilot（CLI 死锁、会话上下文、启动器整合）和 TokenMonitor（磁盘缓存阻塞、成本显示逻辑）进行了关键基础设施修复，同时优化了个人恢复资源。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>✅ <strong>解决 Claude CLI + MCP 管道死锁</strong> — 诊断并解决了 Windows 上的 <code>shell=True</code> 导致 Claude CLI 为 MCP 工具（如 Google Calendar）生成子进程时引发 stdio 死锁的问题。切换至 <code>shell=False</code> 并通过直接子进程测试验证。</li>
+<li>✅ <strong>解决主界面成本显示与缓存阻塞问题</strong> — 调查了为何“设备成本”在 main App.svelte 中缺失但存在于 DevicesView 中；确定磁盘缓存阻塞是根本原因。在 SSH 同步和使用情况视图更新函数中实现了 <code>clear_prefix</code> 以处理负载的磁盘缓存，防止数据陈旧检索。</li>
+<li>✅ <strong>实现原生会话上下文</strong> — 用 Claude CLI 的原生 <code>--resume</code>/<code>--session-id</code> 功能取代了手动提示注入历史机制。更新了所有适配器（Claude、Codex、Gemini）以传递用户 ID 进行会话隔离。</li>
+<li>✅ <strong>整合启动入口</strong> — 创建 <code>launcher.py</code> 作为服务器启动逻辑的单一真实来源（预检查、PID 管理、端口绑定）。重构 <code>start.bat</code>、<code>start.ps1</code> 和 <code>start.sh</code> 为仅处理 conda 激活的薄层包装器。</li>
+</ul>
+<h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
+<ul>
+<li>✅ <strong>修正默认配置标志</strong> — 将 <code>include_in_stats</code> 默认值更新为 <code>true</code>，适用于新设备和 Rust 后端（<code>ssh.rs</code>, <code>ssh_remote.rs</code>）和 TypeScript 前端存储中的反序列化。修改了聚合逻辑，依赖 <code>enabled</code> 状态而非单独标志。</li>
+<li>✅ <strong>恢复优化与转换</strong> — 审查并优化了 CVPR 网络领域的恢复内容，重点在于叙述结构和作者格式。在安装必要依赖后，使用 python-docx 将 <code>resume.md</code> 转换为 <code>resume.docx</code>。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-tokenmonitor-的主界面显示陈旧成本因为-ssh-同步后磁盘缓存从未被清除只有内存缓存被失效">1. TokenMonitor 的主界面显示陈旧成本，因为 SSH 同步后磁盘缓存从未被清除，只有内存缓存被失效。<a hidden class="anchor" aria-hidden="true" href="#1-tokenmonitor-的主界面显示陈旧成本因为-ssh-同步后磁盘缓存从未被清除只有内存缓存被失效">#</a></h4>
+<p><strong>解决方案：</strong> 在 <code>sync_ssh_host</code>、<code>clear_usage_view_cache</code> 和后台 SSH 同步循环中添加 <code>disk_cache.clear_prefix(&quot;usage-view:&quot;)</code> 调用，确保始终重新计算最新数据。确认尽管之前担心“天和”设备记录，但并未发生原始数据丢失。</p>
+<p><strong>关键洞察：</strong> 在持久化桌面环境如 Tauri 中，一个层（内存缓存）的状态持续存在，而另一个层（磁盘缓存）却被清除，导致视图不一致；在无效化过程中必须同步两者。</p>
+<h4 id="2-claude-cli-在处理复杂的日历请求时始终超时120秒且无输出原因是-windows-shelltrue-在生成子-mcp-进程时导致-stdio-死锁">2. Claude CLI 在处理复杂的日历请求时始终超时（120秒）且无输出，原因是 Windows <code>shell=True</code> 在生成子 MCP 进程时导致 stdio 死锁。<a hidden class="anchor" aria-hidden="true" href="#2-claude-cli-在处理复杂的日历请求时始终超时120秒且无输出原因是-windows-shelltrue-在生成子-mcp-进程时导致-stdio-死锁">#</a></h4>
+<p><strong>解决方案：</strong> 发现继承的管道句柄导致隐式死锁。通过在子进程调用中设置 <code>shell=False</code> 并使用原生会话持久性（<code>--resume</code>）来管理上下文，从而解决死锁问题，确保可靠执行和内存保留。</p>
+<p><strong>关键洞察：</strong> Windows cmd.exe shell 行为中的 Popen 和子进程继承可能导致不可见的 silent stdio 死锁；需要经验性隔离测试来识别具体原因。</p>
+<h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
+<h4 id="3-lifecopilot-中启动服务器的多种方式导致配置漂移而-tokenmonitor-中的新-ssh-设备因配置不匹配默认排除统计信息">3. LifeCopilot 中启动服务器的多种方式导致配置漂移，而 TokenMonitor 中的新 SSH 设备因配置不匹配默认排除统计信息。<a hidden class="anchor" aria-hidden="true" href="#3-lifecopilot-中启动服务器的多种方式导致配置漂移而-tokenmonitor-中的新-ssh-设备因配置不匹配默认排除统计信息">#</a></h4>
+<p><strong>解决方案：</strong> 将所有预检查逻辑集中到 <code>launcher.py</code> 中用于 LifeCopilot。在 TokenMonitor 的 Rust/TS 层标准化默认标志，确保“已连接”设备自动包含在成本报告中，除非明确选择排除。</p>
+<p><strong>关键洞察：</strong> 配置管理应编码为单一可执行脚本或统一存储，而非分散处理，从而减少认知负担并防止配置漂移。</p>
+<h2 id="人类与-ai-方法">人类与 AI 方法<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="调试方法证据与假设">调试方法：证据与假设<a hidden class="anchor" aria-hidden="true" href="#调试方法证据与假设">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>在 LifeCopilot 中，用户要求提供具体的证据以解释超时原因，而非接受理论解释（如 MCP 冷启动）。在 TokenMonitor 中，用户提供成本差异的视觉对比来打破调试模糊性。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI 最初猜测原因，但根据实际需求改进分析，从假设驱动的调试转向控制变量测试（子进程隔离）和将代码路径与视觉 UI 状态进行交叉比对。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类优先验证经验数据而非理论解释，迫使 AI 通过直接系统交互和视觉数据关联来验证假设，而非仅依赖代码逻辑分析。</p>
+<h4 id="上下文和持久性的架构要求">上下文和持久性的架构要求<a hidden class="anchor" aria-hidden="true" href="#上下文和持久性的架构要求">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户拒绝手动提示注入以处理上下文，坚持使用与 Claude Code 类似的原生会话处理。对于 TokenMonitor，对 Tauri 持久性的直觉推动调查方向转向文件系统状态而非仅代码逻辑。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI 识别并实现了所有适配器中的 <code>--resume</code>/<code>--session-id</code> 支持，并在最初对内存内变化感到困惑后，正确推断出持久化 Tauri 进程中需要磁盘缓存失效。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 用户定义了高层架构要求（原生会话、持久状态感知）；AI 执行了实现细节和系统特定优化。</p>
+<h2 id="ai-限制">AI 限制<a hidden class="anchor" aria-hidden="true" href="#ai-限制">#</a></h2>
+<h3 id="关键限制">关键限制<a hidden class="anchor" aria-hidden="true" href="#关键限制">#</a></h3>
+<h4 id="3-lifecopilot-中启动服务器的多种方式导致配置漂移而-tokenmonitor-中的新-ssh-设备因配置不匹配默认排除统计信息--最初猜测了-cli-超时错误的原因不正确且在处理-tauri-的持久化模型时遇到困难未能立即意识到除了内存缓存修复外还需要清除磁盘缓存">3. LifeCopilot 中启动服务器的多种方式导致配置漂移，而 TokenMonitor 中的新 SSH 设备因配置不匹配默认排除统计信息。- 最初猜测了 CLI 超时错误的原因不正确，且在处理 Tauri 的持久化模型时遇到困难，未能立即意识到除了内存缓存修复外还需要清除磁盘缓存。<a hidden class="anchor" aria-hidden="true" href="#3-lifecopilot-中启动服务器的多种方式导致配置漂移而-tokenmonitor-中的新-ssh-设备因配置不匹配默认排除统计信息--最初猜测了-cli-超时错误的原因不正确且在处理-tauri-的持久化模型时遇到困难未能立即意识到除了内存缓存修复外还需要清除磁盘缓存">#</a></h4>
+<ul>
+<li>未能立即意识到 <code>shell=True</code> 在 Windows 上导致 stdio 与子进程之间的死锁，需要大量手动测试以及用户提供的可视化证据才能定位问题。</li>
+</ul>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="关键经验">关键经验<a hidden class="anchor" aria-hidden="true" href="#关键经验">#</a></h3>
+<ul>
+<li>在 Windows 上，使用 <code>subprocess.Popen</code> 与 <code>shell=True</code> 启动生成自身子进程的过程（如 MCP 服务器）可能导致 handle 继承引起的 stdio 死锁。除非严格必要，否则避免使用 <code>shell=True</code> 进行命令解析。</li>
+<li>在 Tauri/桌面应用中，状态变更时务必同时清除磁盘缓存和内存缓存，以防止旧数据泄露；远程同步缓存是临时的，没有持久性归档。</li>
+</ul>
+<h3 id="实际经验">实际经验<a hidden class="anchor" aria-hidden="true" href="#实际经验">#</a></h3>
+<ul>
+<li>在调试 CLI 工具或 UI 差异时，始终通过可视化证据验证原始负载和缓存键，以区分缓存层与计算逻辑，而非仅依赖代码追踪。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<h3 id="lifecopilot">LifeCopilot<a hidden class="anchor" aria-hidden="true" href="#lifecopilot">#</a></h3>
+<p><strong>✅ CLI 调试、会话上下文和启动器整合</strong>
+<em>01:24:24.057 | claude_code</em>
+通过诊断由 <code>shell=True</code> 引起的 Windows 特定 stdio 死锁，解决了严重的 CLI 超时和上下文丢失问题，并转而使用原生会话管理 <code>--resume</code>。将所有启动入口点整合到统一的 <code>launcher.py</code> 中，防止配置漂移。此外，审查了 CVPR 网络领域的恢复内容，并将其从 Markdown 转换为 DOCX 格式。</p>
+<h3 id="tokenmonitor">TokenMonitor<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor">#</a></h3>
+<p><strong>✅ 成本显示和缓存清除修复</strong>
+<em>00:39:12.553 | claude_code</em>
+诊断了为什么尽管 DevicesView 中可见详细信息，主仪表板中仍缺失远程 SSH 设备的成本信息。发现 <code>get_usage_data</code> 在 SSH 同步仅清除内存后，仍从磁盘缓存中加载旧负载。实施了修复方案，在同步/切换操作期间清除磁盘缓存前缀，并修正了 Rust/TypeScript 层中的 <code>include_in_stats</code> 默认值，确保新设备默认被包含在内。</p>
+<!-- gadget:src-hash:d19d51dd2d721075 -->
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

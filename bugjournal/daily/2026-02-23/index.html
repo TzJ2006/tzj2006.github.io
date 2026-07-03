@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-02-23 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="Through vectorization processing and GPU batch processing techniques, we successfully optimized the MIHD fusion process, resulting in a 100 to 500-fold improvement in execution speed. Additionally, we improved the STAIG algorithm so that it can support various visual encoding methods. Comprehensive visual optimization experiments were conducted on 11 slides, while the crash issues in the error recovery benchmark tests were fixed, and the training process of Pi0.5 Phoenix was restarted, along with enhanced system monitoring capabilities.">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/bugjournal/daily/2026-02-23/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-02-23/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-02-23/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/bugjournal/daily/2026-02-23/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-02-23">
+  <meta property="og:description" content="Through vectorization processing and GPU batch processing techniques, we successfully optimized the MIHD fusion process, resulting in a 100 to 500-fold improvement in execution speed. Additionally, we improved the STAIG algorithm so that it can support various visual encoding methods. Comprehensive visual optimization experiments were conducted on 11 slides, while the crash issues in the error recovery benchmark tests were fixed, and the training process of Pi0.5 Phoenix was restarted, along with enhanced system monitoring capabilities.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-02-23T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-02-23T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-02-23">
+  <meta name="twitter:description" content="Through vectorization processing and GPU batch processing techniques, we successfully optimized the MIHD fusion process, resulting in a 100 to 500-fold improvement in execution speed. Additionally, we improved the STAIG algorithm so that it can support various visual encoding methods. Comprehensive visual optimization experiments were conducted on 11 slides, while the crash issues in the error recovery benchmark tests were fixed, and the training process of Pi0.5 Phoenix was restarted, along with enhanced system monitoring capabilities.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-02-23",
+      "item": "https://tzj2006.github.io/bugjournal/daily/2026-02-23/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-02-23",
+  "name": "Bug Journal 2026-02-23",
+  "description": "Through vectorization processing and GPU batch processing techniques, we successfully optimized the MIHD fusion process, resulting in a 100 to 500-fold improvement in execution speed. Additionally, we improved the STAIG algorithm so that it can support various visual encoding methods. Comprehensive visual optimization experiments were conducted on 11 slides, while the crash issues in the error recovery benchmark tests were fixed, and the training process of Pi0.5 Phoenix was restarted, along with enhanced system monitoring capabilities.",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-02-23 Daily Overview Completed work: Two major research tasks were executed in parallel: (1) Optimization of MIHD spatial transcriptomics workflow and generalization of visual encoders; (2) Fixing infrastructure issues for error recovery benchmarks and restarting Phoenix model training. Execution methods: Systematic optimization methods were applied to both projects: code analysis to identify bottlenecks, targeted vectorization/batch processing to improve performance, architectural refactoring to increase flexibility, comprehensive ablation studies, and a reliable error handling mechanism for long-running batch processes. Impact: In MIHD: major training bottlenecks were eliminated (initialization speed increased 100–500 times, QFormer accelerated 20–50 times), architectural flexibility was unlocked for modern visual encoders, and empirical evidence was provided for fusion method selection criteria. For error recovery: the entire M14 evaluation workflow returned to normal (649 scenarios × 4 strategies), Pi0.5 training increased from 3K steps to 100K steps with stable monitoring, and the reliability of M13 classification was quantified. DCC Completed work: Four MIHD tasks: (1) Optimization of CPU bottlenecks in fusion training; (2) Generalization of STAIG encoders; (3) Ablation experiments for visual refinement; (4) Deployment of large-scale STAIG across all DLPFC regions and compatibility fixes. Execution methods: Vectorization of NumPy/scipy in edge weight computation, transfer of dropout operations to GPU, addition of batch processing capabilities to QFormer; refactoring of workflow orchestration using encoder family detection; comprehensive experiments comparing the effects of 8 fusion methods and scan_cluster refinement with baseline methods; resolution of UNI2 patch size incompatibility and NaN handling edge cases. Impact: Training bottlenecks were eliminated (QFormer training time reduced from 3.5 hours to 5% GPU utilization), STAIG can support any visual encoder, refinement benefits weak fusion methods (+0.05–0.09 ARI) but harms strong fusion methods (-0.05 ARI), and complete STAIG evaluations were completed in 10/11 regions (average ARI = 0.546). tianhe Completed work: Six critical errors were fixed, 7 parallel GPU processes were initiated (m14_cpu/pi0/pi05 evaluation + Pi0.5 training), and M13 analysis was completed (kappa = -0.02, discrimination report). Execution methods: Iterative repair validation cycles were performed on collector.py (error handling), train_pi05.sh (monitoring), evaluate_mimicgen.py (seed generation), and discrimination scripts (type conversion). Slurm jobs 45628 (an49, 4 evaluations) and 46553 (an46, training) were used. Impact: M14 evaluation can now handle fingerprint mismatches (130 natural scenarios), training results can be observed in real time (no buffered logs), Pi0.5 training stabilizes at 2.0 seconds/step, and it is progressing toward 100K steps; the reliability of M13 classification was also quantified (low kappa value, requiring VLA data). Through vectorization and GPU batch processing, the MIHD fusion workflow was systematically optimized, with speed increased 100–500 times, STAIG extended to support any visual encoder, comprehensive visual refinement experiments were conducted on 11 slices, the error recovery benchmark evaluation crash issue was fixed, and Pi0.5 Phoenix training was restarted, along with improved monitoring mechanisms.\nTasks Architecture and Strategy ✅ Batch QFormer forward pass — The forward_batched() method was implemented, supporting pre-built padding neighbor tensors and key_padding_mask to replace sequential point connections. ✅ Fixing fingerprint mismatch crash in evaluation workflow — collector.py was modified, scene-level try-except blocks were added around _run_episode(), allowing the evaluation to skip 130 incompatible natural capture scenarios instead of crashing at scenario 122. ✅ Vectorization of STAIG edge weight computation — In STAIGTrainer.py and STAIGTrainerE2E.py, O(n²) Python nested loops were replaced with scipy.cdist and NumPy vectorization to compute edge weights during initialization. ✅ Ablation experiments for visual refinement — On 151673 slices, the effects of 8 fusion methods (series, mean, element-wise sum, attention, basic contrast, adln_attention, llava_mlp, qformer) were compared, including scenarios with and without scan_cluster refinement. 🔄 Restarting Pi0.5 LoRA training and adding monitoring — train_pi05.sh was updated with PYTHONUNBUFFERED, stdbuf, error capture, and GPU monitoring; job 46553 was submitted, restarting from step 3000 with a step length of 2.0 seconds/step and a loss of 0.068. ✅ Fixing errors in evaluation scripts (environment seeds, state validation, quaternions) — env.seed() was added in evaluate_mimicgen.py to ensure reproducibility, state dimension verification (8D check) was performed, and quaternions were safely converted using np.clip instead of in-place mutation. 🔄 Restarting m14 evaluation on GPU (cpu/pi0/pi05) — 3 evaluation processes (job 45628) were restarted on an49 using –resume: m14_cpu on 1547 episodes, m14_pi0 on 400 episodes, m14_pi05 on 407 episodes, all proceeding smoothly under new error handling. ✅ Extending STAIG fusion to any visual encoder — Hardcoded UNI encoder requirements were removed from the workflow orchestration layer, STAIG_UNI_FAMILY was introduced, and staig_strict preprocessing was applied only when appropriate. ✅ Completing M13 classifier reliability analysis — 7_classifier_reliability.py was run, producing kappa_matrix.csv and reliability_report.md; Fleiss’ kappa value was -0.02 (poor), 2 non-redundancy violations were found (drop↔grasp_slip kappa = 0.71). ✅ Completing M13 error type discrimination analysis — errors related to int(‘False’) and degradation of scipy.stats.kruskal were fixed, discriminability_report.md was generated showing all SR=0 cases, and Kruskal-Wallis test was not significant. ✅ Generating m14_cpu baseline analysis report — 4_analyze_results.py was run on 726 episodes, producing report.md and summary.json; Random SR=0% RP=2.3%, BC-RNN SR=0% RP=0.6%, Bootstrap 95% CI, and Fisher’s exact test were reported. Implementation and Fixes ✅ Deploying STAIG fusion across all DLPFC regions — STAIG fusion was applied across all 11 slices, pca and non-genetic encoders were used simultaneously, and UNI2 patch size incompatibility and NaN handling issues were fixed. ✅ Moving adaptive dropoutAdj to GPU — By directly generating random numbers on edge_attr devices, data transfer between GPU↔CPU was avoided, eliminating the data transfer between GPU↔CPU. ✅ Updating project documentation to v4.11.1 and v4.12 — The project panorama summary.md was updated, the number of scenarios increased from 454 to 649, training status (job 46553) and milestone progress (M13 analysis completed, M14 in progress) were updated, and version history was added. Issues and Solutions Key Issues 1. QFormer training is very slow (about 3.5 hours), using only 5% GPU utilization, because the Python loop processes 2700 points sequentially. Solution: Batch forward pass was implemented: padding neighbor index tensors were precomputed at the start of training, batch context was built using index_select, key_padding_mask was added in the transformer, and all points were processed in a single GPU parallel forward call. Key insight: During the Python loop, GPU utilization is extremely low—even though the batch semantics refer to “spatial position” rather than “samples,” batch processing is essential for Transformer models.\n2. All 3 GPU evaluation nodes (m14_cpu/pi0/pi05) crashed at scenario 122/649 because the xml hash fingerprints of 130 natural capture scenarios were inconsistent, causing EnvironmentMismatchError. Solution: The EnvironmentMismatchError import statement was added to collector.py, and scene-level try-except wrappers were added around _run_episode() to log warnings and skip incompatible scenarios instead of terminating the program.\nKey insight: The database contains two sets of fingerprint data (519 pulses/enhancement scenarios and 130 natural VLA generation scenarios); robust error handling at iteration boundaries prevents cascading failures, while –resume preserves completed work.\n3. STAIG edge weight computation uses O(n²) nested Python loops, which takes 2–5 seconds for 2700 points, blocking the training process. Solution: scipy.spatial.distance.cdist was used for distance matrix calculation, scipy.special.softmax(axis=1) was applied for row normalization, and NumPy’s advanced indexing function was used to access edge probabilities instead of list comprehensions.\nKey insight: Nested loops containing mathematical operations should always be vectorized—using basic functions from scipy/NumPy can achieve 100–500 times acceleration; the key is identifying the O(n²) pattern and finding appropriate library functions to handle paired distances.\n4. It is currently unclear whether visual embedding improvements (scan_cluster: 1536d→256d) help improve multimodal fusion performance. Solution: Systematic ablation experiments were conducted: all 8 fusion methods were run with and without the improvement on section 151673, showing that the improvement helps weaker methods (average improvement 0.056, attention mechanism improvement 0.086 ARI), but harms stronger methods (qformer decreases by 0.054, concat decreases by 0.074 ARI)—the dimensionality reduction process requires balancing noise reduction and information retention.\nKey insight: The value of dimensionality reduction depends on the capacity of downstream models: simple aggregation methods (e.g., mean, attention mechanism) can benefit from noise removal and avoid the dimensionality crisis, while complex learnable models (e.g., qformer/llava_mlp) can leverage rich information in high-dimensional embeddings—there is no universal answer.\n5. Pi0.5 training task (job 46551) abruptly exited after approximately 580 steps because stdout buffering prevented monitoring, and the exit reason was unclear (code 0). Solution: PYTHONUNBUFFERED=1 + stdbuf -Ol was added for real-time log output, -eo pipefail + ERR trap was used for error reporting, health checks on the background GPU were performed every 30 minutes, and –resume was used to continue training from step 3000’s checkpoint.\nKey insight: Python/JAX stdout buffering may hide training failures; no-buffer output, clear error capture, and regular health checks are essential for 50+ hour training tasks on shared clusters.\n6. During STAIG fusion, the pipeline hardcodes vision_encoder=‘uni,’ limiting the possibility of trying other encoders (e.g., HIPT, ResNet50, etc.). Solution: The orchestration layer was refactored: STAIG_UNI_FAMILY was introduced to identify encoders that require staig_strict preprocessing (256×256 patches, no ImageNet normalization, frequency filtering), run_benchmark.py was updated to remove forced encoder coverage, and extract_planner and evaluation_planner were updated to conditionally apply different variants based on encoder family membership.\nKey insight: Responsibility separation: The model layer (STAIGTrainer) already handles data of any size via PCA, but the orchestration layer imposes artificial constraints—good architecture makes this generality simple once determined.#### 7. evaluate_mimicgen.py lacks environment initialization, resulting in non-reproducible evaluation results across different runs.Solution: An env.seed(args.seed) call was added before each task’s episode loop to match the reference implementation in LIBERO/Phoenix main.py.\nKey Insight: Reproducibility requires explicit initialization of the RNG and environment RNG; comparison with the reference implementation reveals missing initialization steps.\nGeneral Issues 8. adaptiveDropoutAdj transfers edgeAttr to the CPU, generates random numbers on the CPU, and then returns them to the GPU—this incurs synchronization overhead per cycle (about 1–2 seconds over 1100 cycles in total). Solution: Directly use torch.rand(..., device=edgeAttr.device, dtype=edgeAttr.dtype) to generate random numbers on edgeAttr_device—eliminating all CPU transfers.\nKey Insight: Transfers between small GPUs and the CPU accumulate a large amount of data after repeated operations; random numbers should always be generated on the same device as the operation tensor; CUDA synchronization overhead is significant.\n9. UNI2 (ViT-H/14, patch_size=14) fails on STAIG’s 256×256 input, resulting in the error “256 is not divisible by 14”. Solution: When the strict mode of STAIG is detected, automatically adjust the size in UNI2VisionEncoder.extract() to 224×224 (divisible by 14), and then pass the patch to the model.\nKey Insight: The visual transformer has strict input size requirements; when adjusting based on patch size, attention should be paid to divisibility constraints; for most ViTs, 224×224 is a safe default size.\n10. The discriminability script encounters a ValueError when parsing the success field in JSONL: Invalid decimal base: ‘False’. Solution: Add conversion from string to boolean: success_raw = row.get('success', False); success = success_raw if isinstance(success_raw, bool) else success_raw.lower() == 'true'.\nKey Insight: Consistent issues in JSONL serialization—the success field is stored as the string ‘False’, not as a boolean value; defensive type checking can prevent parsing errors, especially when assumptions about the pattern fail.\n11. m14_cpu crashes under AssertionError: MUJOCO_EGL_DEVICE_ID(0) must be in CUDA_VISIBLE_DEVICES(5). Solution: Change MUJOCO_EGL_DEVICE_ID from 0 to 5 to match CUDA_VISIBLE_DEVICES=5, thereby satisfying the assertion about the device ID string in binding_utils.py.\nKey Insight: binding_utils.py of Robosuite requires MUJOCO_EGL_DEVICE_ID to be a substring of CUDA_VISIBLE_DEVICES; when using a single GPU, both must match exactly.\n12. Section 151676 causes NaN losses and zero embeddings in STAIG training, causing KMeans to fail on NaN-padded data. Solution: Add np.nan_to_num() in the KMeans fallback path; replace NaN with 0 before clustering, and replace infinity with a larger finite number.\nKey Insight: Model crashes (NaN losses) are known failure modes that require graceful degradation handling; input should always be cleaned before passing it to external libraries that may not handle NaN robustly (such as sklearn); record known failure cases.\n13. The discriminability script crashes under scipy.stats.kruskal ValueError, because all success rates are the same (all SR=0 cases). Solution: Wrap H, p = scipy.stats.kruskal(*groups) in a try-except ValueError block, returning H=0.0, p=1.0, significant=False, note='all values identical' in case of an exception. Key Insight: Statistical tests fail on degenerate distributions; explicit handling of edge cases and informative messages can prevent silent failures and help interpret results.\nDifferences in Approaches between Humans and Artificial Intelligence Strategic Level Strategic optimization planning and tactical execution Role Approach Human The user pre-analyzed the MIHD code library and provided a detailed three-part optimization plan, including specific code locations, expected performance improvements, and implementation steps—essentially writing specifications for Claude’s execution Artificial Intelligence Claude strictly follows the provided plan, implementing vectorization using scipy.cdist, random number generation based on GPU devices, and batch processing using padded tensors—focusing on execution rather than strategic planning Analysis of differences: Humans are responsible for strategic analysis and design phases (identifying bottlenecks, selecting algorithms, estimating performance improvements), while artificial intelligence acts as an exact execution agent—this is a clear delegation of implementation after humans complete complex thinking.\nDebugging strategies for multi-component process failures Role Approach Human For error recovery crashes, humans provide detailed context information (649 scenarios, fingerprint groups, scenario 122 where the crash occurred), and specify exact repair locations (lines 299–325 of collector.py), using a try-except pattern Artificial Intelligence Artificial intelligence systematically follows the plan, but initially focuses too much on exploring the code structure; under human-targeted guidance, artificial intelligence directly implements repairs and validates through test runs Analysis of differences: Human domain knowledge enables precise identification of root causes (e.g., EnvironmentMismatchError; no scenario-level handling); the advantage of artificial intelligence lies in verification work (e.g., import checks, parallel restarts, progress monitoring), but a clear quick solution plan is required.\nInterpretation of experimental results Role Approach Human The user requested a comprehensive comparison of visual refinement effects, but no conclusions were specified—an open analysis request Artificial Intelligence Claude conducted experiments and then summarized key insights: the value of refinement depends on the capacity of downstream models; it helps simplify methods and reduce noise/dimensions, but also has negative impacts on complex methods—not just data presentation, but also causal explanations Analysis of differences: The user requested data, and artificial intelligence provides an explanation framework—Claude identified capacity-related trade-off patterns, rather than just reporting metrics, showing deeper analytical thinking.\nGeneralization range of the visual encoder Role Approach Human The user simply asked “any visual encoder can be used, not just UNI”—a high-level request, but no specific implementation details were provided Artificial Intelligence Claude analyzed the system architecture and found that the model layer is already flexible, but the coordination layer imposes constraints; then introduced the concept of a “encoder family,” including conditional preprocessing variants—this architectural insight goes beyond a simple request. Analysis of differences: The user specified content (supporting any encoder), and artificial intelligence designed the approach (based on conditional preprocessing within the family)—artificial intelligence provided valuable structural insights on how to meet UNI-specific preprocessing requirements during generalization.\nTraining monitoring and observability requirements Role Approach Human Based on previous failure analysis, humans specified specific monitoring improvements (PYTHONUNBUFFERED, stdbuf, error catching, GPU memory logging) Artificial Intelligence Artificial intelligence implemented all specified improvements, but initially did not realize the importance of un buffered output; after seeing the note “PYTHONUNBUFFERED=1 is active,” artificial intelligence understood this pattern. Analysis of differences: Humans predicted the observability requirements from past failure patterns; artificial intelligence learned this pattern through execution feedback, rather than through active design.\nWhen to stop exploring and start execution Role Approach Human When artificial intelligence was about to start exploring sub-agents, humans interrupted the use of agent tools twice, preferring direct handling of known tasks Artificial Intelligence Artificial intelligence defaults to using agent tools for broad queries like “what was removed from blocking?” even when the task list is clearly stated in the document; it attempts parallel exploration processes. Analysis of differences: Humans recognize when there is sufficient direct execution information; artificial intelligence relies too much on thorough exploration when decision-making is more valuable.\nImplementation Level When to use agents, when to use tools directly Role Approach Human The user asked Claude to decide when to start exploring using agents—no micro-management or investigation methods Artificial Intelligence Claude initiated multiple exploration agents to understand the data loading process and fusion training loop, before formulating an optimization plan—actively using agents to explore the open code library. Analysis of differences: Artificial intelligence correctly applies the pattern of using agents for discovery/research tasks and directly using tools for known operations; humans trust this judgment without intervention.\nLimitations of Artificial Intelligence Key Limitations Before running geneEncoder=pca and geneEncoder=None, no active verification was done to ensure they produce the same results in STAIG fusion—computing resources were wasted on invalid experiments that provided no new information. Before designing the training restart plan, no active verification of checkpoint status was performed—the fake plan includes “checkpoint 1000,” without checking the current file system status (which is step 3000). This led humans to manually use ls commands to find the 3000 checkpoints later. It was not until humans explicitly stated it that artificial intelligence realized that stdout buffering is a critical failure mode in long-term training. The previously silent exit code 0 should have raised doubts about log reliability. General Limitations – In visual optimization experiments, the best result (0.4832) of the qformer baseline was not noticed initially—only after completing all comparisons did it become apparent; this should have been noticed earlier to adjust experiment priorities. In the implementation phase, inconsistency between the planned text (“checkpoint 1000”) and the actual file system status was discovered, indicating that sufficient verification is needed before deciding on an execution path. After multiple rounds of debugging, the incompatibility issue of UNI2 patch size was identified—if the UNI2 architecture (ViT-H/14) and STAIG’s 256×256 requirements were known in advance, this problem could have been anticipated. Over-reliance on sub-agent exploration for simple status checks (e.g., starting a task agent to check the state of M14/M16, instead of directly reading files) increases latency and complexity without providing corresponding value. When multiple sessions reference the same experiment (visual optimization comparison), Claude does not explicitly connect them in chronological order, nor indicates that these are consecutive experiments—this causes confusion in the narrative flow. Learning Outcomes Key Learning Points- Batch processing is crucial for GPU efficiency: Continuous calls to small GPU operations in Python loops (even 2700 calls) lead to significant resource waste (QFormer uses 5% of GPU resources) — always look for opportunities to merge operations into a single GPU kernel launch to improve efficiency through batch processing. The value of dimensionality reduction depends on the capacity of downstream models: It helps simplify aggregation methods (such as mean or attention mechanisms), reducing the impact of noise and dimension collapse (+0.05–0.09 ARI), but for advanced learning models that can utilize high-dimensional information (such as qformer and llava_mlp), it has a negative effect (-0.05 ARI) — there is no universal solution; preprocessing methods must be adjusted according to model complexity. Robust error handling at the iteration boundary (scene-level try-except) can prevent cascading failures during long-running batch processing, while retaining some results through a recovery mechanism. Vectorization techniques can significantly improve the speed of array operations: Replacing nested Python loops with native functions in scipy/NumPy is almost always worth it — the key is identifying O(n²) patterns and knowing the correct library functions. For long-term machine learning training tasks on remote clusters, unbuffered output (PYTHONUNBUFFERED=1 + stdbuf -oL) is essential — buffering may hide hours of failures, making debugging impossible. In RL/robotics evaluations, clear initialization of the RNG for policy and environment must be done — comparing with reference implementations reveals potential missing initialization steps in the documentation. Flexibility of the architecture is achieved through family-based conditional logic: When extending from hard-coded assumptions (only UNI), introduce semantic grouping (encoder families) and adopt conditional behavior instead of eliminating all constraints — this preserves optimization for special cases while providing flexibility. Practical Learning Points In large-scale applications, eliminating data transfer between GPU and CPU is important: Small data transfers seem insignificant, but they accumulate over multiple iterations (1100 cycles × multiple dropout calls), totaling 1–2 seconds — generate and operate on local device data as much as possible. Input requirements for visual transformers are very strict: ViTs require input sizes to be integer multiples of the patch size (UNI2: H%14=0, W%14=0) — when applying preprocessing methods designed for one architecture to another, size constraints need to be validated in advance; for most ViTs, 224×224 is a safe default value. Statistical tests (such as scipy.stats.kruskal) fail on degenerate distributions; always add edge-case handling with informative error messages instead of letting library exceptions propagate. Defensive type checking (isinstance() guard) can prevent parsing errors when serialization format assumptions are wrong; JSONL fields may have inconsistent types across different data sources. Model crashes (NaN losses) require a graceful fallback path: When known failure patterns exist, add cleanup steps (np.nan_to_num) in the fallback path and log the issue — producing a fallback output (ARI=0 and clean data) is better than causing system crashes. When debugging multi-GPU Slurm jobs, MUJOCO_EGL_DEVICE_ID and CUDA_VISIBLE_DEVICES must match exactly — substrings in binding_utils.py check both for compliance. Dialogue Summary MIHD Spatial Transcriptomics ✅ CPU Bottleneck Optimization and Architecture Generalization 05:38:48.477 | claude_code Comprehensive optimization was applied to the MIHD fusion training process, solving three bottlenecks: (1) Vectorized computation of STAIG edge weights using scipy.cdist replaced O(n²) loops, improving speed by 100–500 times; (2) Moving adaptive dropoutAdj to GPU reduced data transfer time by about 1–2 seconds; (3) The forward_batched() method was added to QFormer, enabling batch processing and increasing speed by 20–50 times. By introducing encoder family detection (STAIG_UNI_FAMILY) and conditional preprocessing, STAIG can support any visual encoder. Comprehensive visual optimization experiments were conducted on 8 fusion methods, showing that optimization helps weaker methods (+0.05–0.09 ARI) but has a negative effect on stronger methods (-0.05 ARI). STAIG fusion was deployed in all 11 DLPFC segments, and through UNI2 compatibility fixes, an average ARI of 0.546 was achieved for 10 valid segments.\nError Recovery Benchmarking ✅ Evaluation Process Fixes and Training Restart 07:06:24.474 | claude_code By adding scene-level try-except error handling in collector.py, the critical evaluation process crash in scenario 122/649 was fixed, allowing skipping 130 fingerprint-mismatch natural capture scenarios. M13 analysis was completed: a baseline report (random SR=0% RP=2.3%, BC-RNN SR=0% RP=0.6%) was generated, reliability analysis (Fleiss’ kappa=-0.02), and discrimination report (all SR=0) were produced. Pi0.5 Phoenix training was restarted with improved monitoring mechanisms (PYTHONUNBUFFERED, stdbuf, error capture, GPU logs), stable operation starting from step 3000 with a step size of 2.0 seconds. Errors in the evaluation script were fixed (environment initialization, state verification, quaternion conversion). Three GPU evaluations (m14_cpu/pi0/pi05) were restarted with recovery capabilities, progressing gradually to 649 scenarios × 4 strategies. The project documentation was updated from v4.11 to v4.12.\nToken Usage Total usage: $69.06 — 106.9 million tokens\n",
+  "wordCount" : "3756",
+  "inLanguage": "en",
+  "datePublished": "2026-02-23T00:00:00-05:00",
+  "dateModified": "2026-02-23T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/bugjournal/daily/2026-02-23/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon2.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="en"
+                        data-translation-url="https://tzj2006.github.io/zh/bugjournal/daily/2026-02-23/">中文
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-02-23
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-02-23 00:00:00 -0500 EST'>February 23, 2026</span>&nbsp;·&nbsp;<span>18 min</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-02-23">Daily Report — 2026-02-23<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-02-23">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>Completed work:</strong> Two major research tasks were executed in parallel: (1) Optimization of MIHD spatial transcriptomics workflow and generalization of visual encoders; (2) Fixing infrastructure issues for error recovery benchmarks and restarting Phoenix model training.</li>
+<li><strong>Execution methods:</strong> Systematic optimization methods were applied to both projects: code analysis to identify bottlenecks, targeted vectorization/batch processing to improve performance, architectural refactoring to increase flexibility, comprehensive ablation studies, and a reliable error handling mechanism for long-running batch processes.</li>
+<li><strong>Impact:</strong> In MIHD: major training bottlenecks were eliminated (initialization speed increased 100–500 times, QFormer accelerated 20–50 times), architectural flexibility was unlocked for modern visual encoders, and empirical evidence was provided for fusion method selection criteria. For error recovery: the entire M14 evaluation workflow returned to normal (649 scenarios × 4 strategies), Pi0.5 training increased from 3K steps to 100K steps with stable monitoring, and the reliability of M13 classification was quantified.</li>
+</ul>
+<h3 id="dcc">DCC<a hidden class="anchor" aria-hidden="true" href="#dcc">#</a></h3>
+<ul>
+<li><strong>Completed work:</strong> Four MIHD tasks: (1) Optimization of CPU bottlenecks in fusion training; (2) Generalization of STAIG encoders; (3) Ablation experiments for visual refinement; (4) Deployment of large-scale STAIG across all DLPFC regions and compatibility fixes.</li>
+<li><strong>Execution methods:</strong> Vectorization of NumPy/scipy in edge weight computation, transfer of dropout operations to GPU, addition of batch processing capabilities to QFormer; refactoring of workflow orchestration using encoder family detection; comprehensive experiments comparing the effects of 8 fusion methods and scan_cluster refinement with baseline methods; resolution of UNI2 patch size incompatibility and NaN handling edge cases.</li>
+<li><strong>Impact:</strong> Training bottlenecks were eliminated (QFormer training time reduced from 3.5 hours to 5% GPU utilization), STAIG can support any visual encoder, refinement benefits weak fusion methods (+0.05–0.09 ARI) but harms strong fusion methods (-0.05 ARI), and complete STAIG evaluations were completed in 10/11 regions (average ARI = 0.546).</li>
+</ul>
+<h3 id="tianhe">tianhe<a hidden class="anchor" aria-hidden="true" href="#tianhe">#</a></h3>
+<ul>
+<li><strong>Completed work:</strong> Six critical errors were fixed, 7 parallel GPU processes were initiated (m14_cpu/pi0/pi05 evaluation + Pi0.5 training), and M13 analysis was completed (kappa = -0.02, discrimination report).</li>
+<li><strong>Execution methods:</strong> Iterative repair validation cycles were performed on collector.py (error handling), train_pi05.sh (monitoring), evaluate_mimicgen.py (seed generation), and discrimination scripts (type conversion). Slurm jobs 45628 (an49, 4 evaluations) and 46553 (an46, training) were used.</li>
+<li><strong>Impact:</strong> M14 evaluation can now handle fingerprint mismatches (130 natural scenarios), training results can be observed in real time (no buffered logs), Pi0.5 training stabilizes at 2.0 seconds/step, and it is progressing toward 100K steps; the reliability of M13 classification was also quantified (low kappa value, requiring VLA data).</li>
+</ul>
+<blockquote>
+<p>Through vectorization and GPU batch processing, the MIHD fusion workflow was systematically optimized, with speed increased 100–500 times, STAIG extended to support any visual encoder, comprehensive visual refinement experiments were conducted on 11 slices, the error recovery benchmark evaluation crash issue was fixed, and Pi0.5 Phoenix training was restarted, along with improved monitoring mechanisms.</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture-and-strategy">Architecture and Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture-and-strategy">#</a></h3>
+<ul>
+<li>✅ <strong>Batch QFormer forward pass</strong> — The forward_batched() method was implemented, supporting pre-built padding neighbor tensors and key_padding_mask to replace sequential point connections.</li>
+<li>✅ <strong>Fixing fingerprint mismatch crash in evaluation workflow</strong> — collector.py was modified, scene-level try-except blocks were added around <code>_run_episode()</code>, allowing the evaluation to skip 130 incompatible natural capture scenarios instead of crashing at scenario 122.</li>
+<li>✅ <strong>Vectorization of STAIG edge weight computation</strong> — In STAIGTrainer.py and STAIGTrainerE2E.py, O(n²) Python nested loops were replaced with scipy.cdist and NumPy vectorization to compute edge weights during initialization.</li>
+<li>✅ <strong>Ablation experiments for visual refinement</strong> — On 151673 slices, the effects of 8 fusion methods (series, mean, element-wise sum, attention, basic contrast, adln_attention, llava_mlp, qformer) were compared, including scenarios with and without scan_cluster refinement.</li>
+<li>🔄 <strong>Restarting Pi0.5 LoRA training and adding monitoring</strong> — train_pi05.sh was updated with PYTHONUNBUFFERED, stdbuf, error capture, and GPU monitoring; job 46553 was submitted, restarting from step 3000 with a step length of 2.0 seconds/step and a loss of 0.068.</li>
+<li>✅ <strong>Fixing errors in evaluation scripts (environment seeds, state validation, quaternions)</strong> — env.seed() was added in evaluate_mimicgen.py to ensure reproducibility, state dimension verification (8D check) was performed, and quaternions were safely converted using np.clip instead of in-place mutation.</li>
+<li>🔄 <strong>Restarting m14 evaluation on GPU (cpu/pi0/pi05)</strong> — 3 evaluation processes (job 45628) were restarted on an49 using &ndash;resume: m14_cpu on 1547 episodes, m14_pi0 on 400 episodes, m14_pi05 on 407 episodes, all proceeding smoothly under new error handling.</li>
+<li>✅ <strong>Extending STAIG fusion to any visual encoder</strong> — Hardcoded UNI encoder requirements were removed from the workflow orchestration layer, STAIG_UNI_FAMILY was introduced, and staig_strict preprocessing was applied only when appropriate.</li>
+<li>✅ <strong>Completing M13 classifier reliability analysis</strong> — 7_classifier_reliability.py was run, producing kappa_matrix.csv and reliability_report.md; Fleiss’ kappa value was -0.02 (poor), 2 non-redundancy violations were found (drop↔grasp_slip kappa = 0.71).</li>
+<li>✅ <strong>Completing M13 error type discrimination analysis</strong> — errors related to int(&lsquo;False&rsquo;) and degradation of scipy.stats.kruskal were fixed, discriminability_report.md was generated showing all SR=0 cases, and Kruskal-Wallis test was not significant.</li>
+<li>✅ <strong>Generating m14_cpu baseline analysis report</strong> — 4_analyze_results.py was run on 726 episodes, producing report.md and summary.json; Random SR=0% RP=2.3%, BC-RNN SR=0% RP=0.6%, Bootstrap 95% CI, and Fisher’s exact test were reported.</li>
+</ul>
+<h3 id="implementation-and-fixes">Implementation and Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation-and-fixes">#</a></h3>
+<ul>
+<li>✅ <strong>Deploying STAIG fusion across all DLPFC regions</strong> — STAIG fusion was applied across all 11 slices, pca and non-genetic encoders were used simultaneously, and UNI2 patch size incompatibility and NaN handling issues were fixed.</li>
+<li>✅ <strong>Moving adaptive dropoutAdj to GPU</strong> — By directly generating random numbers on edge_attr devices, data transfer between GPU↔CPU was avoided, eliminating the data transfer between GPU↔CPU.</li>
+<li>✅ <strong>Updating project documentation to v4.11.1 and v4.12</strong> — The project panorama summary.md was updated, the number of scenarios increased from 454 to 649, training status (job 46553) and milestone progress (M13 analysis completed, M14 in progress) were updated, and version history was added.</li>
+</ul>
+<h2 id="issues-and-solutions">Issues and Solutions<a hidden class="anchor" aria-hidden="true" href="#issues-and-solutions">#</a></h2>
+<h3 id="key-issues">Key Issues<a hidden class="anchor" aria-hidden="true" href="#key-issues">#</a></h3>
+<h4 id="1-qformer-training-is-very-slow-about-35-hours-using-only-5-gpu-utilization-because-the-python-loop-processes-2700-points-sequentially">1. QFormer training is very slow (about 3.5 hours), using only 5% GPU utilization, because the Python loop processes 2700 points sequentially.<a hidden class="anchor" aria-hidden="true" href="#1-qformer-training-is-very-slow-about-35-hours-using-only-5-gpu-utilization-because-the-python-loop-processes-2700-points-sequentially">#</a></h4>
+<p><strong>Solution:</strong> Batch forward pass was implemented: padding neighbor index tensors were precomputed at the start of training, batch context was built using index_select, key_padding_mask was added in the transformer, and all points were processed in a single GPU parallel forward call. <strong>Key insight:</strong> During the Python loop, GPU utilization is extremely low—even though the batch semantics refer to “spatial position” rather than “samples,” batch processing is essential for Transformer models.</p>
+<h4 id="2-all-3-gpu-evaluation-nodes-m14_cpupi0pi05-crashed-at-scenario-122649-because-the-xml-hash-fingerprints-of-130-natural-capture-scenarios-were-inconsistent-causing-environmentmismatcherror">2. All 3 GPU evaluation nodes (m14_cpu/pi0/pi05) crashed at scenario 122/649 because the xml hash fingerprints of 130 natural capture scenarios were inconsistent, causing EnvironmentMismatchError.<a hidden class="anchor" aria-hidden="true" href="#2-all-3-gpu-evaluation-nodes-m14_cpupi0pi05-crashed-at-scenario-122649-because-the-xml-hash-fingerprints-of-130-natural-capture-scenarios-were-inconsistent-causing-environmentmismatcherror">#</a></h4>
+<p><strong>Solution:</strong> The EnvironmentMismatchError import statement was added to collector.py, and scene-level try-except wrappers were added around <code>_run_episode()</code> to log warnings and skip incompatible scenarios instead of terminating the program.</p>
+<p><strong>Key insight:</strong> The database contains two sets of fingerprint data (519 pulses/enhancement scenarios and 130 natural VLA generation scenarios); robust error handling at iteration boundaries prevents cascading failures, while &ndash;resume preserves completed work.</p>
+<h4 id="3-staig-edge-weight-computation-uses-on-nested-python-loops-which-takes-25-seconds-for-2700-points-blocking-the-training-process">3. STAIG edge weight computation uses O(n²) nested Python loops, which takes 2–5 seconds for 2700 points, blocking the training process.<a hidden class="anchor" aria-hidden="true" href="#3-staig-edge-weight-computation-uses-on-nested-python-loops-which-takes-25-seconds-for-2700-points-blocking-the-training-process">#</a></h4>
+<p><strong>Solution:</strong> scipy.spatial.distance.cdist was used for distance matrix calculation, scipy.special.softmax(axis=1) was applied for row normalization, and NumPy’s advanced indexing function was used to access edge probabilities instead of list comprehensions.</p>
+<p><strong>Key insight:</strong> Nested loops containing mathematical operations should always be vectorized—using basic functions from scipy/NumPy can achieve 100–500 times acceleration; the key is identifying the O(n²) pattern and finding appropriate library functions to handle paired distances.</p>
+<h4 id="4-it-is-currently-unclear-whether-visual-embedding-improvements-scan_cluster-1536d256d-help-improve-multimodal-fusion-performance">4. It is currently unclear whether visual embedding improvements (scan_cluster: 1536d→256d) help improve multimodal fusion performance.<a hidden class="anchor" aria-hidden="true" href="#4-it-is-currently-unclear-whether-visual-embedding-improvements-scan_cluster-1536d256d-help-improve-multimodal-fusion-performance">#</a></h4>
+<p><strong>Solution:</strong> Systematic ablation experiments were conducted: all 8 fusion methods were run with and without the improvement on section 151673, showing that the improvement helps weaker methods (average improvement 0.056, attention mechanism improvement 0.086 ARI), but harms stronger methods (qformer decreases by 0.054, concat decreases by 0.074 ARI)—the dimensionality reduction process requires balancing noise reduction and information retention.</p>
+<p><strong>Key insight:</strong> The value of dimensionality reduction depends on the capacity of downstream models: simple aggregation methods (e.g., mean, attention mechanism) can benefit from noise removal and avoid the dimensionality crisis, while complex learnable models (e.g., qformer/llava_mlp) can leverage rich information in high-dimensional embeddings—there is no universal answer.</p>
+<h4 id="5-pi05-training-task-job-46551-abruptly-exited-after-approximately-580-steps-because-stdout-buffering-prevented-monitoring-and-the-exit-reason-was-unclear-code-0">5. Pi0.5 training task (job 46551) abruptly exited after approximately 580 steps because stdout buffering prevented monitoring, and the exit reason was unclear (code 0).<a hidden class="anchor" aria-hidden="true" href="#5-pi05-training-task-job-46551-abruptly-exited-after-approximately-580-steps-because-stdout-buffering-prevented-monitoring-and-the-exit-reason-was-unclear-code-0">#</a></h4>
+<p><strong>Solution:</strong> PYTHONUNBUFFERED=1 + stdbuf -Ol was added for real-time log output, -eo pipefail + ERR trap was used for error reporting, health checks on the background GPU were performed every 30 minutes, and &ndash;resume was used to continue training from step 3000’s checkpoint.</p>
+<p><strong>Key insight:</strong> Python/JAX stdout buffering may hide training failures; no-buffer output, clear error capture, and regular health checks are essential for 50+ hour training tasks on shared clusters.</p>
+<h4 id="6-during-staig-fusion-the-pipeline-hardcodes-vision_encoderuni-limiting-the-possibility-of-trying-other-encoders-eg-hipt-resnet50-etc">6. During STAIG fusion, the pipeline hardcodes vision_encoder=&lsquo;uni,&rsquo; limiting the possibility of trying other encoders (e.g., HIPT, ResNet50, etc.).<a hidden class="anchor" aria-hidden="true" href="#6-during-staig-fusion-the-pipeline-hardcodes-vision_encoderuni-limiting-the-possibility-of-trying-other-encoders-eg-hipt-resnet50-etc">#</a></h4>
+<p><strong>Solution:</strong> The orchestration layer was refactored: STAIG_UNI_FAMILY was introduced to identify encoders that require staig_strict preprocessing (256×256 patches, no ImageNet normalization, frequency filtering), run_benchmark.py was updated to remove forced encoder coverage, and extract_planner and evaluation_planner were updated to conditionally apply different variants based on encoder family membership.</p>
+<p><strong>Key insight:</strong> Responsibility separation: The model layer (STAIGTrainer) already handles data of any size via PCA, but the orchestration layer imposes artificial constraints—good architecture makes this generality simple once determined.#### 7. evaluate_mimicgen.py lacks environment initialization, resulting in non-reproducible evaluation results across different runs.<strong>Solution:</strong> An <code>env.seed(args.seed)</code> call was added before each task’s episode loop to match the reference implementation in LIBERO/Phoenix main.py.</p>
+<p><strong>Key Insight:</strong> Reproducibility requires explicit initialization of the RNG and environment RNG; comparison with the reference implementation reveals missing initialization steps.</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="8-adaptivedropoutadj-transfers-edgeattr-to-the-cpu-generates-random-numbers-on-the-cpu-and-then-returns-them-to-the-gputhis-incurs-synchronization-overhead-per-cycle-about-12-seconds-over-1100-cycles-in-total">8. <code>adaptiveDropoutAdj</code> transfers <code>edgeAttr</code> to the CPU, generates random numbers on the CPU, and then returns them to the GPU—this incurs synchronization overhead per cycle (about 1–2 seconds over 1100 cycles in total).<a hidden class="anchor" aria-hidden="true" href="#8-adaptivedropoutadj-transfers-edgeattr-to-the-cpu-generates-random-numbers-on-the-cpu-and-then-returns-them-to-the-gputhis-incurs-synchronization-overhead-per-cycle-about-12-seconds-over-1100-cycles-in-total">#</a></h4>
+<p><strong>Solution:</strong> Directly use <code>torch.rand(..., device=edgeAttr.device, dtype=edgeAttr.dtype)</code> to generate random numbers on <code>edgeAttr_device</code>—eliminating all CPU transfers.</p>
+<p><strong>Key Insight:</strong> Transfers between small GPUs and the CPU accumulate a large amount of data after repeated operations; random numbers should always be generated on the same device as the operation tensor; CUDA synchronization overhead is significant.</p>
+<h4 id="9-uni2-vit-h14-patch_size14-fails-on-staigs-256256-input-resulting-in-the-error-256-is-not-divisible-by-14">9. <code>UNI2</code> (ViT-H/14, patch_size=14) fails on STAIG’s 256×256 input, resulting in the error “256 is not divisible by 14”.<a hidden class="anchor" aria-hidden="true" href="#9-uni2-vit-h14-patch_size14-fails-on-staigs-256256-input-resulting-in-the-error-256-is-not-divisible-by-14">#</a></h4>
+<p><strong>Solution:</strong> When the strict mode of STAIG is detected, automatically adjust the size in <code>UNI2VisionEncoder.extract()</code> to 224×224 (divisible by 14), and then pass the patch to the model.</p>
+<p><strong>Key Insight:</strong> The visual transformer has strict input size requirements; when adjusting based on patch size, attention should be paid to divisibility constraints; for most ViTs, 224×224 is a safe default size.</p>
+<h4 id="10-the-discriminability-script-encounters-a-valueerror-when-parsing-the-success-field-in-jsonl-invalid-decimal-base-false">10. The <code>discriminability</code> script encounters a <code>ValueError</code> when parsing the <code>success</code> field in JSONL: Invalid decimal base: ‘False’.<a hidden class="anchor" aria-hidden="true" href="#10-the-discriminability-script-encounters-a-valueerror-when-parsing-the-success-field-in-jsonl-invalid-decimal-base-false">#</a></h4>
+<p><strong>Solution:</strong> Add conversion from string to boolean: <code>success_raw = row.get('success', False); success = success_raw if isinstance(success_raw, bool) else success_raw.lower() == 'true'</code>.</p>
+<p><strong>Key Insight:</strong> Consistent issues in JSONL serialization—the <code>success</code> field is stored as the string ‘False’, not as a boolean value; defensive type checking can prevent parsing errors, especially when assumptions about the pattern fail.</p>
+<h4 id="11-m14_cpu-crashes-under-assertionerror-mujoco_egl_device_id0-must-be-in-cuda_visible_devices5">11. <code>m14_cpu</code> crashes under <code>AssertionError</code>: <code>MUJOCO_EGL_DEVICE_ID(0)</code> must be in <code>CUDA_VISIBLE_DEVICES(5)</code>.<a hidden class="anchor" aria-hidden="true" href="#11-m14_cpu-crashes-under-assertionerror-mujoco_egl_device_id0-must-be-in-cuda_visible_devices5">#</a></h4>
+<p><strong>Solution:</strong> Change <code>MUJOCO_EGL_DEVICE_ID</code> from 0 to 5 to match <code>CUDA_VISIBLE_DEVICES=5</code>, thereby satisfying the assertion about the device ID string in <code>binding_utils.py</code>.</p>
+<p><strong>Key Insight:</strong> <code>binding_utils.py</code> of Robosuite requires <code>MUJOCO_EGL_DEVICE_ID</code> to be a substring of <code>CUDA_VISIBLE_DEVICES</code>; when using a single GPU, both must match exactly.</p>
+<h4 id="12-section-151676-causes-nan-losses-and-zero-embeddings-in-staig-training-causing-kmeans-to-fail-on-nan-padded-data">12. Section 151676 causes NaN losses and zero embeddings in STAIG training, causing KMeans to fail on NaN-padded data.<a hidden class="anchor" aria-hidden="true" href="#12-section-151676-causes-nan-losses-and-zero-embeddings-in-staig-training-causing-kmeans-to-fail-on-nan-padded-data">#</a></h4>
+<p><strong>Solution:</strong> Add <code>np.nan_to_num()</code> in the KMeans fallback path; replace <code>NaN</code> with 0 before clustering, and replace infinity with a larger finite number.</p>
+<p><strong>Key Insight:</strong> Model crashes (NaN losses) are known failure modes that require graceful degradation handling; input should always be cleaned before passing it to external libraries that may not handle <code>NaN</code> robustly (such as sklearn); record known failure cases.</p>
+<h4 id="13-the-discriminability-script-crashes-under-scipystatskruskal-valueerror-because-all-success-rates-are-the-same-all-sr0-cases">13. The <code>discriminability</code> script crashes under <code>scipy.stats.kruskal ValueError</code>, because all success rates are the same (all SR=0 cases).<a hidden class="anchor" aria-hidden="true" href="#13-the-discriminability-script-crashes-under-scipystatskruskal-valueerror-because-all-success-rates-are-the-same-all-sr0-cases">#</a></h4>
+<p><strong>Solution:</strong> Wrap <code>H, p = scipy.stats.kruskal(*groups)</code> in a <code>try-except ValueError</code> block, returning <code>H=0.0, p=1.0, significant=False, note='all values identical'</code> in case of an exception. <strong>Key Insight:</strong> Statistical tests fail on degenerate distributions; explicit handling of edge cases and informative messages can prevent silent failures and help interpret results.</p>
+<h2 id="differences-in-approaches-between-humans-and-artificial-intelligence">Differences in Approaches between Humans and Artificial Intelligence<a hidden class="anchor" aria-hidden="true" href="#differences-in-approaches-between-humans-and-artificial-intelligence">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="strategic-optimization-planning-and-tactical-execution">Strategic optimization planning and tactical execution<a hidden class="anchor" aria-hidden="true" href="#strategic-optimization-planning-and-tactical-execution">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>The user pre-analyzed the MIHD code library and provided a detailed three-part optimization plan, including specific code locations, expected performance improvements, and implementation steps—essentially writing specifications for Claude’s execution</td>
+      </tr>
+      <tr>
+          <td>Artificial Intelligence</td>
+          <td>Claude strictly follows the provided plan, implementing vectorization using <code>scipy.cdist</code>, random number generation based on GPU devices, and batch processing using padded tensors—focusing on execution rather than strategic planning</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Analysis of differences:</strong> Humans are responsible for strategic analysis and design phases (identifying bottlenecks, selecting algorithms, estimating performance improvements), while artificial intelligence acts as an exact execution agent—this is a clear delegation of implementation after humans complete complex thinking.</p>
+<h4 id="debugging-strategies-for-multi-component-process-failures">Debugging strategies for multi-component process failures<a hidden class="anchor" aria-hidden="true" href="#debugging-strategies-for-multi-component-process-failures">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>For error recovery crashes, humans provide detailed context information (649 scenarios, fingerprint groups, scenario 122 where the crash occurred), and specify exact repair locations (lines 299–325 of <code>collector.py</code>), using a <code>try-except</code> pattern</td>
+      </tr>
+      <tr>
+          <td>Artificial Intelligence</td>
+          <td>Artificial intelligence systematically follows the plan, but initially focuses too much on exploring the code structure; under human-targeted guidance, artificial intelligence directly implements repairs and validates through test runs</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Analysis of differences:</strong> Human domain knowledge enables precise identification of root causes (e.g., <code>EnvironmentMismatchError</code>; no scenario-level handling); the advantage of artificial intelligence lies in verification work (e.g., import checks, parallel restarts, progress monitoring), but a clear quick solution plan is required.</p>
+<h4 id="interpretation-of-experimental-results">Interpretation of experimental results<a hidden class="anchor" aria-hidden="true" href="#interpretation-of-experimental-results">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>The user requested a comprehensive comparison of visual refinement effects, but no conclusions were specified—an open analysis request</td>
+      </tr>
+      <tr>
+          <td>Artificial Intelligence</td>
+          <td>Claude conducted experiments and then summarized key insights: the value of refinement depends on the capacity of downstream models; it helps simplify methods and reduce noise/dimensions, but also has negative impacts on complex methods—not just data presentation, but also causal explanations</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Analysis of differences:</strong> The user requested data, and artificial intelligence provides an explanation framework—Claude identified capacity-related trade-off patterns, rather than just reporting metrics, showing deeper analytical thinking.</p>
+<h4 id="generalization-range-of-the-visual-encoder">Generalization range of the visual encoder<a hidden class="anchor" aria-hidden="true" href="#generalization-range-of-the-visual-encoder">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>The user simply asked “any visual encoder can be used, not just UNI”—a high-level request, but no specific implementation details were provided</td>
+      </tr>
+      <tr>
+          <td>Artificial Intelligence</td>
+          <td>Claude analyzed the system architecture and found that the model layer is already flexible, but the coordination layer imposes constraints; then introduced the concept of a “encoder family,” including conditional preprocessing variants—this architectural insight goes beyond a simple request.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Analysis of differences:</strong> The user specified content (supporting any encoder), and artificial intelligence designed the approach (based on conditional preprocessing within the family)—artificial intelligence provided valuable structural insights on how to meet UNI-specific preprocessing requirements during generalization.</p>
+<h4 id="training-monitoring-and-observability-requirements">Training monitoring and observability requirements<a hidden class="anchor" aria-hidden="true" href="#training-monitoring-and-observability-requirements">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>Based on previous failure analysis, humans specified specific monitoring improvements (PYTHONUNBUFFERED, <code>stdbuf</code>, error catching, GPU memory logging)</td>
+      </tr>
+      <tr>
+          <td>Artificial Intelligence</td>
+          <td>Artificial intelligence implemented all specified improvements, but initially did not realize the importance of un buffered output; after seeing the note “PYTHONUNBUFFERED=1 is active,” artificial intelligence understood this pattern.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Analysis of differences:</strong> Humans predicted the observability requirements from past failure patterns; artificial intelligence learned this pattern through execution feedback, rather than through active design.</p>
+<h4 id="when-to-stop-exploring-and-start-execution">When to stop exploring and start execution<a hidden class="anchor" aria-hidden="true" href="#when-to-stop-exploring-and-start-execution">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>When artificial intelligence was about to start exploring sub-agents, humans interrupted the use of agent tools twice, preferring direct handling of known tasks</td>
+      </tr>
+      <tr>
+          <td>Artificial Intelligence</td>
+          <td>Artificial intelligence defaults to using agent tools for broad queries like “what was removed from blocking?” even when the task list is clearly stated in the document; it attempts parallel exploration processes.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Analysis of differences:</strong> Humans recognize when there is sufficient direct execution information; artificial intelligence relies too much on thorough exploration when decision-making is more valuable.</p>
+<h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
+<h4 id="when-to-use-agents-when-to-use-tools-directly">When to use agents, when to use tools directly<a hidden class="anchor" aria-hidden="true" href="#when-to-use-agents-when-to-use-tools-directly">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>The user asked Claude to decide when to start exploring using agents—no micro-management or investigation methods</td>
+      </tr>
+      <tr>
+          <td>Artificial Intelligence</td>
+          <td>Claude initiated multiple exploration agents to understand the data loading process and fusion training loop, before formulating an optimization plan—actively using agents to explore the open code library.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Analysis of differences:</strong> Artificial intelligence correctly applies the pattern of using agents for discovery/research tasks and directly using tools for known operations; humans trust this judgment without intervention.</p>
+<h2 id="limitations-of-artificial-intelligence">Limitations of Artificial Intelligence<a hidden class="anchor" aria-hidden="true" href="#limitations-of-artificial-intelligence">#</a></h2>
+<h3 id="key-limitations">Key Limitations<a hidden class="anchor" aria-hidden="true" href="#key-limitations">#</a></h3>
+<ul>
+<li>Before running <code>geneEncoder=pca</code> and <code>geneEncoder=None</code>, no active verification was done to ensure they produce the same results in STAIG fusion—computing resources were wasted on invalid experiments that provided no new information.</li>
+<li>Before designing the training restart plan, no active verification of checkpoint status was performed—the fake plan includes “checkpoint 1000,” without checking the current file system status (which is step 3000). This led humans to manually use <code>ls</code> commands to find the 3000 checkpoints later.</li>
+<li>It was not until humans explicitly stated it that artificial intelligence realized that stdout buffering is a critical failure mode in long-term training. The previously silent exit code 0 should have raised doubts about log reliability.</li>
+</ul>
+<h3 id="general-limitations--in-visual-optimization-experiments-the-best-result-04832-of-the-qformer-baseline-was-not-noticed-initiallyonly-after-completing-all-comparisons-did-it-become-apparent-this-should-have-been-noticed-earlier-to-adjust-experiment-priorities">General Limitations – In visual optimization experiments, the best result (0.4832) of the <code>qformer</code> baseline was not noticed initially—only after completing all comparisons did it become apparent; this should have been noticed earlier to adjust experiment priorities.<a hidden class="anchor" aria-hidden="true" href="#general-limitations--in-visual-optimization-experiments-the-best-result-04832-of-the-qformer-baseline-was-not-noticed-initiallyonly-after-completing-all-comparisons-did-it-become-apparent-this-should-have-been-noticed-earlier-to-adjust-experiment-priorities">#</a></h3>
+<ul>
+<li>In the implementation phase, inconsistency between the planned text (“checkpoint 1000”) and the actual file system status was discovered, indicating that sufficient verification is needed before deciding on an execution path.</li>
+<li>After multiple rounds of debugging, the incompatibility issue of <code>UNI2</code> patch size was identified—if the <code>UNI2</code> architecture (ViT-H/14) and STAIG’s 256×256 requirements were known in advance, this problem could have been anticipated.</li>
+<li>Over-reliance on sub-agent exploration for simple status checks (e.g., starting a task agent to check the state of M14/M16, instead of directly reading files) increases latency and complexity without providing corresponding value.</li>
+<li>When multiple sessions reference the same experiment (visual optimization comparison), Claude does not explicitly connect them in chronological order, nor indicates that these are consecutive experiments—this causes confusion in the narrative flow.</li>
+</ul>
+<h2 id="learning-outcomes">Learning Outcomes<a hidden class="anchor" aria-hidden="true" href="#learning-outcomes">#</a></h2>
+<h3 id="key-learning-points--batch-processing-is-crucial-for-gpu-efficiency-continuous-calls-to-small-gpu-operations-in-python-loops-even-2700-calls-lead-to-significant-resource-waste-qformer-uses-5-of-gpu-resources--always-look-for-opportunities-to-merge-operations-into-a-single-gpu-kernel-launch-to-improve-efficiency-through-batch-processing">Key Learning Points- Batch processing is crucial for GPU efficiency: Continuous calls to small GPU operations in Python loops (even 2700 calls) lead to significant resource waste (QFormer uses 5% of GPU resources) — always look for opportunities to merge operations into a single GPU kernel launch to improve efficiency through batch processing.<a hidden class="anchor" aria-hidden="true" href="#key-learning-points--batch-processing-is-crucial-for-gpu-efficiency-continuous-calls-to-small-gpu-operations-in-python-loops-even-2700-calls-lead-to-significant-resource-waste-qformer-uses-5-of-gpu-resources--always-look-for-opportunities-to-merge-operations-into-a-single-gpu-kernel-launch-to-improve-efficiency-through-batch-processing">#</a></h3>
+<ul>
+<li>The value of dimensionality reduction depends on the capacity of downstream models: It helps simplify aggregation methods (such as mean or attention mechanisms), reducing the impact of noise and dimension collapse (+0.05–0.09 ARI), but for advanced learning models that can utilize high-dimensional information (such as qformer and llava_mlp), it has a negative effect (-0.05 ARI) — there is no universal solution; preprocessing methods must be adjusted according to model complexity.</li>
+<li>Robust error handling at the iteration boundary (scene-level try-except) can prevent cascading failures during long-running batch processing, while retaining some results through a recovery mechanism.</li>
+<li>Vectorization techniques can significantly improve the speed of array operations: Replacing nested Python loops with native functions in scipy/NumPy is almost always worth it — the key is identifying O(n²) patterns and knowing the correct library functions.</li>
+<li>For long-term machine learning training tasks on remote clusters, unbuffered output (PYTHONUNBUFFERED=1 + stdbuf -oL) is essential — buffering may hide hours of failures, making debugging impossible.</li>
+<li>In RL/robotics evaluations, clear initialization of the RNG for policy and environment must be done — comparing with reference implementations reveals potential missing initialization steps in the documentation.</li>
+<li>Flexibility of the architecture is achieved through family-based conditional logic: When extending from hard-coded assumptions (only UNI), introduce semantic grouping (encoder families) and adopt conditional behavior instead of eliminating all constraints — this preserves optimization for special cases while providing flexibility.</li>
+</ul>
+<h3 id="practical-learning-points">Practical Learning Points<a hidden class="anchor" aria-hidden="true" href="#practical-learning-points">#</a></h3>
+<ul>
+<li>In large-scale applications, eliminating data transfer between GPU and CPU is important: Small data transfers seem insignificant, but they accumulate over multiple iterations (1100 cycles × multiple dropout calls), totaling 1–2 seconds — generate and operate on local device data as much as possible.</li>
+<li>Input requirements for visual transformers are very strict: ViTs require input sizes to be integer multiples of the patch size (UNI2: H%14=0, W%14=0) — when applying preprocessing methods designed for one architecture to another, size constraints need to be validated in advance; for most ViTs, 224×224 is a safe default value.</li>
+<li>Statistical tests (such as scipy.stats.kruskal) fail on degenerate distributions; always add edge-case handling with informative error messages instead of letting library exceptions propagate.</li>
+<li>Defensive type checking (isinstance() guard) can prevent parsing errors when serialization format assumptions are wrong; JSONL fields may have inconsistent types across different data sources.</li>
+<li>Model crashes (NaN losses) require a graceful fallback path: When known failure patterns exist, add cleanup steps (np.nan_to_num) in the fallback path and log the issue — producing a fallback output (ARI=0 and clean data) is better than causing system crashes.</li>
+<li>When debugging multi-GPU Slurm jobs, MUJOCO_EGL_DEVICE_ID and CUDA_VISIBLE_DEVICES must match exactly — substrings in binding_utils.py check both for compliance.</li>
+</ul>
+<h2 id="dialogue-summary">Dialogue Summary<a hidden class="anchor" aria-hidden="true" href="#dialogue-summary">#</a></h2>
+<h3 id="mihd-spatial-transcriptomics">MIHD Spatial Transcriptomics<a hidden class="anchor" aria-hidden="true" href="#mihd-spatial-transcriptomics">#</a></h3>
+<p><strong>✅ CPU Bottleneck Optimization and Architecture Generalization</strong>
+<em>05:38:48.477 | claude_code</em>
+Comprehensive optimization was applied to the MIHD fusion training process, solving three bottlenecks: (1) Vectorized computation of STAIG edge weights using scipy.cdist replaced O(n²) loops, improving speed by 100–500 times; (2) Moving adaptive dropoutAdj to GPU reduced data transfer time by about 1–2 seconds; (3) The forward_batched() method was added to QFormer, enabling batch processing and increasing speed by 20–50 times. By introducing encoder family detection (STAIG_UNI_FAMILY) and conditional preprocessing, STAIG can support any visual encoder. Comprehensive visual optimization experiments were conducted on 8 fusion methods, showing that optimization helps weaker methods (+0.05–0.09 ARI) but has a negative effect on stronger methods (-0.05 ARI). STAIG fusion was deployed in all 11 DLPFC segments, and through UNI2 compatibility fixes, an average ARI of 0.546 was achieved for 10 valid segments.</p>
+<h3 id="error-recovery-benchmarking">Error Recovery Benchmarking<a hidden class="anchor" aria-hidden="true" href="#error-recovery-benchmarking">#</a></h3>
+<p><strong>✅ Evaluation Process Fixes and Training Restart</strong>
+<em>07:06:24.474 | claude_code</em>
+By adding scene-level try-except error handling in collector.py, the critical evaluation process crash in scenario 122/649 was fixed, allowing skipping 130 fingerprint-mismatch natural capture scenarios. M13 analysis was completed: a baseline report (random SR=0% RP=2.3%, BC-RNN SR=0% RP=0.6%) was generated, reliability analysis (Fleiss&rsquo; kappa=-0.02), and discrimination report (all SR=0) were produced. Pi0.5 Phoenix training was restarted with improved monitoring mechanisms (PYTHONUNBUFFERED, stdbuf, error capture, GPU logs), stable operation starting from step 3000 with a step size of 2.0 seconds. Errors in the evaluation script were fixed (environment initialization, state verification, quaternion conversion). Three GPU evaluations (m14_cpu/pi0/pi05) were restarted with recovery capabilities, progressing gradually to 649 scenarios × 4 strategies. The project documentation was updated from v4.11 to v4.12.</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<p><img alt="Token Usage" loading="lazy" src="2026-02-23-usage.png"></p>
+<p><strong>Total usage: $69.06</strong> — 106.9 million tokens</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

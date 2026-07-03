@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-02-17 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="我们已经修复了MIHD视觉编码器中存在的关键坐标交换问题，需要重新运行286次实验才能完全解决这一问题。同时，我们开发了多设备日常报告工具，以便处理来自四个项目在五个不同日期的对话日志。在M5/M6错误恢复基准测试中，我们成功构建了一个包含454个场景的数据库，并通过BC-RNN训练以及VLA双服务器集成实现了性能提升。此外，我们还解决了远程开发时SSH系统的稳定性问题，并修正了ccusage定价方面的错误，从而避免了13倍的成本低估现象（累计误差约为150美元以上）。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/bugjournal/daily/2026-02-17/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-02-17/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-02-17/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/bugjournal/daily/2026-02-17/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-02-17">
+  <meta property="og:description" content="我们已经修复了MIHD视觉编码器中存在的关键坐标交换问题，需要重新运行286次实验才能完全解决这一问题。同时，我们开发了多设备日常报告工具，以便处理来自四个项目在五个不同日期的对话日志。在M5/M6错误恢复基准测试中，我们成功构建了一个包含454个场景的数据库，并通过BC-RNN训练以及VLA双服务器集成实现了性能提升。此外，我们还解决了远程开发时SSH系统的稳定性问题，并修正了ccusage定价方面的错误，从而避免了13倍的成本低估现象（累计误差约为150美元以上）。">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-02-17T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-02-17T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-02-17">
+  <meta name="twitter:description" content="我们已经修复了MIHD视觉编码器中存在的关键坐标交换问题，需要重新运行286次实验才能完全解决这一问题。同时，我们开发了多设备日常报告工具，以便处理来自四个项目在五个不同日期的对话日志。在M5/M6错误恢复基准测试中，我们成功构建了一个包含454个场景的数据库，并通过BC-RNN训练以及VLA双服务器集成实现了性能提升。此外，我们还解决了远程开发时SSH系统的稳定性问题，并修正了ccusage定价方面的错误，从而避免了13倍的成本低估现象（累计误差约为150美元以上）。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-02-17",
+      "item": "https://tzj2006.github.io/bugjournal/daily/2026-02-17/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-02-17",
+  "name": "Bug Journal 2026-02-17",
+  "description": "我们已经修复了MIHD视觉编码器中存在的关键坐标交换问题，需要重新运行286次实验才能完全解决这一问题。同时，我们开发了多设备日常报告工具，以便处理来自四个项目在五个不同日期的对话日志。在M5/M6错误恢复基准测试中，我们成功构建了一个包含454个场景的数据库，并通过BC-RNN训练以及VLA双服务器集成实现了性能提升。此外，我们还解决了远程开发时SSH系统的稳定性问题，并修正了ccusage定价方面的错误，从而避免了13倍的成本低估现象（累计误差约为150美元以上）。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-02-17 Daily Overview Completed Work: Five parallel workflows were completed: DCC corrected the basic error in MIHD coordinates, increasing visual ARI from 0.065 to 0.12-0.25; MacBook/TzJsDesktop iterated daily and used the daily report tool to process historical logs from four devices between February 12, 2026, and February 16, 2026; Tianhe’s Error Recovery Benchmark increased from 251 scenarios to 454 scenarios, achieved through BC-RNN training, VLA dual-server deployment, and a multi-strategy evaluation framework; TzJsDesktop diagnosed and fixed ccusage pricing errors, discovering that the cost was underestimated by 13 times; Tianhe established an SSH stability infrastructure for remote development. Completion Methods: DCC corrected CSV column mappings, cleared caches, and ran 286 experiments again; MacBook/TzJsDesktop implemented a two-stage export→merge architecture, using rclone for synchronization, powerful JSON parsing, conversation summaries, and Hugo deployment; Tianhe fixed MuJoCo API compatibility issues, trained the BC-RNN for 600 cycles, implemented an obs key mapping adapter, deployed the VLA server on Pi0/Pi0.5, and debugged integration with 79 unit tests and GPU verifications; TzJsDesktop implemented a backup pricing mechanism for ccusage, re-exported 5-day logs; Tianhe configured SSH stability (tmux+keep-alive+auto-reconnect) and recorded local client settings. Impact: MIHD data quality was fundamentally restored (all visual results are now valid); the daily report tool reached production-level maturity; multi-device workflows allow knowledge to be systematically preserved; Error Recovery Benchmark exceeded the M5 scenario generation target (227%), and the first multi-strategy evaluation infrastructure preparation training strategy (M6 milestone) was completed, although the SR rate of BC-RNN was 0%, indicating problems with training checkpoints; SSH stability eliminated remote session loss issues; ccusage fixes corrected the displayed cost from $0-7 per day to actual $18-48 per day, restoring the integrity of financial tracking. DCC Completed Work: Identified and fixed an X/Y coordinate swapping error in MIHD load_spatial_coordinates(), where pixel_x should actually refer to pxl_row (Y-axis), and pixel_y should refer to pxl_col (X-axis). This caused all visual patches to be extracted from the transposed image position, resulting in a visual ARI of only 0.065. Completion Method: Modified CSV column names from [’…’, ‘pixel_x’, ‘pixel_y’] to [’…’, ‘pxl_row’, ‘pxl_col’], and changed the coordinate tuple from (pixel_x, pixel_y) = (Y, X) to (pxl_col, pxl_row) = (X, Y); removed allSpatialCoords.npz and vision/cache files; re-extracted embeddings for 11 parts in UNI2/HIPT/ResNet50; verified coordinate range (X: 323-1637, Y: 387-1773) and 100% embedding uniqueness. Impact: UNI2’s visual ARI increased from 0.065 to 0.08-0.25 (part 151673-151676 reached 0.22-0.25); all visual-dependent fusion experiments will be corrected; this is a fundamental data integrity issue that affects the validity of the entire benchmark. MacBook Completed Work: As the main center of the daily report tool, it processed conversation logs from April 12, 2026, to February 16, 2026, on four devices, covering MIHD, Error Recovery Benchmark, CalendarPro, and small tool projects; reported the results to the Hugo bugJournal section and GitHub Pages. Completion Method: Executed export –summarize to extract local logs → used –sync to merge export contents from other devices, downloaded using rclone → called Claude CLI API to generate structured JSON/Markdown reports → wrote reports to the website/content/bugJournal/ → ran update.sh to build the website (increased from 139 pages to 141 pages) → pushed public files to GitHub Pages. Impact: Established a complete multi-device documentation process from raw conversation logs to the public website; created systematic historical records for more than 5 dates, making long-term knowledge tracking possible; the number of pages on GitHub Pages increased from 136 to 141. TzJsDesktop Completed Work: Configured SSH stability infrastructure for Tianhe’s HPC cluster, using three-layer defense measures; as the workstation for the daily report tool, it analyzed historical logs of Error Recovery Benchmark, MIHD, CalendarPro, and small tool projects; diagnosed and fixed ccusage pricing errors, discovering that the cost was underestimated by 13 times. Completion Method: Updated the ~/.ssh/config file, adding connection reuse functionality (ControlMaster/ControlPath/ControlPersist), optimizing keep-alive functionality (ServerAliveInterval set to 15 seconds, ServerAliveCountMax set to 6), creating ~/bin/auto-ssh wrapper script with retry logic and tmux session attachment; repeatedly called summarize tool to generate 10 reports; investigated ccusage source code and LiteLLM pricing database, implementing _FALLBACK_PRICING dictionary and _fix_zero_cost_models() function, correcting model name field references, and re-exporting logs from February 13-17. Impact: Resolved SSH disconnection issues, allowing long HPC tasks to proceed smoothly; improved the functionality of the daily report tool through extensive internal testing; corrected the pricing of claude-opus-4-6 from $0-7 per day to actual $18-48 per day, showing a cumulative error of about $150, restoring the integrity of financial tracking. Tianhe Completed Work: Progressed towards the M5/M6 milestones of Error Recovery Benchmark: expanded the scenario database from 251 scenarios to 454 scenarios through friction and pose_perturb generation; trained the BC-RNN strategy on A800 for 600 cycles; fixed obs key mapping integration errors; configured VLA dual-server infrastructure (Pi0 port 5556, Pi0.5 port 5557); debugged the multi-strategy evaluation framework with 79 unit tests and GPU verifications; established SSH stability solutions and updated project documentation to version 4.6. Completion Method: Fixed three MuJoCo API compatibility issues with non-pulse injectors (mj_name2id→body_name2id, handling with main suffix); generated 103 pose_perturb and 100 friction scenarios through __augment_specs_with_alternatives(); trained the BC-RNN within about 15 minutes through robomimic; implemented key mapping object-state → object in policy_adapter.py, providing back-up strategies for Strategy 1 and Strategy 3; verified through 79 unit tests and GPU integration tests (5 deployments, eliminating KeyError issues); generated visual videos showing SR rate of 0% due to training checkpoint issues; deployed VLA server for evaluation; configured tmux + SSH keep-alive + proxy isolation; created Claude-tmux script and local client setup guide. Impact: Exceeded the M5 target (from 200 scenarios to 454 scenarios, achieving 227%), non-pulse injectors transitioned from theoretical to practical state; BC-RNN became the first training baseline strategy to solve integration issues; VLA dual-server infrastructure was ready for multi-strategy evaluation (M6 milestone); SSH stability issues were permanently resolved, enabling reliable remote development; visual results showed model quality issues (not framework issues), requiring better checkpoints or more training to fix the critical MIHD visual encoder X/Y coordinate swapping error, necessitating re-running 286 experiments. A multi-device daily report tool was also developed to process historical conversation logs across four projects over four dates. Progress was made in the M5/M6 of Error Recovery Benchmark, achieving a 454-scenario database and adopting BC-RNN training and VLA dual-server integration solutions. SSH stability issues in remote development were resolved, and ccusage pricing errors were corrected, avoiding a 13-fold cost underestimation (cumulative error exceeding $150). Tasks Architecture and Strategy - ✅ Fixed the X/Y coordinate confusion in MIHD load_spatial_coordinates() function — Corrected CSV column mapping errors, ensuring that pixel_x actually refers to pxl_row (Y-axis), and pixel_y refers to pxl_col (X-axis). This ensures that visual segments are extracted from the correct positions. Modified scripts/run_benchmark.py and utils/data_loader.py to use the correct (pxl_col, pxl_row) = (X,Y) order.- ✅ Generating non-pulse error scenarios for Tianhe M5 (pose perturbation + friction) — The benchmark_v4_nonimpulse.yaml configuration file was created. By using the _augment_specs_with_alternatives() method, the database was expanded from 251 to 454 items, resulting in 103 pose perturbation scenarios and 100 friction scenarios. This achieved a 227% increase in the M5 200 scenario target. The generation of gripper deviations is not yet complete, but it will not affect the overall progress. ✅ Diagnosing and fixing ccusage Claude-opus-4-6 zero-cost billing issue — An investigation was conducted on the source code of ccusage, the LiteLLM pricing database, and actual log data. It was confirmed that the model name Claude-opus-4-6 does not match the entry anthropic.claude-opus-4-6-v1 in LiteLLM, causing the cost field to always be 0. A backup pricing mechanism was implemented in the daily_summary.py file: a _FALLBACK_PRICING dictionary was added (opus-4-6: input $5/M, output $25/M, cache creation $6.25/M, cache reading $0.50/M). The __fix_zero_cost_models() function was also added for post-processing. The incorrect field names were corrected (mb.get(‘model’) → mb.get(‘modelName’) or mb.get(‘model’)). Log data from February 13th to 17th was re-exported, and the displayed costs were adjusted from $0-7 per day to $18-48 per day. However, there was a 13-fold under-estimation (total error approximately $150+).\n✅ Re-running MIHD single-modal vision experiment to verify the repair effect — The visual embedding data for 11 parts (UNI2/HIPT/ResNet50, totaling 33 tasks) was re-extracted. The coordinates were confirmed to be correct (X: 323-1637, Y: 387-1773). The embedding data was 100% unique. The UNI2 ARI increased from 0.065 to approximately 0.12 (the part from 151673 to 151676 reached 0.22-0.25).\n✅ Implementing the core dual-stage architecture of the daily report tool — The summarize/daily_summary.py file was created, supporting three data sources (Claude Code JSONL, ChatGPT JSON, general format). A dual-stage export (local device) and merge (cross-device aggregation) workflow were implemented. The tool also included a structured report generation feature based on the LLM, as well as support for multiple APIs (claude_cli/anthropic/openai).\n✅ Fixing the compatibility issue with Tianhe’s non-pulse injector MuJoCo API — The friction/pose perturbation/gripper deviation injectors were changed from mj_name2id() to model.body_name2id()/.geom_name2id(). The _resolve_body_id() helper function was added to handle the main suffix convention of robosuite. The try/except statement was used to handle missing body data gracefully.\n✅ Training and integrating Tianhe’s BC-RNN baseline strategy — The MimicGen pre-trained checkpoints were searched but not found. The BC-RNN was trained from scratch: two-layer LSTM, GMM action heads. 600 training cycles were performed on the MimicGen pick_place dataset, and the 14.3MB checkpoints were saved in the bc_rnn_checkpoints/ directory. In the policy_adapter.py file, an alias object-state → object was implemented to fix the errors in Strategy 1 (original observations) and Strategy 3 (StateExtractor alternative). The effectiveness of this strategy was verified through 79 unit tests and GPU integration tests (KeyError eliminated). The generated visualization video showed that the SR rate was 0, indicating that the robot hovered without picking up objects, suggesting a model quality issue rather than a framework issue. The model path in the benchmark_v4.yaml was updated.\n🔄 Re-running MIHD vision-dependent fusion experiment (core_multimodal_fast) — The core_multimodal_fast experiment group was launched, and the STAIG fusion UNI visual embedding data was re-extracted (strict mode). The extraction of UNI data for 11 parts was completed, and the evaluation phase is currently underway.\n✅ Adding multi-device rclone synchronization functionality to the daily report tool — The __rcloneUpload function was implemented, supporting sub-directory exports (logs/ for exports, reports/ for merging results). The __rcloneDownloadLogs function was used to obtain data across devices. The merge command supports automatic aggregation, and the config parameter allows for remote viewing of configurations.\n✅ Adding a dialogue summary section to the report format — The JSON format was extended to include a summary of each session, including the project name, source, timestamp, topic (up to 60 characters), 2-4 sentences of narrative, result status (completed/partially completed/exploratory/abandoned), level, and importance. The SUMARY_PROMPT and markdown generator were updated.\n✅ Configuring SSH stable access to Tianhe clusters (client and server) — On the server side: tmux sessions were configured for persistence, SSH kept connections (intervals of 15 seconds/tolerance of 90 seconds), Claude-tmux was set up as a one-click script, and proxy control was applied at the session level. On the client side: the ~/.ssh/config file was updated to enable connection multiplexing (ControlMaster/ControlPath/ControlPersist lasting for 600 seconds), the mechanism for keeping connections was optimized (ServerAliveInterval 15 seconds, ServerAliveCountMax 6), and the ~/bin/auto-ssh wrapper script was created to automatically attach tmux sessions and implement retry logic (intervals of 5 seconds, up to 100 retries). The .tmux.conf file was enhanced with historical records and stability settings. The docs/local_ssh_setup_guide.md document was created, along with VS Code settings.\n✅ Setting up Tianhe VLA dual-server evaluation infrastructure — The collector.py file was extended to include VLA support: the _policies_needing_images tracking function was added, the __get_obs() function was modified to handle camera images, the predict_from_obs() interface was implemented, and the load_policy() function was updated to accommodate the vla_server type. The 3_collect_data.py file was extended to include VLA policy parameters (–vla_pi0_port, –vla_pi05_port). Issues with the mapping of Pi0.5 observation image keys and the norm_stats path were resolved using the Franka solution. The VLA servers were deployed: Pi0 was located on GPU 1 at port 5556, and Pi0.5 was located on GPU 3 at port 5557. The random strategy ran normally, the BC-RNN integration was completed, and the VLA servers were ready for evaluation.\n🔄 Execution of multi-strategy evaluation process (M6 milestone) — Evaluation of 50 scenarios × 3 seeds using 4 strategies (random + BC-RNN + VLA_Pi0 + VLA_Pi05) is underway. The scripts/5_baseline_accuracy.py file was created for zero-error baseline testing (random + BC-RNN, 20 iterations). All infrastructure is ready, and the evaluation is ongoing.\n✅ Updating the error recovery benchmark documentation to version v4.6 — The project overview summary.md document was updated with 12 edits: version number, milestone table (M5/M6/M9), scenario statistics (271 → 454), and details on the implementation of pose perturbation/friction injectors via _augment_specs_with_alternatives(), the VLA dual-server architecture (Pi0 5556 + Pi0.5 5557), completion of the M5 milestone, and status of the M6 milestone. A new chapter on the zhaoganlong Pi0.5 training infrastructure was added.\n✅ Implementing a robust 4-stage JSON parsing and LLM-based repair alternative — The parse_json_response() function was created, including an alternative chain: direct json.loads() → block extraction → depth-based bracket matching → LLM-driven repair. The try_parse_json() and repair_json_with_llm() functions were added to common/json_utils.py.\n✅ Adding level/importance priority metadata to all report sections — The SUMARY_PROMPT was updated to include level (high = strategic, low = tactical) and importance (1-10) fields, applicable to tasks, questions, human vs AI comparison, AI limitations, learning outcomes, dialogue summaries, etc. The tool structure was modified, and the maximum token count was increased from 4096 to 8192.\n✅ Processing historical dialogue logs (2026-02-12 to 2026-02-16) — The tool export stage processing was run over the 5-day dialogue on four devices. JSON reports for each device/day were generated, cross-device summaries were merged, and the results were published on the Hugo website (pages on GitHub Pages increased from 136 to 141 pages).\n✅ Initializing the documentation for the motion-based self-reflection framework — The three-module architecture was discussed (motion prediction using LLaVA, motion correction using MCM, diffusion strategy). The CLAUDE.md document was created, documenting training/inferencing commands, Hydra configuration instructions, and dataset formats. Users requested a comprehensive bilingual README document containing all components (Chinese-English mixed), including 11 sub-modules such as openpi, GraspVLA, MimicGen, etc. Three parallel exploration agents were initiated, and a documentation plan of approximately 1200 lines was developed. The CLAUDE.md document is completed, and the full README is being created.\n✅ Cleaning up the visual and spatial coordinate caches affected by MIHD — The embedding caches/data/*/spatial_coords.npz (12 files) and the entire embedding cache/vision/ directory containing incorrect coordinates were deleted.\n✅ Implementing a deployment sub-command to batch publish Hugo bugJournal — The generate_hugo_post() function was modified to extract summaries from the report block citations, resolving time zone issues (-05:00), and updating keywords. The cmd_deploy() function was created for batch processing with the –date filter and for executing the auto-update.sh script.\n🔄 Designing a workflow for checkpoint integration and strategy visualization — Six model checkpoints were identified (BC-RNN 164MB, Pi0 series approximately 12GB each, robomimic 7.6MB, totaling more than 47GB). A checkpoint/symbolic link structure was designed, and the visualize_policy_rollout.py script was written, combining the launch logic from 5_baseline_accuracy.py and the rendering function from 2_visualize_scene.py. Random/BcRNN/VLA strategies were supported, and seed values and camera views could be configured. The plan has been developed but not yet implemented.\n❌ Re-generating the daily report with corrected price information (merging and deploying) — Attempts were made to regenerate the Markdown and JSON reports with corrected token costs using the merge command, but an API connection failure occurred (ConnectionRefused). The log export (data correction) was successful, but due to the unavailable LLM API, downstream report generation was hindered.### Limitations of Artificial Intelligence### Key Limitations\nFailed to independently diagnose the root cause of MIHD coordinate issues; relied entirely on users to provide analysis and repair plans. In the face of an “abnormally low ARI” macro metric, AI lacked the ability to independently track data sources (from results → embedding → patch extraction → coordinates → CSV column definitions in reverse order).\nTianhe’s BC-RNN integrated the repair attempts three times over two sessions, but AI failed to anticipate the different observation key names for robosuite’s different tasks (PickPlace and Lift), and also realized that the observation results reconstructed by StateExtractor after the first repair did not guarantee consistent key names. Users had to make multiple corrections to find the correct solution. The use of the outdated MuJoCo C API (mujoco.mj_name2id) instead of checking the robosuite’s wrapper API caused three injectors to crash immediately. It would have been better to check the existing working code (ImpulseInjector) before modifying other injectors to understand the correct API pattern.\nThe initial design of the daily reporting tool did not consider multi-device distributed usage patterns—assuming a single-device workflow, requiring users to redesign the two-stage architecture.\nWhen generating JSON close to token limits, AI might truncate the output in the middle of the structure, resulting in malformed JSON, which requires defensive parsing and repair logic in production systems.\nThe repair of ccusage initially used the incorrect mb.get(‘model’) field, while the actual JSON contained modelName. No verification was done on the output structure of third-party tools before proceeding. This led to the repair being completely ineffective until humans discovered the error and rechecked it. Too many parallel exploration tasks were initiated, leading to duplicate information collection (reading the same log files multiple times).\nInitially, it was proposed to use LIBERO/droid to test the VLA model, but environmental compatibility was not verified. The target environment was not kept as robosuite/mimicgen, but rather the semantic context of LIBERO. Humans needed to correct it to point to the correct configuration.\nInsufficient memory across sessions: In the Tianhe session on 2026-02-16, AI was unable to recall the VLA checkpoint download from the previous session independently. Users were required to prompt to search for broader server paths.\nUnable to predict users’ needs for features like dialogue summaries—these product insights came from observations of blanks in generated reports.\nDifficulties in handling deeply nested meta-tasks: When conversations included discussions about the conversation itself, AI struggled to determine which level to analyze, unless there was clear task scope and guidance on expected outputs.\nWhen generating the daily report on 2026-02-17, the AI acting as the daily report analyst itself became an object of observation—there was a meta-level complexity of “observers being observed.” AI needed to analyze its own behavior (generating daily reports), which required a certain level of self-awareness.\nGeneral Limitations Users rejected the design of the daily report automation deployment plan. AI failed to capture changes in user intentions and could not assess whether the detailed implementation plan met user expectations. It directly entered the ExitPlanMode mode without seeking user feedback first. Multiple attempts at ExitPlanMode failed, indicating difficulties in determining when the plan was complete and when users wanted to continue iterating. Users rejected the plan three times in multiple sessions, suggesting that AI should ask “Is this plan ready?” instead of assuming it was already completed. It was impossible to directly analyze video content to evaluate policy quality. The promotional videos of BC-RNN required manual extraction of key frames and manual inspection to identify robot hovering behaviors (ignoring the target capture). Without visual confirmation, it was impossible to infer a 0% success rate, which might be due to model quality issues. When encountering an API ConnectionRefused error during report generation, no alternative solutions were proposed (data was fully corrected before report generation). The flexibility of the separated workflow was insufficient. A long unified plan document containing both server-side and client-side instructions was created, but the execution boundaries were not considered. User feedback was needed to reorganize it into actionable individual deliverables. The project decomposition capability was weak. When users asked “What stage are we currently at?”, an exploratory agent was immediately launched and a large amount of documentation was read, rather than first checking the recent session context or the to-do tracking system. Over-reliance on file reading was excessive, while dialogue context might have been sufficient. Lessons Learned Main Lesson: Data errors are more隐蔽 and destructive than model errors. MIHD’s coordinate exchange error caused all visual experiment results to fail, but the code logic was normal, and all tests passed. It is necessary to trace anomalies at the macro level back to the data source (CSV column definitions). This requires a complete thought chain from data scientists; unit testing alone cannot detect such errors. Differences in naming conventions across frameworks are hidden pitfalls: robosuite’s _main suffix, differences in observation key names for different tasks (object and object state), LiteLLM’s model name-v1 suffix—these details are not obvious in the documentation, but they can lead to runtime errors. The robot simulation framework abstracts the original physics engine (robosuite encapsulates MuJoCo). Direct API calls bypassing the framework layer will cause errors—it is necessary to use the framework’s wrappers to handle naming conventions and state management. Robosuite’s observation key naming rule is that the environment automatically adds -state suffix to grouped modalities (e.g., object → object-state), but training data usually uses the original names. The adapter layer must handle these mismatches. The safest strategy is: (1) Use the framework’s API instead of low-level APIs; (2) Pass the original data structure instead of manually reconstructing it; (3) Print the actual output to verify field names, rather than inferring from the documentation. Always check the working reference code in the same codebase before making changes.\nThe correctness of the framework and the quality of the model require different verification strategies. Unit/integration testing can confirm code logic and eliminate errors like KeyError. Video visualization can reveal behavior quality issues (robot hovering and capturing). Even if unit testing passes, GPU integration testing remains crucial—BC-RNN passed 79 unit tests, but GPU deployment was needed to detect 0% SR issues and diagnose untrained checkpoints through visualization. Each verification layer has a different role.\nThe multi-device collaborative daily report tool has achieved a closed loop: each device exports local logs → central hub combines remote logs → unified deployment to Hugo → published on GitHub Pages. This workflow was extensively used on 2026-02-17 (processing 4 historical dates), proving the feasibility of the two-stage architecture. The next step is automation (which has been proposed but not implemented). Tool-based tools (used to analyze the tools used by the tool) need to carefully consider the distribution of the workflow—what happens on each device, how data is synchronized, how partial information is handled. For distributed scenarios, a two-stage architecture (local export + centralized aggregation) is more robust than a single-unit single-stage design.\nThe expansion of the error recovery benchmark scenario library from 251 to 454 is a successful incremental expansion case: First, the pulse injector (M4) was implemented → it was found that non-pulse types were needed (M5) → the MuJoCo API compatibility was fixed → various types of scenarios were generated through the detector candidate expansion mechanism. This shows the process from a minimum viable product to a fully functional product. The generation of error scenarios is a funnel process: detector triggering → error specification generation → injector application → verification → scenario acceptance. Enabling the injector does not guarantee scenario generation—it depends on the frequency of detector triggering. Depending on the dynamics of the task, the acceptance rates of different types of errors vary greatly. Pose perturbation is more general than friction/clamping anomalies in the pickup and placement task. Programmed specification enhancement (_augment_specs_with_alternatives()) can compensate for insufficient detector coverage.\nThird-party tool integration requires defensive programming: the patch cost is equal to 0 (ccusage), field name compatibility (modelName or model), and self-downgrade for future repairs (when LiteLLM makes repairs, backtracking becomes inactive). This “only activates when necessary” patch strategy can minimize maintenance costs. Pricing defects of third-party tools should be resolved through local backtracking mechanisms, rather than waiting for upstream repairs. Design backtracking should only be triggered in cases of abnormal values (cost = 0) to maintain backward compatibility. LiteLLM uses versioned model names (anthropic.{model}-v1, optional: 0 suffix), while Claude Code logs use simplified names, leading to systematic mismatches. Cost tracking errors may lead to over 90% underestimation (observed 13 times), severely affecting financial planning. Regular audits of cost indicators are very important.\nHuman involvement in specifying the system architecture and strategic decisions, with AI responsible for technical implementation and optimization, yields the best results. In this meeting, users’ architectural insights (two-stage design, multi-device synchronization) were crucial; AI’s technical execution (parsing backtracking, configuration optimization) filled in the gaps. Qualitative judgment from domain experts is essential for identifying systemic problems. AI’s data-driven analysis and human experience and intuition form an effective complementarity.\nRemote development on unstable connections requires multiple layers of defense: maintaining connection activity (prevention), session persistence (survival), multiplexing (fast reconnection), and automated scripts (recovery). Single-layer solutions will fail under real network conditions. For shared server accounts, user-specific custom settings should be placed in conditional blocks or separate startup scripts, rather than affecting everyone’s common.bashrc entry. tmux has both state persistence and environmental boundaries. Session-wide proxy configuration (not global bashrc) can prevent affecting users with shared accounts.\nStructured data generated by LLMs requires multiple backtracking strategies for defensive parsing. The native JSON schema (Anthropic’s tool_use, OpenAI’s json_object) is helpful, but it cannot eliminate failures—always treat fixing as the last resort. Each backtracking layer handles specific failure modes: code blocks handle markdown format, curly braces matching handle truncation, and fixing handle syntax errors.\nThe daily summary tool benefits from a gradual evolution of the architecture: starting with a basic list of tasks/issues, adding session summaries to provide context, and adding priority metadata for filtering. Each layer meets different reading needs. The batch document workflow benefits from a two-stage architecture: (1) extracting local context for each source, (2) integrating across sources for global deduplication. This pattern appears in summary tools (export → merge), MIHD processes (first-stage cache embedding → second-stage fusion), and error recovery benchmarks (generating scenarios → collecting data).\nMimicGen’s release policy is to only provide datasets, not pre-trained model checkpoints. Formal releases may provide data but not the training model—before planning, ensure the availability of assets. BC-RNN (with RNN behavior cloning) is a simple supervised learning: collecting pairs of human demonstrations (states, actions), training an LSTM to predict actions, and then deploying as a strategy. When there are enough demonstrations, this is a simple but effective manipulation task baseline. When pre-trained checkpoints are unavailable, training from demonstrations becomes the necessary backup plan.\nReviewing work logs (summarizing the situation of the past week) is an important exercise that converts raw dialogue logs into structured knowledge, helping to identify patterns and track progress over time. - Idempotent design patterns (tracking what has already been processed, skipping repetitive work) are crucial for workflows that may be interrupted or run again. _merged_devices tracking function can prevent expensive repeated API calls when reprocessing partially completed aggregated data.\nManaging large model assets (VLA checkpoints larger than 47GB) requires an organized approach based on symbolic links to avoid duplication while maintaining centralized discoverability. Dispersed checkpoints in the file system can hinder reproducibility and configuration management. Centralized checkpoint directories can improve discoverability. When repairing quality issues in historical data, data correction (exportation) should be separated from downstream use (report generation). Avoid blocking the entire process due to failures in downstream dependencies (e.g., LLM API unavailability). The export phase relies on Node.js tools (ccusage), and the merging phase relies on the LLM API—even if merging is blocked, export can still proceed. Practical Experience The scope of complex scientific research project documents should include main modules as well as sub-modules (there are 11 sub-modules in the Motion framework), data conversion pipelines, and integration points across repositories (LeRobot, OpenPI, MimicGen). Adequate exploration can prevent onboarding difficulties caused by incomplete documentation. Dialogue Summary MIHD 🔄 Fixed the X/Y coordinate exchange error in the visual encoder, ready to run experiments again 18:50:27.298 | claude_code Users noticed that the UNI2 clustering results were abnormal (151670 had only one cluster, with ARI around 0.065). Detailed debugging revealed two serious errors: (1) Coordinate space mismatch (comparison between high resolution and full resolution), (2) X/Y coordinate exchange error (in CSV, col4 was Y/col5 was X, but the code naming was reversed). By analyzing the correlation between array_row/array_col and pixel coordinates, the root cause was identified. The processing logic for load_spatial_coordinates() and VisionEncoder was fixed, and an execution plan was written to run 66 single-modal experiments (3 gene encoders + 3 visual encoders × 11 parts). However, the operation was interrupted when exiting the plan mode.\n🔄 Fully fixed the coordinate error, and verified it by running experiments again 21:28:38.729 | claude_code The CSV column mapping error in load_spatial_coordinates() was fixed (pixel_x was actually Y/pxl_row, pixel_y was X/pxl_col), causing all visual patches extracted from the transpose position to have an ARI of only 0.065. The column names and coordinate order in scripts/run_benchmark.py and utils/data_loader.py were modified. All spatial coordinates and visual caches were cleared, and the UNI2/HIPT/ResNet50 embedding data for 11 parts was re-extracted. It was verified that the coordinates were correct and the embedding data was 100% unique. The ARI of UNI2 improved to 0.12-0.25. The re-run of the core multimodal fast fusion experiment was started (STAIG UNI extraction was completed, evaluation is ongoing).\ngadget-summarize ✅ Generated a comprehensive report for 4 devices on 2026-02-13 13:56:41.357 | claude_code Work on 2026-02-13 was integrated on multiple platforms such as DCC (MIHD 286 experiment benchmark automation), Tianhe (error recovery code cleanup v4.0→v4.1, GPU smoke test), MacBook (creating a daily report tool with a two-stage architecture), and Windows (CalendarPro P0 fix). AI generated a general proxy to handle complex multi-device integration tasks.\n✅ Implemented a deployment sub-command for batch publishing to Hugo bugJournal 14:52:54.146 | claude_code Users requested a batch deployment function for daily reports to the Hugo website. AI implemented three changes: fixed the generate_hugo_post() function (extracting summaries from block quotes, correcting time zone/time, updating keywords), added the cmd_deploy() function for batch processing, and added an argparse scheduler. Verification showed that the deploy –help function worked properly.\n🔄 Processed reports from February 15/16 and deployed them to Hugo, planning automation 03:57:32.066 | claude_code Users requested processing of daily reports on February 15 and 16. Export –summarize (for the 15th day) → merge –sync (for the 15th/16th days on 4 devices) → creating Hugo bugJournal entries → running update.sh for deployment (the website page increased from 139 pages to 141 pages). After syncing with rclone, additional reports from February 7/8/9/17 were found, and bugJournal entries were created for each report. Users requested a Python script to automate this process (template conversion + copying + update.sh). AI entered the plan mode to design the deployment sub-command, but the user interrupted the operation.\n✅ Configured a local SSH client to achieve stable Tianhe connections (TzJsDesktop) 05:12:10.522 | claude_code Users received guidelines on SSH stability from the Tianhe session and requested local configuration. AI updated the ~/.ssh/config file, adding features for maintaining connections and multiplexing. A ~/bin/auto-ssh wrapper script was created and retry logic was added. The ~/bin directory was added to the PATH through a new.bashrc file. SSH settings for automatic reconnection were completed, including tmux session persistence.\nError Recovery Benchmark Test ✅ Fixed the zero-cost error of ccusage opus-4-6 and applied it to historical dates 16:31:06.227 | claude_code It was found that the cost of ccusage opus-4-6 in the ccusage report was $0, while the actual cost for February 17 was approximately $21. This was because the LiteLLM database used anthropic.claude-opus-4-6-v1 (with a-v1 suffix), leading to a mismatch. Post-processing was added to daily_summary.py. The initial implementation incorrectly used the ‘model’ field (actually ‘modelName’), making it completely ineffective. Fixing was done after printing the original JSON. Re-exporting the dates from February 13 to February 17, the cost for February 14 was correctly updated from $3.14 to $39.07.✅ M5 Milestone Completed: Scene Generation Without Pulses, Using Multiple Injectors 2026-02-17 | claude_code The complete process of scene generation without pulses in M5 has been implemented. The benchmark_v4_nonimpulse.yaml configuration file has been created. By replacing the direct mj_name2id call with a method wrapped by robosuite, and adding _main suffix processing, three injector MuJoCo API errors (pose_perturb, friction, gripper_bias) have been fixed. During the first run, 103 pose_perturb scenes were generated, but no friction/gripperbias scenes were produced. The _augment_specs_with_alternatives() method has been implemented, allowing for programmatic generation of specifications when the detector does not trigger. Finally, the database contains 454 scenes (121 pulse scenes + 130 natural scenes + 103 pose_perturb scenes + 100 friction scenes), achieving 227% of the M5 target.**\n🔄 Advancements in Tianhe M5/M6 Milestones (SSH, Pulse-Free Scene Generation, BC-RNN, VLA) 21:47:07.960 | claude_code SSH stability settings have been implemented (tmux + connection maintenance + Claude-tmux script + session-level proxy). Issues with MuJoCo API compatibility for friction/pose_perturb/gripperbias injectors have been fixed (mj_name2id → body_name2id + _main suffix processing). 103 pose_perturb and 100 friction scenes were generated (database increased from 251 to 454). BC-RNN training lasted 600 cycles (15 minutes per 800 training sessions). Issues with VLA server openpi API calls and image key mapping have been resolved (Pi0/Pi0.5 servers are ready). M6 multi-strategy evaluation has been debugged—the random strategy works, but BC-RNN crashes due to obs format incompatibility (object and object state key names do not match + dimension 37 ≠ 65). ✅ BC-RNN integration: Training, obs key mapping fixes, and multi-strategy evaluation setup 2026-02-17 | claude_code A comprehensive BC-RNN integration workflow has been established. Checkpoints from MimicGen pre-training were searched, and no issues were found (only dataset issues). BC-RNN was trained from scratch using robomimic (2-layer LSTM, GMM head, trained on pick_place dataset for 600 cycles, checkpoint size 14.3MB). Obs key mapping errors were fixed: an alias object-state → object was implemented in policy_adapter.py, applicable to Strategy 1 (original obs) and Strategy 3 (StateExtractor fallback). Verified through 79 unit tests and GPU integration tests (5 iterations, eliminated KeyError, but SR rate was 0%). Visual videos demonstrating robot hovering behavior were generated, confirming that un-trained checkpoints were not framework-related. Project documentation updated to version v4.6. VLA servers were deployed (Pi0 port 5556, GPU 1; Pi0.5 port 5557, GPU 3). A script/5_baseline_accuracy.py was created for zero-error baseline testing. Multi-strategy evaluation started (50 scenarios × 3 seeds × 4 strategies).**\n✅ Stable SSH Connection Solution for Remote Development via Jump Host 2026-02-17 | claude_code An unstable proxy-based SSH connection was identified, causing Claude Code sessions to be lost. A five-tier solution was designed: (1) SSH keep-alive configuration (ServerAliveInterval 15 seconds), (2) enhanced.tmux.conf file with history and stability settings, (3) ~/bin/claude-tmux startup script supporting automatic proxy connections, (4) commented-out global proxy settings added to.bashrc files for user isolation on shared accounts (manual enabling/disabling proxies), (5) documentation/local_ssh_setup_guide.md created, including ControlMaster client, automatic SSH scripts, and VS Code settings. All components were verified to work properly. A stable remote development workflow was established, avoiding session loss.**\n🔄 Model Checkpoint Integration and Visualization Workflow Design 2026-02-17 | claude_code Six model checkpoints were listed: BC-RNN PickPlace (164MB, 12 cycles), Pi0 LIBERO (12GB), Pi0.5 Base (12GB), Pi0 Base (12GB), Pi0 Fast Base (11GB), Robomimic Lift (7.6MB). Total size exceeds 47GB. It was found that the existing script only handled replay of error scenarios and did not support visualization of real-time strategy demonstrations. A checkpoint/symbolic link structure was designed to avoid duplication. The visualize_policy_rollout.py script was created, combining the demonstration logic from 5_baseline_accuracy.py and the rendering function from 2_visualize_scene.py. Random/bc_rnn/vla strategies are supported, with configurable seeds and camera perspectives. Plans are in place, but implementation is still pending.**\nTools (Tool Overview) 🔄 Diagnosed and fixed ccusage opus-4-6 pricing errors, revealing a 13-fold underestimation of costs 2026-02-17 | claude_code Someone reported that ccusage returned a cost of 0, causing token cost tracking to fail. AI explored the sources of ccusage, LiteLLM pricing database, and actual log data. A mismatch in model names was identified: Claude Code used ‘claude-opus-4-6’, while LiteLLM database used ‘anthropic.claude-opus-4-6-v1’. A backup pricing mechanism was implemented in dailySummary.py: a _FALLBACK_PRICING dictionary was added (opus-4-6: input $5/minute, output $25/minute, cache creation $6.25/minute, cache retrieval $0.50/minute), along with a _fix_zero_cost_models() post-processing function. Initial implementation failed due to field name errors (used ‘model’, but ccusage output ‘modelName’). Fixed to mb.get(‘modelName’) or mb.get(‘model’). Logs from February 13th to 17th were re-exported (5 days). After fixing, actual costs were displayed as $18-48 per day, while the displayed costs were only $0-7 per day (13-fold underestimation, with an overall error of about $150+). Attempting to regenerate the report (merge and deploy) was unsuccessful due to LLM API connection failures. Data corrections are complete, but report generation still depends on API availability.**\nTools (Daily Report System) ✅ Integration of Daily Reports for Multiple Devices from February 13th to 16th 2026-02-17 | claude_code Users called the daily report analyzer during conversations from February 13th to 16th. This included projects on multiple devices: CalendarPro (JSON parsing, AI timeout handling, message queue stability, learning data collection, Random Thoughts feature on February 13th), MIHD benchmark optimization + error recovery framework (visual repairs, forced injection debugging, PreGrasp detector on February 14th), error recovery VLA work (Pi0/MimicGen checkpoint research, Gemini VLM integration, 50 iterations of natural error capture on February 16th, generating 150 scenarios). The system processed all conversations and generated structured JSON reports, including task, problem/solution, analysis of human and AI interactions, and conversation summaries for knowledge management and cross-device progress tracking.**\nMotion-Based Self-Reflection Framework 🔄 Initiated a comprehensive dual-language document (CLAUDE.md + README/Tutorial) 2026-02-17 | claude_code The init command was executed, exploring a three-module architecture: MPM (motion prediction using LLaVA), MCM (motion correction), and diffusion strategy. The CLAUDE.md document was created, documenting training/inferencing commands, Hydra configurations, and dataset formats. Users requested a detailed bilingual README document (Chinese-English mix), covering all components, including 11 dependency modules (openpi, GraspVLA, MimicGen, LeRobot, robosuite, robomimic, etc.). Three parallel exploration agents were launched to analyze diffusion_policy/, llava/, failure_case_analysis/, and the entire dependency tree. A document plan of approximately 1200 lines was developed, covering architecture, data conversion pipelines (RLDS→LeRobot→robomimic), training workflows (three stages: LLaVA fine-tuning, MCM training, diffusion strategy), and all integration points across repositories. The CLAUDE.md document is completed, but a comprehensive README document has not yet been written.**\nCalendarPro ✅ Fixed Google Calendar 403 errors and bulk deletion functionality 00:50:22.155 | claude_code calendar_service.py file was fixed, using settings().get() API instead of calendarList().get() to avoid 403 InsufficientPermissions errors. Bulk deletion functionality was implemented: the DeleteData model was extended, adding date_from/date_until/batch fields, updating LLM prompts to support custom time ranges, rewriting the handle_delete function for bulk operations, and adding a Discord confirmation interface for BatchDeleteApprovalView. Backoff mechanisms were added for LLM timeouts, including regular expression extraction and Discord crash handling for empty messages.**\nToken Usage Total expenditure: $62.95 — 90.3 million tokens\n",
+  "wordCount" : "6403",
+  "inLanguage": "en",
+  "datePublished": "2026-02-17T00:00:00-05:00",
+  "dateModified": "2026-02-17T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/bugjournal/daily/2026-02-17/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon2.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="en"
+                        data-translation-url="https://tzj2006.github.io/zh/bugjournal/daily/2026-02-17/">中文
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-02-17
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-02-17 00:00:00 -0500 EST'>February 17, 2026</span>&nbsp;·&nbsp;<span>31 min</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-02-17">Daily Report — 2026-02-17<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-02-17">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>Completed Work:</strong> Five parallel workflows were completed: DCC corrected the basic error in MIHD coordinates, increasing visual ARI from 0.065 to 0.12-0.25; MacBook/TzJsDesktop iterated daily and used the daily report tool to process historical logs from four devices between February 12, 2026, and February 16, 2026; Tianhe’s Error Recovery Benchmark increased from 251 scenarios to 454 scenarios, achieved through BC-RNN training, VLA dual-server deployment, and a multi-strategy evaluation framework; TzJsDesktop diagnosed and fixed ccusage pricing errors, discovering that the cost was underestimated by 13 times; Tianhe established an SSH stability infrastructure for remote development.</li>
+<li><strong>Completion Methods:</strong> DCC corrected CSV column mappings, cleared caches, and ran 286 experiments again; MacBook/TzJsDesktop implemented a two-stage export→merge architecture, using rclone for synchronization, powerful JSON parsing, conversation summaries, and Hugo deployment; Tianhe fixed MuJoCo API compatibility issues, trained the BC-RNN for 600 cycles, implemented an obs key mapping adapter, deployed the VLA server on Pi0/Pi0.5, and debugged integration with 79 unit tests and GPU verifications; TzJsDesktop implemented a backup pricing mechanism for ccusage, re-exported 5-day logs; Tianhe configured SSH stability (tmux+keep-alive+auto-reconnect) and recorded local client settings.</li>
+<li><strong>Impact:</strong> MIHD data quality was fundamentally restored (all visual results are now valid); the daily report tool reached production-level maturity; multi-device workflows allow knowledge to be systematically preserved; Error Recovery Benchmark exceeded the M5 scenario generation target (227%), and the first multi-strategy evaluation infrastructure preparation training strategy (M6 milestone) was completed, although the SR rate of BC-RNN was 0%, indicating problems with training checkpoints; SSH stability eliminated remote session loss issues; ccusage fixes corrected the displayed cost from $0-7 per day to actual $18-48 per day, restoring the integrity of financial tracking.</li>
+</ul>
+<h3 id="dcc">DCC<a hidden class="anchor" aria-hidden="true" href="#dcc">#</a></h3>
+<ul>
+<li><strong>Completed Work:</strong> Identified and fixed an X/Y coordinate swapping error in MIHD load_spatial_coordinates(), where pixel_x should actually refer to pxl_row (Y-axis), and pixel_y should refer to pxl_col (X-axis). This caused all visual patches to be extracted from the transposed image position, resulting in a visual ARI of only 0.065.</li>
+<li><strong>Completion Method:</strong> Modified CSV column names from [&rsquo;&hellip;&rsquo;, &lsquo;pixel_x&rsquo;, &lsquo;pixel_y&rsquo;] to [&rsquo;&hellip;&rsquo;, &lsquo;pxl_row&rsquo;, &lsquo;pxl_col&rsquo;], and changed the coordinate tuple from (pixel_x, pixel_y) = (Y, X) to (pxl_col, pxl_row) = (X, Y); removed allSpatialCoords.npz and vision/cache files; re-extracted embeddings for 11 parts in UNI2/HIPT/ResNet50; verified coordinate range (X: 323-1637, Y: 387-1773) and 100% embedding uniqueness.</li>
+<li><strong>Impact:</strong> UNI2&rsquo;s visual ARI increased from 0.065 to 0.08-0.25 (part 151673-151676 reached 0.22-0.25); all visual-dependent fusion experiments will be corrected; this is a fundamental data integrity issue that affects the validity of the entire benchmark.</li>
+</ul>
+<h3 id="macbook">MacBook<a hidden class="anchor" aria-hidden="true" href="#macbook">#</a></h3>
+<ul>
+<li><strong>Completed Work:</strong> As the main center of the daily report tool, it processed conversation logs from April 12, 2026, to February 16, 2026, on four devices, covering MIHD, Error Recovery Benchmark, CalendarPro, and small tool projects; reported the results to the Hugo bugJournal section and GitHub Pages.</li>
+<li><strong>Completion Method:</strong> Executed export &ndash;summarize to extract local logs → used &ndash;sync to merge export contents from other devices, downloaded using rclone → called Claude CLI API to generate structured JSON/Markdown reports → wrote reports to the website/content/bugJournal/ → ran update.sh to build the website (increased from 139 pages to 141 pages) → pushed public files to GitHub Pages.</li>
+<li><strong>Impact:</strong> Established a complete multi-device documentation process from raw conversation logs to the public website; created systematic historical records for more than 5 dates, making long-term knowledge tracking possible; the number of pages on GitHub Pages increased from 136 to 141.</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>Completed Work:</strong> Configured SSH stability infrastructure for Tianhe’s HPC cluster, using three-layer defense measures; as the workstation for the daily report tool, it analyzed historical logs of Error Recovery Benchmark, MIHD, CalendarPro, and small tool projects; diagnosed and fixed ccusage pricing errors, discovering that the cost was underestimated by 13 times.</li>
+<li><strong>Completion Method:</strong> Updated the ~/.ssh/config file, adding connection reuse functionality (ControlMaster/ControlPath/ControlPersist), optimizing keep-alive functionality (ServerAliveInterval set to 15 seconds, ServerAliveCountMax set to 6), creating ~/bin/auto-ssh wrapper script with retry logic and tmux session attachment; repeatedly called summarize tool to generate 10 reports; investigated ccusage source code and LiteLLM pricing database, implementing _FALLBACK_PRICING dictionary and _fix_zero_cost_models() function, correcting model name field references, and re-exporting logs from February 13-17.</li>
+<li><strong>Impact:</strong> Resolved SSH disconnection issues, allowing long HPC tasks to proceed smoothly; improved the functionality of the daily report tool through extensive internal testing; corrected the pricing of claude-opus-4-6 from $0-7 per day to actual $18-48 per day, showing a cumulative error of about $150, restoring the integrity of financial tracking.</li>
+</ul>
+<h3 id="tianhe">Tianhe<a hidden class="anchor" aria-hidden="true" href="#tianhe">#</a></h3>
+<ul>
+<li><strong>Completed Work:</strong> Progressed towards the M5/M6 milestones of Error Recovery Benchmark: expanded the scenario database from 251 scenarios to 454 scenarios through friction and pose_perturb generation; trained the BC-RNN strategy on A800 for 600 cycles; fixed obs key mapping integration errors; configured VLA dual-server infrastructure (Pi0 port 5556, Pi0.5 port 5557); debugged the multi-strategy evaluation framework with 79 unit tests and GPU verifications; established SSH stability solutions and updated project documentation to version 4.6.</li>
+<li><strong>Completion Method:</strong> Fixed three MuJoCo API compatibility issues with non-pulse injectors (mj_name2id→body_name2id, handling with main suffix); generated 103 pose_perturb and 100 friction scenarios through __augment_specs_with_alternatives(); trained the BC-RNN within about 15 minutes through robomimic; implemented key mapping <code>object-state</code> → <code>object</code> in policy_adapter.py, providing back-up strategies for Strategy 1 and Strategy 3; verified through 79 unit tests and GPU integration tests (5 deployments, eliminating KeyError issues); generated visual videos showing SR rate of 0% due to training checkpoint issues; deployed VLA server for evaluation; configured tmux + SSH keep-alive + proxy isolation; created Claude-tmux script and local client setup guide.</li>
+<li><strong>Impact:</strong> Exceeded the M5 target (from 200 scenarios to 454 scenarios, achieving 227%), non-pulse injectors transitioned from theoretical to practical state; BC-RNN became the first training baseline strategy to solve integration issues; VLA dual-server infrastructure was ready for multi-strategy evaluation (M6 milestone); SSH stability issues were permanently resolved, enabling reliable remote development; visual results showed model quality issues (not framework issues), requiring better checkpoints or more training to fix the critical MIHD visual encoder X/Y coordinate swapping error, necessitating re-running 286 experiments. A multi-device daily report tool was also developed to process historical conversation logs across four projects over four dates. Progress was made in the M5/M6 of Error Recovery Benchmark, achieving a 454-scenario database and adopting BC-RNN training and VLA dual-server integration solutions. SSH stability issues in remote development were resolved, and ccusage pricing errors were corrected, avoiding a 13-fold cost underestimation (cumulative error exceeding $150).</li>
+</ul>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture-and-strategy----fixed-the-xy-coordinate-confusion-in-mihd-load_--corrected-csv-column-mapping-errors-ensuring-that-pixel_x-actually-refers-to-pxl_row-y-axis-and-pixel_y-refers-to-pxl_col-x-axis-this-ensures-that-visual-segments-are-extracted-from-the-correct-positions-modified-scriptsrun_benchmarkpy-and-utilsdata_loaderpy-to-use-the-correct-pxl_col-pxl_row--xy-order---generating-non-pulse-error-scenarios-for-tianhe-m5-pose-perturbation--friction--the-benchmark_v4_nonimpulseyaml-configuration-file-was-created-by-using-the-_augment_specs_with_alternatives-method-the-database-was-expanded-from-251-to-454-items-resulting-in-103-pose-perturbation-scenarios-and-100-friction-scenarios-this-achieved-a-227-increase-in-the-m5-200-scenario-target-the-generation-of-gripper-deviations-is-not-yet-complete-but-it-will-not-affect-the-overall-progress">Architecture and Strategy - ✅ <strong>Fixed the X/Y coordinate confusion in MIHD load_spatial_coordinates() function</strong> — Corrected CSV column mapping errors, ensuring that pixel_x actually refers to pxl_row (Y-axis), and pixel_y refers to pxl_col (X-axis). This ensures that visual segments are extracted from the correct positions. Modified scripts/run_benchmark.py and utils/data_loader.py to use the correct (pxl_col, pxl_row) = (X,Y) order.- ✅ <strong>Generating non-pulse error scenarios for Tianhe M5 (pose perturbation + friction)</strong> — The benchmark_v4_nonimpulse.yaml configuration file was created. By using the _augment_specs_with_alternatives() method, the database was expanded from 251 to 454 items, resulting in 103 pose perturbation scenarios and 100 friction scenarios. This achieved a 227% increase in the M5 200 scenario target. The generation of gripper deviations is not yet complete, but it will not affect the overall progress.<a hidden class="anchor" aria-hidden="true" href="#architecture-and-strategy----fixed-the-xy-coordinate-confusion-in-mihd-load_--corrected-csv-column-mapping-errors-ensuring-that-pixel_x-actually-refers-to-pxl_row-y-axis-and-pixel_y-refers-to-pxl_col-x-axis-this-ensures-that-visual-segments-are-extracted-from-the-correct-positions-modified-scriptsrun_benchmarkpy-and-utilsdata_loaderpy-to-use-the-correct-pxl_col-pxl_row--xy-order---generating-non-pulse-error-scenarios-for-tianhe-m5-pose-perturbation--friction--the-benchmark_v4_nonimpulseyaml-configuration-file-was-created-by-using-the-_augment_specs_with_alternatives-method-the-database-was-expanded-from-251-to-454-items-resulting-in-103-pose-perturbation-scenarios-and-100-friction-scenarios-this-achieved-a-227-increase-in-the-m5-200-scenario-target-the-generation-of-gripper-deviations-is-not-yet-complete-but-it-will-not-affect-the-overall-progress">#</a></h3>
+<ul>
+<li>
+<p>✅ <strong>Diagnosing and fixing ccusage Claude-opus-4-6 zero-cost billing issue</strong> — An investigation was conducted on the source code of ccusage, the LiteLLM pricing database, and actual log data. It was confirmed that the model name Claude-opus-4-6 does not match the entry anthropic.claude-opus-4-6-v1 in LiteLLM, causing the cost field to always be 0. A backup pricing mechanism was implemented in the daily_summary.py file: a _FALLBACK_PRICING dictionary was added (opus-4-6: input $5/M, output $25/M, cache creation $6.25/M, cache reading $0.50/M). The __fix_zero_cost_models() function was also added for post-processing. The incorrect field names were corrected (mb.get(&lsquo;model&rsquo;) → mb.get(&lsquo;modelName&rsquo;) or mb.get(&lsquo;model&rsquo;)). Log data from February 13th to 17th was re-exported, and the displayed costs were adjusted from $0-7 per day to $18-48 per day. However, there was a 13-fold under-estimation (total error approximately $150+).</p>
+</li>
+<li>
+<p>✅ <strong>Re-running MIHD single-modal vision experiment to verify the repair effect</strong> — The visual embedding data for 11 parts (UNI2/HIPT/ResNet50, totaling 33 tasks) was re-extracted. The coordinates were confirmed to be correct (X: 323-1637, Y: 387-1773). The embedding data was 100% unique. The UNI2 ARI increased from 0.065 to approximately 0.12 (the part from 151673 to 151676 reached 0.22-0.25).</p>
+</li>
+<li>
+<p>✅ <strong>Implementing the core dual-stage architecture of the daily report tool</strong> — The summarize/daily_summary.py file was created, supporting three data sources (Claude Code JSONL, ChatGPT JSON, general format). A dual-stage export (local device) and merge (cross-device aggregation) workflow were implemented. The tool also included a structured report generation feature based on the LLM, as well as support for multiple APIs (claude_cli/anthropic/openai).</p>
+</li>
+<li>
+<p>✅ <strong>Fixing the compatibility issue with Tianhe&rsquo;s non-pulse injector MuJoCo API</strong> — The friction/pose perturbation/gripper deviation injectors were changed from mj_name2id() to model.body_name2id()/.geom_name2id(). The _resolve_body_id() helper function was added to handle the main suffix convention of robosuite. The try/except statement was used to handle missing body data gracefully.</p>
+</li>
+<li>
+<p>✅ <strong>Training and integrating Tianhe&rsquo;s BC-RNN baseline strategy</strong> — The MimicGen pre-trained checkpoints were searched but not found. The BC-RNN was trained from scratch: two-layer LSTM, GMM action heads. 600 training cycles were performed on the MimicGen pick_place dataset, and the 14.3MB checkpoints were saved in the bc_rnn_checkpoints/ directory. In the policy_adapter.py file, an alias <code>object-state</code> → <code>object</code> was implemented to fix the errors in Strategy 1 (original observations) and Strategy 3 (StateExtractor alternative). The effectiveness of this strategy was verified through 79 unit tests and GPU integration tests (KeyError eliminated). The generated visualization video showed that the SR rate was 0, indicating that the robot hovered without picking up objects, suggesting a model quality issue rather than a framework issue. The model path in the benchmark_v4.yaml was updated.</p>
+</li>
+<li>
+<p>🔄 <strong>Re-running MIHD vision-dependent fusion experiment (core_multimodal_fast)</strong> — The core_multimodal_fast experiment group was launched, and the STAIG fusion UNI visual embedding data was re-extracted (strict mode). The extraction of UNI data for 11 parts was completed, and the evaluation phase is currently underway.</p>
+</li>
+<li>
+<p>✅ <strong>Adding multi-device rclone synchronization functionality to the daily report tool</strong> — The __rcloneUpload function was implemented, supporting sub-directory exports (logs/ for exports, reports/ for merging results). The __rcloneDownloadLogs function was used to obtain data across devices. The merge command supports automatic aggregation, and the config parameter allows for remote viewing of configurations.</p>
+</li>
+<li>
+<p>✅ <strong>Adding a dialogue summary section to the report format</strong> — The JSON format was extended to include a summary of each session, including the project name, source, timestamp, topic (up to 60 characters), 2-4 sentences of narrative, result status (completed/partially completed/exploratory/abandoned), level, and importance. The SUMARY_PROMPT and markdown generator were updated.</p>
+</li>
+<li>
+<p>✅ <strong>Configuring SSH stable access to Tianhe clusters (client and server)</strong> — On the server side: tmux sessions were configured for persistence, SSH kept connections (intervals of 15 seconds/tolerance of 90 seconds), Claude-tmux was set up as a one-click script, and proxy control was applied at the session level. On the client side: the ~/.ssh/config file was updated to enable connection multiplexing (ControlMaster/ControlPath/ControlPersist lasting for 600 seconds), the mechanism for keeping connections was optimized (ServerAliveInterval 15 seconds, ServerAliveCountMax 6), and the ~/bin/auto-ssh wrapper script was created to automatically attach tmux sessions and implement retry logic (intervals of 5 seconds, up to 100 retries). The .tmux.conf file was enhanced with historical records and stability settings. The docs/local_ssh_setup_guide.md document was created, along with VS Code settings.</p>
+</li>
+<li>
+<p>✅ <strong>Setting up Tianhe VLA dual-server evaluation infrastructure</strong> — The collector.py file was extended to include VLA support: the _policies_needing_images tracking function was added, the __get_obs() function was modified to handle camera images, the predict_from_obs() interface was implemented, and the load_policy() function was updated to accommodate the vla_server type. The 3_collect_data.py file was extended to include VLA policy parameters (&ndash;vla_pi0_port, &ndash;vla_pi05_port). Issues with the mapping of Pi0.5 observation image keys and the norm_stats path were resolved using the Franka solution. The VLA servers were deployed: Pi0 was located on GPU 1 at port 5556, and Pi0.5 was located on GPU 3 at port 5557. The random strategy ran normally, the BC-RNN integration was completed, and the VLA servers were ready for evaluation.</p>
+</li>
+<li>
+<p>🔄 <strong>Execution of multi-strategy evaluation process (M6 milestone)</strong> — Evaluation of 50 scenarios × 3 seeds using 4 strategies (random + BC-RNN + VLA_Pi0 + VLA_Pi05) is underway. The scripts/5_baseline_accuracy.py file was created for zero-error baseline testing (random + BC-RNN, 20 iterations). All infrastructure is ready, and the evaluation is ongoing.</p>
+</li>
+<li>
+<p>✅ <strong>Updating the error recovery benchmark documentation to version v4.6</strong> — The project overview summary.md document was updated with 12 edits: version number, milestone table (M5/M6/M9), scenario statistics (271 → 454), and details on the implementation of pose perturbation/friction injectors via _augment_specs_with_alternatives(), the VLA dual-server architecture (Pi0 5556 + Pi0.5 5557), completion of the M5 milestone, and status of the M6 milestone. A new chapter on the zhaoganlong Pi0.5 training infrastructure was added.</p>
+</li>
+<li>
+<p>✅ <strong>Implementing a robust 4-stage JSON parsing and LLM-based repair alternative</strong> — The parse_json_response() function was created, including an alternative chain: direct json.loads() → block extraction → depth-based bracket matching → LLM-driven repair. The try_parse_json() and repair_json_with_llm() functions were added to common/json_utils.py.</p>
+</li>
+<li>
+<p>✅ <strong>Adding level/importance priority metadata to all report sections</strong> — The SUMARY_PROMPT was updated to include level (high = strategic, low = tactical) and importance (1-10) fields, applicable to tasks, questions, human vs AI comparison, AI limitations, learning outcomes, dialogue summaries, etc. The tool structure was modified, and the maximum token count was increased from 4096 to 8192.</p>
+</li>
+<li>
+<p>✅ <strong>Processing historical dialogue logs (2026-02-12 to 2026-02-16)</strong> — The tool export stage processing was run over the 5-day dialogue on four devices. JSON reports for each device/day were generated, cross-device summaries were merged, and the results were published on the Hugo website (pages on GitHub Pages increased from 136 to 141 pages).</p>
+</li>
+<li>
+<p>✅ <strong>Initializing the documentation for the motion-based self-reflection framework</strong> — The three-module architecture was discussed (motion prediction using LLaVA, motion correction using MCM, diffusion strategy). The CLAUDE.md document was created, documenting training/inferencing commands, Hydra configuration instructions, and dataset formats. Users requested a comprehensive bilingual README document containing all components (Chinese-English mixed), including 11 sub-modules such as openpi, GraspVLA, MimicGen, etc. Three parallel exploration agents were initiated, and a documentation plan of approximately 1200 lines was developed. The CLAUDE.md document is completed, and the full README is being created.</p>
+</li>
+<li>
+<p>✅ <strong>Cleaning up the visual and spatial coordinate caches affected by MIHD</strong> — The embedding caches/data/*/spatial_coords.npz (12 files) and the entire embedding cache/vision/ directory containing incorrect coordinates were deleted.</p>
+</li>
+<li>
+<p>✅ <strong>Implementing a deployment sub-command to batch publish Hugo bugJournal</strong> — The generate_hugo_post() function was modified to extract summaries from the report block citations, resolving time zone issues (-05:00), and updating keywords. The cmd_deploy() function was created for batch processing with the &ndash;date filter and for executing the auto-update.sh script.</p>
+</li>
+<li>
+<p>🔄 <strong>Designing a workflow for checkpoint integration and strategy visualization</strong> — Six model checkpoints were identified (BC-RNN 164MB, Pi0 series approximately 12GB each, robomimic 7.6MB, totaling more than 47GB). A checkpoint/symbolic link structure was designed, and the visualize_policy_rollout.py script was written, combining the launch logic from 5_baseline_accuracy.py and the rendering function from 2_visualize_scene.py. Random/BcRNN/VLA strategies were supported, and seed values and camera views could be configured. The plan has been developed but not yet implemented.</p>
+</li>
+<li>
+<p>❌ <strong>Re-generating the daily report with corrected price information (merging and deploying)</strong> — Attempts were made to regenerate the Markdown and JSON reports with corrected token costs using the merge command, but an API connection failure occurred (ConnectionRefused). The log export (data correction) was successful, but due to the unavailable LLM API, downstream report generation was hindered.### Limitations of Artificial Intelligence### Key Limitations</p>
+</li>
+<li>
+<p>Failed to independently diagnose the root cause of MIHD coordinate issues; relied entirely on users to provide analysis and repair plans. In the face of an &ldquo;abnormally low ARI&rdquo; macro metric, AI lacked the ability to independently track data sources (from results → embedding → patch extraction → coordinates → CSV column definitions in reverse order).</p>
+</li>
+<li>
+<p>Tianhe&rsquo;s BC-RNN integrated the repair attempts three times over two sessions, but AI failed to anticipate the different observation key names for robosuite&rsquo;s different tasks (PickPlace and Lift), and also realized that the observation results reconstructed by StateExtractor after the first repair did not guarantee consistent key names. Users had to make multiple corrections to find the correct solution. The use of the outdated MuJoCo C API (mujoco.mj_name2id) instead of checking the robosuite&rsquo;s wrapper API caused three injectors to crash immediately. It would have been better to check the existing working code (ImpulseInjector) before modifying other injectors to understand the correct API pattern.</p>
+</li>
+<li>
+<p>The initial design of the daily reporting tool did not consider multi-device distributed usage patterns—assuming a single-device workflow, requiring users to redesign the two-stage architecture.</p>
+</li>
+<li>
+<p>When generating JSON close to token limits, AI might truncate the output in the middle of the structure, resulting in malformed JSON, which requires defensive parsing and repair logic in production systems.</p>
+</li>
+<li>
+<p>The repair of ccusage initially used the incorrect mb.get(&lsquo;model&rsquo;) field, while the actual JSON contained modelName. No verification was done on the output structure of third-party tools before proceeding. This led to the repair being completely ineffective until humans discovered the error and rechecked it. Too many parallel exploration tasks were initiated, leading to duplicate information collection (reading the same log files multiple times).</p>
+</li>
+<li>
+<p>Initially, it was proposed to use LIBERO/droid to test the VLA model, but environmental compatibility was not verified. The target environment was not kept as robosuite/mimicgen, but rather the semantic context of LIBERO. Humans needed to correct it to point to the correct configuration.</p>
+</li>
+<li>
+<p>Insufficient memory across sessions: In the Tianhe session on 2026-02-16, AI was unable to recall the VLA checkpoint download from the previous session independently. Users were required to prompt to search for broader server paths.</p>
+</li>
+<li>
+<p>Unable to predict users&rsquo; needs for features like dialogue summaries—these product insights came from observations of blanks in generated reports.</p>
+</li>
+<li>
+<p>Difficulties in handling deeply nested meta-tasks: When conversations included discussions about the conversation itself, AI struggled to determine which level to analyze, unless there was clear task scope and guidance on expected outputs.</p>
+</li>
+<li>
+<p>When generating the daily report on 2026-02-17, the AI acting as the daily report analyst itself became an object of observation—there was a meta-level complexity of &ldquo;observers being observed.&rdquo; AI needed to analyze its own behavior (generating daily reports), which required a certain level of self-awareness.</p>
+</li>
+</ul>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<ul>
+<li>Users rejected the design of the daily report automation deployment plan. AI failed to capture changes in user intentions and could not assess whether the detailed implementation plan met user expectations. It directly entered the ExitPlanMode mode without seeking user feedback first. Multiple attempts at ExitPlanMode failed, indicating difficulties in determining when the plan was complete and when users wanted to continue iterating. Users rejected the plan three times in multiple sessions, suggesting that AI should ask &ldquo;Is this plan ready?&rdquo; instead of assuming it was already completed.</li>
+<li>It was impossible to directly analyze video content to evaluate policy quality. The promotional videos of BC-RNN required manual extraction of key frames and manual inspection to identify robot hovering behaviors (ignoring the target capture). Without visual confirmation, it was impossible to infer a 0% success rate, which might be due to model quality issues.</li>
+<li>When encountering an API ConnectionRefused error during report generation, no alternative solutions were proposed (data was fully corrected before report generation). The flexibility of the separated workflow was insufficient.</li>
+<li>A long unified plan document containing both server-side and client-side instructions was created, but the execution boundaries were not considered. User feedback was needed to reorganize it into actionable individual deliverables. The project decomposition capability was weak.</li>
+<li>When users asked &ldquo;What stage are we currently at?&rdquo;, an exploratory agent was immediately launched and a large amount of documentation was read, rather than first checking the recent session context or the to-do tracking system. Over-reliance on file reading was excessive, while dialogue context might have been sufficient.</li>
+</ul>
+<h2 id="lessons-learned">Lessons Learned<a hidden class="anchor" aria-hidden="true" href="#lessons-learned">#</a></h2>
+<h3 id="main-lesson-data-errors-are-more隐蔽-and-destructive-than-model-errors-mihds-coordinate-exchange-error-caused-all-visual-experiment-results-to-fail-but-the-code-logic-was-normal-and-all-tests-passed-it-is-necessary-to-trace-anomalies-at-the-macro-level-back-to-the-data-source-csv-column-definitions-this-requires-a-complete-thought-chain-from-data-scientists-unit-testing-alone-cannot-detect-such-errors">Main Lesson: Data errors are more隐蔽 and destructive than model errors. MIHD&rsquo;s coordinate exchange error caused all visual experiment results to fail, but the code logic was normal, and all tests passed. It is necessary to trace anomalies at the macro level back to the data source (CSV column definitions). This requires a complete thought chain from data scientists; unit testing alone cannot detect such errors.<a hidden class="anchor" aria-hidden="true" href="#main-lesson-data-errors-are-more隐蔽-and-destructive-than-model-errors-mihds-coordinate-exchange-error-caused-all-visual-experiment-results-to-fail-but-the-code-logic-was-normal-and-all-tests-passed-it-is-necessary-to-trace-anomalies-at-the-macro-level-back-to-the-data-source-csv-column-definitions-this-requires-a-complete-thought-chain-from-data-scientists-unit-testing-alone-cannot-detect-such-errors">#</a></h3>
+<p>Differences in naming conventions across frameworks are hidden pitfalls: robosuite&rsquo;s _main suffix, differences in observation key names for different tasks (object and object state), LiteLLM&rsquo;s model name-v1 suffix—these details are not obvious in the documentation, but they can lead to runtime errors. The robot simulation framework abstracts the original physics engine (robosuite encapsulates MuJoCo). Direct API calls bypassing the framework layer will cause errors—it is necessary to use the framework&rsquo;s wrappers to handle naming conventions and state management. Robosuite&rsquo;s observation key naming rule is that the environment automatically adds <code>-state</code> suffix to grouped modalities (e.g., <code>object</code> → <code>object-state</code>), but training data usually uses the original names. The adapter layer must handle these mismatches. The safest strategy is: (1) Use the framework&rsquo;s API instead of low-level APIs; (2) Pass the original data structure instead of manually reconstructing it; (3) Print the actual output to verify field names, rather than inferring from the documentation. Always check the working reference code in the same codebase before making changes.</p>
+<p>The correctness of the framework and the quality of the model require different verification strategies. Unit/integration testing can confirm code logic and eliminate errors like KeyError. Video visualization can reveal behavior quality issues (robot hovering and capturing). Even if unit testing passes, GPU integration testing remains crucial—BC-RNN passed 79 unit tests, but GPU deployment was needed to detect 0% SR issues and diagnose untrained checkpoints through visualization. Each verification layer has a different role.</p>
+<p>The multi-device collaborative daily report tool has achieved a closed loop: each device exports local logs → central hub combines remote logs → unified deployment to Hugo → published on GitHub Pages. This workflow was extensively used on 2026-02-17 (processing 4 historical dates), proving the feasibility of the two-stage architecture. The next step is automation (which has been proposed but not implemented). Tool-based tools (used to analyze the tools used by the tool) need to carefully consider the distribution of the workflow—what happens on each device, how data is synchronized, how partial information is handled. For distributed scenarios, a two-stage architecture (local export + centralized aggregation) is more robust than a single-unit single-stage design.</p>
+<p>The expansion of the error recovery benchmark scenario library from 251 to 454 is a successful incremental expansion case: First, the pulse injector (M4) was implemented → it was found that non-pulse types were needed (M5) → the MuJoCo API compatibility was fixed → various types of scenarios were generated through the detector candidate expansion mechanism. This shows the process from a minimum viable product to a fully functional product. The generation of error scenarios is a funnel process: detector triggering → error specification generation → injector application → verification → scenario acceptance. Enabling the injector does not guarantee scenario generation—it depends on the frequency of detector triggering. Depending on the dynamics of the task, the acceptance rates of different types of errors vary greatly. Pose perturbation is more general than friction/clamping anomalies in the pickup and placement task. Programmed specification enhancement (_augment_specs_with_alternatives()) can compensate for insufficient detector coverage.</p>
+<p>Third-party tool integration requires defensive programming: the patch cost is equal to 0 (ccusage), field name compatibility (modelName or model), and self-downgrade for future repairs (when LiteLLM makes repairs, backtracking becomes inactive). This &ldquo;only activates when necessary&rdquo; patch strategy can minimize maintenance costs. Pricing defects of third-party tools should be resolved through local backtracking mechanisms, rather than waiting for upstream repairs. Design backtracking should only be triggered in cases of abnormal values (cost = 0) to maintain backward compatibility. LiteLLM uses versioned model names (anthropic.{model}-v1, optional: 0 suffix), while Claude Code logs use simplified names, leading to systematic mismatches. Cost tracking errors may lead to over 90% underestimation (observed 13 times), severely affecting financial planning. Regular audits of cost indicators are very important.</p>
+<p>Human involvement in specifying the system architecture and strategic decisions, with AI responsible for technical implementation and optimization, yields the best results. In this meeting, users&rsquo; architectural insights (two-stage design, multi-device synchronization) were crucial; AI&rsquo;s technical execution (parsing backtracking, configuration optimization) filled in the gaps. Qualitative judgment from domain experts is essential for identifying systemic problems. AI&rsquo;s data-driven analysis and human experience and intuition form an effective complementarity.</p>
+<p>Remote development on unstable connections requires multiple layers of defense: maintaining connection activity (prevention), session persistence (survival), multiplexing (fast reconnection), and automated scripts (recovery). Single-layer solutions will fail under real network conditions. For shared server accounts, user-specific custom settings should be placed in conditional blocks or separate startup scripts, rather than affecting everyone&rsquo;s common.bashrc entry. tmux has both state persistence and environmental boundaries. Session-wide proxy configuration (not global bashrc) can prevent affecting users with shared accounts.</p>
+<p>Structured data generated by LLMs requires multiple backtracking strategies for defensive parsing. The native JSON schema (Anthropic&rsquo;s tool_use, OpenAI&rsquo;s json_object) is helpful, but it cannot eliminate failures—always treat fixing as the last resort. Each backtracking layer handles specific failure modes: code blocks handle markdown format, curly braces matching handle truncation, and fixing handle syntax errors.</p>
+<p>The daily summary tool benefits from a gradual evolution of the architecture: starting with a basic list of tasks/issues, adding session summaries to provide context, and adding priority metadata for filtering. Each layer meets different reading needs. The batch document workflow benefits from a two-stage architecture: (1) extracting local context for each source, (2) integrating across sources for global deduplication. This pattern appears in summary tools (export → merge), MIHD processes (first-stage cache embedding → second-stage fusion), and error recovery benchmarks (generating scenarios → collecting data).</p>
+<p>MimicGen&rsquo;s release policy is to only provide datasets, not pre-trained model checkpoints. Formal releases may provide data but not the training model—before planning, ensure the availability of assets. BC-RNN (with RNN behavior cloning) is a simple supervised learning: collecting pairs of human demonstrations (states, actions), training an LSTM to predict actions, and then deploying as a strategy. When there are enough demonstrations, this is a simple but effective manipulation task baseline. When pre-trained checkpoints are unavailable, training from demonstrations becomes the necessary backup plan.</p>
+<p>Reviewing work logs (summarizing the situation of the past week) is an important exercise that converts raw dialogue logs into structured knowledge, helping to identify patterns and track progress over time. - Idempotent design patterns (tracking what has already been processed, skipping repetitive work) are crucial for workflows that may be interrupted or run again. _merged_devices tracking function can prevent expensive repeated API calls when reprocessing partially completed aggregated data.</p>
+<ul>
+<li>Managing large model assets (VLA checkpoints larger than 47GB) requires an organized approach based on symbolic links to avoid duplication while maintaining centralized discoverability. Dispersed checkpoints in the file system can hinder reproducibility and configuration management. Centralized checkpoint directories can improve discoverability.</li>
+<li>When repairing quality issues in historical data, data correction (exportation) should be separated from downstream use (report generation). Avoid blocking the entire process due to failures in downstream dependencies (e.g., LLM API unavailability). The export phase relies on Node.js tools (ccusage), and the merging phase relies on the LLM API—even if merging is blocked, export can still proceed.</li>
+</ul>
+<h3 id="practical-experience">Practical Experience<a hidden class="anchor" aria-hidden="true" href="#practical-experience">#</a></h3>
+<ul>
+<li>The scope of complex scientific research project documents should include main modules as well as sub-modules (there are 11 sub-modules in the Motion framework), data conversion pipelines, and integration points across repositories (LeRobot, OpenPI, MimicGen). Adequate exploration can prevent onboarding difficulties caused by incomplete documentation.</li>
+</ul>
+<h2 id="dialogue-summary">Dialogue Summary<a hidden class="anchor" aria-hidden="true" href="#dialogue-summary">#</a></h2>
+<h3 id="mihd">MIHD<a hidden class="anchor" aria-hidden="true" href="#mihd">#</a></h3>
+<p><strong>🔄 Fixed the X/Y coordinate exchange error in the visual encoder, ready to run experiments again</strong>
+<em>18:50:27.298 | claude_code</em>
+Users noticed that the UNI2 clustering results were abnormal (151670 had only one cluster, with ARI around 0.065). Detailed debugging revealed two serious errors: (1) Coordinate space mismatch (comparison between high resolution and full resolution), (2) X/Y coordinate exchange error (in CSV, col4 was Y/col5 was X, but the code naming was reversed). By analyzing the correlation between array_row/array_col and pixel coordinates, the root cause was identified. The processing logic for load_spatial_coordinates() and VisionEncoder was fixed, and an execution plan was written to run 66 single-modal experiments (3 gene encoders + 3 visual encoders × 11 parts). However, the operation was interrupted when exiting the plan mode.</p>
+<p><strong>🔄 Fully fixed the coordinate error, and verified it by running experiments again</strong>
+<em>21:28:38.729 | claude_code</em>
+The CSV column mapping error in load_spatial_coordinates() was fixed (pixel_x was actually Y/pxl_row, pixel_y was X/pxl_col), causing all visual patches extracted from the transpose position to have an ARI of only 0.065. The column names and coordinate order in scripts/run_benchmark.py and utils/data_loader.py were modified. All spatial coordinates and visual caches were cleared, and the UNI2/HIPT/ResNet50 embedding data for 11 parts was re-extracted. It was verified that the coordinates were correct and the embedding data was 100% unique. The ARI of UNI2 improved to 0.12-0.25. The re-run of the core multimodal fast fusion experiment was started (STAIG UNI extraction was completed, evaluation is ongoing).</p>
+<h3 id="gadget-summarize">gadget-summarize<a hidden class="anchor" aria-hidden="true" href="#gadget-summarize">#</a></h3>
+<p><strong>✅ Generated a comprehensive report for 4 devices on 2026-02-13</strong>
+<em>13:56:41.357 | claude_code</em>
+Work on 2026-02-13 was integrated on multiple platforms such as DCC (MIHD 286 experiment benchmark automation), Tianhe (error recovery code cleanup v4.0→v4.1, GPU smoke test), MacBook (creating a daily report tool with a two-stage architecture), and Windows (CalendarPro P0 fix). AI generated a general proxy to handle complex multi-device integration tasks.</p>
+<p><strong>✅ Implemented a deployment sub-command for batch publishing to Hugo bugJournal</strong>
+<em>14:52:54.146 | claude_code</em>
+Users requested a batch deployment function for daily reports to the Hugo website. AI implemented three changes: fixed the generate_hugo_post() function (extracting summaries from block quotes, correcting time zone/time, updating keywords), added the cmd_deploy() function for batch processing, and added an argparse scheduler. Verification showed that the deploy &ndash;help function worked properly.</p>
+<p><strong>🔄 Processed reports from February 15/16 and deployed them to Hugo, planning automation</strong>
+<em>03:57:32.066 | claude_code</em>
+Users requested processing of daily reports on February 15 and 16. Export &ndash;summarize (for the 15th day) → merge &ndash;sync (for the 15th/16th days on 4 devices) → creating Hugo bugJournal entries → running update.sh for deployment (the website page increased from 139 pages to 141 pages). After syncing with rclone, additional reports from February 7/8/9/17 were found, and bugJournal entries were created for each report. Users requested a Python script to automate this process (template conversion + copying + update.sh). AI entered the plan mode to design the deployment sub-command, but the user interrupted the operation.</p>
+<p><strong>✅ Configured a local SSH client to achieve stable Tianhe connections (TzJsDesktop)</strong>
+<em>05:12:10.522 | claude_code</em>
+Users received guidelines on SSH stability from the Tianhe session and requested local configuration. AI updated the ~/.ssh/config file, adding features for maintaining connections and multiplexing. A ~/bin/auto-ssh wrapper script was created and retry logic was added. The ~/bin directory was added to the PATH through a new.bashrc file. SSH settings for automatic reconnection were completed, including tmux session persistence.</p>
+<h3 id="error-recovery-benchmark-test">Error Recovery Benchmark Test<a hidden class="anchor" aria-hidden="true" href="#error-recovery-benchmark-test">#</a></h3>
+<p><strong>✅ Fixed the zero-cost error of ccusage opus-4-6 and applied it to historical dates</strong>
+<em>16:31:06.227 | claude_code</em>
+It was found that the cost of ccusage opus-4-6 in the ccusage report was $0, while the actual cost for February 17 was approximately $21. This was because the LiteLLM database used anthropic.claude-opus-4-6-v1 (with a-v1 suffix), leading to a mismatch. Post-processing was added to daily_summary.py. The initial implementation incorrectly used the &lsquo;model&rsquo; field (actually &lsquo;modelName&rsquo;), making it completely ineffective. Fixing was done after printing the original JSON. Re-exporting the dates from February 13 to February 17, the cost for February 14 was correctly updated from $3.14 to $39.07.<strong>✅ M5 Milestone Completed: Scene Generation Without Pulses, Using Multiple Injectors</strong>
+<em>2026-02-17 | claude_code</em>
+The complete process of scene generation without pulses in M5 has been implemented. The benchmark_v4_nonimpulse.yaml configuration file has been created. By replacing the direct mj_name2id call with a method wrapped by robosuite, and adding _main suffix processing, three injector MuJoCo API errors (pose_perturb, friction, gripper_bias) have been fixed. During the first run, 103 pose_perturb scenes were generated, but no friction/gripperbias scenes were produced. The _augment_specs_with_alternatives() method has been implemented, allowing for programmatic generation of specifications when the detector does not trigger. Finally, the database contains 454 scenes (121 pulse scenes + 130 natural scenes + 103 pose_perturb scenes + 100 friction scenes), achieving 227% of the M5 target.**</p>
+<p><strong>🔄 Advancements in Tianhe M5/M6 Milestones (SSH, Pulse-Free Scene Generation, BC-RNN, VLA)</strong>
+<em>21:47:07.960 | claude_code</em>
+SSH stability settings have been implemented (tmux + connection maintenance + Claude-tmux script + session-level proxy). Issues with MuJoCo API compatibility for friction/pose_perturb/gripperbias injectors have been fixed (mj_name2id → body_name2id + _main suffix processing). 103 pose_perturb and 100 friction scenes were generated (database increased from 251 to 454). BC-RNN training lasted 600 cycles (15 minutes per 800 training sessions). Issues with VLA server openpi API calls and image key mapping have been resolved (Pi0/Pi0.5 servers are ready). M6 multi-strategy evaluation has been debugged—the random strategy works, but BC-RNN crashes due to obs format incompatibility (object and object state key names do not match + dimension 37 ≠ 65). <strong>✅ BC-RNN integration: Training, obs key mapping fixes, and multi-strategy evaluation setup</strong>
+<em>2026-02-17 | claude_code</em>
+A comprehensive BC-RNN integration workflow has been established. Checkpoints from MimicGen pre-training were searched, and no issues were found (only dataset issues). BC-RNN was trained from scratch using robomimic (2-layer LSTM, GMM head, trained on pick_place dataset for 600 cycles, checkpoint size 14.3MB). Obs key mapping errors were fixed: an alias <code>object-state</code> → <code>object</code> was implemented in policy_adapter.py, applicable to Strategy 1 (original obs) and Strategy 3 (StateExtractor fallback). Verified through 79 unit tests and GPU integration tests (5 iterations, eliminated KeyError, but SR rate was 0%). Visual videos demonstrating robot hovering behavior were generated, confirming that un-trained checkpoints were not framework-related. Project documentation updated to version v4.6. VLA servers were deployed (Pi0 port 5556, GPU 1; Pi0.5 port 5557, GPU 3). A script/5_baseline_accuracy.py was created for zero-error baseline testing. Multi-strategy evaluation started (50 scenarios × 3 seeds × 4 strategies).**</p>
+<p><strong>✅ Stable SSH Connection Solution for Remote Development via Jump Host</strong>
+<em>2026-02-17 | claude_code</em>
+An unstable proxy-based SSH connection was identified, causing Claude Code sessions to be lost. A five-tier solution was designed: (1) SSH keep-alive configuration (ServerAliveInterval 15 seconds), (2) enhanced.tmux.conf file with history and stability settings, (3) ~/bin/claude-tmux startup script supporting automatic proxy connections, (4) commented-out global proxy settings added to.bashrc files for user isolation on shared accounts (manual enabling/disabling proxies), (5) documentation/local_ssh_setup_guide.md created, including ControlMaster client, automatic SSH scripts, and VS Code settings. All components were verified to work properly. A stable remote development workflow was established, avoiding session loss.**</p>
+<p><strong>🔄 Model Checkpoint Integration and Visualization Workflow Design</strong>
+<em>2026-02-17 | claude_code</em>
+Six model checkpoints were listed: BC-RNN PickPlace (164MB, 12 cycles), Pi0 LIBERO (12GB), Pi0.5 Base (12GB), Pi0 Base (12GB), Pi0 Fast Base (11GB), Robomimic Lift (7.6MB). Total size exceeds 47GB. It was found that the existing script only handled replay of error scenarios and did not support visualization of real-time strategy demonstrations. A checkpoint/symbolic link structure was designed to avoid duplication. The visualize_policy_rollout.py script was created, combining the demonstration logic from 5_baseline_accuracy.py and the rendering function from 2_visualize_scene.py. Random/bc_rnn/vla strategies are supported, with configurable seeds and camera perspectives. Plans are in place, but implementation is still pending.**</p>
+<h3 id="tools-tool-overview">Tools (Tool Overview)<a hidden class="anchor" aria-hidden="true" href="#tools-tool-overview">#</a></h3>
+<p><strong>🔄 Diagnosed and fixed ccusage opus-4-6 pricing errors, revealing a 13-fold underestimation of costs</strong>
+<em>2026-02-17 | claude_code</em>
+Someone reported that ccusage returned a cost of 0, causing token cost tracking to fail. AI explored the sources of ccusage, LiteLLM pricing database, and actual log data. A mismatch in model names was identified: Claude Code used &lsquo;claude-opus-4-6&rsquo;, while LiteLLM database used &lsquo;anthropic.claude-opus-4-6-v1&rsquo;. A backup pricing mechanism was implemented in dailySummary.py: a _FALLBACK_PRICING dictionary was added (opus-4-6: input $5/minute, output $25/minute, cache creation $6.25/minute, cache retrieval $0.50/minute), along with a _fix_zero_cost_models() post-processing function. Initial implementation failed due to field name errors (used &lsquo;model&rsquo;, but ccusage output &lsquo;modelName&rsquo;). Fixed to mb.get(&lsquo;modelName&rsquo;) or mb.get(&lsquo;model&rsquo;). Logs from February 13th to 17th were re-exported (5 days). After fixing, actual costs were displayed as $18-48 per day, while the displayed costs were only $0-7 per day (13-fold underestimation, with an overall error of about $150+). Attempting to regenerate the report (merge and deploy) was unsuccessful due to LLM API connection failures. Data corrections are complete, but report generation still depends on API availability.**</p>
+<h3 id="tools-daily-report-system">Tools (Daily Report System)<a hidden class="anchor" aria-hidden="true" href="#tools-daily-report-system">#</a></h3>
+<p><strong>✅ Integration of Daily Reports for Multiple Devices from February 13th to 16th</strong>
+<em>2026-02-17 | claude_code</em>
+Users called the daily report analyzer during conversations from February 13th to 16th. This included projects on multiple devices: CalendarPro (JSON parsing, AI timeout handling, message queue stability, learning data collection, Random Thoughts feature on February 13th), MIHD benchmark optimization + error recovery framework (visual repairs, forced injection debugging, PreGrasp detector on February 14th), error recovery VLA work (Pi0/MimicGen checkpoint research, Gemini VLM integration, 50 iterations of natural error capture on February 16th, generating 150 scenarios). The system processed all conversations and generated structured JSON reports, including task, problem/solution, analysis of human and AI interactions, and conversation summaries for knowledge management and cross-device progress tracking.**</p>
+<h3 id="motion-based-self-reflection-framework">Motion-Based Self-Reflection Framework<a hidden class="anchor" aria-hidden="true" href="#motion-based-self-reflection-framework">#</a></h3>
+<p><strong>🔄 Initiated a comprehensive dual-language document (CLAUDE.md + README/Tutorial)</strong>
+<em>2026-02-17 | claude_code</em>
+The <em>init</em> command was executed, exploring a three-module architecture: MPM (motion prediction using LLaVA), MCM (motion correction), and diffusion strategy. The CLAUDE.md document was created, documenting training/inferencing commands, Hydra configurations, and dataset formats. Users requested a detailed bilingual README document (Chinese-English mix), covering all components, including 11 dependency modules (openpi, GraspVLA, MimicGen, LeRobot, robosuite, robomimic, etc.). Three parallel exploration agents were launched to analyze diffusion_policy/, llava/, failure_case_analysis/, and the entire dependency tree. A document plan of approximately 1200 lines was developed, covering architecture, data conversion pipelines (RLDS→LeRobot→robomimic), training workflows (three stages: LLaVA fine-tuning, MCM training, diffusion strategy), and all integration points across repositories. The CLAUDE.md document is completed, but a comprehensive README document has not yet been written.**</p>
+<h3 id="calendarpro">CalendarPro<a hidden class="anchor" aria-hidden="true" href="#calendarpro">#</a></h3>
+<p><strong>✅ Fixed Google Calendar 403 errors and bulk deletion functionality</strong>
+<em>00:50:22.155 | claude_code</em>
+calendar_service.py file was fixed, using settings().get() API instead of calendarList().get() to avoid 403 InsufficientPermissions errors. Bulk deletion functionality was implemented: the DeleteData model was extended, adding date_from/date_until/batch fields, updating LLM prompts to support custom time ranges, rewriting the handle_delete function for bulk operations, and adding a Discord confirmation interface for BatchDeleteApprovalView. Backoff mechanisms were added for LLM timeouts, including regular expression extraction and Discord crash handling for empty messages.**</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<p><img alt="Token Usage" loading="lazy" src="2026-02-17-usage.png">
+<strong>Total expenditure: $62.95</strong> — 90.3 million tokens</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-06-17 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="Completed a major UI architecture refactor for TokenMonitor&rsquo;s device management, resolving critical single-instance startup failures and deduplication issues; simultaneously finalized the MIHD project by archiving legacy embeddings and executed repository hygiene for TokenMonitor (v0.14.0), while diagnosing PC stability and remote development environment connectivity.">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/bugjournal/daily/2026-06-17/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-06-17/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-06-17/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/bugjournal/daily/2026-06-17/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-06-17">
+  <meta property="og:description" content="Completed a major UI architecture refactor for TokenMonitor’s device management, resolving critical single-instance startup failures and deduplication issues; simultaneously finalized the MIHD project by archiving legacy embeddings and executed repository hygiene for TokenMonitor (v0.14.0), while diagnosing PC stability and remote development environment connectivity.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-06-17T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-06-17T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-06-17">
+  <meta name="twitter:description" content="Completed a major UI architecture refactor for TokenMonitor’s device management, resolving critical single-instance startup failures and deduplication issues; simultaneously finalized the MIHD project by archiving legacy embeddings and executed repository hygiene for TokenMonitor (v0.14.0), while diagnosing PC stability and remote development environment connectivity.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-06-17",
+      "item": "https://tzj2006.github.io/bugjournal/daily/2026-06-17/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-06-17",
+  "name": "Bug Journal 2026-06-17",
+  "description": "Completed a major UI architecture refactor for TokenMonitor\u0026rsquo;s device management, resolving critical single-instance startup failures and deduplication issues; simultaneously finalized the MIHD project by archiving legacy embeddings and executed repository hygiene for TokenMonitor (v0.14.0), while diagnosing PC stability and remote development environment connectivity.",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-06-17 Daily Overview What was done: Consolidated Remote Devices and SSH Host management in TokenMonitor’s Settings, implemented device identity normalization to fix deduplication, added a Windows named mutex fallback for single-instance enforcement, and verified automatic usage refresh. Also archived legacy HVG-path embeddings in MIHD, cleaned the TokenMonitor repository history (v0.14.0), and diagnosed PCIe hardware errors while fixing Cursor remote SSH proxy issues. How it was done: Refactored Svelte/Rust UI components (SshHostsSettings.svelte) and backend format.ts helpers; utilized Windows Mutex APIs for robust locking; performed MD5 hashing on MIHD embedding arrays to verify provenance; used git filter-repo strategies and gh CLI tools for repo hygiene; analyzed Windows Event Logs and SSH configs for system stability. Impact: Delivered a unified, bug-free device management interface for TokenMonitor users without duplicate entries or startup blocks, ensured scientific integrity of MIHD clustering by isolating true encoder paths, stabilized the PC environment against BSODs, and cleaned repository bloat for future maintainability. Completed a major UI architecture refactor for TokenMonitor’s device management, resolving critical single-instance startup failures and deduplication issues; simultaneously finalized the MIHD project by archiving legacy embeddings and executed repository hygiene for TokenMonitor (v0.14.0), while diagnosing PC stability and remote development environment connectivity.\nTasks Architecture \u0026 Strategy ✅ TokenMonitor: Unified Device Management \u0026 Single-Instance Hardening — Consolidated Remote Devices and SSH Hosts into a single Settings view; implemented deviceIdentityKey normalization to deduplicate entries; replaced fragile TCP port locking with a Windows named mutex fallback; unified toggle semantics (enabled \u0026\u0026 include_in_stats) and UI layout padding. ✅ MIHD: Provenance Audit and Legacy Archival — Verified staig_fusion embedding provenance via MD5 hashing; identified and archived 4 legacy HVG-path directories that lacked gene encoders; updated all downstream figure scripts to point to the new archive paths. Implementation \u0026 Fixes ✅ TokenMonitor: Repository Hygiene and v0.14.0 Release — Patched clippy warnings, removed stale .claude/worktrees/ artifacts from tracking via git rm --cached, updated .gitignore, bumped version to v0.14.0, and created a draft PR with changelog and history slimming recommendations. ✅ PC Stability \u0026 Remote Dev Environment Troubleshooting — Analyzed Windows System logs to confirm BSOD fix efficacy (no new Kernel-Power 41 errors since June 1) despite persistent WHEA PCIe correctable errors on RTX 5090; fixed Cursor Remote SSH failures by resolving proxy port mismatches and cleaning corrupted server archives. Problems \u0026 Solutions Critical Issues 1. TokenMonitor single-instance startup failure when lock port is occupied by un-terminatable processes. Solution: Implemented a Windows named mutex (Local\\TokenMonitor-SingleInstance) as a robust fallback lock mechanism alongside the TCP port check, preventing access denied errors.\nKey Insight: OS-level primitives like named mutexes provide reliable single-instance enforcement where TCP ports fail due to legacy or protected processes.\n2. Ambiguity in MIHD staig_fusion outputs regarding gene encoding source. Solution: Implemented content hashing (MD5) of embedding arrays; true encoder-paths produce unique hashes per gene, while HVG-path baselines match a gene-less baseline hash, conclusively proving provenance.\nKey Insight: Metadata is unreliable for scientific provenance; direct content hashing against known baselines is the only trustable verification method in ML pipelines.\n3. Duplicated device entries in TokenMonitor Settings due to volatile slug metadata (e.g., OS tags, hashes). Solution: Created deviceIdentityKey helper in format.ts to strip suffixes and hashes, using the normalized string as the canonical identity for deduplication.\nKey Insight: Raw identifiers should not be used for matching; canonical representation is required early in the display pipeline to prevent duplication.\nGeneral Issues 4. GitHub CLI (gh) authentication failure during automated PR creation. Solution: Detected gh auth invalidity, bypassed direct API push, and generated title/markdown body for manual verification or alternative MCP connector usage.\nKey Insight: Automated agents must anticipate local token mismatches and fall back to generating executable code/text rather than relying on potentially invalid session contexts.\n5. Cursor Remote SSH server installation failure on ’tianhe2’ due to proxy mismatches and corrupted archives. Solution: Identified conflict between local SSH RemoteForward (10087) and remote proxy (127.0.0.1:18080); cleaned corrupt files, aligned ports, and manually transferred the correct server package via tunnel.\nKey Insight: Proxy environment variables persist across sessions; mismatches between local tunnels and remote configs cause silent connectivity failures for development tools.\nHuman vs AI Approaches Strategic Level Device Management Architecture \u0026 Single-Instance Logic Role Approach Human User defined strict UX requirements (unified view, deduplication, specific display strings) and identified the single-instance edge case where taskkill fails due to security mechanisms. AI AI handled complex state synchronization across Rust/Svelte stores, implemented regex-based name normalization, and pivoted from port repair to Windows named mutex implementation after recognizing process termination limitations. Difference Analysis: Human provided the rigorous acceptance criteria and identified the root cause of the single-instance failure; AI engineered the solution by bridging local/remote environments, normalizing data formats, and leveraging OS-level primitives for robustness.\nScientific Provenance Verification Role Approach Human User demanded verification based on a theoretical criterion (‘gene+vision+fusion’) and distinguished it from legacy HVG baselines. AI AI operationalized this into an MD5 hashing comparison script, executed file system moves, and patched code references in bulk. Difference Analysis: Human defined the scientific boundary of validity; AI provided the engineering automation to enforce it across multiple directories. AI also identified a discrepancy in local reproduction values vs. paper baselines during execution.\nAI Limitations General Limitations Rust unit tests failed due to local DLL environment issues rather than code bugs, preventing immediate verification of backend logic changes within the log context. Automated Git push via gh CLI and advanced Windows process inspection (Get-Process) failed due to local auth token invalidity and sandbox permission restrictions, requiring manual intervention or alternative workarounds. Learnings Key Learnings For single-instance applications on Windows, relying solely on lock ports is brittle; combining TCP-based IPC with a named mutex provides robust redundancy against occupied or protected ports. When auditing scientific outputs where metadata is missing, content hashing against known baselines is the most robust way to prove provenance of embedding arrays. Practical Learnings Repositories using git worktree for local dev should explicitly ignore .claude/worktrees/ or similar agent workspace folders in .gitignore before commitment to prevent future repo bloat. When debugging remote tool failures, always check for proxy environment variables in both local and remote shell profiles, as mismatched ports are a common silent failure point. Conversation Summaries TOMonitor (Tauri App) ✅ Device Management Refactoring, Single-Instance Hardening, and Repository Hygiene 18:58:00.112 | claude_code The user requested consolidating Remote Devices and SSH Hosts into a unified Settings view to eliminate duplicates and improve UX. The AI implemented deviceIdentityKey normalization, updated Svelte/Rust UI components, and added Windows named mutex fallback for single-instance enforcement when ports are occupied. Concurrently, the repository v0.14.0 was released after removing stale .claude/worktrees/ bloat via git rm --cached, fixing clippy warnings, and drafting a PR with history slimming advice. Cursor remote SSH issues were also resolved by aligning proxy ports and cleaning corrupted archives.\nMIHD (Multi-modal Image-histo Data) ✅ STAIG Fusion Provenance Verification and Archival of HVG-baselines 19:41:36.447 | claude_code The user demanded verification that all live staig_fusion outputs strictly used ‘gene+vision+fusion’ paths. The AI hashed output files and proved that some directories were legacy HVG-path results. Upon instruction, the AI archived these 4 legacy directories, updated downstream Python figure scripts to fall back to new paths, committed changes, and pushed to main.\nSystem Maintenance ✅ Windows Blue Screen \u0026 Hardware Error Analysis 19:02:17.402 | codex Verification of June BSOD fixes confirmed no Kernel-Power 41 errors since June 1. However, persistent WHEA PCIe correctable errors (ID 17) on NVIDIA RTX 5090 were identified, indicating underlying link noise but confirming crash resolution.\nToken Usage Total: $75.31 — 70.6M tokens\nClaude Code: $45.09 — 39.2M tokens Codex: $30.22 — 31.4M tokens ",
+  "wordCount" : "1258",
+  "inLanguage": "en",
+  "datePublished": "2026-06-17T00:00:00-05:00",
+  "dateModified": "2026-06-17T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/bugjournal/daily/2026-06-17/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon2.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="en"
+                        data-translation-url="https://tzj2006.github.io/zh/bugjournal/daily/2026-06-17/">中文
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-06-17
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-06-17 00:00:00 -0500 -0500'>June 17, 2026</span>&nbsp;·&nbsp;<span>6 min</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-06-17">Daily Report — 2026-06-17<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-06-17">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>What was done:</strong> Consolidated Remote Devices and SSH Host management in TokenMonitor&rsquo;s Settings, implemented device identity normalization to fix deduplication, added a Windows named mutex fallback for single-instance enforcement, and verified automatic usage refresh. Also archived legacy HVG-path embeddings in MIHD, cleaned the TokenMonitor repository history (v0.14.0), and diagnosed PCIe hardware errors while fixing Cursor remote SSH proxy issues.</li>
+<li><strong>How it was done:</strong> Refactored Svelte/Rust UI components (<code>SshHostsSettings.svelte</code>) and backend <code>format.ts</code> helpers; utilized Windows Mutex APIs for robust locking; performed MD5 hashing on MIHD embedding arrays to verify provenance; used <code>git filter-repo</code> strategies and <code>gh CLI</code> tools for repo hygiene; analyzed Windows Event Logs and SSH configs for system stability.</li>
+<li><strong>Impact:</strong> Delivered a unified, bug-free device management interface for TokenMonitor users without duplicate entries or startup blocks, ensured scientific integrity of MIHD clustering by isolating true encoder paths, stabilized the PC environment against BSODs, and cleaned repository bloat for future maintainability.</li>
+</ul>
+<blockquote>
+<p>Completed a major UI architecture refactor for TokenMonitor&rsquo;s device management, resolving critical single-instance startup failures and deduplication issues; simultaneously finalized the MIHD project by archiving legacy embeddings and executed repository hygiene for TokenMonitor (v0.14.0), while diagnosing PC stability and remote development environment connectivity.</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<ul>
+<li>✅ <strong>TokenMonitor: Unified Device Management &amp; Single-Instance Hardening</strong> — Consolidated Remote Devices and SSH Hosts into a single Settings view; implemented <code>deviceIdentityKey</code> normalization to deduplicate entries; replaced fragile TCP port locking with a Windows named mutex fallback; unified toggle semantics (<code>enabled &amp;&amp; include_in_stats</code>) and UI layout padding.</li>
+<li>✅ <strong>MIHD: Provenance Audit and Legacy Archival</strong> — Verified <code>staig_fusion</code> embedding provenance via MD5 hashing; identified and archived 4 legacy HVG-path directories that lacked gene encoders; updated all downstream figure scripts to point to the new archive paths.</li>
+</ul>
+<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<ul>
+<li>✅ <strong>TokenMonitor: Repository Hygiene and v0.14.0 Release</strong> — Patched clippy warnings, removed stale <code>.claude/worktrees/</code> artifacts from tracking via <code>git rm --cached</code>, updated <code>.gitignore</code>, bumped version to v0.14.0, and created a draft PR with changelog and history slimming recommendations.</li>
+<li>✅ <strong>PC Stability &amp; Remote Dev Environment Troubleshooting</strong> — Analyzed Windows System logs to confirm BSOD fix efficacy (no new Kernel-Power 41 errors since June 1) despite persistent WHEA PCIe correctable errors on RTX 5090; fixed Cursor Remote SSH failures by resolving proxy port mismatches and cleaning corrupted server archives.</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-tokenmonitor-single-instance-startup-failure-when-lock-port-is-occupied-by-un-terminatable-processes">1. TokenMonitor single-instance startup failure when lock port is occupied by un-terminatable processes.<a hidden class="anchor" aria-hidden="true" href="#1-tokenmonitor-single-instance-startup-failure-when-lock-port-is-occupied-by-un-terminatable-processes">#</a></h4>
+<p><strong>Solution:</strong> Implemented a Windows named mutex (<code>Local\TokenMonitor-SingleInstance</code>) as a robust fallback lock mechanism alongside the TCP port check, preventing access denied errors.</p>
+<p><strong>Key Insight:</strong> OS-level primitives like named mutexes provide reliable single-instance enforcement where TCP ports fail due to legacy or protected processes.</p>
+<h4 id="2-ambiguity-in-mihd-staig_fusion-outputs-regarding-gene-encoding-source">2. Ambiguity in MIHD <code>staig_fusion</code> outputs regarding gene encoding source.<a hidden class="anchor" aria-hidden="true" href="#2-ambiguity-in-mihd-staig_fusion-outputs-regarding-gene-encoding-source">#</a></h4>
+<p><strong>Solution:</strong> Implemented content hashing (MD5) of embedding arrays; true encoder-paths produce unique hashes per gene, while HVG-path baselines match a gene-less baseline hash, conclusively proving provenance.</p>
+<p><strong>Key Insight:</strong> Metadata is unreliable for scientific provenance; direct content hashing against known baselines is the only trustable verification method in ML pipelines.</p>
+<h4 id="3-duplicated-device-entries-in-tokenmonitor-settings-due-to-volatile-slug-metadata-eg-os-tags-hashes">3. Duplicated device entries in TokenMonitor Settings due to volatile slug metadata (e.g., OS tags, hashes).<a hidden class="anchor" aria-hidden="true" href="#3-duplicated-device-entries-in-tokenmonitor-settings-due-to-volatile-slug-metadata-eg-os-tags-hashes">#</a></h4>
+<p><strong>Solution:</strong> Created <code>deviceIdentityKey</code> helper in <code>format.ts</code> to strip suffixes and hashes, using the normalized string as the canonical identity for deduplication.</p>
+<p><strong>Key Insight:</strong> Raw identifiers should not be used for matching; canonical representation is required early in the display pipeline to prevent duplication.</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="4-github-cli-gh-authentication-failure-during-automated-pr-creation">4. GitHub CLI (<code>gh</code>) authentication failure during automated PR creation.<a hidden class="anchor" aria-hidden="true" href="#4-github-cli-gh-authentication-failure-during-automated-pr-creation">#</a></h4>
+<p><strong>Solution:</strong> Detected <code>gh auth</code> invalidity, bypassed direct API push, and generated title/markdown body for manual verification or alternative MCP connector usage.</p>
+<p><strong>Key Insight:</strong> Automated agents must anticipate local token mismatches and fall back to generating executable code/text rather than relying on potentially invalid session contexts.</p>
+<h4 id="5-cursor-remote-ssh-server-installation-failure-on-tianhe2-due-to-proxy-mismatches-and-corrupted-archives">5. Cursor Remote SSH server installation failure on &rsquo;tianhe2&rsquo; due to proxy mismatches and corrupted archives.<a hidden class="anchor" aria-hidden="true" href="#5-cursor-remote-ssh-server-installation-failure-on-tianhe2-due-to-proxy-mismatches-and-corrupted-archives">#</a></h4>
+<p><strong>Solution:</strong> Identified conflict between local SSH <code>RemoteForward</code> (10087) and remote proxy (<code>127.0.0.1:18080</code>); cleaned corrupt files, aligned ports, and manually transferred the correct server package via tunnel.</p>
+<p><strong>Key Insight:</strong> Proxy environment variables persist across sessions; mismatches between local tunnels and remote configs cause silent connectivity failures for development tools.</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="device-management-architecture--single-instance-logic">Device Management Architecture &amp; Single-Instance Logic<a hidden class="anchor" aria-hidden="true" href="#device-management-architecture--single-instance-logic">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>User defined strict UX requirements (unified view, deduplication, specific display strings) and identified the single-instance edge case where <code>taskkill</code> fails due to security mechanisms.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI handled complex state synchronization across Rust/Svelte stores, implemented regex-based name normalization, and pivoted from port repair to Windows named mutex implementation after recognizing process termination limitations.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human provided the rigorous acceptance criteria and identified the root cause of the single-instance failure; AI engineered the solution by bridging local/remote environments, normalizing data formats, and leveraging OS-level primitives for robustness.</p>
+<h4 id="scientific-provenance-verification">Scientific Provenance Verification<a hidden class="anchor" aria-hidden="true" href="#scientific-provenance-verification">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>User demanded verification based on a theoretical criterion (&lsquo;gene+vision+fusion&rsquo;) and distinguished it from legacy HVG baselines.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI operationalized this into an MD5 hashing comparison script, executed file system moves, and patched code references in bulk.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human defined the scientific boundary of validity; AI provided the engineering automation to enforce it across multiple directories. AI also identified a discrepancy in local reproduction values vs. paper baselines during execution.</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<ul>
+<li>Rust unit tests failed due to local DLL environment issues rather than code bugs, preventing immediate verification of backend logic changes within the log context.</li>
+<li>Automated Git push via <code>gh</code> CLI and advanced Windows process inspection (<code>Get-Process</code>) failed due to local auth token invalidity and sandbox permission restrictions, requiring manual intervention or alternative workarounds.</li>
+</ul>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<ul>
+<li>For single-instance applications on Windows, relying solely on lock ports is brittle; combining TCP-based IPC with a named mutex provides robust redundancy against occupied or protected ports.</li>
+<li>When auditing scientific outputs where metadata is missing, content hashing against known baselines is the most robust way to prove provenance of embedding arrays.</li>
+</ul>
+<h3 id="practical-learnings">Practical Learnings<a hidden class="anchor" aria-hidden="true" href="#practical-learnings">#</a></h3>
+<ul>
+<li>Repositories using <code>git worktree</code> for local dev should explicitly ignore <code>.claude/worktrees/</code> or similar agent workspace folders in <code>.gitignore</code> before commitment to prevent future repo bloat.</li>
+<li>When debugging remote tool failures, always check for proxy environment variables in both local and remote shell profiles, as mismatched ports are a common silent failure point.</li>
+</ul>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<h3 id="tomonitor-tauri-app">TOMonitor (Tauri App)<a hidden class="anchor" aria-hidden="true" href="#tomonitor-tauri-app">#</a></h3>
+<p><strong>✅ Device Management Refactoring, Single-Instance Hardening, and Repository Hygiene</strong>
+<em>18:58:00.112 | claude_code</em>
+The user requested consolidating Remote Devices and SSH Hosts into a unified Settings view to eliminate duplicates and improve UX. The AI implemented <code>deviceIdentityKey</code> normalization, updated Svelte/Rust UI components, and added Windows named mutex fallback for single-instance enforcement when ports are occupied. Concurrently, the repository v0.14.0 was released after removing stale <code>.claude/worktrees/</code> bloat via <code>git rm --cached</code>, fixing clippy warnings, and drafting a PR with history slimming advice. Cursor remote SSH issues were also resolved by aligning proxy ports and cleaning corrupted archives.</p>
+<h3 id="mihd-multi-modal-image-histo-data">MIHD (Multi-modal Image-histo Data)<a hidden class="anchor" aria-hidden="true" href="#mihd-multi-modal-image-histo-data">#</a></h3>
+<p><strong>✅ STAIG Fusion Provenance Verification and Archival of HVG-baselines</strong>
+<em>19:41:36.447 | claude_code</em>
+The user demanded verification that all live <code>staig_fusion</code> outputs strictly used &lsquo;gene+vision+fusion&rsquo; paths. The AI hashed output files and proved that some directories were legacy HVG-path results. Upon instruction, the AI archived these 4 legacy directories, updated downstream Python figure scripts to fall back to new paths, committed changes, and pushed to <code>main</code>.</p>
+<h3 id="system-maintenance">System Maintenance<a hidden class="anchor" aria-hidden="true" href="#system-maintenance">#</a></h3>
+<p><strong>✅ Windows Blue Screen &amp; Hardware Error Analysis</strong>
+<em>19:02:17.402 | codex</em>
+Verification of June BSOD fixes confirmed no Kernel-Power 41 errors since June 1. However, persistent WHEA PCIe correctable errors (ID 17) on NVIDIA RTX 5090 were identified, indicating underlying link noise but confirming crash resolution.</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<p><img alt="Token Usage" loading="lazy" src="2026-06-17-usage.png"></p>
+<p><strong>Total: $75.31</strong> — 70.6M tokens</p>
+<ul>
+<li><strong>Claude Code</strong>: $45.09 — 39.2M tokens</li>
+<li><strong>Codex</strong>: $30.22 — 31.4M tokens</li>
+</ul>
+<!-- gadget:src-hash:7269073ef15d94d5 -->
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

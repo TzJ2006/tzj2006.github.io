@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-05-09 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="通过编写诊断与修复脚本解决了LeRobot视频数据集中的损坏问题，在PairedDataset中实现了健壮的错误处理机制，并清理了error_recovery_benchmark项目中的GPU资源。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-05-09/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-05-09/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-05-09/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-05-09/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-05-09">
+  <meta property="og:description" content="通过编写诊断与修复脚本解决了LeRobot视频数据集中的损坏问题，在PairedDataset中实现了健壮的错误处理机制，并清理了error_recovery_benchmark项目中的GPU资源。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-05-09T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-05-09T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-05-09">
+  <meta name="twitter:description" content="通过编写诊断与修复脚本解决了LeRobot视频数据集中的损坏问题，在PairedDataset中实现了健壮的错误处理机制，并清理了error_recovery_benchmark项目中的GPU资源。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-05-09",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-05-09/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-05-09",
+  "name": "Bug Journal 2026-05-09",
+  "description": "通过编写诊断与修复脚本解决了LeRobot视频数据集中的损坏问题，在PairedDataset中实现了健壮的错误处理机制，并清理了error_recovery_benchmark项目中的GPU资源。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-05-09 日常概述 已完成工作： 修复了 LeRobot 数据集中因 MP4 文件损坏导致的训练中断问题，并管理了 Tangzijia 团队的 GPU 资源分配。 实现方式： 开发了 Python 脚本用于诊断并重新编码来自 HDF5 源的损坏视频，更新了数据加载代码，增加了预检查与优雅降级机制，并使用 Shell 命令识别并终止特定用户任务。 影响： 通过解决数据完整性问题，恢复了稳定的训练能力，并优化了错误恢复项目的计算资源可用性。 通过编写诊断与修复脚本解决了 LeRobot 视频数据集的损坏问题，在 PairedDataset 中实现了健壮的错误处理机制，并对 error_recovery_benchmark 项目进行了 GPU 资源清理。\n任务 架构与策略 ✅ LeRobot 视频数据诊断与修复 — 创建了 diagnose_corrupted_videos.py 和 repair_corrupted_videos.py 以识别单个及多个 OSS 数据集中的 60 个损坏剧集，然后从原始 HDF5 源重新编码它们。 ✅ PairedDataset 错误处理优化 — 重构了 paired_dataset.py，实现了增强帧的预检查、损坏视频的黑名单管理，以及发生错误时显著的控制台日志输出以辅助调试。 实施与修复 ✅ 为 Tangzijia 清理 GPU 资源 — 识别并终止了位于 GPU 4 和 5 上的 tangzijia/error_recovery_benchmark 项目中的遗留 PyTorch 进程，使每个 GPU 释放约 60GB 的 VRAM。 ✅ BOSS 项目 README 文档完善 — 在 BOSS 目录中添加了所有脚本的说明（数据收集、转换、映射、验证），以提高项目可用性。 问题与解决方案 关键问题 1. 在解码增强视频帧时，由于 HDF5 转换过程中产生的损坏 MP4 文件导致 DataLoader 出现 RuntimeError: InvalidDataError。 解决方案： 实施了两层修复方案：1) 通过脚本进行静态修复，从原始 HDF5 源重新编码损坏剧集；2) 采用动态处理，包含预检查（修复后禁用）和 try-except 块，跳过损坏帧而不中断训练。\n关键洞察： LeRobot 数据集中的损坏视频在文件层面通常无异常，但在特定解码操作中会失败；诊断它们需要明确的 PyAV 解码方式，而不仅仅是检查文件头。\n2. JAX JIT 编译限制导致无法根据损坏掩码状态在运行时条件跳过正向计算。 解决方案： 接受损坏样本的计算仍会运行，但确保它们的损失贡献被置为零，从而防止梯度污染，同时不违反静态图的要求。\n关键洞察： 像 JAX 这样的静态图框架要求控制流在编译时与张量值独立；解决策略必须遵守这些编译时的限制。\n一般问题 3. 初始错误处理通过仅修复增强数据集的损坏来掩盖干净数据集的错误，导致干净数据中出现 InvalidDataError（boss44_lerobot）。 解决方案： 意识到损坏范围不仅限于增强集；对所有涉及的 LeRobot 数据集应用了诊断与修复逻辑。\n关键洞察： 数据管道错误可能分布在多个数据集版本中；针对一部分的修复可能会暴露另一个部分的潜在问题，如果整体验证不足则无法发现。\n人类与 AI 方法 战略层面 数据损坏的根本原因分析 角色 方法 人类 用户怀疑损坏发生在 HDF5 到 LeRobot 转换过程中，建议从源数据重新编码而非仅掩盖错误。 AI AI 最初专注于运行时处理（try-except 占位符），随后探索转换脚本逻辑并创建专门的修复工具。 差异分析： 人类优先选择永久的数据完整性解决方案，而非临时变通方案；AI 在即时操作稳定性与长期修复之间取得平衡，最终遵循了用户对源数据修正的偏好。\n实施层面 GPU 进程管理复杂性 角色 方法 人类 用户请求停止特定团队的任务而不影响其他任务，表明信任 AI 能准确识别进程归属。 AI AI 使用多种验证步骤（nvidia-smi、ps、tmux、fuser/procfs）将 GPU 内存使用与特定进程 PID 关联，并通过路径/字符串匹配验证用户权限，然后终止进程。 差异分析： 人类提供了目标（释放资源）；AI 必须应对复杂的容器/沙箱权限限制以安全清理资源。\nAI 限制 关键限制 AI 最初未能识别干净数据集（boss44_lerobot）中也包含损坏视频，认为只有增强数据集需要修复。 一般限制 AI 在沙箱环境中通过 fuser 访问 /dev/nvidia 设备时遇到权限拒绝错误，需要采用 /proc 扫描等替代方法。 经验教训 关键经验 修复数据管道问题时，务必验证根本原因适用于所有数据集版本（干净与增强），而不仅仅是观察第一个错误表面。 实际经验 在数据调试阶段添加显著的日志（例如带有清晰标记的 ERROR 级别）至关重要，以便快速区分预期占位符和真实故障。 对话总结 RoboBrain PI 🔄 调试 LeRobot 配置 AssertionError 11:04:28.272 | claude_code 调查了运行 compute_norm_stats.py 时出现的 AssertionError。错误表明 LeRobot 将本地数据集路径误认为 HuggingFace Hub 仓库 ID。用户在修复前中断了调查。\n错误恢复基准测试 🔍 GPU 资源清理请求 20:44:10.699 | claude_code 用户请求停止所有在可用 GPU 上运行的 ’tangzijia’ 任务的进程。会话记录了此请求，并将执行任务委托给 Codex 会话。\n✅ 识别并终止 Tangzijia 的 GPU 任务 20:47:17.389 | codex 执行复杂的进程管理操作以停止 Tangzijia 在 GPU 4 和 5 上的训练任务。使用 nvidia-smi、ps、tmux 和 /proc fs 扫描验证消耗 VRAM 的 PID 的所有权。成功向特定 PID 发送 SIGTERM（start_openpi_serve_policy_safe.py、run_pi05_tuning_grid.py），使每个 GPU 释放约 60GB 资源，同时不影响其他用户的工作。\nOpenPI (Chenjunye)✅ 修复损坏的 LeRobot 视频解码错误 06:19:52.420 | claude_code 解决了增强数据集中损坏的 MP4 文件导致的持续 InvalidDataError 问题。编写了 diagnose_corrupted_videos.py 和 repair_corrupted_videos.py 脚本，用于从 HDF5 源中重新编码有问题的视频片段。更新了 paired_dataset.py 脚本，增加了预检查功能（后取消）、黑名单位置跳过机制以及更完善的错误日志系统。在 README 中记录了所有 BOSS 项目脚本。\n令牌使用情况 总计：7.26美元 — 14.4百万个令牌\n",
+  "wordCount" : "290",
+  "inLanguage": "zh",
+  "datePublished": "2026-05-09T00:00:00-05:00",
+  "dateModified": "2026-05-09T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-05-09/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon2.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="zh"
+                        data-translation-url="https://tzj2006.github.io/bugjournal/daily/2026-05-09/">EN
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-05-09
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-05-09 00:00:00 -0500 -0500'>2026年5月9日</span>&nbsp;·&nbsp;<span>2 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-05-09">每日报告 — 2026-05-09<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-05-09">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>已完成工作：</strong> 修复了 LeRobot 数据集中因 MP4 文件损坏导致的训练中断问题，并管理了 Tangzijia 团队的 GPU 资源分配。</li>
+<li><strong>实现方式：</strong> 开发了 Python 脚本用于诊断并重新编码来自 HDF5 源的损坏视频，更新了数据加载代码，增加了预检查与优雅降级机制，并使用 Shell 命令识别并终止特定用户任务。</li>
+<li><strong>影响：</strong> 通过解决数据完整性问题，恢复了稳定的训练能力，并优化了错误恢复项目的计算资源可用性。</li>
+</ul>
+<blockquote>
+<p>通过编写诊断与修复脚本解决了 LeRobot 视频数据集的损坏问题，在 PairedDataset 中实现了健壮的错误处理机制，并对 error_recovery_benchmark 项目进行了 GPU 资源清理。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>✅ <strong>LeRobot 视频数据诊断与修复</strong> — 创建了 diagnose_corrupted_videos.py 和 repair_corrupted_videos.py 以识别单个及多个 OSS 数据集中的 60 个损坏剧集，然后从原始 HDF5 源重新编码它们。</li>
+<li>✅ <strong>PairedDataset 错误处理优化</strong> — 重构了 paired_dataset.py，实现了增强帧的预检查、损坏视频的黑名单管理，以及发生错误时显著的控制台日志输出以辅助调试。</li>
+</ul>
+<h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
+<ul>
+<li>✅ <strong>为 Tangzijia 清理 GPU 资源</strong> — 识别并终止了位于 GPU 4 和 5 上的 tangzijia/error_recovery_benchmark 项目中的遗留 PyTorch 进程，使每个 GPU 释放约 60GB 的 VRAM。</li>
+<li>✅ <strong>BOSS 项目 README 文档完善</strong> — 在 BOSS 目录中添加了所有脚本的说明（数据收集、转换、映射、验证），以提高项目可用性。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-在解码增强视频帧时由于-hdf5-转换过程中产生的损坏-mp4-文件导致-dataloader-出现-runtimeerror-invaliddataerror">1. 在解码增强视频帧时，由于 HDF5 转换过程中产生的损坏 MP4 文件导致 DataLoader 出现 RuntimeError: InvalidDataError。<a hidden class="anchor" aria-hidden="true" href="#1-在解码增强视频帧时由于-hdf5-转换过程中产生的损坏-mp4-文件导致-dataloader-出现-runtimeerror-invaliddataerror">#</a></h4>
+<p><strong>解决方案：</strong> 实施了两层修复方案：1) 通过脚本进行静态修复，从原始 HDF5 源重新编码损坏剧集；2) 采用动态处理，包含预检查（修复后禁用）和 try-except 块，跳过损坏帧而不中断训练。</p>
+<p><strong>关键洞察：</strong> LeRobot 数据集中的损坏视频在文件层面通常无异常，但在特定解码操作中会失败；诊断它们需要明确的 PyAV 解码方式，而不仅仅是检查文件头。</p>
+<h4 id="2-jax-jit-编译限制导致无法根据损坏掩码状态在运行时条件跳过正向计算">2. JAX JIT 编译限制导致无法根据损坏掩码状态在运行时条件跳过正向计算。<a hidden class="anchor" aria-hidden="true" href="#2-jax-jit-编译限制导致无法根据损坏掩码状态在运行时条件跳过正向计算">#</a></h4>
+<p><strong>解决方案：</strong> 接受损坏样本的计算仍会运行，但确保它们的损失贡献被置为零，从而防止梯度污染，同时不违反静态图的要求。</p>
+<p><strong>关键洞察：</strong> 像 JAX 这样的静态图框架要求控制流在编译时与张量值独立；解决策略必须遵守这些编译时的限制。</p>
+<h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
+<h4 id="3-初始错误处理通过仅修复增强数据集的损坏来掩盖干净数据集的错误导致干净数据中出现-invaliddataerrorboss44_lerobot">3. 初始错误处理通过仅修复增强数据集的损坏来掩盖干净数据集的错误，导致干净数据中出现 InvalidDataError（boss44_lerobot）。<a hidden class="anchor" aria-hidden="true" href="#3-初始错误处理通过仅修复增强数据集的损坏来掩盖干净数据集的错误导致干净数据中出现-invaliddataerrorboss44_lerobot">#</a></h4>
+<p><strong>解决方案：</strong> 意识到损坏范围不仅限于增强集；对所有涉及的 LeRobot 数据集应用了诊断与修复逻辑。</p>
+<p><strong>关键洞察：</strong> 数据管道错误可能分布在多个数据集版本中；针对一部分的修复可能会暴露另一个部分的潜在问题，如果整体验证不足则无法发现。</p>
+<h2 id="人类与-ai-方法">人类与 AI 方法<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="数据损坏的根本原因分析">数据损坏的根本原因分析<a hidden class="anchor" aria-hidden="true" href="#数据损坏的根本原因分析">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户怀疑损坏发生在 HDF5 到 LeRobot 转换过程中，建议从源数据重新编码而非仅掩盖错误。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI 最初专注于运行时处理（try-except 占位符），随后探索转换脚本逻辑并创建专门的修复工具。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类优先选择永久的数据完整性解决方案，而非临时变通方案；AI 在即时操作稳定性与长期修复之间取得平衡，最终遵循了用户对源数据修正的偏好。</p>
+<h3 id="实施层面">实施层面<a hidden class="anchor" aria-hidden="true" href="#实施层面">#</a></h3>
+<h4 id="gpu-进程管理复杂性">GPU 进程管理复杂性<a hidden class="anchor" aria-hidden="true" href="#gpu-进程管理复杂性">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户请求停止特定团队的任务而不影响其他任务，表明信任 AI 能准确识别进程归属。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI 使用多种验证步骤（nvidia-smi、ps、tmux、fuser/procfs）将 GPU 内存使用与特定进程 PID 关联，并通过路径/字符串匹配验证用户权限，然后终止进程。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类提供了目标（释放资源）；AI 必须应对复杂的容器/沙箱权限限制以安全清理资源。</p>
+<h2 id="ai-限制">AI 限制<a hidden class="anchor" aria-hidden="true" href="#ai-限制">#</a></h2>
+<h3 id="关键限制">关键限制<a hidden class="anchor" aria-hidden="true" href="#关键限制">#</a></h3>
+<ul>
+<li>AI 最初未能识别干净数据集（boss44_lerobot）中也包含损坏视频，认为只有增强数据集需要修复。</li>
+</ul>
+<h3 id="一般限制">一般限制<a hidden class="anchor" aria-hidden="true" href="#一般限制">#</a></h3>
+<ul>
+<li>AI 在沙箱环境中通过 fuser 访问 /dev/nvidia 设备时遇到权限拒绝错误，需要采用 /proc 扫描等替代方法。</li>
+</ul>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="关键经验">关键经验<a hidden class="anchor" aria-hidden="true" href="#关键经验">#</a></h3>
+<ul>
+<li>修复数据管道问题时，务必验证根本原因适用于所有数据集版本（干净与增强），而不仅仅是观察第一个错误表面。</li>
+</ul>
+<h3 id="实际经验">实际经验<a hidden class="anchor" aria-hidden="true" href="#实际经验">#</a></h3>
+<ul>
+<li>在数据调试阶段添加显著的日志（例如带有清晰标记的 ERROR 级别）至关重要，以便快速区分预期占位符和真实故障。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<h3 id="robobrain-pi">RoboBrain PI<a hidden class="anchor" aria-hidden="true" href="#robobrain-pi">#</a></h3>
+<p><strong>🔄 调试 LeRobot 配置 AssertionError</strong>
+<em>11:04:28.272 | claude_code</em>
+调查了运行 compute_norm_stats.py 时出现的 AssertionError。错误表明 LeRobot 将本地数据集路径误认为 HuggingFace Hub 仓库 ID。用户在修复前中断了调查。</p>
+<h3 id="错误恢复基准测试">错误恢复基准测试<a hidden class="anchor" aria-hidden="true" href="#错误恢复基准测试">#</a></h3>
+<p><strong>🔍 GPU 资源清理请求</strong>
+<em>20:44:10.699 | claude_code</em>
+用户请求停止所有在可用 GPU 上运行的 &rsquo;tangzijia&rsquo; 任务的进程。会话记录了此请求，并将执行任务委托给 Codex 会话。</p>
+<p><strong>✅ 识别并终止 Tangzijia 的 GPU 任务</strong>
+<em>20:47:17.389 | codex</em>
+执行复杂的进程管理操作以停止 Tangzijia 在 GPU 4 和 5 上的训练任务。使用 nvidia-smi、ps、tmux 和 /proc fs 扫描验证消耗 VRAM 的 PID 的所有权。成功向特定 PID 发送 SIGTERM（start_openpi_serve_policy_safe.py、run_pi05_tuning_grid.py），使每个 GPU 释放约 60GB 资源，同时不影响其他用户的工作。</p>
+<h3 id="openpi-chenjunye-修复损坏的-lerobot-视频解码错误">OpenPI (Chenjunye)<strong>✅ 修复损坏的 LeRobot 视频解码错误</strong><a hidden class="anchor" aria-hidden="true" href="#openpi-chenjunye-修复损坏的-lerobot-视频解码错误">#</a></h3>
+<p><em>06:19:52.420 | claude_code</em>
+解决了增强数据集中损坏的 MP4 文件导致的持续 InvalidDataError 问题。编写了 diagnose_corrupted_videos.py 和 repair_corrupted_videos.py 脚本，用于从 HDF5 源中重新编码有问题的视频片段。更新了 paired_dataset.py 脚本，增加了预检查功能（后取消）、黑名单位置跳过机制以及更完善的错误日志系统。在 README 中记录了所有 BOSS 项目脚本。</p>
+<h2 id="令牌使用情况">令牌使用情况<a hidden class="anchor" aria-hidden="true" href="#令牌使用情况">#</a></h2>
+<p><img alt="令牌使用情况" loading="lazy" src="2026-05-09-usage.png"></p>
+<p><strong>总计：7.26美元</strong> — 14.4百万个令牌</p>
+<!-- gadget:src-hash:e528446f3f140518 -->
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
