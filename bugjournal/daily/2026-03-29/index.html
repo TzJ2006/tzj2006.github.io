@@ -7,13 +7,13 @@
 <meta name="robots" content="index, follow">
 <title>Bug Journal 2026-03-29 | TzJ&#39;s Net</title>
 <meta name="keywords" content="Bug Journal">
-<meta name="description" content="Analyzed the TEDDY single-cell foundation model paper on an HPC cluster, fixed 4 critical bugs in the existing extraction script, and successfully deployed embedding extraction for the DLPFC dataset.">
+<meta name="description" content="Analyze the TEDDY single-cell base model paper on the HPC cluster, fix 4 critical bugs in the existing extraction script, and successfully complete the embedding extraction deployment for the DLPFC dataset.">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/bugjournal/daily/2026-03-29/">
 <link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
-<link rel="icon" href="https://tzj2006.github.io/images/icon2.png">
-<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon2.png">
-<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon2.png">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
 <link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
 <link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
@@ -79,7 +79,7 @@
 <meta property="og:url" content="https://tzj2006.github.io/bugjournal/daily/2026-03-29/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="Bug Journal 2026-03-29">
-  <meta property="og:description" content="Analyzed the TEDDY single-cell foundation model paper on an HPC cluster, fixed 4 critical bugs in the existing extraction script, and successfully deployed embedding extraction for the DLPFC dataset.">
+  <meta property="og:description" content="Analyze the TEDDY single-cell base model paper on the HPC cluster, fix 4 critical bugs in the existing extraction script, and successfully complete the embedding extraction deployment for the DLPFC dataset.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="bugjournal">
@@ -88,7 +88,7 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Bug Journal 2026-03-29">
-  <meta name="twitter:description" content="Analyzed the TEDDY single-cell foundation model paper on an HPC cluster, fixed 4 critical bugs in the existing extraction script, and successfully deployed embedding extraction for the DLPFC dataset.">
+  <meta name="twitter:description" content="Analyze the TEDDY single-cell base model paper on the HPC cluster, fix 4 critical bugs in the existing extraction script, and successfully complete the embedding extraction deployment for the DLPFC dataset.">
 
 
 <script type="application/ld+json">
@@ -123,12 +123,12 @@
   "@type": "BlogPosting",
   "headline": "Bug Journal 2026-03-29",
   "name": "Bug Journal 2026-03-29",
-  "description": "Analyzed the TEDDY single-cell foundation model paper on an HPC cluster, fixed 4 critical bugs in the existing extraction script, and successfully deployed embedding extraction for the DLPFC dataset.",
+  "description": "Analyze the TEDDY single-cell base model paper on the HPC cluster, fix 4 critical bugs in the existing extraction script, and successfully complete the embedding extraction deployment for the DLPFC dataset.",
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Log — 2026-03-29 Today’s Overview What was done: Successfully deployed the TEDDY-G 400M foundation model on the DLPFC spatial transcriptomics dataset, completing the repair and validation of the embedding extraction pipeline How it was done: Identified 4 bugs in the existing extract_teddy() function through systematic code review — tokenizer import error, wrong model parameter name, wrong output key, and missing gene ID mapping — fixed them one by one, then validated in the teddy conda environment and launched batch runs Why it matters: Added a TEDDY encoder to the MIHD project, forming a comparative baseline alongside existing models such as scGPT, Geneformer, and C2S, advancing multi-model evaluation for disease state classification tasks Analyzed the TEDDY single-cell foundation model paper on an HPC cluster, fixed 4 critical bugs in the existing extraction script, and successfully deployed embedding extraction for the DLPFC dataset.\nToday’s Tasks Architecture \u0026 Strategy ✅ Fixed extract_teddy() script bugs — Identified and fixed 4 critical bugs: ① incorrect Tokenizer import replaced with GeneTokenizer; ② model forward parameter input_ids changed to gene_ids; ③ output access last_hidden_state changed to outputs['cell_emb']; ④ added gene symbol to Ensembl ID mapping logic ✅ TEDDY paper analysis — Retrieved and analyzed arXiv 2503.03485, reviewing the TEDDY model architecture (two encoding variants Teddy-G/X, 6 variants, up to 400M parameters), and evaluated its performance on disease classification benchmarks and comparison with SOTA models Implementation \u0026 Fixes 🔄 DLPFC embedding extraction — Extracted 1024-dimensional cell embeddings for 11 DLPFC sections in the teddy conda environment; section 151508 completed (4,384 spots), remaining 10 sections running in batch. GPU OOM issue resolved by reducing batch_size from 32 to 8 Problems \u0026 Solutions Critical Issues 1. extract_teddy() used a non-existent Tokenizer class and incorrect model API (input_ids, last_hidden_state), causing the script to fail entirely Solution: Read the Teddy source code to confirm the correct API: GeneTokenizer, gene_ids parameter, outputs['cell_emb'] output key, and added Ensembl ID mapping\nKey insight: TEDDY vocab uses Ensembl IDs rather than gene symbols, and the model forward signature differs from the standard HuggingFace interface — reading the source directly is required rather than relying on convention\nGeneral Issues 2. GPU OOM at batch_size=32 (32GB VRAM) because each sequence is up to 2048 tokens long Solution: Reduced batch_size from 32 to 8, bringing memory usage under control\nKey insight: Rank-value encoding retains the top 2048 genes as the token sequence, which is longer than models like scGPT and requires more VRAM\n3. Claude could not recall the conversation from the previous Teddy testing session Solution: User re-provided the arXiv link and Claude re-analyzed the paper\nKey insight: Persistent memory across sessions was not properly saved, causing context loss — important research checkpoints require proactively saving memory\nHuman Thinking vs. AI Thinking Strategic Level Identifying script bugs Role Approach Human User was unaware of the bugs, assuming the script may have been tested previously AI AI proactively discovered 4 hidden bugs through systematic code review (read source → verify API → compare implementation), without user involvement in debugging Differential analysis: AI’s proactive inspection at the code level helped uncover technical blockers unknown to the user, saving debugging time\nDetermining task priorities and research direction Role Approach Human User proactively recalled and followed up on previous Teddy testing progress, explicitly requested deploying to the DLPFC dataset, and provided the specific arXiv link AI AI focused on the technical implementation layer: paper analysis, environment exploration, bug localization, and code fixing, advancing per user instructions Differential analysis: Research direction and project selection were entirely user-driven; AI was responsible for translating a vague requirement (“deploy Teddy”) into concrete, executable engineering steps\nAI Limitations General Limitations Cross-session memory not persisted: Unable to recall the user’s previous discussion about Teddy testing, requiring the user to re-provide context — reflects the session-isolation constraint of Claude’s memory system PDF parsing failure: Attempting to fetch the arXiv PDF directly resulted in inability to parse binary content; falling back to the HTML version succeeded — indicates limited ability to directly process PDF format Today’s Takeaways Core Insights TEDDY-G outperforms TEDDY-X (rank-value encoding outperforms binned expression), and achieves 8% higher accuracy than Nicheformer on held-out donor multi-class tasks; however, results are mixed against Nicheformer on held-out disease binary classification; linear probe greatly outperforms fine-tuning (RA: 0.56→0.93), indicating high embedding quality but susceptibility to overfitting during fine-tuning Single-cell foundation models in the HuggingFace ecosystem (TEDDY, scGPT, etc.) have significantly different forward interfaces — standard HuggingFace interfaces cannot be assumed; source code must be read to confirm the gene_ids parameter name and output dict structure Practical Takeaways TEDDY vocab uses Ensembl IDs (43,808 tokens); 60% of genes in the DLPFC dataset (20,044/33,538) can be mapped to the vocab, with the remainder being lncRNAs and other non-protein-coding genes — this is a normal coverage rate Session Summary 🔄 TEDDY paper analysis + fixing DLPFC embedding extraction script and launching batch runs 21:19:18.201 | claude_code User asked about previous Teddy testing progress; Claude, lacking memory of that session, asked the user to provide the arXiv link before re-analyzing the paper. The user then used the /ccplan command to request deploying Teddy to the DLPFC dataset. After systematically exploring the HPC environment, Claude discovered 4 critical bugs in the existing extract_teddy() function (wrong tokenizer class name, wrong model parameter name, wrong output key, missing gene ID mapping), fixed and validated each one. The first section (151508) successfully extracted 1024-dimensional embeddings for 4,384 spots; the GPU OOM issue was resolved by reducing batch_size from 32 to 8; the remaining 10 sections are running in batch.\nToken Usage Overview Metric Value Total Tokens 17,748,220 Input Tokens 12,890 Output Tokens 19,558 Cache Created 331,000 Cache Read 17,384,772 Cache Hit Rate 98.1% Total Cost (USD) $10.0039 Model Breakdown Model Input Output Cache Created Cache Read Cost Share claude-opus-4-6 1,006 14,892 173,866 16,424,616 $9.6763 96.7% claude-haiku-4-5-20251001 11,884 4,666 157,134 960,156 $0.3276 3.3% ",
-  "wordCount" : "974",
+  "articleBody": "Daily Report — 2026-03-29 Daily Overview What was done: Successfully deployed the TEDDY-G 400M base model to the DLPFC spatial transcriptome dataset, and completed the repair and validation of the embedding extraction pipeline. How it was done: Through systematic code review, 4 bugs were identified: tokenizer import errors, model parameter name errors, output key errors, and missing gene ID mapping in the existing extract_teddy() function. After fixing each bug, they were verified and run in bulk within the teddy conda environment. Impact: A TEDDY encoder was added to the MIHD project, enabling comparison with existing models such as scGPT, Geneformer, and C2S, thereby promoting multi-model evaluation for disease state classification tasks. Analyzed the TEDDY single-cell base model paper on the HPC cluster, fixed 4 critical bugs in the existing extraction script, and successfully deployed the embedding extraction for the DLPFC dataset.\nTasks Architecture \u0026 Strategy ✅ Fixed bug in extract_teddy() script — Identified and fixed 4 key bugs: ① Incorrect import of Tokenizer changed to GeneTokenizer; ② Model forward parameter input_ids changed to gene_ids; ③ Output access last_hidden_state changed to outputs['cell_emb']; ④ Added mapping logic for Ensembl ID to gene symbol. ✅ TEDDY paper analysis — Obtained and analyzed the arXiv 2503.03485 paper, outlined the TEDDY model architecture (Teddy-G/X encoding, 6 variants, up to 400M parameters), and evaluated its performance on disease classification benchmarks and compared with SOTA models. Implementation \u0026 Fixes 🔄 DLPFC embedding extraction — Extracted 1024-dimensional cell embeddings for 11 DLPFC sections in the teddy conda environment; section 151508 is completed (4384 spots), and the remaining 10 sections are being extracted in bulk. The GPU OOM issue was resolved by reducing batch_size from 32 to 8. Problems \u0026 Solutions Critical Issues 1. extract_teddy() used a non-existent Tokenizer class and incorrect model API (input_ids, last_hidden_state), making the script completely unrunnable. Solution: By reading the Teddy source code, the correct APIs were confirmed: GeneTokenizer, gene_ids parameters, outputs['cell_emb'] output key, and added Ensembl ID mapping.\nKey Insight: The TEDDY vocabulary uses Ensembl IDs instead of gene symbols, and the model forward signature differs from the HuggingFace standard interface; direct source code reading is required rather than relying on conventions.\nGeneral Issues 2. GPU OOM (32GB VRAM) occurs when batch_size=32 because each sequence has up to 2048 tokens. Solution: Reduced batch_size from 32 to 8, allowing controlled memory usage.\nKey Insight: Rank-value encoding retains the top 2048 genes as token sequences, making the sequence longer than those in scGPT and requiring higher VRAM.\n3. Claude cannot recall the conversation history from the previous Teddy test. Solution: The user provided the arXiv link again, and Claude re-analyzed the paper.\nKey Insight: Persistent memory across sessions is not properly saved, leading to context loss; active memory saving is needed at key research milestones.\nHuman vs AI Approaches Strategic Level Method of identifying script bugs Role Approach Human User unaware of bugs, assumes prior testing AI AI actively discovers 4 hidden bugs through systematic code review (read source → verify API → compare implementation), without user involvement in debugging Difference Analysis: AI’s active code review ability helps identify technical obstacles unknown to users, saving debugging time.\nDetermining task priority and research direction Role Approach Human User actively recalls and asks about the previous Teddy test progress, explicitly requests deployment to DLPFC dataset, and provides a specific arXiv link AI AI focuses on technical implementation: paper analysis, environment exploration, bug localization, and code fixes, following user instructions. Difference Analysis: Research direction and project selection are entirely driven by the user; AI converts vague requirements (“deploy Teddy”) into concrete engineering steps.\nAI Limitations General Limitations No persistent cross-session memory: Cannot recall previous Teddy test discussions; user must provide background information, reflecting the session isolation limitation of Claude’s memory system. PDF parsing failure: Attempting to directly extract arXiv PDFs fails due to binary content, only succeeding after converting to HTML version; indicates limited direct processing capability for PDF formats. Learnings Key Learnings TEDDY-G outperforms TEDDY-X (rank-value encoding is better than binned expression), and performs 8% higher on held-out donor multi-class tasks than Nicheformer, but competes with Nicheformer in held-out disease binary tasks; linear probe is far superior to fine-tuning (RA: 0.56→0.93) indicating high embedding quality but overfitting risk from fine-tuning. Significant differences exist between single-cell base models in the HuggingFace ecosystem (TEDDY, scGPT, etc.) in their forward interfaces; standard HuggingFace interfaces cannot be assumed, and source code must be read to confirm gene_ids parameter names and output dictionary structure. Practical Learnings TEDDY vocabulary uses Ensembl IDs (43808 tokens); 60% of genes (20044/33538) in the DLPFC dataset can be mapped to the vocabulary, with the rest being non-protein-coding genes like lncRNAs — this is normal coverage. Conversation Summaries 🔄 TEDDY paper analysis + fix DLPFC embedding script and start batch execution 21:19:18.201 | claude_code User asked about previous Teddy test progress; Claude needed the arXiv link due to memory loss and re-analyzed the paper. Then, via the/ccplan command, user requested deployment of Teddy to DLPFC dataset; Claude explored the HPC environment and found 4 critical bugs in the extract_teddy() function (incorrect Tokenizer class name, wrong model parameter names, wrong output key, missing gene ID mapping), all fixed and verified. The first section (151508) successfully extracted 4384 spots of 1024-dimensional embeddings; the GPU OOM issue was resolved by reducing batch_size from 32 to 8, and the remaining 10 sections are running in bulk.\nToken Usage Total: $12.15 — 23.3M tokens\n",
+  "wordCount" : "901",
   "inLanguage": "en",
   "datePublished": "2026-03-29T00:00:00-05:00",
   "dateModified": "2026-03-29T00:00:00-05:00",
@@ -141,7 +141,7 @@
     "name": "TzJ's Net",
     "logo": {
       "@type": "ImageObject",
-      "url": "https://tzj2006.github.io/images/icon2.png"
+      "url": "https://tzj2006.github.io/images/icon.png"
     }
   }
 }
@@ -256,41 +256,41 @@
 
 </div>
   </header> 
-  <div class="post-content md-content"><h1 id="daily-log--2026-03-29">Daily Log — 2026-03-29<a hidden class="anchor" aria-hidden="true" href="#daily-log--2026-03-29">#</a></h1>
-<h2 id="todays-overview">Today&rsquo;s Overview<a hidden class="anchor" aria-hidden="true" href="#todays-overview">#</a></h2>
+  <div class="post-content md-content"><h1 id="daily-report--2026-03-29">Daily Report — 2026-03-29<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-03-29">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
 <ul>
-<li><strong>What was done:</strong> Successfully deployed the TEDDY-G 400M foundation model on the DLPFC spatial transcriptomics dataset, completing the repair and validation of the embedding extraction pipeline</li>
-<li><strong>How it was done:</strong> Identified 4 bugs in the existing <code>extract_teddy()</code> function through systematic code review — tokenizer import error, wrong model parameter name, wrong output key, and missing gene ID mapping — fixed them one by one, then validated in the <code>teddy</code> conda environment and launched batch runs</li>
-<li><strong>Why it matters:</strong> Added a TEDDY encoder to the MIHD project, forming a comparative baseline alongside existing models such as scGPT, Geneformer, and C2S, advancing multi-model evaluation for disease state classification tasks</li>
+<li><strong>What was done:</strong> Successfully deployed the TEDDY-G 400M base model to the DLPFC spatial transcriptome dataset, and completed the repair and validation of the embedding extraction pipeline.</li>
+<li><strong>How it was done:</strong> Through systematic code review, 4 bugs were identified: tokenizer import errors, model parameter name errors, output key errors, and missing gene ID mapping in the existing <code>extract_teddy()</code> function. After fixing each bug, they were verified and run in bulk within the teddy conda environment.</li>
+<li><strong>Impact:</strong> A TEDDY encoder was added to the MIHD project, enabling comparison with existing models such as scGPT, Geneformer, and C2S, thereby promoting multi-model evaluation for disease state classification tasks.</li>
 </ul>
 <blockquote>
-<p>Analyzed the TEDDY single-cell foundation model paper on an HPC cluster, fixed 4 critical bugs in the existing extraction script, and successfully deployed embedding extraction for the DLPFC dataset.</p>
+<p>Analyzed the TEDDY single-cell base model paper on the HPC cluster, fixed 4 critical bugs in the existing extraction script, and successfully deployed the embedding extraction for the DLPFC dataset.</p>
 </blockquote>
-<h2 id="todays-tasks">Today&rsquo;s Tasks<a hidden class="anchor" aria-hidden="true" href="#todays-tasks">#</a></h2>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
 <h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
 <ul>
-<li>✅ <strong>Fixed <code>extract_teddy()</code> script bugs</strong> — Identified and fixed 4 critical bugs: ① incorrect <code>Tokenizer</code> import replaced with <code>GeneTokenizer</code>; ② model forward parameter <code>input_ids</code> changed to <code>gene_ids</code>; ③ output access <code>last_hidden_state</code> changed to <code>outputs['cell_emb']</code>; ④ added gene symbol to Ensembl ID mapping logic</li>
-<li>✅ <strong>TEDDY paper analysis</strong> — Retrieved and analyzed arXiv 2503.03485, reviewing the TEDDY model architecture (two encoding variants Teddy-G/X, 6 variants, up to 400M parameters), and evaluated its performance on disease classification benchmarks and comparison with SOTA models</li>
+<li>✅ <strong>Fixed bug in <code>extract_teddy()</code> script</strong> — Identified and fixed 4 key bugs: ① Incorrect import of Tokenizer changed to GeneTokenizer; ② Model forward parameter <code>input_ids</code> changed to <code>gene_ids</code>; ③ Output access <code>last_hidden_state</code> changed to <code>outputs['cell_emb']</code>; ④ Added mapping logic for Ensembl ID to gene symbol.</li>
+<li>✅ <strong>TEDDY paper analysis</strong> — Obtained and analyzed the arXiv 2503.03485 paper, outlined the TEDDY model architecture (Teddy-G/X encoding, 6 variants, up to 400M parameters), and evaluated its performance on disease classification benchmarks and compared with SOTA models.</li>
 </ul>
 <h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
 <ul>
-<li>🔄 <strong>DLPFC embedding extraction</strong> — Extracted 1024-dimensional cell embeddings for 11 DLPFC sections in the <code>teddy</code> conda environment; section 151508 completed (4,384 spots), remaining 10 sections running in batch. GPU OOM issue resolved by reducing <code>batch_size</code> from 32 to 8</li>
+<li>🔄 <strong>DLPFC embedding extraction</strong> — Extracted 1024-dimensional cell embeddings for 11 DLPFC sections in the teddy conda environment; section 151508 is completed (4384 spots), and the remaining 10 sections are being extracted in bulk. The GPU OOM issue was resolved by reducing <code>batch_size</code> from 32 to 8.</li>
 </ul>
 <h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
-<h4 id="1-extract_teddy-used-a-non-existent-tokenizer-class-and-incorrect-model-api-input_ids-last_hidden_state-causing-the-script-to-fail-entirely">1. <code>extract_teddy()</code> used a non-existent Tokenizer class and incorrect model API (<code>input_ids</code>, <code>last_hidden_state</code>), causing the script to fail entirely<a hidden class="anchor" aria-hidden="true" href="#1-extract_teddy-used-a-non-existent-tokenizer-class-and-incorrect-model-api-input_ids-last_hidden_state-causing-the-script-to-fail-entirely">#</a></h4>
-<p><strong>Solution:</strong> Read the Teddy source code to confirm the correct API: <code>GeneTokenizer</code>, <code>gene_ids</code> parameter, <code>outputs['cell_emb']</code> output key, and added Ensembl ID mapping</p>
-<p><strong>Key insight:</strong> TEDDY vocab uses Ensembl IDs rather than gene symbols, and the model forward signature differs from the standard HuggingFace interface — reading the source directly is required rather than relying on convention</p>
+<h4 id="1-extract_teddy-used-a-non-existent-tokenizer-class-and-incorrect-model-api-input_ids-last_hidden_state-making-the-script-completely-unrunnable">1. <code>extract_teddy()</code> used a non-existent Tokenizer class and incorrect model API (input_ids, last_hidden_state), making the script completely unrunnable.<a hidden class="anchor" aria-hidden="true" href="#1-extract_teddy-used-a-non-existent-tokenizer-class-and-incorrect-model-api-input_ids-last_hidden_state-making-the-script-completely-unrunnable">#</a></h4>
+<p><strong>Solution:</strong> By reading the Teddy source code, the correct APIs were confirmed: GeneTokenizer, <code>gene_ids</code> parameters, <code>outputs['cell_emb']</code> output key, and added Ensembl ID mapping.</p>
+<p><strong>Key Insight:</strong> The TEDDY vocabulary uses Ensembl IDs instead of gene symbols, and the model forward signature differs from the HuggingFace standard interface; direct source code reading is required rather than relying on conventions.</p>
 <h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
-<h4 id="2-gpu-oom-at-batch_size32-32gb-vram-because-each-sequence-is-up-to-2048-tokens-long">2. GPU OOM at <code>batch_size=32</code> (32GB VRAM) because each sequence is up to 2048 tokens long<a hidden class="anchor" aria-hidden="true" href="#2-gpu-oom-at-batch_size32-32gb-vram-because-each-sequence-is-up-to-2048-tokens-long">#</a></h4>
-<p><strong>Solution:</strong> Reduced <code>batch_size</code> from 32 to 8, bringing memory usage under control</p>
-<p><strong>Key insight:</strong> Rank-value encoding retains the top 2048 genes as the token sequence, which is longer than models like scGPT and requires more VRAM</p>
-<h4 id="3-claude-could-not-recall-the-conversation-from-the-previous-teddy-testing-session">3. Claude could not recall the conversation from the previous Teddy testing session<a hidden class="anchor" aria-hidden="true" href="#3-claude-could-not-recall-the-conversation-from-the-previous-teddy-testing-session">#</a></h4>
-<p><strong>Solution:</strong> User re-provided the arXiv link and Claude re-analyzed the paper</p>
-<p><strong>Key insight:</strong> Persistent memory across sessions was not properly saved, causing context loss — important research checkpoints require proactively saving memory</p>
-<h2 id="human-thinking-vs-ai-thinking">Human Thinking vs. AI Thinking<a hidden class="anchor" aria-hidden="true" href="#human-thinking-vs-ai-thinking">#</a></h2>
+<h4 id="2-gpu-oom-32gb-vram-occurs-when-batch_size32-because-each-sequence-has-up-to-2048-tokens">2. GPU OOM (32GB VRAM) occurs when <code>batch_size=32</code> because each sequence has up to 2048 tokens.<a hidden class="anchor" aria-hidden="true" href="#2-gpu-oom-32gb-vram-occurs-when-batch_size32-because-each-sequence-has-up-to-2048-tokens">#</a></h4>
+<p><strong>Solution:</strong> Reduced <code>batch_size</code> from 32 to 8, allowing controlled memory usage.</p>
+<p><strong>Key Insight:</strong> Rank-value encoding retains the top 2048 genes as token sequences, making the sequence longer than those in scGPT and requiring higher VRAM.</p>
+<h4 id="3-claude-cannot-recall-the-conversation-history-from-the-previous-teddy-test">3. Claude cannot recall the conversation history from the previous Teddy test.<a hidden class="anchor" aria-hidden="true" href="#3-claude-cannot-recall-the-conversation-history-from-the-previous-teddy-test">#</a></h4>
+<p><strong>Solution:</strong> The user provided the arXiv link again, and Claude re-analyzed the paper.</p>
+<p><strong>Key Insight:</strong> Persistent memory across sessions is not properly saved, leading to context loss; active memory saving is needed at key research milestones.</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
-<h4 id="identifying-script-bugs">Identifying script bugs<a hidden class="anchor" aria-hidden="true" href="#identifying-script-bugs">#</a></h4>
+<h4 id="method-of-identifying-script-bugs">Method of identifying script bugs<a hidden class="anchor" aria-hidden="true" href="#method-of-identifying-script-bugs">#</a></h4>
 <table>
   <thead>
       <tr>
@@ -301,16 +301,16 @@
   <tbody>
       <tr>
           <td>Human</td>
-          <td>User was unaware of the bugs, assuming the script may have been tested previously</td>
+          <td>User unaware of bugs, assumes prior testing</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>AI proactively discovered 4 hidden bugs through systematic code review (read source → verify API → compare implementation), without user involvement in debugging</td>
+          <td>AI actively discovers 4 hidden bugs through systematic code review (read source → verify API → compare implementation), without user involvement in debugging</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Differential analysis:</strong> AI&rsquo;s proactive inspection at the code level helped uncover technical blockers unknown to the user, saving debugging time</p>
-<h4 id="determining-task-priorities-and-research-direction">Determining task priorities and research direction<a hidden class="anchor" aria-hidden="true" href="#determining-task-priorities-and-research-direction">#</a></h4>
+<p><strong>Difference Analysis:</strong> AI’s active code review ability helps identify technical obstacles unknown to users, saving debugging time.</p>
+<h4 id="determining-task-priority-and-research-direction">Determining task priority and research direction<a hidden class="anchor" aria-hidden="true" href="#determining-task-priority-and-research-direction">#</a></h4>
 <table>
   <thead>
       <tr>
@@ -321,109 +321,39 @@
   <tbody>
       <tr>
           <td>Human</td>
-          <td>User proactively recalled and followed up on previous Teddy testing progress, explicitly requested deploying to the DLPFC dataset, and provided the specific arXiv link</td>
+          <td>User actively recalls and asks about the previous Teddy test progress, explicitly requests deployment to DLPFC dataset, and provides a specific arXiv link</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>AI focused on the technical implementation layer: paper analysis, environment exploration, bug localization, and code fixing, advancing per user instructions</td>
+          <td>AI focuses on technical implementation: paper analysis, environment exploration, bug localization, and code fixes, following user instructions.</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Differential analysis:</strong> Research direction and project selection were entirely user-driven; AI was responsible for translating a vague requirement (&ldquo;deploy Teddy&rdquo;) into concrete, executable engineering steps</p>
+<p><strong>Difference Analysis:</strong> Research direction and project selection are entirely driven by the user; AI converts vague requirements (“deploy Teddy”) into concrete engineering steps.</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
 <ul>
-<li>Cross-session memory not persisted: Unable to recall the user&rsquo;s previous discussion about Teddy testing, requiring the user to re-provide context — reflects the session-isolation constraint of Claude&rsquo;s memory system</li>
-<li>PDF parsing failure: Attempting to fetch the arXiv PDF directly resulted in inability to parse binary content; falling back to the HTML version succeeded — indicates limited ability to directly process PDF format</li>
+<li>No persistent cross-session memory: Cannot recall previous Teddy test discussions; user must provide background information, reflecting the session isolation limitation of Claude’s memory system.</li>
+<li>PDF parsing failure: Attempting to directly extract arXiv PDFs fails due to binary content, only succeeding after converting to HTML version; indicates limited direct processing capability for PDF formats.</li>
 </ul>
-<h2 id="todays-takeaways">Today&rsquo;s Takeaways<a hidden class="anchor" aria-hidden="true" href="#todays-takeaways">#</a></h2>
-<h3 id="core-insights">Core Insights<a hidden class="anchor" aria-hidden="true" href="#core-insights">#</a></h3>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
 <ul>
-<li>TEDDY-G outperforms TEDDY-X (rank-value encoding outperforms binned expression), and achieves 8% higher accuracy than Nicheformer on held-out donor multi-class tasks; however, results are mixed against Nicheformer on held-out disease binary classification; linear probe greatly outperforms fine-tuning (RA: 0.56→0.93), indicating high embedding quality but susceptibility to overfitting during fine-tuning</li>
-<li>Single-cell foundation models in the HuggingFace ecosystem (TEDDY, scGPT, etc.) have significantly different forward interfaces — standard HuggingFace interfaces cannot be assumed; source code must be read to confirm the <code>gene_ids</code> parameter name and output dict structure</li>
+<li>TEDDY-G outperforms TEDDY-X (rank-value encoding is better than binned expression), and performs 8% higher on held-out donor multi-class tasks than Nicheformer, but competes with Nicheformer in held-out disease binary tasks; linear probe is far superior to fine-tuning (RA: 0.56→0.93) indicating high embedding quality but overfitting risk from fine-tuning.</li>
+<li>Significant differences exist between single-cell base models in the HuggingFace ecosystem (TEDDY, scGPT, etc.) in their forward interfaces; standard HuggingFace interfaces cannot be assumed, and source code must be read to confirm <code>gene_ids</code> parameter names and output dictionary structure.</li>
 </ul>
-<h3 id="practical-takeaways">Practical Takeaways<a hidden class="anchor" aria-hidden="true" href="#practical-takeaways">#</a></h3>
+<h3 id="practical-learnings">Practical Learnings<a hidden class="anchor" aria-hidden="true" href="#practical-learnings">#</a></h3>
 <ul>
-<li>TEDDY vocab uses Ensembl IDs (43,808 tokens); 60% of genes in the DLPFC dataset (20,044/33,538) can be mapped to the vocab, with the remainder being lncRNAs and other non-protein-coding genes — this is a normal coverage rate</li>
+<li>TEDDY vocabulary uses Ensembl IDs (43808 tokens); 60% of genes (20044/33538) in the DLPFC dataset can be mapped to the vocabulary, with the rest being non-protein-coding genes like lncRNAs — this is normal coverage.</li>
 </ul>
-<h2 id="session-summary">Session Summary<a hidden class="anchor" aria-hidden="true" href="#session-summary">#</a></h2>
-<p><strong>🔄 TEDDY paper analysis + fixing DLPFC embedding extraction script and launching batch runs</strong>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<p><strong>🔄 TEDDY paper analysis + fix DLPFC embedding script and start batch execution</strong>
 <em>21:19:18.201 | claude_code</em>
-User asked about previous Teddy testing progress; Claude, lacking memory of that session, asked the user to provide the arXiv link before re-analyzing the paper. The user then used the <code>/ccplan</code> command to request deploying Teddy to the DLPFC dataset. After systematically exploring the HPC environment, Claude discovered 4 critical bugs in the existing <code>extract_teddy()</code> function (wrong tokenizer class name, wrong model parameter name, wrong output key, missing gene ID mapping), fixed and validated each one. The first section (151508) successfully extracted 1024-dimensional embeddings for 4,384 spots; the GPU OOM issue was resolved by reducing <code>batch_size</code> from 32 to 8; the remaining 10 sections are running in batch.</p>
+User asked about previous Teddy test progress; Claude needed the arXiv link due to memory loss and re-analyzed the paper. Then, via the/ccplan command, user requested deployment of Teddy to DLPFC dataset; Claude explored the HPC environment and found 4 critical bugs in the <code>extract_teddy()</code> function (incorrect Tokenizer class name, wrong model parameter names, wrong output key, missing gene ID mapping), all fixed and verified. The first section (151508) successfully extracted 4384 spots of 1024-dimensional embeddings; the GPU OOM issue was resolved by reducing <code>batch_size</code> from 32 to 8, and the remaining 10 sections are running in bulk.</p>
 <h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
-<h3 id="overview">Overview<a hidden class="anchor" aria-hidden="true" href="#overview">#</a></h3>
-<table>
-  <thead>
-      <tr>
-          <th>Metric</th>
-          <th>Value</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Total Tokens</td>
-          <td>17,748,220</td>
-      </tr>
-      <tr>
-          <td>Input Tokens</td>
-          <td>12,890</td>
-      </tr>
-      <tr>
-          <td>Output Tokens</td>
-          <td>19,558</td>
-      </tr>
-      <tr>
-          <td>Cache Created</td>
-          <td>331,000</td>
-      </tr>
-      <tr>
-          <td>Cache Read</td>
-          <td>17,384,772</td>
-      </tr>
-      <tr>
-          <td>Cache Hit Rate</td>
-          <td>98.1%</td>
-      </tr>
-      <tr>
-          <td>Total Cost (USD)</td>
-          <td>$10.0039</td>
-      </tr>
-  </tbody>
-</table>
-<h3 id="model-breakdown">Model Breakdown<a hidden class="anchor" aria-hidden="true" href="#model-breakdown">#</a></h3>
-<table>
-  <thead>
-      <tr>
-          <th>Model</th>
-          <th>Input</th>
-          <th>Output</th>
-          <th>Cache Created</th>
-          <th>Cache Read</th>
-          <th>Cost</th>
-          <th>Share</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>claude-opus-4-6</td>
-          <td>1,006</td>
-          <td>14,892</td>
-          <td>173,866</td>
-          <td>16,424,616</td>
-          <td>$9.6763</td>
-          <td>96.7%</td>
-      </tr>
-      <tr>
-          <td>claude-haiku-4-5-20251001</td>
-          <td>11,884</td>
-          <td>4,666</td>
-          <td>157,134</td>
-          <td>960,156</td>
-          <td>$0.3276</td>
-          <td>3.3%</td>
-      </tr>
-  </tbody>
-</table>
+<p><img alt="Token Usage" loading="lazy" src="2026-03-29-usage.png"></p>
+<p><strong>Total: $12.15</strong> — 23.3M tokens</p>
+<!-- gadget:src-hash:e42c972d77ed0edf -->
 
 
   </div>
