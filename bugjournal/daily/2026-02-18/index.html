@@ -7,7 +7,7 @@
 <meta name="robots" content="index, follow">
 <title>Bug Journal 2026-02-18 | TzJ&#39;s Net</title>
 <meta name="keywords" content="Bug Journal">
-<meta name="description" content="Fixed critical spatial coordinate bug in MIHD multimodal fusion benchmark and built infrastructure for robotic policy visualization and checkpoint management">
+<meta name="description" content="Fixed the critical coordinate extraction errors in the MIHD spatial transcriptomics analysis workflow, and analyzed the benchmark test results; simultaneously reviewed the availability of VLA/BC-RNN checkpoints, developed a policy promotion visualization tool, and clarified the data requirements of MimicGen in robot imitation learning.">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/bugjournal/daily/2026-02-18/">
 <link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
@@ -79,7 +79,7 @@
 <meta property="og:url" content="https://tzj2006.github.io/bugjournal/daily/2026-02-18/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="Bug Journal 2026-02-18">
-  <meta property="og:description" content="Fixed critical spatial coordinate bug in MIHD multimodal fusion benchmark and built infrastructure for robotic policy visualization and checkpoint management">
+  <meta property="og:description" content="Fixed the critical coordinate extraction errors in the MIHD spatial transcriptomics analysis workflow, and analyzed the benchmark test results; simultaneously reviewed the availability of VLA/BC-RNN checkpoints, developed a policy promotion visualization tool, and clarified the data requirements of MimicGen in robot imitation learning.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="bugjournal">
@@ -88,7 +88,7 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Bug Journal 2026-02-18">
-  <meta name="twitter:description" content="Fixed critical spatial coordinate bug in MIHD multimodal fusion benchmark and built infrastructure for robotic policy visualization and checkpoint management">
+  <meta name="twitter:description" content="Fixed the critical coordinate extraction errors in the MIHD spatial transcriptomics analysis workflow, and analyzed the benchmark test results; simultaneously reviewed the availability of VLA/BC-RNN checkpoints, developed a policy promotion visualization tool, and clarified the data requirements of MimicGen in robot imitation learning.">
 
 
 <script type="application/ld+json">
@@ -123,12 +123,12 @@
   "@type": "BlogPosting",
   "headline": "Bug Journal 2026-02-18",
   "name": "Bug Journal 2026-02-18",
-  "description": "Fixed critical spatial coordinate bug in MIHD multimodal fusion benchmark and built infrastructure for robotic policy visualization and checkpoint management",
+  "description": "Fixed the critical coordinate extraction errors in the MIHD spatial transcriptomics analysis workflow, and analyzed the benchmark test results; simultaneously reviewed the availability of VLA/BC-RNN checkpoints, developed a policy promotion visualization tool, and clarified the data requirements of MimicGen in robot imitation learning.",
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-02-18 Daily Overview What was done: Two parallel research tracks: fixed spatial transcriptomics coordinate handling bug causing vision embedding errors (DCC), and built comprehensive policy benchmarking infrastructure with unified checkpoint management and rollout visualization (tianhe) How it was done: Deep debugging of coordinate systems via code inspection and verification, followed by cache clearing and re-running experiments; infrastructure work via symlink organization, script development, and integration testing Impact: MIHD: 86% improvement in UNI2-only clustering performance after fix validates multimodal fusion results; tianhe: unified checkpoint management and visualization tools enable systematic VLA cross-task generalization analysis DCC What was done: Diagnosed and fixed coordinate swap bug in MIHD spatial transcriptomics pipeline where pxl_row/pxl_col were incorrectly mapped as X/Y instead of Y/X How it was done: Modified run_benchmark.py and data_loader.py to correct column naming, cleared vision cache, re-ran 33 vision-only and 88 fusion experiments over ~6 hours with STAIG training Impact: UNI2 embeddings now correctly extracted from proper image locations; ARI improved from 0.065→0.121 for vision-only, concat fusion reached 0.275 ARI validating multimodal integration approach tianhe What was done: Built unified checkpoint management system with symlinks, created policy rollout visualization tool, and investigated VLA training data availability for PickPlace task How it was done: Created checkpoints/ directory structure linking BC-RNN/VLA/Robomimic models, wrote 200-line visualize_policy_rollout.py with MP4 rendering, updated configs and Makefile, searched zhaoganlong’s datasets Impact: Can now visualize policy behavior via MP4 rollouts and identified root cause of VLA failure (no task-specific finetuning); discovered MimicGen can expand 10→500 demos for future training Fixed critical spatial coordinate bug in MIHD multimodal fusion benchmark and built infrastructure for robotic policy visualization and checkpoint management\nTasks Architecture \u0026 Strategy ✅ Fix MIHD coordinate swap bug — Corrected tissue_positions_list.csv column mapping where pxl_row_in_fullres (Y) and pxl_col_in_fullres (X) were swapped as pixel_x/pixel_y Implementation \u0026 Fixes 🔄 Re-run MIHD vision and fusion experiments — Regenerate embeddings and benchmark results for 33 vision-only and 88 multimodal fusion experiments after coordinate fix ✅ Create policy rollout visualization tool — Wrote visualize_policy_rollout.py script with offscreen rendering, HUD overlay, MP4 export, and support for random/BC-RNN/VLA policies ✅ Build unified checkpoint management system — Created checkpoints/ directory with symlinks to BC-RNN, VLA (Pi0/Pi0.5), and Robomimic models for consistent path references ✅ Investigate VLA training data availability — Searched for PickPlace-specific VLA checkpoints and training data; found only 10 source demos vs 500 demos for Coffee/Stack tasks Problems \u0026 Solutions Critical Issues 1. Vision embeddings extracted from transposed image locations due to X/Y coordinate swap in tissue_positions_list.csv parsing Solution: Renamed columns to pxl_row/pxl_col (semantic names), swapped coordinate order to (X, Y) = (pxl_col, pxl_row), deleted vision cache, re-ran experiments\nKey Insight: Spatial data requires explicit Y-as-row, X-as-column semantics; 10x scale factor validation (pixel coords × scalefactor = microns) catches coordinate system errors early\n2. Pi0_libero checkpoint achieves 0% success on PickPlace despite 96-100% on Coffee/Stack Solution: Identified root cause: Pi0_libero is LIBERO-domain finetuned, lacks PickPlace-specific training data (only 10 source demos vs 500 for other tasks); proposed MimicGen→LeRobot→LoRA pipeline\nKey Insight: VLA cross-task generalization fails when task domains differ (LIBERO vs PickPlace object/scene layout); finetuning requires 500+ demos expandable via MimicGen from 10 source demos\nGeneral Issues 3. No way to visually inspect VLA policy behavior on PickPlace task to diagnose 0% success rate Solution: Built visualize_policy_rollout.py with EGL offscreen rendering, frame-by-frame capture, HUD overlay (policy/step/reward/success), and MP4 export per rollout\nKey Insight: Video rollouts reveal behavioral patterns (e.g., random flailing vs directed failures) that success rate alone cannot distinguish\n4. Scattered checkpoint paths across multiple HDD_POOL directories making config management fragile Solution: Created centralized checkpoints/ directory with task-organized symlinks (bc_rnn/pick_place, vla/pi0_libero, robomimic/lift) and updated all configs to use relative paths\nKey Insight: Symlink-based checkpoint organization enables atomic path updates and clear separation between original storage and project references\nHuman vs AI Approaches Strategic Level VLA checkpoint selection for PickPlace Role Approach Human Questioned why Pi0_libero was being loaded instead of a PickPlace-specific checkpoint, assumed zhaoganlong should have one AI Initially loaded Pi0_libero as the only available VLA checkpoint without verifying task-specific training Difference Analysis: Human correctly intuited that task-specific finetuning should exist; AI defaulted to available checkpoint without validating task match. Investigation revealed no PickPlace checkpoint exists.\nImplementation Level UNI/UNI2 usage in literature Role Approach Human Requested web search to verify how other papers extract patches and handle coordinates for spatial transcriptomics AI Focused on code-level debugging without consulting literature for domain best practices Difference Analysis: Human sought external validation from published methods; AI relied on internal code logic. Literature search confirmed 224x224 patches at 20x magnification but didn’t provide specific coordinate handling details.\nAI Limitations General Limitations Did not proactively search for task-specific VLA checkpoints before recommending Pi0_libero, required human prompting to investigate zhaoganlong’s full checkpoint directory Needed multiple search iterations to discover zhaoganlong’s datasets were organized by task (Coffee/Stack) with 500 generated demos each, initially focused on finding PickPlace directly Learnings Key Learnings Spatial coordinate systems in medical imaging require explicit semantic naming (pxl_row=Y, pxl_col=X) and validation via physical units (pixels × scalefactor = microns); generic pixel_x/pixel_y naming is error-prone Vision foundation model integration in multimodal learning critically depends on spatial alignment; incorrect patch extraction (from transposed locations) can halve performance even with correct architecture VLA models trained on one task domain (LIBERO) show minimal cross-task generalization to different manipulation setups (PickPlace) despite similar action spaces; domain-specific finetuning is essential MimicGen can expand 10 human demonstrations to 500 training examples via automatic variation generation, matching the data scale used in successful VLA finetuning (Coffee: 96%, Stack: 100%) Practical Learnings Symlink-based checkpoint management enables version control of path references while preserving original data locations; critical for shared filesystem collaboration Conversation Summaries MIHD Spatial Transcriptomics 🔄 Coordinate swap bug fix in vision patch extraction 00:01:02.520 | claude_code Diagnosed and fixed critical bug where tissue_positions_list.csv columns (pxl_row, pxl_col) were incorrectly mapped as (pixel_x, pixel_y), causing vision patches to be extracted from transposed locations. Cleared vision cache and re-ran 121 experiments (33 vision-only + 88 fusion). Results showed UNI2 ARI improved from 0.065 to 0.121 (+86%). User requested literature review on UNI/UNI2 usage patterns; web search confirmed 224x224 patches at 20x magnification standard but lacked coordinate handling specifics. Experiments still running after 6+ hours due to STAIG training requirements.\nError Recovery Benchmark 🔍 VLA training data investigation and PickPlace finetuning path 04:52:08.850 | claude_code User asked about training VLA on PickPlace task after realizing Pi0_libero has 0% success. Investigation revealed PickPlace only has 10 source demos (6288 steps) while zhaoganlong’s successful Coffee/Stack training used ~500 demos generated via MimicGen. No PickPlace-specific VLA checkpoint exists; all VLA models are LIBERO-domain or base weights. Identified training path: 1) Run MimicGen to expand 10→500 demos, 2) Convert to LeRobot format via zhaoganlong’s scripts, 3) Run Pi0.5 LoRA finetuning. All necessary scripts and pipelines available in zhaoganlong’s repo.\n✅ Checkpoint inventory and availability assessment 05:32:29.978 | claude_code User requested inventory of usable VLA models and checkpoints. Found 4 VLA model types registered in code (pi0, pi05, phoenix, flare) but only Pi0_libero and Pi05_base have actual checkpoints (~12GB each). Also identified BC-RNN PickPlace checkpoints (12 epochs, 14MB each) and Robomimic Lift checkpoint (7.6MB, 100% success). Discovered robomimic’s can/square/transport directories are empty. VLA checkpoints all reside in zhaoganlong’s HDD_POOL directory, linked via symlinks to project.\n✅ Policy visualization infrastructure setup 00:26:49.679 | claude_code Built unified checkpoint management via checkpoints/ directory with symlinks (bc_rnn/pick_place, vla/pi0_libero, robomimic/lift). Created visualize_policy_rollout.py (200 lines) supporting random/BC-RNN/VLA policies with offscreen rendering, HUD overlay, and MP4 export. Updated benchmark_v4.yaml to use symlink paths and added 3 Makefile visualization targets. Tested successfully with random policy, generated 2 MP4 files. Updated documentation in 项目全景总结.md with new v4.7 checkpoint management section.\nToken Usage Total: $11.96 — 18.4M tokens\n",
-  "wordCount" : "1278",
+  "articleBody": "Daily Report — 2026-02-18 Overview of Daily Work Completed Tasks: Fixed the coordinate exchange issue in the visual encoder during spatial transcriptomics benchmarks, and audited the multi-user model checkpoint repository under two machine environments. Implementation Methods: Automatically cleaned up cache, monitored long-running processes, generated Python scripts for rendering output, performed recursive file system audits, and conducted cross-references of academic literature via integrated network tools. Impact: Restored important benchmark metrics (86% improvement in ARI), established reproducible policy comparison visualization workflows, and accurately identified data expansion gaps required before VLA fine-tuning. DCC Completed Tasks: Fixed the column mapping error tissue_positions_list.csv in the MIHD process, and monitored the extended STAIG fusion training process. Implementation Methods: Fixed the coordinate sorting issues in run_benchmark.py and data_loader.py, cleaned up damaged embedding vectors, implemented backend monitoring for progress tracking, and queried literature standards related to UNI/UNI2 patch extraction. Impact: Restored geometrically accurate visual patches, verified consistent ARI/NMI improvements under different fusion strategies, and ensured consistent preprocessing with the established pathological base model practices. tianhe Completed Tasks: Organized VLA/BC-RNN weights, developed the MuJoCo policy rendering visualization tool, and evaluated the preparation of the MimicGen dataset for Pi0 fine-tuning. Implementation Methods: Performed targeted file searches to catalog checkpoints, wrote visualize_policy_rollout.py, updated configuration paths and Makefile targets, verified GPU rendering processes, and analyzed HDF5 demo distributions in shared storage. Impact: Achieved unified checkpoint access via symbolic links, enabling baseline evaluation of policy behavior visualization, and clarified that only 10 source demo data are available, thus determining the exact MimicGen expansion threshold required for fine-tuning start. Fixed critical coordinate extraction errors in the MIHD spatial transcriptomics process, analyzed benchmark results, audited the availability of VLA/BC-RNN checkpoints, developed policy rendering visualization tools, and defined the data requirements for MimicGen in robot imitation learning.\nTasks Architecture and Strategy ✅ MIHD coordinate error repair and experimental monitoring — Identified and corrected X/Y coordinate mapping errors in the spatial transcriptomics process, cleaned up damaged cache, monitored long-running STAIG fusion experiments, and analyzed intermediate benchmark metrics. 🔄 Evaluation of MimicGen data preparation for Pi0 fine-tuning — Audited HDF5 demo counts, mapped existing conversion processes, and determined the approximately 500 demo expansion thresholds required before LeRobot format conversion and LoRA adjustment begin. Implementation and Fixes ✅ VLA/BC-RNN checkpoint inventory and symbolic link management — Cataloged all available model weights in the shared HDD pool, created a unified symbolic link structure, verified file formats/sizes, and recorded missing task-specific checkpoints. ✅ Policy rendering visualization and configuration synchronization — Developed policy rendering scripts, updated correct paths in benchmark configurations/Makefile, synchronized project documentation, and verified GPU rendering output generation. Issues and Solutions Key Issues 1. Critical coordinate exchange in tissue_positions_list.csv caused misalignment in visual patch extraction, reducing UNI2 embeddings and benchmark metrics. Solution: Corrected the column mapping in pxl_col/pxl_row, reordered coordinate tuples, cleaned up damaged cache, and reperformed baseline experiments to verify the fix.\nKey Insight: The quality of base model embeddings is highly sensitive to original pixel and point alignment; metadata correctness must be verified before feature extraction begins.\n2. Pre-trained VLA model (Pi0 LIBERO) fails with zero-shot errors in Robosuite PickPlace task, and the project lacks task-specific fine-tuning checkpoints. Solution: Developed a visualization workflow to inspect failure patterns, audited existing weight storage, and used existing repository scripts to map the MimicGen 10 to 500 demo expansion process.\nKey Insight: VLA policies require diverse source behaviors before fine-tuning; direct environment migration without task-specific data collection will always fail.\nHuman and AI Approaches Strategic Level Comparison of Literature Verification and Hypothesis-Driven Optimization Role Method Human Required cross-references with published pathological base model guidelines to verify patch size, normalization, and coordinate alignment methods before trusting process outputs. AI Performed automatic network search and PDF retrieval, synthesized technical specifications, but initially treated all findings as direct implementation rules without highlighting potential version mismatch issues. Analysis of Differences: Humans use external verification to prevent hidden configuration drift, while AI efficiently integrates documents but lacks critical assessments of source reliability and version compatibility.\nStrategic Shift from Comprehensive Checkpoint Search to Training Process Preparation Role Method Human Explicitly stopped deep file searches, focused on evaluating MimicGen data availability, and directly asked about source demo counts and fine-tuning prerequisites. AI Focused on full automation, recursive directory scanning, cataloging all available assets, without questioning the immediate use and computational impact of each step until interrupted. Analysis of Differences: Humans set key strategic boundaries and domain constraints (prioritizing training feasibility over overall inventory), while AI optimizes for completeness within a single context window.\nAI Limitations Key Limitations No explicit mention of required storage approval, network restrictions, or A800 queue dependencies when proposing a multi-step process (MimicGen expansion → LeRobot conversion → LoRA fine-tuning). General Limitations Unable to reliably obtain full-text PDF/arXiv papers via WebFetch tool, repeatedly encountering 303/403 and ECONNREFUSED errors, forcing manual fallback solutions. Lack of awareness of project-specific data silos (e.g., ignored that PickPlace training data is generated offline in a separate MimicGen temporary directory), leading to repeated cross-account searches. Learning Outcomes Key Takeaways — In spatial transcriptomics benchmarks, correcting coordinate extraction metadata increased ARI by 86%, demonstrating that base model embeddings are highly sensitive to original pixel alignment before feature extraction. Visual-language-action models like Pi0 cannot achieve zero-shot migration (LIBERO → Robosuite) in simulated environments; reliable imitation learning on new tasks requires extending the source examples by more than 500 to successfully perform fine-tuning. Dialogue Summary MIHD Spatial Benchmark Tests ✅ Coordinate error repair and STAIG fusion experiment monitoring 00:01:02.520 | claude_code Identified critical coordinate exchange errors in organizational coordinate CSV processing, causing visual block damage and reducing embedding quality. Fixed two downstream files, cleaned up damaged cache, and monitored the long-running STAIG process via background polling. Analysis of intermediate results showed significant improvement in ARI/NMI after repair, and standard UNI/UNI2 patch extraction methods were researched through network search to validate process configuration.\nError Recovery Benchmark Tests 🔍 Evaluation of MimicGen data preparation and Pi0 fine-tuning 00:26:49.679 | claude_code Investigated the dataset for training Pi0/Pi0.5 in PickPlace task, found only 10 source examples, no generated variants or fine-tuning checkpoints. Organized existing conversion scripts and noted that approximately 500 expanded demo examples are required before starting LoRA fine-tuning. Defined specific process steps required after data generation is authorized.\n✅ VLA and BC-RNN checkpoint inventory 05:32:29.978 | claude_code Audited the HDD pool across directories to record available model weights for BC-RNN, Robomimic, and OpenPI/VLA variants. Created symbolic link checkpoint structure for unified access, verified file formats and sizes, and confirmed no task-specific fine-tuning weights. Provided clear mapping between available directories and empty directories, and highlighted storage distribution in shared accounts.\n✅ Strategy deployment visualization and configuration synchronization 04:52:08.850 | claude_code Developed policy rendering scripts to display Robosuite MuJoCo deployment results as MP4 videos with HUD overlays and success/failure metadata. Updated configuration paths using new checksum symbolic links, added visual targets in Makefile, and recorded changes in project summary Markdown. Verified GPU availability and generated baseline random policy deployment results for inspection.\nToken Usage AI Usage · 2026-02-18\rClaude Code\rTotal cost$0.62\rTotal tokens3M\rOutput tokens176\rCache read90.5%\rToken character\rCache reads 90.5% ·\rActive 9.5%\rMost token volume came from cache reads.\r",
+  "wordCount" : "1184",
   "inLanguage": "en",
   "datePublished": "2026-02-18T00:00:00-05:00",
   "dateModified": "2026-02-18T00:00:00-05:00",
@@ -257,135 +257,203 @@
 </div>
   </header> 
   <div class="post-content md-content"><h1 id="daily-report--2026-02-18">Daily Report — 2026-02-18<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-02-18">#</a></h1>
-<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<h2 id="overview-of-daily-work">Overview of Daily Work<a hidden class="anchor" aria-hidden="true" href="#overview-of-daily-work">#</a></h2>
 <ul>
-<li><strong>What was done:</strong> Two parallel research tracks: fixed spatial transcriptomics coordinate handling bug causing vision embedding errors (DCC), and built comprehensive policy benchmarking infrastructure with unified checkpoint management and rollout visualization (tianhe)</li>
-<li><strong>How it was done:</strong> Deep debugging of coordinate systems via code inspection and verification, followed by cache clearing and re-running experiments; infrastructure work via symlink organization, script development, and integration testing</li>
-<li><strong>Impact:</strong> MIHD: 86% improvement in UNI2-only clustering performance after fix validates multimodal fusion results; tianhe: unified checkpoint management and visualization tools enable systematic VLA cross-task generalization analysis</li>
+<li><strong>Completed Tasks:</strong> Fixed the coordinate exchange issue in the visual encoder during spatial transcriptomics benchmarks, and audited the multi-user model checkpoint repository under two machine environments.</li>
+<li><strong>Implementation Methods:</strong> Automatically cleaned up cache, monitored long-running processes, generated Python scripts for rendering output, performed recursive file system audits, and conducted cross-references of academic literature via integrated network tools.</li>
+<li><strong>Impact:</strong> Restored important benchmark metrics (86% improvement in ARI), established reproducible policy comparison visualization workflows, and accurately identified data expansion gaps required before VLA fine-tuning.</li>
 </ul>
 <h3 id="dcc">DCC<a hidden class="anchor" aria-hidden="true" href="#dcc">#</a></h3>
 <ul>
-<li><strong>What was done:</strong> Diagnosed and fixed coordinate swap bug in MIHD spatial transcriptomics pipeline where pxl_row/pxl_col were incorrectly mapped as X/Y instead of Y/X</li>
-<li><strong>How it was done:</strong> Modified run_benchmark.py and data_loader.py to correct column naming, cleared vision cache, re-ran 33 vision-only and 88 fusion experiments over ~6 hours with STAIG training</li>
-<li><strong>Impact:</strong> UNI2 embeddings now correctly extracted from proper image locations; ARI improved from 0.065→0.121 for vision-only, concat fusion reached 0.275 ARI validating multimodal integration approach</li>
+<li><strong>Completed Tasks:</strong> Fixed the column mapping error <code>tissue_positions_list.csv</code> in the MIHD process, and monitored the extended STAIG fusion training process.</li>
+<li><strong>Implementation Methods:</strong> Fixed the coordinate sorting issues in <code>run_benchmark.py</code> and <code>data_loader.py</code>, cleaned up damaged embedding vectors, implemented backend monitoring for progress tracking, and queried literature standards related to UNI/UNI2 patch extraction.</li>
+<li><strong>Impact:</strong> Restored geometrically accurate visual patches, verified consistent ARI/NMI improvements under different fusion strategies, and ensured consistent preprocessing with the established pathological base model practices.</li>
 </ul>
 <h3 id="tianhe">tianhe<a hidden class="anchor" aria-hidden="true" href="#tianhe">#</a></h3>
 <ul>
-<li><strong>What was done:</strong> Built unified checkpoint management system with symlinks, created policy rollout visualization tool, and investigated VLA training data availability for PickPlace task</li>
-<li><strong>How it was done:</strong> Created checkpoints/ directory structure linking BC-RNN/VLA/Robomimic models, wrote 200-line visualize_policy_rollout.py with MP4 rendering, updated configs and Makefile, searched zhaoganlong&rsquo;s datasets</li>
-<li><strong>Impact:</strong> Can now visualize policy behavior via MP4 rollouts and identified root cause of VLA failure (no task-specific finetuning); discovered MimicGen can expand 10→500 demos for future training</li>
+<li><strong>Completed Tasks:</strong> Organized VLA/BC-RNN weights, developed the MuJoCo policy rendering visualization tool, and evaluated the preparation of the MimicGen dataset for Pi0 fine-tuning.</li>
+<li><strong>Implementation Methods:</strong> Performed targeted file searches to catalog checkpoints, wrote <code>visualize_policy_rollout.py</code>, updated configuration paths and Makefile targets, verified GPU rendering processes, and analyzed HDF5 demo distributions in shared storage.</li>
+<li><strong>Impact:</strong> Achieved unified checkpoint access via symbolic links, enabling baseline evaluation of policy behavior visualization, and clarified that only 10 source demo data are available, thus determining the exact MimicGen expansion threshold required for fine-tuning start.</li>
 </ul>
 <blockquote>
-<p>Fixed critical spatial coordinate bug in MIHD multimodal fusion benchmark and built infrastructure for robotic policy visualization and checkpoint management</p>
+<p>Fixed critical coordinate extraction errors in the MIHD spatial transcriptomics process, analyzed benchmark results, audited the availability of VLA/BC-RNN checkpoints, developed policy rendering visualization tools, and defined the data requirements for MimicGen in robot imitation learning.</p>
 </blockquote>
 <h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
-<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<h3 id="architecture-and-strategy">Architecture and Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture-and-strategy">#</a></h3>
 <ul>
-<li>✅ <strong>Fix MIHD coordinate swap bug</strong> — Corrected tissue_positions_list.csv column mapping where pxl_row_in_fullres (Y) and pxl_col_in_fullres (X) were swapped as pixel_x/pixel_y</li>
+<li>✅ <strong>MIHD coordinate error repair and experimental monitoring</strong> — Identified and corrected X/Y coordinate mapping errors in the spatial transcriptomics process, cleaned up damaged cache, monitored long-running STAIG fusion experiments, and analyzed intermediate benchmark metrics.</li>
+<li>🔄 <strong>Evaluation of MimicGen data preparation for Pi0 fine-tuning</strong> — Audited HDF5 demo counts, mapped existing conversion processes, and determined the approximately 500 demo expansion thresholds required before LeRobot format conversion and LoRA adjustment begin.</li>
 </ul>
-<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<h3 id="implementation-and-fixes">Implementation and Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation-and-fixes">#</a></h3>
 <ul>
-<li>🔄 <strong>Re-run MIHD vision and fusion experiments</strong> — Regenerate embeddings and benchmark results for 33 vision-only and 88 multimodal fusion experiments after coordinate fix</li>
-<li>✅ <strong>Create policy rollout visualization tool</strong> — Wrote visualize_policy_rollout.py script with offscreen rendering, HUD overlay, MP4 export, and support for random/BC-RNN/VLA policies</li>
-<li>✅ <strong>Build unified checkpoint management system</strong> — Created checkpoints/ directory with symlinks to BC-RNN, VLA (Pi0/Pi0.5), and Robomimic models for consistent path references</li>
-<li>✅ <strong>Investigate VLA training data availability</strong> — Searched for PickPlace-specific VLA checkpoints and training data; found only 10 source demos vs 500 demos for Coffee/Stack tasks</li>
+<li>✅ <strong>VLA/BC-RNN checkpoint inventory and symbolic link management</strong> — Cataloged all available model weights in the shared HDD pool, created a unified symbolic link structure, verified file formats/sizes, and recorded missing task-specific checkpoints.</li>
+<li>✅ <strong>Policy rendering visualization and configuration synchronization</strong> — Developed policy rendering scripts, updated correct paths in benchmark configurations/Makefile, synchronized project documentation, and verified GPU rendering output generation.</li>
 </ul>
-<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
-<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
-<h4 id="1-vision-embeddings-extracted-from-transposed-image-locations-due-to-xy-coordinate-swap-in-tissue_positions_listcsv-parsing">1. Vision embeddings extracted from transposed image locations due to X/Y coordinate swap in tissue_positions_list.csv parsing<a hidden class="anchor" aria-hidden="true" href="#1-vision-embeddings-extracted-from-transposed-image-locations-due-to-xy-coordinate-swap-in-tissue_positions_listcsv-parsing">#</a></h4>
-<p><strong>Solution:</strong> Renamed columns to pxl_row/pxl_col (semantic names), swapped coordinate order to (X, Y) = (pxl_col, pxl_row), deleted vision cache, re-ran experiments</p>
-<p><strong>Key Insight:</strong> Spatial data requires explicit Y-as-row, X-as-column semantics; 10x scale factor validation (pixel coords × scalefactor = microns) catches coordinate system errors early</p>
-<h4 id="2-pi0_libero-checkpoint-achieves-0-success-on-pickplace-despite-96-100-on-coffeestack">2. Pi0_libero checkpoint achieves 0% success on PickPlace despite 96-100% on Coffee/Stack<a hidden class="anchor" aria-hidden="true" href="#2-pi0_libero-checkpoint-achieves-0-success-on-pickplace-despite-96-100-on-coffeestack">#</a></h4>
-<p><strong>Solution:</strong> Identified root cause: Pi0_libero is LIBERO-domain finetuned, lacks PickPlace-specific training data (only 10 source demos vs 500 for other tasks); proposed MimicGen→LeRobot→LoRA pipeline</p>
-<p><strong>Key Insight:</strong> VLA cross-task generalization fails when task domains differ (LIBERO vs PickPlace object/scene layout); finetuning requires 500+ demos expandable via MimicGen from 10 source demos</p>
-<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
-<h4 id="3-no-way-to-visually-inspect-vla-policy-behavior-on-pickplace-task-to-diagnose-0-success-rate">3. No way to visually inspect VLA policy behavior on PickPlace task to diagnose 0% success rate<a hidden class="anchor" aria-hidden="true" href="#3-no-way-to-visually-inspect-vla-policy-behavior-on-pickplace-task-to-diagnose-0-success-rate">#</a></h4>
-<p><strong>Solution:</strong> Built visualize_policy_rollout.py with EGL offscreen rendering, frame-by-frame capture, HUD overlay (policy/step/reward/success), and MP4 export per rollout</p>
-<p><strong>Key Insight:</strong> Video rollouts reveal behavioral patterns (e.g., random flailing vs directed failures) that success rate alone cannot distinguish</p>
-<h4 id="4-scattered-checkpoint-paths-across-multiple-hdd_pool-directories-making-config-management-fragile">4. Scattered checkpoint paths across multiple HDD_POOL directories making config management fragile<a hidden class="anchor" aria-hidden="true" href="#4-scattered-checkpoint-paths-across-multiple-hdd_pool-directories-making-config-management-fragile">#</a></h4>
-<p><strong>Solution:</strong> Created centralized checkpoints/ directory with task-organized symlinks (bc_rnn/pick_place, vla/pi0_libero, robomimic/lift) and updated all configs to use relative paths</p>
-<p><strong>Key Insight:</strong> Symlink-based checkpoint organization enables atomic path updates and clear separation between original storage and project references</p>
-<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h2 id="issues-and-solutions">Issues and Solutions<a hidden class="anchor" aria-hidden="true" href="#issues-and-solutions">#</a></h2>
+<h3 id="key-issues">Key Issues<a hidden class="anchor" aria-hidden="true" href="#key-issues">#</a></h3>
+<h4 id="1-critical-coordinate-exchange-in-tissue_positions_listcsv-caused-misalignment-in-visual-patch-extraction-reducing-uni2-embeddings-and-benchmark-metrics">1. Critical coordinate exchange in <code>tissue_positions_list.csv</code> caused misalignment in visual patch extraction, reducing UNI2 embeddings and benchmark metrics.<a hidden class="anchor" aria-hidden="true" href="#1-critical-coordinate-exchange-in-tissue_positions_listcsv-caused-misalignment-in-visual-patch-extraction-reducing-uni2-embeddings-and-benchmark-metrics">#</a></h4>
+<p><strong>Solution:</strong> Corrected the column mapping in <code>pxl_col/pxl_row</code>, reordered coordinate tuples, cleaned up damaged cache, and reperformed baseline experiments to verify the fix.</p>
+<p><strong>Key Insight:</strong> The quality of base model embeddings is highly sensitive to original pixel and point alignment; metadata correctness must be verified before feature extraction begins.</p>
+<h4 id="2-pre-trained-vla-model-pi0-libero-fails-with-zero-shot-errors-in-robosuite-pickplace-task-and-the-project-lacks-task-specific-fine-tuning-checkpoints">2. Pre-trained VLA model (Pi0 LIBERO) fails with zero-shot errors in Robosuite PickPlace task, and the project lacks task-specific fine-tuning checkpoints.<a hidden class="anchor" aria-hidden="true" href="#2-pre-trained-vla-model-pi0-libero-fails-with-zero-shot-errors-in-robosuite-pickplace-task-and-the-project-lacks-task-specific-fine-tuning-checkpoints">#</a></h4>
+<p><strong>Solution:</strong> Developed a visualization workflow to inspect failure patterns, audited existing weight storage, and used existing repository scripts to map the MimicGen 10 to 500 demo expansion process.</p>
+<p><strong>Key Insight:</strong> VLA policies require diverse source behaviors before fine-tuning; direct environment migration without task-specific data collection will always fail.</p>
+<h2 id="human-and-ai-approaches">Human and AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-and-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
-<h4 id="vla-checkpoint-selection-for-pickplace">VLA checkpoint selection for PickPlace<a hidden class="anchor" aria-hidden="true" href="#vla-checkpoint-selection-for-pickplace">#</a></h4>
+<h4 id="comparison-of-literature-verification-and-hypothesis-driven-optimization">Comparison of Literature Verification and Hypothesis-Driven Optimization<a hidden class="anchor" aria-hidden="true" href="#comparison-of-literature-verification-and-hypothesis-driven-optimization">#</a></h4>
 <table>
   <thead>
       <tr>
           <th>Role</th>
-          <th>Approach</th>
+          <th>Method</th>
       </tr>
   </thead>
   <tbody>
       <tr>
           <td>Human</td>
-          <td>Questioned why Pi0_libero was being loaded instead of a PickPlace-specific checkpoint, assumed zhaoganlong should have one</td>
+          <td>Required cross-references with published pathological base model guidelines to verify patch size, normalization, and coordinate alignment methods before trusting process outputs.</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>Initially loaded Pi0_libero as the only available VLA checkpoint without verifying task-specific training</td>
+          <td>Performed automatic network search and PDF retrieval, synthesized technical specifications, but initially treated all findings as direct implementation rules without highlighting potential version mismatch issues.</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human correctly intuited that task-specific finetuning should exist; AI defaulted to available checkpoint without validating task match. Investigation revealed no PickPlace checkpoint exists.</p>
-<h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
-<h4 id="uniuni2-usage-in-literature">UNI/UNI2 usage in literature<a hidden class="anchor" aria-hidden="true" href="#uniuni2-usage-in-literature">#</a></h4>
+<p><strong>Analysis of Differences:</strong> Humans use external verification to prevent hidden configuration drift, while AI efficiently integrates documents but lacks critical assessments of source reliability and version compatibility.</p>
+<h4 id="strategic-shift-from-comprehensive-checkpoint-search-to-training-process-preparation">Strategic Shift from Comprehensive Checkpoint Search to Training Process Preparation<a hidden class="anchor" aria-hidden="true" href="#strategic-shift-from-comprehensive-checkpoint-search-to-training-process-preparation">#</a></h4>
 <table>
   <thead>
       <tr>
           <th>Role</th>
-          <th>Approach</th>
+          <th>Method</th>
       </tr>
   </thead>
   <tbody>
       <tr>
           <td>Human</td>
-          <td>Requested web search to verify how other papers extract patches and handle coordinates for spatial transcriptomics</td>
+          <td>Explicitly stopped deep file searches, focused on evaluating MimicGen data availability, and directly asked about source demo counts and fine-tuning prerequisites.</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>Focused on code-level debugging without consulting literature for domain best practices</td>
+          <td>Focused on full automation, recursive directory scanning, cataloging all available assets, without questioning the immediate use and computational impact of each step until interrupted.</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human sought external validation from published methods; AI relied on internal code logic. Literature search confirmed 224x224 patches at 20x magnification but didn&rsquo;t provide specific coordinate handling details.</p>
+<p><strong>Analysis of Differences:</strong> Humans set key strategic boundaries and domain constraints (prioritizing training feasibility over overall inventory), while AI optimizes for completeness within a single context window.</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="key-limitations">Key Limitations<a hidden class="anchor" aria-hidden="true" href="#key-limitations">#</a></h3>
+<ul>
+<li>No explicit mention of required storage approval, network restrictions, or A800 queue dependencies when proposing a multi-step process (MimicGen expansion → LeRobot conversion → LoRA fine-tuning).</li>
+</ul>
 <h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
 <ul>
-<li>Did not proactively search for task-specific VLA checkpoints before recommending Pi0_libero, required human prompting to investigate zhaoganlong&rsquo;s full checkpoint directory</li>
-<li>Needed multiple search iterations to discover zhaoganlong&rsquo;s datasets were organized by task (Coffee/Stack) with 500 generated demos each, initially focused on finding PickPlace directly</li>
+<li>Unable to reliably obtain full-text PDF/arXiv papers via WebFetch tool, repeatedly encountering 303/403 and ECONNREFUSED errors, forcing manual fallback solutions.</li>
+<li>Lack of awareness of project-specific data silos (e.g., ignored that PickPlace training data is generated offline in a separate MimicGen temporary directory), leading to repeated cross-account searches.</li>
 </ul>
-<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
-<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<h2 id="learning-outcomes">Learning Outcomes<a hidden class="anchor" aria-hidden="true" href="#learning-outcomes">#</a></h2>
+<h3 id="key-takeaways--in-spatial-transcriptomics-benchmarks-correcting-coordinate-extraction-metadata-increased-ari-by-86-demonstrating-that-base-model-embeddings-are-highly-sensitive-to-original-pixel-alignment-before-feature-extraction">Key Takeaways — In spatial transcriptomics benchmarks, correcting coordinate extraction metadata increased ARI by 86%, demonstrating that base model embeddings are highly sensitive to original pixel alignment before feature extraction.<a hidden class="anchor" aria-hidden="true" href="#key-takeaways--in-spatial-transcriptomics-benchmarks-correcting-coordinate-extraction-metadata-increased-ari-by-86-demonstrating-that-base-model-embeddings-are-highly-sensitive-to-original-pixel-alignment-before-feature-extraction">#</a></h3>
 <ul>
-<li>Spatial coordinate systems in medical imaging require explicit semantic naming (pxl_row=Y, pxl_col=X) and validation via physical units (pixels × scalefactor = microns); generic pixel_x/pixel_y naming is error-prone</li>
-<li>Vision foundation model integration in multimodal learning critically depends on spatial alignment; incorrect patch extraction (from transposed locations) can halve performance even with correct architecture</li>
-<li>VLA models trained on one task domain (LIBERO) show minimal cross-task generalization to different manipulation setups (PickPlace) despite similar action spaces; domain-specific finetuning is essential</li>
-<li>MimicGen can expand 10 human demonstrations to 500 training examples via automatic variation generation, matching the data scale used in successful VLA finetuning (Coffee: 96%, Stack: 100%)</li>
+<li>Visual-language-action models like Pi0 cannot achieve zero-shot migration (LIBERO → Robosuite) in simulated environments; reliable imitation learning on new tasks requires extending the source examples by more than 500 to successfully perform fine-tuning.</li>
 </ul>
-<h3 id="practical-learnings">Practical Learnings<a hidden class="anchor" aria-hidden="true" href="#practical-learnings">#</a></h3>
-<ul>
-<li>Symlink-based checkpoint management enables version control of path references while preserving original data locations; critical for shared filesystem collaboration</li>
-</ul>
-<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
-<h3 id="mihd-spatial-transcriptomics">MIHD Spatial Transcriptomics<a hidden class="anchor" aria-hidden="true" href="#mihd-spatial-transcriptomics">#</a></h3>
-<p><strong>🔄 Coordinate swap bug fix in vision patch extraction</strong>
+<h2 id="dialogue-summary">Dialogue Summary<a hidden class="anchor" aria-hidden="true" href="#dialogue-summary">#</a></h2>
+<h3 id="mihd-spatial-benchmark-tests">MIHD Spatial Benchmark Tests<a hidden class="anchor" aria-hidden="true" href="#mihd-spatial-benchmark-tests">#</a></h3>
+<p><strong>✅ Coordinate error repair and STAIG fusion experiment monitoring</strong>
 <em>00:01:02.520 | claude_code</em>
-Diagnosed and fixed critical bug where tissue_positions_list.csv columns (pxl_row, pxl_col) were incorrectly mapped as (pixel_x, pixel_y), causing vision patches to be extracted from transposed locations. Cleared vision cache and re-ran 121 experiments (33 vision-only + 88 fusion). Results showed UNI2 ARI improved from 0.065 to 0.121 (+86%). User requested literature review on UNI/UNI2 usage patterns; web search confirmed 224x224 patches at 20x magnification standard but lacked coordinate handling specifics. Experiments still running after 6+ hours due to STAIG training requirements.</p>
-<h3 id="error-recovery-benchmark">Error Recovery Benchmark<a hidden class="anchor" aria-hidden="true" href="#error-recovery-benchmark">#</a></h3>
-<p><strong>🔍 VLA training data investigation and PickPlace finetuning path</strong>
-<em>04:52:08.850 | claude_code</em>
-User asked about training VLA on PickPlace task after realizing Pi0_libero has 0% success. Investigation revealed PickPlace only has 10 source demos (6288 steps) while zhaoganlong&rsquo;s successful Coffee/Stack training used ~500 demos generated via MimicGen. No PickPlace-specific VLA checkpoint exists; all VLA models are LIBERO-domain or base weights. Identified training path: 1) Run MimicGen to expand 10→500 demos, 2) Convert to LeRobot format via zhaoganlong&rsquo;s scripts, 3) Run Pi0.5 LoRA finetuning. All necessary scripts and pipelines available in zhaoganlong&rsquo;s repo.</p>
-<p><strong>✅ Checkpoint inventory and availability assessment</strong>
-<em>05:32:29.978 | claude_code</em>
-User requested inventory of usable VLA models and checkpoints. Found 4 VLA model types registered in code (pi0, pi05, phoenix, flare) but only Pi0_libero and Pi05_base have actual checkpoints (~12GB each). Also identified BC-RNN PickPlace checkpoints (12 epochs, 14MB each) and Robomimic Lift checkpoint (7.6MB, 100% success). Discovered robomimic&rsquo;s can/square/transport directories are empty. VLA checkpoints all reside in zhaoganlong&rsquo;s HDD_POOL directory, linked via symlinks to project.</p>
-<p><strong>✅ Policy visualization infrastructure setup</strong>
+Identified critical coordinate exchange errors in organizational coordinate CSV processing, causing visual block damage and reducing embedding quality. Fixed two downstream files, cleaned up damaged cache, and monitored the long-running STAIG process via background polling. Analysis of intermediate results showed significant improvement in ARI/NMI after repair, and standard UNI/UNI2 patch extraction methods were researched through network search to validate process configuration.</p>
+<h3 id="error-recovery-benchmark-tests">Error Recovery Benchmark Tests<a hidden class="anchor" aria-hidden="true" href="#error-recovery-benchmark-tests">#</a></h3>
+<p><strong>🔍 Evaluation of MimicGen data preparation and Pi0 fine-tuning</strong>
 <em>00:26:49.679 | claude_code</em>
-Built unified checkpoint management via checkpoints/ directory with symlinks (bc_rnn/pick_place, vla/pi0_libero, robomimic/lift). Created visualize_policy_rollout.py (200 lines) supporting random/BC-RNN/VLA policies with offscreen rendering, HUD overlay, and MP4 export. Updated benchmark_v4.yaml to use symlink paths and added 3 Makefile visualization targets. Tested successfully with random policy, generated 2 MP4 files. Updated documentation in 项目全景总结.md with new v4.7 checkpoint management section.</p>
+Investigated the dataset for training Pi0/Pi0.5 in PickPlace task, found only 10 source examples, no generated variants or fine-tuning checkpoints. Organized existing conversion scripts and noted that approximately 500 expanded demo examples are required before starting LoRA fine-tuning. Defined specific process steps required after data generation is authorized.</p>
+<p><strong>✅ VLA and BC-RNN checkpoint inventory</strong>
+<em>05:32:29.978 | claude_code</em>
+Audited the HDD pool across directories to record available model weights for BC-RNN, Robomimic, and OpenPI/VLA variants. Created symbolic link checkpoint structure for unified access, verified file formats and sizes, and confirmed no task-specific fine-tuning weights. Provided clear mapping between available directories and empty directories, and highlighted storage distribution in shared accounts.</p>
+<p><strong>✅ Strategy deployment visualization and configuration synchronization</strong>
+<em>04:52:08.850 | claude_code</em>
+Developed policy rendering scripts to display Robosuite MuJoCo deployment results as MP4 videos with HUD overlays and success/failure metadata. Updated configuration paths using new checksum symbolic links, added visual targets in Makefile, and recorded changes in project summary Markdown. Verified GPU availability and generated baseline random policy deployment results for inspection.</p>
 <h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
-<p><img alt="Token Usage" loading="lazy" src="2026-02-18-usage.png"></p>
-<p><strong>Total: $11.96</strong> — 18.4M tokens</p>
-<!-- gadget:src-hash:4aad790e09c4115a -->
-
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-02-18</span>
+        <span class="usage-card__source">Claude Code</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$0.62</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>3M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>176</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>90.5%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 90.5%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 9.5%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (90.5%), active tokens (9.5%)">
+          <span style="width:90.5%; background:var(--usage-cache)"></span>
+          <span style="width:9.5%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:1626c094e5c40516 -->
 
   </div>
 

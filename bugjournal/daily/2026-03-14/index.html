@@ -7,7 +7,7 @@
 <meta name="robots" content="index, follow">
 <title>Bug Journal 2026-03-14 | TzJ&#39;s Net</title>
 <meta name="keywords" content="Bug Journal">
-<meta name="description" content="Implementation of adaptive UI for GPU monitoring scripts, HDF5 data visualization tools, and a framework for the 4 sets of progress prediction experiments on the pi05 model">
+<meta name="description" content="An adaptive GPU monitoring interface was developed, an automated multi-camera HDF5 to MP4 visualization processing workflow was established, and four experimental configurations were designed in the pi05 VLA strategy architecture to achieve step-by-step task conditioning.">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/bugjournal/daily/2026-03-14/">
 <link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
@@ -79,7 +79,7 @@
 <meta property="og:url" content="https://tzj2006.github.io/bugjournal/daily/2026-03-14/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="Bug Journal 2026-03-14">
-  <meta property="og:description" content="Implementation of adaptive UI for GPU monitoring scripts, HDF5 data visualization tools, and a framework for the 4 sets of progress prediction experiments on the pi05 model">
+  <meta property="og:description" content="An adaptive GPU monitoring interface was developed, an automated multi-camera HDF5 to MP4 visualization processing workflow was established, and four experimental configurations were designed in the pi05 VLA strategy architecture to achieve step-by-step task conditioning.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="bugjournal">
@@ -88,7 +88,7 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Bug Journal 2026-03-14">
-  <meta name="twitter:description" content="Implementation of adaptive UI for GPU monitoring scripts, HDF5 data visualization tools, and a framework for the 4 sets of progress prediction experiments on the pi05 model">
+  <meta name="twitter:description" content="An adaptive GPU monitoring interface was developed, an automated multi-camera HDF5 to MP4 visualization processing workflow was established, and four experimental configurations were designed in the pi05 VLA strategy architecture to achieve step-by-step task conditioning.">
 
 
 <script type="application/ld+json">
@@ -123,12 +123,12 @@
   "@type": "BlogPosting",
   "headline": "Bug Journal 2026-03-14",
   "name": "Bug Journal 2026-03-14",
-  "description": "Implementation of adaptive UI for GPU monitoring scripts, HDF5 data visualization tools, and a framework for the 4 sets of progress prediction experiments on the pi05 model",
+  "description": "An adaptive GPU monitoring interface was developed, an automated multi-camera HDF5 to MP4 visualization processing workflow was established, and four experimental configurations were designed in the pi05 VLA strategy architecture to achieve step-by-step task conditioning.",
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-03-14 Daily Overview What was done: Enhanced the GPU monitoring script for the robobrain_pi project, created HDF5 camera data visualization tools for RoboTwin, and designed and implemented 4 sets of manipulation progress prediction comparison experiments for the pi05 policy model How it was done: Implemented alternate screen buffer and adaptive layout using ANSI escape codes, decoded JPEG images with OpenCV and merged multi-camera views, and added MLP decoder and special token mechanisms in the JAX/Flax framework Impact: Monitoring tools achieved nvitop-level user experience, complete visualization of 50 episodes of 4-camera data, and a complete progress-conditioned action prediction experiment framework was established Implemented adaptive UI for GPU monitoring scripts, HDF5 data visualization tools, and a 4-set progress prediction experiment framework for the pi05 model\nTasks Architecture \u0026 Strategy ✅ Design of pi05 model progress prediction framework — Designed 4 sets of contrastive experiments: last_token vs special_token × time vs distance ✅ Implementation of pi05 model modifications (6 files) — Modified pi0_config.py/model.py/tokenizer.py/robotwin_policy.py/config.py/pi0.py, added MLP decoder, special tokens, conditional injection, and auxiliary loss ❌ Update of data conversion script — Need to modify convert_robotwin_democlean_to_lerobot.py to add progress-related fields before training can start Implementation \u0026 Fixes ✅ HDF5 camera data visualization script — Created visualize_hdf5_cameras.py, merged 50 episodes of 4-camera data into a 2×2 grid MP4 video ✅ UI enhancement for GPU monitoring script gpumon.py — Added alternate screen buffer, adaptive column/row sizing, process deduplication, and noise filtering Problems \u0026 Solutions Critical Issues 1. Training data has not been converted to lerobot format, missing progress-related fields prevents experiment startup Solution: Need to modify convert_robotwin_democlean_to_lerobot.py to add keys such as manip_progress_time/distance_left/distance_right/target_endpose/target_joint\nKey Insight: Model experiments depend on the integrity of the data pipeline; format conversion is a blocking prerequisite step\nGeneral Issues 2. os.get_terminal_size() cannot read COLUMNS/LINES environment variables in child processes, causing non-adaptive table width Solution: First try to read COLUMNS/LINES environment variables and convert them to int; fallback to os.get_terminal_size() if failed\nKey Insight: Environment variables are more reliable than system calls when passing terminal information across processes\nHuman vs AI Approaches Strategic Level Gradient strategy selection in pi05 experiment design Role Approach Human Directly chose scheme A (stop_gradient all), reasoning: ‘most safe, does not affect action prediction, can be adjusted later’ — reflects a conservative starting strategy for iterative experiments AI AI proposed 3 schemes (A: full block, B: full feedback, C: hybrid), analyzed trade-offs of each, preferred A but emphasized the special nature of special tokens Difference Analysis: Humans make quick decisions based on engineering experience; AI tends to list options and trade-offs explicitly, but humans’ concise decision-making strategy (conservative first, then iterate) is reasonable\nNaming and organization of experiment configurations Role Approach Human Requested ‘config switches are needed, the easier to start experiments, the better’ — reflects emphasis on experimental engineering efficiency AI AI designed a unified ProgressConfig class and 4 independent naming configurations (exp1~4), allowing direct selection via tyro CLI Difference Analysis: Humans focus on practicality and convenience; AI concretizes it into config class design and CLI interface, both aiming at ’easy experiment switching’\nAI Limitations Critical Limitations AI did not proactively anticipate data pipeline issues — After modifying the model, it should have immediately checked whether data loading supports new fields, instead of waiting for user errors AI did not run actual training smoke tests during pi05 modifications, only tested configuration imports, resulting in missing dependencies in the data conversion script Learnings Key Learnings Integrity checks for complex model experiments should cover model code, configuration, data pipeline, and training scripts, not just model code validation Using stop_gradient to implement auxiliary tasks in JAX/Flax is a common multi-task learning pattern, allowing utilization of features while avoiding interference with the main task The special token mechanism requires 3 steps: tokenizer registers token IDs, model extends embedding layers, and prompts are concatenated during data loading Conversation Summaries Robobrain-PI (GPU Monitoring) ✅ UI enhancement for GPU monitor script with adaptive layout 09:24:23.170 | claude_code User requested an alternate screen buffer similar to nvitop and adaptive column/row sizing for gpumon.py. Implemented ANSI escape codes for screen buffer switching, dynamic width/height calculation from COLUMNS/LINES env vars, proportional column sizing, and process deduplication. The script now provides a professional terminal UI that exits cleanly without polluting the terminal history\nRoboTwin VLA (HDF5 Visualization) ✅ Visualize 4-camera HDF5 data as MP4 videos 13:16:50.918 | claude_code User needed to visualize observation data from 50 HDF5 episodes (front/head/left/right cameras). Created visualize_hdf5_cameras.py that decodes JPEG-encoded frames, tiles them into 2×2 grids with labels, and writes 30fps MP4 files. Successfully processed all 50 episodes (~2.3MB each) to all_videos/ directory\nRoboTwin VLA (PI05 Experiments) 🔄 Design and implement 4 progress prediction experiments for pi05 14:21:07.908 | claude_code User requested 4 contrastive experiments for manipulation progress prediction: (1) last_token+time, (2) special_token+time, (3) last_token+distance, (4) special_token+distance. After discussing architecture (MLP 2048→256→out, λ=0.1, stop_gradient strategy), modified 6 files to add ProgressConfig, 3 special tokens, MLP decoder, condition injection logic, and auxiliary MSE loss. Created 4 training configs (pi05_robotwin_prog_exp1~4). Verified all imports but discovered data pipeline blocker at the end\nToken Usage Total: $6.79 — 10.5M tokens\n",
-  "wordCount" : "845",
+  "articleBody": "Daily Report — 2026-03-14 General Overview Completed Work: Enhanced terminal resource monitoring tools, created scripts for checking robot trajectory datasets, and integrated auxiliary progress metrics into the multimodal policy model in six core code modules. Implementation: Implemented dynamic environmental variable parsing and escape sequence buffering mechanisms for adaptive TUI rendering, used OpenCV image decoding and VideoWriter for batch MP4 generation, and extended Flax NNNX configuration via trainable MLP decoders, gradient isolation strategies, and CLI-driven experiment switches. Impact: Simplified developer workflows by leveraging robust cluster-side GPU tracking, accelerated data validation of 50 scene robot datasets, and established a reproducible, modular multi-objective embodied AI training framework. Developed an adaptive GPU monitoring UI, built an automated multi-camera HDF5 to MP4 visualization pipeline, and designed four progressive task condition configurations in the pi05 VLA policy architecture.\nTasks Architecture and Strategy ✅ pi05 progressive condition experiment architecture — Designed and implemented four experimental pipelines that combine last valid markers and special placeholder markers for feature extraction and time/distance prediction. The decoded progress is injected into the action expert via configuration-driven flags as conditional markers. Implementation and Fixes ✅ Adaptive GPU monitoring UI and fallback screen implementation — Refactored gpumon.py to support dynamic terminal width/height adaptation and a secure fallback screen buffer entry/exit mechanism, mimicking nvitop behavior while filtering noise and deduplicating PID numbers. ✅ HDF5 multi-camera to MP4 visualization script — Developed an independent Python script to decode JPEG-encoded camera streams from 50 robot trajectory HDF5 files, divide them into a 2x2 grid, add labels, and export as synchronized MP4 videos. ❌ Lerobot data format update to add progress keys — Attempted to modify the dataset conversion script to include control progress, distance, and target pose keys for pi05 training, but failed due to API connection issues. Issues and Solutions Key Issues 1. Training pipeline at startup fails due to lerobot format dataset loader missing auxiliary targets (manip_progress_time, manip_progress_distance_left/right, target_endpose). Solution: Define clear data mapping requirements to extend the conversion script and policy transformation. Once external API restrictions are resolved, progress can be clearly advanced.\nKey Insight: Before training begins, the auxiliary condition pipeline must implement bidirectional updates between data format, transformation factory, and model observation mode; otherwise, critical errors may occur.\nGeneral Issues 2. Dynamic terminal width adaptation fails during subprocess testing because os.get_terminal_size() ignores exported COLUMNS/LINES environment variables, resulting in fixed layout on wide terminals. Solution: Replace fallback logic with explicit logic parsing $COLUMNS and $LINES from the environment dictionary to ensure accurate column allocation across all execution contexts.\nKey Insight: Some process environments delete or ignore exported terminal size variables; relying solely on os.get_terminal_size() limits testability and portability of automated workflows.\nHuman and AI Approaches Strategic Level pi05 progressive condition VLA experiment design Role Method Human Designed four different experimental conditions, changing the source of feature extraction (last valid marker and special placeholder marker) and prediction targets (scalar time and 2D two-handed motion distance), directly connecting to the action expert state marker pipeline without specifying training dynamics. AI Implemented full architecture integration, standardizing MLP decoder dimensions (2048→256→output), recommending MSE loss weights λ=0.1, enforcing a conservative stop_gradient strategy to isolate VLM features from auxiliary gradients, and enabling reproducible configuration switches in six modules. Difference Analysis: Humans propose comparative experiment matrices and architectural coupling intentions, while AI converts them into specific gradient control strategies, modular configuration abstractions, and verification code frameworks, ensuring optimization stability and hyperparameter flexibility.\nAI Limitations General Limitations Encountered ConnectionRefused API errors when attempting to modify external files for data conversion, indicating fragile toolchain connections across sessions due to network latency or endpoint restrictions. Learning Outcomes Key Learning Points During auxiliary loss backpropagation, stop_gradient freezes intermediate VLM representations, effectively separating policy feature learning from task-specific condition updates, significantly improving optimization stability in multi-objective embodied AI training. Practical Learning Points Terminal TUI reliability depends on a dual fallback mechanism: standard os.get_terminal_size() for interactive sessions, and explicit environment variable parsing for CI/test runners or redirect pipelines. Dialogue Summary GPUMonitor ✅ Adaptive GPU monitoring UI and screen buffer 09:24:23.170 | claude_code User requested a terminal monitoring tool with adaptive layout and secure screen buffer switching, similar to nvitop. AI implemented dynamic column allocation parsing, fallback screen entry/exit mechanisms based on escape sequences, and optimized display logic for process deduplication and noise filtering. The updated script now scales correctly on 80–120+ columns terminals and restores terminal state upon exit.\nRoboTwin Data Tools ✅ HDF5 camera stream to MP4 visualizer 13:18:03.922 | claude_code User requested a batch visualization pipeline that extracts and renders four camera views from 50 robot trajectory HDF5 files as MP4 videos. AI analyzed the data structure, reused existing JPEG decoding patterns, developed a dedicated script with a 2x2 grid segmentation and labeling, and executed it successfully across all episodes. Output verification confirmed correct format, resolution, and synchronization.\nPi05 Strategy**🔄 VLA experiments and data fixes based on progress conditions** 14:21:07.908 | claude_code User proposed four experimental designs to introduce learned operation progress metrics into pi05 strategy via MLP decoding and token conditioning. AI analyzed the architecture, defined hyperparameter and gradient control strategies, and after user approval, modified six core files including configuration registration and tokenizer extension. Backend verification passed, but subsequent data conversion updates failed due to API connection issues.\nToken Usage AI Usage · 2026-03-14\rClaude Code\rTotal cost$28.16\rTotal tokens48M\rOutput tokens201K\rCache read91.5%\rToken character\rCache reads 91.5% ·\rActive 8.5%\rMost token volume came from cache reads.\r",
+  "wordCount" : "898",
   "inLanguage": "en",
   "datePublished": "2026-03-14T00:00:00-05:00",
   "dateModified": "2026-03-14T00:00:00-05:00",
@@ -252,114 +252,173 @@
     </h1>
     <div class="post-meta">
 
-<span title='2026-03-14 00:00:00 -0500 -0500'>March 14, 2026</span>&nbsp;·&nbsp;<span>4 min</span>
+<span title='2026-03-14 00:00:00 -0500 -0500'>March 14, 2026</span>&nbsp;·&nbsp;<span>5 min</span>
 
 </div>
   </header> 
   <div class="post-content md-content"><h1 id="daily-report--2026-03-14">Daily Report — 2026-03-14<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-03-14">#</a></h1>
-<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<h2 id="general-overview">General Overview<a hidden class="anchor" aria-hidden="true" href="#general-overview">#</a></h2>
 <ul>
-<li><strong>What was done:</strong> Enhanced the GPU monitoring script for the robobrain_pi project, created HDF5 camera data visualization tools for RoboTwin, and designed and implemented 4 sets of manipulation progress prediction comparison experiments for the pi05 policy model</li>
-<li><strong>How it was done:</strong> Implemented alternate screen buffer and adaptive layout using ANSI escape codes, decoded JPEG images with OpenCV and merged multi-camera views, and added MLP decoder and special token mechanisms in the JAX/Flax framework</li>
-<li><strong>Impact:</strong> Monitoring tools achieved nvitop-level user experience, complete visualization of 50 episodes of 4-camera data, and a complete progress-conditioned action prediction experiment framework was established</li>
+<li><strong>Completed Work:</strong> Enhanced terminal resource monitoring tools, created scripts for checking robot trajectory datasets, and integrated auxiliary progress metrics into the multimodal policy model in six core code modules.</li>
+<li><strong>Implementation:</strong> Implemented dynamic environmental variable parsing and escape sequence buffering mechanisms for adaptive TUI rendering, used OpenCV image decoding and VideoWriter for batch MP4 generation, and extended Flax NNNX configuration via trainable MLP decoders, gradient isolation strategies, and CLI-driven experiment switches.</li>
+<li><strong>Impact:</strong> Simplified developer workflows by leveraging robust cluster-side GPU tracking, accelerated data validation of 50 scene robot datasets, and established a reproducible, modular multi-objective embodied AI training framework.</li>
 </ul>
 <blockquote>
-<p>Implemented adaptive UI for GPU monitoring scripts, HDF5 data visualization tools, and a 4-set progress prediction experiment framework for the pi05 model</p>
+<p>Developed an adaptive GPU monitoring UI, built an automated multi-camera HDF5 to MP4 visualization pipeline, and designed four progressive task condition configurations in the pi05 VLA policy architecture.</p>
 </blockquote>
 <h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
-<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<h3 id="architecture-and-strategy">Architecture and Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture-and-strategy">#</a></h3>
 <ul>
-<li>✅ <strong>Design of pi05 model progress prediction framework</strong> — Designed 4 sets of contrastive experiments: last_token vs special_token × time vs distance</li>
-<li>✅ <strong>Implementation of pi05 model modifications (6 files)</strong> — Modified pi0_config.py/model.py/tokenizer.py/robotwin_policy.py/config.py/pi0.py, added MLP decoder, special tokens, conditional injection, and auxiliary loss</li>
-<li>❌ <strong>Update of data conversion script</strong> — Need to modify convert_robotwin_democlean_to_lerobot.py to add progress-related fields before training can start</li>
+<li>✅ <strong>pi05 progressive condition experiment architecture</strong> — Designed and implemented four experimental pipelines that combine last valid markers and special placeholder markers for feature extraction and time/distance prediction. The decoded progress is injected into the action expert via configuration-driven flags as conditional markers.</li>
 </ul>
-<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<h3 id="implementation-and-fixes">Implementation and Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation-and-fixes">#</a></h3>
 <ul>
-<li>✅ <strong>HDF5 camera data visualization script</strong> — Created visualize_hdf5_cameras.py, merged 50 episodes of 4-camera data into a 2×2 grid MP4 video</li>
-<li>✅ <strong>UI enhancement for GPU monitoring script gpumon.py</strong> — Added alternate screen buffer, adaptive column/row sizing, process deduplication, and noise filtering</li>
+<li>✅ <strong>Adaptive GPU monitoring UI and fallback screen implementation</strong> — Refactored gpumon.py to support dynamic terminal width/height adaptation and a secure fallback screen buffer entry/exit mechanism, mimicking nvitop behavior while filtering noise and deduplicating PID numbers.</li>
+<li>✅ <strong>HDF5 multi-camera to MP4 visualization script</strong> — Developed an independent Python script to decode JPEG-encoded camera streams from 50 robot trajectory HDF5 files, divide them into a 2x2 grid, add labels, and export as synchronized MP4 videos.</li>
+<li>❌ <strong>Lerobot data format update to add progress keys</strong> — Attempted to modify the dataset conversion script to include control progress, distance, and target pose keys for pi05 training, but failed due to API connection issues.</li>
 </ul>
-<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
-<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
-<h4 id="1-training-data-has-not-been-converted-to-lerobot-format-missing-progress-related-fields-prevents-experiment-startup">1. Training data has not been converted to lerobot format, missing progress-related fields prevents experiment startup<a hidden class="anchor" aria-hidden="true" href="#1-training-data-has-not-been-converted-to-lerobot-format-missing-progress-related-fields-prevents-experiment-startup">#</a></h4>
-<p><strong>Solution:</strong> Need to modify convert_robotwin_democlean_to_lerobot.py to add keys such as manip_progress_time/distance_left/distance_right/target_endpose/target_joint</p>
-<p><strong>Key Insight:</strong> Model experiments depend on the integrity of the data pipeline; format conversion is a blocking prerequisite step</p>
+<h2 id="issues-and-solutions">Issues and Solutions<a hidden class="anchor" aria-hidden="true" href="#issues-and-solutions">#</a></h2>
+<h3 id="key-issues">Key Issues<a hidden class="anchor" aria-hidden="true" href="#key-issues">#</a></h3>
+<h4 id="1-training-pipeline-at-startup-fails-due-to-lerobot-format-dataset-loader-missing-auxiliary-targets-manip_progress_time-manip_progress_distance_leftright-target_endpose">1. Training pipeline at startup fails due to lerobot format dataset loader missing auxiliary targets (manip_progress_time, manip_progress_distance_left/right, target_endpose).<a hidden class="anchor" aria-hidden="true" href="#1-training-pipeline-at-startup-fails-due-to-lerobot-format-dataset-loader-missing-auxiliary-targets-manip_progress_time-manip_progress_distance_leftright-target_endpose">#</a></h4>
+<p><strong>Solution:</strong> Define clear data mapping requirements to extend the conversion script and policy transformation. Once external API restrictions are resolved, progress can be clearly advanced.</p>
+<p><strong>Key Insight:</strong> Before training begins, the auxiliary condition pipeline must implement bidirectional updates between data format, transformation factory, and model observation mode; otherwise, critical errors may occur.</p>
 <h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
-<h4 id="2-osget_terminal_size-cannot-read-columnslines-environment-variables-in-child-processes-causing-non-adaptive-table-width">2. os.get_terminal_size() cannot read COLUMNS/LINES environment variables in child processes, causing non-adaptive table width<a hidden class="anchor" aria-hidden="true" href="#2-osget_terminal_size-cannot-read-columnslines-environment-variables-in-child-processes-causing-non-adaptive-table-width">#</a></h4>
-<p><strong>Solution:</strong> First try to read COLUMNS/LINES environment variables and convert them to int; fallback to os.get_terminal_size() if failed</p>
-<p><strong>Key Insight:</strong> Environment variables are more reliable than system calls when passing terminal information across processes</p>
-<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h4 id="2-dynamic-terminal-width-adaptation-fails-during-subprocess-testing-because-osget_terminal_size-ignores-exported-columnslines-environment-variables-resulting-in-fixed-layout-on-wide-terminals">2. Dynamic terminal width adaptation fails during subprocess testing because os.get_terminal_size() ignores exported COLUMNS/LINES environment variables, resulting in fixed layout on wide terminals.<a hidden class="anchor" aria-hidden="true" href="#2-dynamic-terminal-width-adaptation-fails-during-subprocess-testing-because-osget_terminal_size-ignores-exported-columnslines-environment-variables-resulting-in-fixed-layout-on-wide-terminals">#</a></h4>
+<p><strong>Solution:</strong> Replace fallback logic with explicit logic parsing $COLUMNS and $LINES from the environment dictionary to ensure accurate column allocation across all execution contexts.</p>
+<p><strong>Key Insight:</strong> Some process environments delete or ignore exported terminal size variables; relying solely on os.get_terminal_size() limits testability and portability of automated workflows.</p>
+<h2 id="human-and-ai-approaches">Human and AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-and-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
-<h4 id="gradient-strategy-selection-in-pi05-experiment-design">Gradient strategy selection in pi05 experiment design<a hidden class="anchor" aria-hidden="true" href="#gradient-strategy-selection-in-pi05-experiment-design">#</a></h4>
+<h4 id="pi05-progressive-condition-vla-experiment-design">pi05 progressive condition VLA experiment design<a hidden class="anchor" aria-hidden="true" href="#pi05-progressive-condition-vla-experiment-design">#</a></h4>
 <table>
   <thead>
       <tr>
           <th>Role</th>
-          <th>Approach</th>
+          <th>Method</th>
       </tr>
   </thead>
   <tbody>
       <tr>
           <td>Human</td>
-          <td>Directly chose scheme A (stop_gradient all), reasoning: &lsquo;most safe, does not affect action prediction, can be adjusted later&rsquo; — reflects a conservative starting strategy for iterative experiments</td>
+          <td>Designed four different experimental conditions, changing the source of feature extraction (last valid marker and special placeholder marker) and prediction targets (scalar time and 2D two-handed motion distance), directly connecting to the action expert state marker pipeline without specifying training dynamics.</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>AI proposed 3 schemes (A: full block, B: full feedback, C: hybrid), analyzed trade-offs of each, preferred A but emphasized the special nature of special tokens</td>
+          <td>Implemented full architecture integration, standardizing MLP decoder dimensions (2048→256→output), recommending MSE loss weights λ=0.1, enforcing a conservative stop_gradient strategy to isolate VLM features from auxiliary gradients, and enabling reproducible configuration switches in six modules.</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Humans make quick decisions based on engineering experience; AI tends to list options and trade-offs explicitly, but humans’ concise decision-making strategy (conservative first, then iterate) is reasonable</p>
-<h4 id="naming-and-organization-of-experiment-configurations">Naming and organization of experiment configurations<a hidden class="anchor" aria-hidden="true" href="#naming-and-organization-of-experiment-configurations">#</a></h4>
-<table>
-  <thead>
-      <tr>
-          <th>Role</th>
-          <th>Approach</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Human</td>
-          <td>Requested &lsquo;config switches are needed, the easier to start experiments, the better&rsquo; — reflects emphasis on experimental engineering efficiency</td>
-      </tr>
-      <tr>
-          <td>AI</td>
-          <td>AI designed a unified ProgressConfig class and 4 independent naming configurations (exp1~4), allowing direct selection via tyro CLI</td>
-      </tr>
-  </tbody>
-</table>
-<p><strong>Difference Analysis:</strong> Humans focus on practicality and convenience; AI concretizes it into config class design and CLI interface, both aiming at &rsquo;easy experiment switching&rsquo;</p>
+<p><strong>Difference Analysis:</strong> Humans propose comparative experiment matrices and architectural coupling intentions, while AI converts them into specific gradient control strategies, modular configuration abstractions, and verification code frameworks, ensuring optimization stability and hyperparameter flexibility.</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
-<h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
 <ul>
-<li>AI did not proactively anticipate data pipeline issues — After modifying the model, it should have immediately checked whether data loading supports new fields, instead of waiting for user errors</li>
-<li>AI did not run actual training smoke tests during pi05 modifications, only tested configuration imports, resulting in missing dependencies in the data conversion script</li>
+<li>Encountered ConnectionRefused API errors when attempting to modify external files for data conversion, indicating fragile toolchain connections across sessions due to network latency or endpoint restrictions.</li>
 </ul>
-<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
-<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<h2 id="learning-outcomes">Learning Outcomes<a hidden class="anchor" aria-hidden="true" href="#learning-outcomes">#</a></h2>
+<h3 id="key-learning-points">Key Learning Points<a hidden class="anchor" aria-hidden="true" href="#key-learning-points">#</a></h3>
 <ul>
-<li>Integrity checks for complex model experiments should cover model code, configuration, data pipeline, and training scripts, not just model code validation</li>
-<li>Using stop_gradient to implement auxiliary tasks in JAX/Flax is a common multi-task learning pattern, allowing utilization of features while avoiding interference with the main task</li>
-<li>The special token mechanism requires 3 steps: tokenizer registers token IDs, model extends embedding layers, and prompts are concatenated during data loading</li>
+<li>During auxiliary loss backpropagation, stop_gradient freezes intermediate VLM representations, effectively separating policy feature learning from task-specific condition updates, significantly improving optimization stability in multi-objective embodied AI training.</li>
 </ul>
-<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
-<h3 id="robobrain-pi-gpu-monitoring">Robobrain-PI (GPU Monitoring)<a hidden class="anchor" aria-hidden="true" href="#robobrain-pi-gpu-monitoring">#</a></h3>
-<p><strong>✅ UI enhancement for GPU monitor script with adaptive layout</strong>
+<h3 id="practical-learning-points">Practical Learning Points<a hidden class="anchor" aria-hidden="true" href="#practical-learning-points">#</a></h3>
+<ul>
+<li>Terminal TUI reliability depends on a dual fallback mechanism: standard os.get_terminal_size() for interactive sessions, and explicit environment variable parsing for CI/test runners or redirect pipelines.</li>
+</ul>
+<h2 id="dialogue-summary">Dialogue Summary<a hidden class="anchor" aria-hidden="true" href="#dialogue-summary">#</a></h2>
+<h3 id="gpumonitor">GPUMonitor<a hidden class="anchor" aria-hidden="true" href="#gpumonitor">#</a></h3>
+<p><strong>✅ Adaptive GPU monitoring UI and screen buffer</strong>
 <em>09:24:23.170 | claude_code</em>
-User requested an alternate screen buffer similar to nvitop and adaptive column/row sizing for gpumon.py. Implemented ANSI escape codes for screen buffer switching, dynamic width/height calculation from COLUMNS/LINES env vars, proportional column sizing, and process deduplication. The script now provides a professional terminal UI that exits cleanly without polluting the terminal history</p>
-<h3 id="robotwin-vla-hdf5-visualization">RoboTwin VLA (HDF5 Visualization)<a hidden class="anchor" aria-hidden="true" href="#robotwin-vla-hdf5-visualization">#</a></h3>
-<p><strong>✅ Visualize 4-camera HDF5 data as MP4 videos</strong>
-<em>13:16:50.918 | claude_code</em>
-User needed to visualize observation data from 50 HDF5 episodes (front/head/left/right cameras). Created visualize_hdf5_cameras.py that decodes JPEG-encoded frames, tiles them into 2×2 grids with labels, and writes 30fps MP4 files. Successfully processed all 50 episodes (~2.3MB each) to all_videos/ directory</p>
-<h3 id="robotwin-vla-pi05-experiments">RoboTwin VLA (PI05 Experiments)<a hidden class="anchor" aria-hidden="true" href="#robotwin-vla-pi05-experiments">#</a></h3>
-<p><strong>🔄 Design and implement 4 progress prediction experiments for pi05</strong>
-<em>14:21:07.908 | claude_code</em>
-User requested 4 contrastive experiments for manipulation progress prediction: (1) last_token+time, (2) special_token+time, (3) last_token+distance, (4) special_token+distance. After discussing architecture (MLP 2048→256→out, λ=0.1, stop_gradient strategy), modified 6 files to add ProgressConfig, 3 special tokens, MLP decoder, condition injection logic, and auxiliary MSE loss. Created 4 training configs (pi05_robotwin_prog_exp1~4). Verified all imports but discovered data pipeline blocker at the end</p>
+User requested a terminal monitoring tool with adaptive layout and secure screen buffer switching, similar to nvitop. AI implemented dynamic column allocation parsing, fallback screen entry/exit mechanisms based on escape sequences, and optimized display logic for process deduplication and noise filtering. The updated script now scales correctly on 80–120+ columns terminals and restores terminal state upon exit.</p>
+<h3 id="robotwin-data-tools">RoboTwin Data Tools<a hidden class="anchor" aria-hidden="true" href="#robotwin-data-tools">#</a></h3>
+<p><strong>✅ HDF5 camera stream to MP4 visualizer</strong>
+<em>13:18:03.922 | claude_code</em>
+User requested a batch visualization pipeline that extracts and renders four camera views from 50 robot trajectory HDF5 files as MP4 videos. AI analyzed the data structure, reused existing JPEG decoding patterns, developed a dedicated script with a 2x2 grid segmentation and labeling, and executed it successfully across all episodes. Output verification confirmed correct format, resolution, and synchronization.</p>
+<h3 id="pi05-strategy-vla-experiments-and-data-fixes-based-on-progress-conditions">Pi05 Strategy**🔄 VLA experiments and data fixes based on progress conditions**<a hidden class="anchor" aria-hidden="true" href="#pi05-strategy-vla-experiments-and-data-fixes-based-on-progress-conditions">#</a></h3>
+<p><em>14:21:07.908 | claude_code</em>
+User proposed four experimental designs to introduce learned operation progress metrics into pi05 strategy via MLP decoding and token conditioning. AI analyzed the architecture, defined hyperparameter and gradient control strategies, and after user approval, modified six core files including configuration registration and tokenizer extension. Backend verification passed, but subsequent data conversion updates failed due to API connection issues.</p>
 <h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
-<p><img alt="Token Usage" loading="lazy" src="2026-03-14-usage.png"></p>
-<p><strong>Total: $6.79</strong> — 10.5M tokens</p>
-<!-- gadget:src-hash:626afe975a0c0b4e -->
-
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-03-14</span>
+        <span class="usage-card__source">Claude Code</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$28.16</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>48M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>201K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>91.5%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 91.5%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 8.5%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (91.5%), active tokens (8.5%)">
+          <span style="width:91.5%; background:var(--usage-cache)"></span>
+          <span style="width:8.5%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:0be35ebb8f38de80 -->
 
   </div>
 

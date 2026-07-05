@@ -7,7 +7,7 @@
 <meta name="robots" content="index, follow">
 <title>Bug Journal 2026-03-26 | TzJ&#39;s Net</title>
 <meta name="keywords" content="Bug Journal">
-<meta name="description" content="通过5次主要迭代系统性提升了ccplan技能（提示校准、多意图分解、特征保护协议），完成了TokenMonitor的全面重构（文件分割、类型安全、缓存优化），在8场以上会话中实现了并逐步完善了float ball UI，将成本计算功能迁移至ccusage CLI，并为贡献者编写了架构说明。">
+<meta name="description" content="将 BOSS 基准测试成功集成到 OpenPI 的 LIBERO 环境中，并对 TokenMonitor 跨平台桌面应用进行了全面的架构加固和 UI 同步修复。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-03-26/">
 <link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
@@ -79,7 +79,7 @@
 <meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-03-26/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="Bug Journal 2026-03-26">
-  <meta property="og:description" content="通过5次主要迭代系统性提升了ccplan技能（提示校准、多意图分解、特征保护协议），完成了TokenMonitor的全面重构（文件分割、类型安全、缓存优化），在8场以上会话中实现了并逐步完善了float ball UI，将成本计算功能迁移至ccusage CLI，并为贡献者编写了架构说明。">
+  <meta property="og:description" content="将 BOSS 基准测试成功集成到 OpenPI 的 LIBERO 环境中，并对 TokenMonitor 跨平台桌面应用进行了全面的架构加固和 UI 同步修复。">
   <meta property="og:locale" content="zh_cn">
   <meta property="og:type" content="article">
     <meta property="article:section" content="bugjournal">
@@ -88,7 +88,7 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Bug Journal 2026-03-26">
-  <meta name="twitter:description" content="通过5次主要迭代系统性提升了ccplan技能（提示校准、多意图分解、特征保护协议），完成了TokenMonitor的全面重构（文件分割、类型安全、缓存优化），在8场以上会话中实现了并逐步完善了float ball UI，将成本计算功能迁移至ccusage CLI，并为贡献者编写了架构说明。">
+  <meta name="twitter:description" content="将 BOSS 基准测试成功集成到 OpenPI 的 LIBERO 环境中，并对 TokenMonitor 跨平台桌面应用进行了全面的架构加固和 UI 同步修复。">
 
 
 <script type="application/ld+json">
@@ -123,12 +123,12 @@
   "@type": "BlogPosting",
   "headline": "Bug Journal 2026-03-26",
   "name": "Bug Journal 2026-03-26",
-  "description": "通过5次主要迭代系统性提升了ccplan技能（提示校准、多意图分解、特征保护协议），完成了TokenMonitor的全面重构（文件分割、类型安全、缓存优化），在8场以上会话中实现了并逐步完善了float ball UI，将成本计算功能迁移至ccusage CLI，并为贡献者编写了架构说明。",
+  "description": "将 BOSS 基准测试成功集成到 OpenPI 的 LIBERO 环境中，并对 TokenMonitor 跨平台桌面应用进行了全面的架构加固和 UI 同步修复。",
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "每日报告 — 2026-03-26 日常概述 已完成工作： 通过提示优化、多意图处理、对抗性分析及特征保护协议，提升了 ccplan 需求工程能力；完成了 TokenMonitor 重大重构，包括文件重组（30多个文件归为逻辑子目录）、类型安全改进、智能缓存机制，以及带有拖拽/吸附/展开交互的浮球 UI 实现；将成本计算从本地定价表迁移至具有透明回退机制的 ccusage CLI。 实施方式： 研究 GitHub 提示优化项目，设计了 ccplan 的6步校准阶段；实现基于 ECL 的特征保护机制，并编写可移植的 guard-check.py 脚本；使用 ccplan 工作流进行多会话 TokenMonitor 中的结构化需求分析，采用基于波的并行执行进行文件重组，为浮球实现 Tauri 辅助 WebView 窗口并修复跨平台渲染问题，添加具有静默执行的 ccusage CLI 适配器（使用 Windows CREATE_NO_WINDOW 标志）及回退到解析器机制。 影响： 将 ccplan 从线性规划器转变为具有跨会话持久保护机制的高级需求工程系统；将 TokenMonitor 的技术债务降低60%（commands.rs 从2466行减少到131行，rate_limits.rs 从1202行减少到124行），通过基于 mtime 的缓存失效提升运行性能，提供具有流畅动画和正确 Windows 任务栏锚定的精致的浮球 UX，在保持向后兼容性的同时使成本计算与官方 ccusage 保持一致。 通过5次主要迭代系统性提升了 ccplan 能力（提示校准、多意图分解、特征保护协议），完成了全面的 TokenMonitor 重构（文件拆分、类型安全、缓存优化），在8多次会话中实现并逐步完善浮球 UI，将成本计算迁移至 ccusage CLI，并为贡献者提供架构文档。\n任务 架构与策略 ✅ ccplan 阶段0：提示校准设计与实现 — 研究了3个拥有超过1k星数的 GitHub 提示优化工具，设计出包含9个维度意图提取、35种反模式分类、多意图分解及上下文丰富化的5步校准阶段。 ✅ TokenMonitor 浮球完整实现 — 实现带有拖拽功能的 Tauri 辅助 WebView 窗口（指针捕获）、边缘吸附（42px阈值）、模糊触发下的展开/折叠功能、8px展开边距、动态锚点检测（顶部/底部）、水平布局的pill/capsule 设计（240×56px）、Windows原生区域裁剪及跨平台透明度修复。 ✅ ccplan 特征保护协议实现 — 扩展 ECL 模式，添加 feature_guard 部分，阶段10自动生成，可移植的 guard-check.py CLI 工具（347行含安全加固），钩子集成及全面文档化。 ✅ ccplan 多意图分解与深度增强 — 增加步骤1以检测并将捆绑需求分解为独立轨道；通过最低发现阈值和4层依赖分析深化阶段4/5/6分析。 ✅ TokenMonitor 文件重组与重构 — 拆分 commands.rs（7个模块中从2466行减少到131行）和 rate_limits.rs（5个模块中从1202行减少到124行）；将 TrayConfig 字符串字段转换为枚举类型；将30多个文件重组为 usage/、stats/、tray/、window/、views/子目录。 ✅ TokenMonitor 智能缓存失效 — 实现基于 mtime 的缓存失效（invalidate_if_changed），替代无条件的30秒缓存清除，添加 OnceLock CLI 路径缓存。 ✅ TokenMonitor 窗口大小调整时机与锚点修复 — 调整 CSS 过渡时机以防止 IPC 风暴（opacity 0.8s + 延迟最大高度折叠），添加 SWP_NOCOPYBITS 消除视觉漂移，实现动态垂直锚点检测（5px阈值）。 ✅ TokenMonitor 成本计算迁移至 ccusage — 添加具有静默执行的 ccusage CLI 适配器（Windows CREATE_NO_WINDOW），实现基于优先级的回退机制（ccusage → 解析器），前端显示 usage_source 和 usage_warning 字段。 ✅ TokenMonitor 图表悬停细节优化 — 将 panelVisible（CSS控制）与 displayedIdx（内容控制）分离，实现1秒的淡出过渡；重构为块式布局，通过回调驱动的窗口动画和 ResizeObserver 抑制；添加隐藏 .detail-measure 块的稳定高度测量功能。 实施与修复 ✅ TokenMonitor UI 优化批次 — 将图表悬停动画调整至约1秒，提高 Windows 深色模式文本透明度（–t1: 0.88→0.93），移除窗口边框，增加0.5秒的滑动过渡效果，移除调试 instrumentation（100+ resizeDebug 引用）。 ✅ AGENTS.md 贡献者文档 — 生成400字的项目指南，涵盖项目结构、构建/测试命令、编码风格、测试要求及提交/PR 规范。 问题与解决方案 关键问题 1. ccplan 自动执行阶段（4-6）因浅层分析而进展过快，受到“持续执行要求”的推动。 解决方案： 增加明确的深度要求：阶段4扩展为10个维度，并设定最低发现阈值；阶段5变为4层分析（链/交叉/数据流/合同）；阶段6需至少1次探测及结构化风险评估。\n关键洞察： 自动执行阶段需要定量深度要求和最低输出阈值；像“ thorough”这样的定性指示不足以应对效率激励。\n2. WebSearch/WebFetch工具返回 标签时，ccplan工作流中断，导致技能列表重新加载并失去阶段上下文。 解决方案： 添加工具调用状态保存协议，包含3步恢复机制：在工具调用前记录当前阶段，工具返回后重新锚定至 ECL 状态字段，忽略系统提醒元数据；在0/3/7阶段添加内联注释，提示可能进行搜索。\n关键洞察： 复杂的多阶段工作流在调用返回大量元数据的外部工具时，需要明确的状态保存协议；无法依赖隐式上下文的连续性\n3. 修复漏洞时功能的退化——Claude Code 因上下文压缩而忘记某些功能，导致意外删除 解决方案： 实施“功能保护协议”，包含包含 feature_guard 部分的持久性 ECL 文档，配备具有安全加固功能的 guard-check.py 命令行工具（包含命令执行的互动确认机制），采用 Phase 10 自动生成方式，以及预修改检查协议\n关键洞察： 内存和上下文是短暂的，但磁盘数据却具有持久性。写入 ECL 文件中的保护机制能在不同会话和压缩过程中保留下来。可移植性（随技能目录一起携带）优于针对特定项目的解决方案。\n4. Float 球拖拽失败的原因在于 setTimeout 回调中调用了 startDragging()，从而失去了 Windows 所需的指针事件上下文解决方案： 改为手动捕获指针：onPointerDown 捕获指针并记录起始位置，onPointerMove 检查 180ms 阈值并调用 move_float_ball_to IPC，onPointerUp 若低于阈值则切换展开状态 关键洞察： Windows 要求拖拽操作必须在原始指针事件上下文中启动；setTimeout/async 会破坏这一约束\n5. CSS max-height 过渡期间窗口调整导致底部边缘失去任务栏对齐，原因是多次快速的 ResizeObserver→IPC 调用 解决方案： 将 .detail CSS 过渡改为 ‘opacity 0.8s ease, max-height 0s linear 0.8s’——先通过透明度淡出而不改变布局，随后在延迟后瞬间压缩 max-height，触发单次调整\n关键洞察： 影响布局尺寸的 CSS 过渡会在每一帧触发 ResizeObserver；将布局变化延迟到动画完成可避免 IPC 调用风暴并保留窗口重新定位的原子性\n6. 浮球展开面板溢出屏幕时靠近边缘；Windows 窗口调整始终以底部为锚点，无论实际位置如何 解决方案： 添加 EXPAND_MARGIN=8.0 常量以确保展开时与边缘至少保持 8px 距离；实现动态锚点检测，以 5px 为阈值——接触顶部边缘时以顶部为锚点，接触底部时以底部为锚点；添加 SWP_NOCOPYBITS 标志防止旧客户端区域内容被复制回\n关键洞察： 展开和收缩状态需要不同的定位策略；锚点应基于当前窗口位置动态确定而非硬编码；Windows 默认调整行为会保留旧内容导致视觉偏移\n7. 浮球透明框伪影和悬停延迟由同时存在的窗口系统引起（主窗口全局 CSS + 浮球页面） 解决方案： 从浮球页面移除全局 CSS 复用，添加 Windows 原生区域裁剪（SetWindowRgn），用统一的 rect 计算重写窗口几何状态机，确保底部边缘始终与工作区底部对齐\n关键洞察： 同时存在的窗口系统导致样式和容器堆叠冲突；需要完全分离而非补丁修复\n8. 图表悬停细节覆盖解决方案导致元素间视觉重叠，违反 UX 要求 解决方案： 转向块式布局，通过 onDetailToggle 回调协调明确的窗口高度动画（遵循现有的 AccordionToggleDetail 模式），在 App.svelte 中实现 handleChartDetailToggle 并添加观察器抑制机制\n关键洞察： 当涉及原生窗口操作时，在协调动画期间必须抑制被动观察（ResizeObserver），以防止双重触发和视觉伪影\n9. 当前成本计算使用本地硬编码定价表，与 ccusage 官方计算不一致 解决方案： 添加 ccusage CLI 适配器（ccusage.rs），使用 Windows CREATE_NO_WINDOW 静默执行，实现基于优先级的机制（先尝试 ccusage，失败则回退到解析器），UsagePayload 包含 usage_source 和 usage_warning 字段，前端显示明确的警告\n关键洞察： 透明回退机制至关重要：不要将降级结果伪装为正常状态；明确告知用户数据来源和限制\n10. 非 macOS 平台过于透明，因为 glassEffect 被应用于所有平台而缺乏原生模糊支持 解决方案： 在 applyGlass() 中添加 isMacOS() 检查以强制非 macOS 为不透明，将默认值改为 false，更新测试快照\n关键洞察： 平台差异（macOS 有原生模糊，Windows/Linux 没有）导致相同配置产生不同的视觉结果；需要应用层平台检测和补偿\n一般问题 11. 编辑工具的 replace_all 需要先读取文件；跨多个文件的批量路径更新因“文件尚未读取”错误而失败 解决方案： 改为使用 sed 进行跨文件批量替换（crate::parser → crate::usage::parser 在多个 .rs 文件中）\n关键洞察： 对于跨多个文件的大规模路径更新，shell 工具（sed、grep）优于逐个工具的 Edit 调用，因为存在读前编辑的限制\n人类与 AI 方法 战略层面 识别工作流阶段中浅层自动执行行为 角色 方法 人类 用户观察到第 3-7 阶段进展过快，立即询问具体操作，然后诊断根本原因：“能否更彻底地搜索？”——从观察到的速度出发的主动质量检测 AI 我以事实方式解释了这些阶段，但最初并未将浅层行为视为问题；直到用户提问后才诊断出“当前技能说明倾向于在可能时跳过” 差异分析： 人类从与彻底性相关的观察速度中发现了质量问题；AI 将快速执行视为预期行为，直到被询问。人类的产品直觉发现了 AI 忽略的设计缺陷。\n功能保护方案架构——可移植性与项目特定性 角色 方法 人类 立即意识到可移植性至关重要——解决方案必须随技能目录一起使用，而非项目特定。要求在 ccplan 中实现 ECL + 钩子-based 保护机制 AI 最初提出了 5 种解决方案，按易用性与效果排序，将项目级解决方案（CLAUDE.md 注册表）排在可移植性解决方案之前 差异分析： 人类认识到可移植性解决方案（随技能/工具一起使用）比项目特定解决方案对可复用组件更有价值。AI 首先提出项目级解决方案，未将可移植性作为主要约束。\n以研究为先的功能设计方法 角色 方法 人类 用户明确要求在设计第 0 阶段前在 GitHub 中搜索星数超过 1k 的提示优化技能，为经过验证的解决方案设定明确的质量标准 AI 如果直接被问到“添加提示优化步骤”，我可能会直接开始设计，无需先研究现有解决方案 差异分析： 人类系统地应用“搜索优先”原则并带有质量约束；AI 倾向于立即实施。人类的做法确保从成熟解决方案中学习，而非从零发明。\n浮球的视觉设计与交互模型 || 角色 | 方法 | |——|——| | 人类 | 提供了所需药丸/胶囊形状的截图，指定展开状态为药丸形态，保留当前内容和颜色；选择“简化版本：球体成本 + 展开使用条”，拒绝更复杂的选项；尽管实现复杂，仍坚持使用真正的块式布局以防止元素重叠 | | AI | 最初被理解为将球体和面板元素分开，并调整其重叠方式；提供了从简单到详细的3种选项，包括“完整主窗口复制品”；提出覆盖式解决方案作为技术上更简单的路径 |\n差异分析： 人类从截图中能明确看到最终视觉效果，并偏好简洁实用的界面；AI需要澄清交互模型，以将视觉效果转化为实际实现，最初倾向于通过最少代码修改来实现视觉质量的最大化。\n窗口大小调整锚点检测要求 角色 方法 人类 明确说明“不一定要是底部边缘，只要对齐的边保持不变即可”——强调动态判断而非单一底部锚点；描述可观察现象：窗口在动画过程中保持位置不变，然后才进行大小调整 AI 最初理解为仅修复底部锚点问题，将“底部对齐意味着底部不动”视为唯一场景 差异分析： AI过早地锁定单一场景；用户指出需要动态检测垂直锚点。人类关注用户可见行为，而AI需理解 Windows 平台的语义。\nccusage 集成中的错误处理策略 角色 方法 人类 要求“显示明显的错误，并回退到当前逻辑”——既向用户说明，又通过明确的警告与降级回退相结合确保可用性 AI 提供互斥选项：“显示清晰错误”或“以空状态继续”，未考虑混合方案 差异分析： AI倾向于使用互斥选项；人类要求更灵活的组合策略：透明沟通 + 优雅降级\n何时使用完整规划流程 vs 直接实现 角色 方法 人类 即使需求相对简单，也调用 /ccplan 命令处理浮动球 UI 任务 AI 正确判断某些任务为简单的 UI 优化，需求明确，选择直接实现而非12阶段规划流程 差异分析： 人类默认使用结构化规划；AI正确判断出部分需求已明确，无需进一步探索或假设验证。\nAI 局限性 关键局限性 未能主动识别 ccplan 中的“连续执行要求”会在自动执行阶段鼓励浅层分析；直到用户观察到问题（第4-6阶段过快）后才发现设计缺陷 对 Windows 窗口大小调整行为的理解最初不完整：没有意识到默认行为会保留并复制旧客户端内容，从左上角开始，导致视觉偏移；需要用户指出“内容向上移动”后才添加 SWP_NOCOPYBITS 没有预料到多意图提示处理是需求之一，尽管这是常见的现实使用场景；理论设计忽略了实际使用模式 没有立即意识到可移植解决方案（携带技能目录旅行）在架构上优于项目特定解决方案，适用于可复用组件 初始解决方案（覆盖式）用于图表悬停细节在技术上合理，但未能满足隐含的 UX 要求（无重叠），该要求直到实施后才被明确 在实现固定浮动球行为后，仍保留设置菜单依赖关系，直到用户指出才意识到逻辑一致性问题 一般局限性 在 ccplan 第0阶段意图校准过程中需要多次调用 AskUserQuestion 来消除歧义，无法直接从上下文中直接推断用户的确切意图 过度依赖规划文档，而用户真正的担忧（“无终端弹出窗口”）是更简单的技术细节；当用户需要直接约束验证时，却花费时间从文档中解释 MCP 逻辑 经验教训 关键经验- 复杂的多阶段工作流在调用返回大量元数据的外部工具时，需要明确的状态保存协议；不能依赖隐式的上下文连续性。返回标签的工具可能会破坏工作流状态。 工作流中的自动执行阶段需要定量深度要求（至少N个发现点、M层分析、至少1次探测）以防止“快速但浅层”的行为；像“彻底处理”这样的定性指示不足以应对效率激励。 持久性保护机制（ECL feature_guard）+ 自动化检查（guard-check.py）可以防止不同会话中功能的退化。内存和上下文是短暂的，但磁盘是持久的。测试很理想，但保护机制为增量开发提供了更轻量的安全网。 Windows GUI应用程序静默执行子进程的最佳实践：使用std::os::windows::process::CommandExt创建标志加上CREATE_NO_WINDOW（0x0800_0000）以避免控制台窗口弹出。 Windows窗口调整大小的视觉锚点控制：默认行为通过左上角复制旧客户端内容导致视觉偏移；需要SWP_NOCOPYBITS来禁用复制并强制完全重绘，再加上动态detect_vertical_anchor来修复适当的边缘。 影响布局尺寸的CSS过渡会触发每帧的ResizeObserver；将布局变化延迟到视觉过渡完成之后（例如‘opacity 0.8s ease, max-height 0s linear 0.8s’）可以防止IPC调用风暴并保留原子窗口重新定位。 基于波形的执行配合验证检查点（cargo check、cargo test、每波后vitest）可以通过早期发现问题来防止大型重构中的级联故障。 使用目录mtime的智能缓存失效比无条件失效更高效；现有的基础设施（DirectoryStamp）可以用于低开销的变化检测。 当涉及原生窗口操作时，在协调动画期间必须抑制被动观察（ResizeObserver），以防止双重触发和视觉伪影。 透明回退机制至关重要：不要将降级结果伪装成正常状态；通过数据模型字段和UI警告明确告知用户。 提示工程技能应在意图提取之前分解多意图输入；单一意图假设是实际使用中的常见失败模式。第一步：多意图分解使得每个跟踪独立处理。 以研究为先的方法结合质量约束（例如，\u003e1k GitHub stars）比孤立发明产生更好的设计；借鉴经过验证的解决方案可以减少盲点。 Tauri v2能力系统需要对所有窗口API进行明确的权限声明；缺少权限会导致无声失败（返回null）而不是可见错误。需要：core:window:allow-outer-position、allow-scale-factor、allow-current-monitor以实现拖拽功能。 大文件分解应保持每个模块单一责任，同时将测试代码放在同一文件中；987行的usage_query.rs是可以接受的，因为大部分都是测试。 混合工具策略（复杂逻辑使用并行代理，批量字符串替换使用sed/bash，针对性修复使用直接编辑）在代码库范围内的重构中同时优化正确性和速度。 遵循现有代码库模式（例如，AccordionToggleDetail回调机制）比引入新的通信范式更能实现可维护的解决方案。 跨平台UI一致性问题通常源于平台API差异（macOS的模糊与Windows/Linux的无模糊）；需要应用层平台检测和补偿。 固定的UI行为不应有运行时配置依赖。如果行为是恒定的，代码应通过删除条件逻辑、提高清晰度和可维护性来反映这一点。 对话总结 Gadget Skills - ccplan ✅ 阶段0提示校准、多意图分解、深度增强、功能保护协议 02:14:39.233 | claude_code 通过一天中的五次主要迭代系统性地提升了ccplan技能。首先添加了阶段0，包含提示优化（研究了3个GitHub项目\u003e1k stars，综合了5步校准、9维意图提取和35种反模式）。使用工具调用状态保存协议修复了网络搜索状态保存错误。增加了步骤1：多意图分解以处理捆绑需求。加强了阶段4-6分析严格性（10个检查维度、4层依赖分析、强制探测）。实施基于ECL的功能保护协议、可移植的guard-check.py CLI工具（347行，包含安全加固），并集成钩子。将所有更新同步到已安装的~/.claude/skills/ccplan/中。代表了ccplan从线性规划器到具有跨会话持久性的复杂需求工程系统的转变。\nGadget Skills - Other ✅ 创建slurm-gpu技能并增强代码总结 13:29:09.109 | claude_code 创建了用于集群GPU检测的slurm-gpu技能（解析sinfo/squeue，显示分区摘要和节点详情）。通过–for 参数增强了代码总结技能，支持4种角色（自我/同事/用户/显示），通过完整的/ccplan工作流具有不同的内容优先级和术语水平。\nTokenMonitor ✅ Windows/Linux浮动球UI重构+成本计算迁移 19:52:32.768 | codex 对存在的窗口系统进行了深入分析，通过结构化问题明确了需求，然后完全重构了浮动球几何结构（在Windows/Linux上移除任务栏嵌入面板，添加原生区域裁剪，统一状态控件显示）。单独将成本计算从本地定价表迁移到ccusage CLI，并提供透明回退（添加了带有CREATE_NO_WINDOW静默执行的ccusage.rs适配器，UsagePayload包含usage_source和usage_warning字段）。通过了所有测试（Rust 199，npm 164，svelte-check 0错误）。\n✅ 浮动球初始实现+UI优化批量工作 03:31:03.730 | claude_code 使用ccplan技能实现了浮动球控件（Tauri次级WebView窗口，支持拖拽、边缘对齐、可扩展使用条）以及另外3项改进：将图表悬停动画调整为约1秒，提高Windows深色模式文本对比度，移除窗口边框。创建了多页Vite构建（index.html + float-ball.html）。修复了透明度问题（glassEffect默认设为false+平台检查）。所有163个前端和199个Rust测试通过，生产安装程序成功构建。✅ 重大重构：文件拆分 + 类型安全 + 缓存机制 12:49:21.122 | claude_code 完成了计划中的7项工作项中的5项 / 简化后续任务。拆分了commands.rs（从2466行缩减为7个模块内的131行），以及rate_limits.rs（从1202行缩减为5个模块内的124行）。将TrayConfig字符串字段转换为枚举类型（BarDisplay、PercentageFormat、CostPrecision）。通过mtime检查实现智能缓存失效机制（invalidate_if_changed），替代无条件的30秒缓存清除。为CLI路径解析添加OnceLock缓存机制。所有199个Rust代码和164个前端测试均通过。\n✅ 浮球多功能增强（指针捕获拖拽、分离效果、凹凸面板） 16:23:53.985 | claude_code 利用ccplan工具系统性地实现了5项相互关联的浮球改进：指针捕获拖拽（替代setTimeout方法），独立的浮球/任务栏控制设置，通过CSS过渡时间实现窗口底部对齐调整，使用GDI区域合成技术生成凹凸面板形状，以及通过CSS镜像实现自动自适应方向。创建了ECL文档，在TypeScript和Rust中实现，所有165+199个测试均通过。\n✅ 浮球药丸重新设计 + 调整尺寸时机修复 19:46:01.881 | claude_code 利用ccplan进行第二次重大迭代：将独立的浮球+面板结构重新设计为统一的药丸/胶囊形状，使用单一的圆润矩形GDI区域。通过延迟CSS max-height变化直到透明度过渡完成（透明度0.8秒 + max-height 0秒线性0.8秒）来修复窗口调整尺寸时机问题，避免导致底部对齐偏移的多次IPC调用。所有测试均通过。\n✅ 执行5波文件重组并移除调试代码 01:09:48.212 | claude_code 执行了批准的重组计划：归档未使用的MCP/docs/ccusage文件（第1波），使用并行代理和sed在8个文件中移除100多个resizeDebug引用（第2波），将Rust后端重新组织为usage/、stats/、tray/子目录并更新所有路径（第3波），将前端重新组织为tray/、window/、views/子目录（第4波），并运行完整验证套件。最终结果：191个Rust测试通过，163个JS测试通过，无clippy警告，无错误。更新了CLAUDE.md文件，添加新架构图。\n✅ 通过块布局重构解决图表悬停细节闪烁问题 20:22:04.107 | codex 解决了图表悬停时细节消失的UI闪烁问题。通过Chart.svelte → ResizeObserver → Tauri原生窗口调整尺寸链追踪根本原因。最初的覆盖方案因导致重叠而被拒绝。最终解决方案采用块布局，通过onDetailToggle回调协调窗口动画，在App.svelte中抑制ResizeObserver，并通过隐藏的.detail-measure块实现稳定的高度测量。\n✅ UI错误修复：浮球显示、拖拽、窗口调整尺寸 19:26:56.368 | claude_code 使用用户提供的截图修复了3个关键UI错误。错误1：从.ball默认规则中移除CSS margin-left: -28px，防止内容在视口外渲染。错误2：添加3个缺失的Tauri权限（allow-outer-position、allow-scale-factor、allow-current-monitor）以支持拖拽操作。错误3：从设置/日历关闭处理中移除500ms的阻塞退出动画，替换为即时状态变化和250ms平滑高度过渡。所有测试均通过。\n✅ 浮球展开/折叠 + 窗口锚点逻辑 21:21:57.278 | claude_code 通过ccplan实现了两个独立机制：(1) 浮球展开行为——展开时无自动吸附，全显时留8px边距，模糊事件触发折叠；(2) 窗口调整尺寸锚点检测——根据5px阈值在顶部锚定和底部锚定之间动态切换。所有更改均位于Rust后端（float_ball.rs、windows/window.rs、platform/mod.rs）。通过207个Rust测试和165个前端测试。\n✅ 浮球吸附阈值 + 四边支持 20:25:43.075 | claude_code 添加条件性吸附机制，使用42px阈值（为球半径的1.5倍）——球仅在靠近边缘时吸附。将FloatBallAnchor扩展为支持Top（之前仅支持Left/Right/Bottom），所有边缘采用半隐藏定位方式。修改choose_float_ball_anchor返回Option类型。使用ccplan和AskUserQuestion澄清模糊需求。通过9个测试。\n✅ 浮球UI优化：吸附行为与面板布局 21:03:52.013 | claude_code 修改了浮球尺寸（展开面板为152×56px），移除展开时的吸附功能，添加半球边缘限制，简化面板为价格+C/X条，移除设置菜单依赖。修改了Rust后端（尺寸、限制逻辑、更新9个测试）和Svelte前端。所有测试均通过。\n✅ 生成AGENTS.md贡献者指南 05:11:47.747 | codex 分析项目结构、构建工具、提交历史及CI配置，生成了400字的AGENTS.md文件，涵盖结构、命令、风格、测试和PR指南，供开源贡献者参考。\n✅ 文档化通信、窗口可见性以及tray/浮球架构 14:09:58.305 | claude_code 部署了3个并行Explore代理来分析并记录代码库架构。发现：无SSH机制，使用Tauri IPC（17个命令）和Anthropic API处理速率限制；显示/隐藏采用弹出层模式，在窗口模糊时自动隐藏，具有平台特定的定位方式；tray和浮球是独立的UI表面，共享AppState并具有不同的交互模型。提供了全面的架构文档。\n令牌使用情况 总计：16.26美元 — 2100万个令牌\n",
-  "wordCount" : "677",
+  "articleBody": "每日报告 — 2026-03-26 日常概述 已完成工作： 将 BOSS 基准测试评估流程部署到 OpenPI 中，整合了跨项目进展；解决了 TokenMonitor 中的关键布局冲突。编写了贡献者文档，重构了原生浮球交互逻辑，并稳定了图表悬停窗口同步功能。 实现方式： 进行了代码库深度映射，实现了原生 Win32 几何锚定机制，对 Svelte/Tauri 事件驱动架构进行了重构，并在 Windows/Linux 平台上进行迭代式约束验证。在沙箱限制下通过直接编译器检查和结构化差异审查验证输出结果。 影响： 消除了 PI 系列模型测试中的环境重复问题，通过将悬停动画与窗口缩放分离开来稳定了桌面 UI 渲染，并提供了可生产使用的、空间准确的交互模型。 tianhe 已完成工作： 将 BOSS 基准测试脚本迁移到 OpenPI 现有的 LIBERO 环境中，解决了初始化路径警告问题。 实现方式： 映射了目录结构，生成了核心注册模块，修复了服务器客户端评估文件，并修正了数据集配置验证逻辑。 影响： 无需环境开销即可无缝进行 PI 系列模型测试，同时明确了基准测试状态循环机制。 TzJsDesktop 已完成工作： 编写了项目贡献者文档，重构了 Windows/Linux 浮球交互逻辑，解决了持续的图表细节闪烁问题。 实现方式： 审查了 AGENTS.md 实现的仓库结构，用原生 Win32 区域裁剪替换了冲突的 CSS，并将被动的 ResizeObserver 逻辑迁移为明确的事件驱动高度控制器。 影响： 建立了清晰的桌面组件空间布局架构，消除了动画卡顿问题，并在所有目标平台上实现了可部署的编译结果。 成功将 BOSS 基准测试整合到 OpenPI 的 LIBERO 环境中，对 TokenMonitor 跨平台桌面应用进行了全面的架构加固和 UI 同步修复。\n任务 架构与策略 ✅ BOSS 基准测试集成与评估器适配 — 将 BOSS 基准测试资产迁移到 OpenPI 的 LIBERO 生态系统中，创建集成模块，并针对服务器客户端架构调整评估脚本。 ✅ Tauri-Svelte 悬停同步与图表布局稳定化 — 通过用明确的切换驱动高度动画替代被动的 ResizeObserver 逻辑，并在过渡期间暂时抑制观察器传播，从而消除窗口抖动。 ✅ 跨平台浮球架构重构 — 将浮球与嵌入式面板分离，解决透明度/卡顿问题，实现边缘捕捉几何状态机，并统一状态载荷。 实施与修复 ✅ TokenMonitor 贡献者文档 — 生成了结构化的贡献者指南，详细说明了项目布局、构建/测试命令、编码标准和提交规范。 问题与解决方案 关键问题 1. 图表细节面板闪烁以及窗口过早缩小是由被动 DOM 观察导致在悬停过渡期间 Tauri 窗口调整事件引发的。 解决方案： 从绝对定位转向严格的内嵌块结构。实现了明确的 onDetailToggle 事件系统，在过渡期间手动驱动高度动画，同时暂时抑制观察器传播。\n关键洞察： 混合式桌面框架无法依赖被动观察器进行自动缩放；带有状态隔离的事件驱动高度控制器是防止原生重绘级联的关键。\n2. Windows 浮球因冲突的 CSS 继承和双 UI 初始化路径导致半透明覆盖重叠、动画卡顿和垂直对齐失败。 解决方案： 删除了多余的嵌入式面板初始化，强制实施严格的 CSS 范围控制，使用原生 Win32 区域裁剪确保几何完整性，并通过 Rust/TS 补丁统一状态载荷。\n关键洞察： 跨平台桌面应用需要特定平台的原生边界而非纯前端样式，以消除持续的覆盖冲突和布局卡顿问题。\n一般问题 3. BOSS 推理导致重复的数据集路径验证警告，以及由于压缩的初始化状态数组在有限的 .pruned_init 文件中循环而产生的索引混淆。 解决方案： 创建了 _config.yaml_ 中引用的缺失目录结构，并明确说明基于模数的状态循环是故意的基准测试优化。在不改变评估行为的情况下抑制了非功能性的日志噪声。\n关键洞察： 评估框架通常急切地验证所有配置键；主动的路径准备或延迟加载可避免基准测试运行中的重复日志记录。\n人类与 AI 方法 战略层面 悬停动画协调与严格的布局约束策略 角色 方法 人类 准确诊断动画卡顿，强制空间约束，优先采用严格的布局边界和完全折叠，而非视觉覆盖的平滑性。 AI 追踪 Svelte 组件中的 ResizeObserver 冲突，将候选过渡模式与现有子系统进行映射，并构建标准化的折叠协议及过渡后收缩回调。 差异分析： 人类优先保证不可妥协的空间完整性；AI 提供技术映射和解耦机制，但通过从 CSS 覆盖转向明确的事件驱动高度系统来适应更严格的约束。\n浮球 UX 范围与平台限制 角色 方法 人类 定义严格的产品边界，强制使用状态组件替代整个应用覆盖，指定具体的交互模型和特定平台的托盘图标保留规则。 AI 通过结构化提示迭代最终得到受限架构，实现方向扩展逻辑和 Rust 侧的几何锚定，同时避免主窗口可访问性冲突。 差异分析： 人类强制执行精确的产品边界和特定设备可用性标准；AI 将初始模糊转化为架构提案，并快速调整代码以符合受限 UX 定义。\nAI 限制 一般限制 沙箱环境限制了深度类型检查和原生工具链执行，需要手动 fallback 验证和直接编译器验证。 初始架构提案往往过于复杂或范围不匹配，直到利益相关者逐步应用明确的几何和 UX 约束。 经验教训 关键经验- 基准测试集成需要主动验证路径解析和状态缓存逻辑，而不仅仅是标准配置文件，以避免无意识的评估问题。 在混合 Tauri-Svelte 应用中，必须采用事件驱动的高度动画并暂时禁用观察器，以防止布局重新渲染的连锁反应。 跨平台桌面 UI 稳定性要求使用原生几何边界，而非仅依赖 CSS 或被动 DOM 观察器来确保渲染完整性。 对话总结 OpenPI-BOSS 集成 ✅ 将 BOSS 基准测试整合到 OpenPI 的 LIBERO 环境中 07:13:35.580 | claude_code 将基准测试资源合并到现有评估流程中，消除了环境重复。脚本适配、模块生成和配置验证解决了路径警告问题，并明确了状态循环机制，从而能够直接对 PI 系列模型进行测试。\nTokenMonitor ✅ 架构强化与 UI 同步重构 20:22:04.107 | codex 提供了贡献者文档，重建了 Windows/Linux 浮动球交互功能，采用了原生几何裁剪机制，并解决了持续的图表悬停抖动问题。主要技术突破在于用明确的切换驱动高度动画替代被动的 ResizeObserver 逻辑，从而确保严格的空间约束并消除连锁重新渲染。\n令牌使用 AI Usage · 2026-03-26\rClaude Code + Codex\rTotal cost$37.18\rTotal tokens53M\rOutput tokens800K\rCache read86.1%\rCost split\rClaude Code $5 ·\rCodex $33\rToken character\rCache reads 86.1% ·\rActive 13.9%\rMost token volume came from cache reads; Codex drove nearly all cost.\r",
+  "wordCount" : "274",
   "inLanguage": "zh",
   "datePublished": "2026-03-26T00:00:00-05:00",
   "dateModified": "2026-03-26T00:00:00-05:00",
@@ -252,76 +252,58 @@
     </h1>
     <div class="post-meta">
 
-<span title='2026-03-26 00:00:00 -0500 -0500'>2026年3月26日</span>&nbsp;·&nbsp;<span>4 分钟</span>
+<span title='2026-03-26 00:00:00 -0500 -0500'>2026年3月26日</span>&nbsp;·&nbsp;<span>2 分钟</span>
 
 </div>
   </header> 
   <div class="post-content md-content"><h1 id="每日报告--2026-03-26">每日报告 — 2026-03-26<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-03-26">#</a></h1>
 <h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
 <ul>
-<li><strong>已完成工作：</strong> 通过提示优化、多意图处理、对抗性分析及特征保护协议，提升了 ccplan 需求工程能力；完成了 TokenMonitor 重大重构，包括文件重组（30多个文件归为逻辑子目录）、类型安全改进、智能缓存机制，以及带有拖拽/吸附/展开交互的浮球 UI 实现；将成本计算从本地定价表迁移至具有透明回退机制的 ccusage CLI。</li>
-<li><strong>实施方式：</strong> 研究 GitHub 提示优化项目，设计了 ccplan 的6步校准阶段；实现基于 ECL 的特征保护机制，并编写可移植的 guard-check.py 脚本；使用 ccplan 工作流进行多会话 TokenMonitor 中的结构化需求分析，采用基于波的并行执行进行文件重组，为浮球实现 Tauri 辅助 WebView 窗口并修复跨平台渲染问题，添加具有静默执行的 ccusage CLI 适配器（使用 Windows CREATE_NO_WINDOW 标志）及回退到解析器机制。</li>
-<li><strong>影响：</strong> 将 ccplan 从线性规划器转变为具有跨会话持久保护机制的高级需求工程系统；将 TokenMonitor 的技术债务降低60%（commands.rs 从2466行减少到131行，rate_limits.rs 从1202行减少到124行），通过基于 mtime 的缓存失效提升运行性能，提供具有流畅动画和正确 Windows 任务栏锚定的精致的浮球 UX，在保持向后兼容性的同时使成本计算与官方 ccusage 保持一致。</li>
+<li><strong>已完成工作：</strong> 将 BOSS 基准测试评估流程部署到 OpenPI 中，整合了跨项目进展；解决了 TokenMonitor 中的关键布局冲突。编写了贡献者文档，重构了原生浮球交互逻辑，并稳定了图表悬停窗口同步功能。</li>
+<li><strong>实现方式：</strong> 进行了代码库深度映射，实现了原生 Win32 几何锚定机制，对 Svelte/Tauri 事件驱动架构进行了重构，并在 Windows/Linux 平台上进行迭代式约束验证。在沙箱限制下通过直接编译器检查和结构化差异审查验证输出结果。</li>
+<li><strong>影响：</strong> 消除了 PI 系列模型测试中的环境重复问题，通过将悬停动画与窗口缩放分离开来稳定了桌面 UI 渲染，并提供了可生产使用的、空间准确的交互模型。</li>
+</ul>
+<h3 id="tianhe">tianhe<a hidden class="anchor" aria-hidden="true" href="#tianhe">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 将 BOSS 基准测试脚本迁移到 OpenPI 现有的 LIBERO 环境中，解决了初始化路径警告问题。</li>
+<li><strong>实现方式：</strong> 映射了目录结构，生成了核心注册模块，修复了服务器客户端评估文件，并修正了数据集配置验证逻辑。</li>
+<li><strong>影响：</strong> 无需环境开销即可无缝进行 PI 系列模型测试，同时明确了基准测试状态循环机制。</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 编写了项目贡献者文档，重构了 Windows/Linux 浮球交互逻辑，解决了持续的图表细节闪烁问题。</li>
+<li><strong>实现方式：</strong> 审查了 <code>AGENTS.md</code> 实现的仓库结构，用原生 Win32 区域裁剪替换了冲突的 CSS，并将被动的 ResizeObserver 逻辑迁移为明确的事件驱动高度控制器。</li>
+<li><strong>影响：</strong> 建立了清晰的桌面组件空间布局架构，消除了动画卡顿问题，并在所有目标平台上实现了可部署的编译结果。</li>
 </ul>
 <blockquote>
-<p>通过5次主要迭代系统性提升了 ccplan 能力（提示校准、多意图分解、特征保护协议），完成了全面的 TokenMonitor 重构（文件拆分、类型安全、缓存优化），在8多次会话中实现并逐步完善浮球 UI，将成本计算迁移至 ccusage CLI，并为贡献者提供架构文档。</p>
+<p>成功将 BOSS 基准测试整合到 OpenPI 的 LIBERO 环境中，对 TokenMonitor 跨平台桌面应用进行了全面的架构加固和 UI 同步修复。</p>
 </blockquote>
 <h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
 <h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
 <ul>
-<li>✅ <strong>ccplan 阶段0：提示校准设计与实现</strong> — 研究了3个拥有超过1k星数的 GitHub 提示优化工具，设计出包含9个维度意图提取、35种反模式分类、多意图分解及上下文丰富化的5步校准阶段。</li>
-<li>✅ <strong>TokenMonitor 浮球完整实现</strong> — 实现带有拖拽功能的 Tauri 辅助 WebView 窗口（指针捕获）、边缘吸附（42px阈值）、模糊触发下的展开/折叠功能、8px展开边距、动态锚点检测（顶部/底部）、水平布局的pill/capsule 设计（240×56px）、Windows原生区域裁剪及跨平台透明度修复。</li>
-<li>✅ <strong>ccplan 特征保护协议实现</strong> — 扩展 ECL 模式，添加 feature_guard 部分，阶段10自动生成，可移植的 guard-check.py CLI 工具（347行含安全加固），钩子集成及全面文档化。</li>
-<li>✅ <strong>ccplan 多意图分解与深度增强</strong> — 增加步骤1以检测并将捆绑需求分解为独立轨道；通过最低发现阈值和4层依赖分析深化阶段4/5/6分析。</li>
-<li>✅ <strong>TokenMonitor 文件重组与重构</strong> — 拆分 commands.rs（7个模块中从2466行减少到131行）和 rate_limits.rs（5个模块中从1202行减少到124行）；将 TrayConfig 字符串字段转换为枚举类型；将30多个文件重组为 usage/、stats/、tray/、window/、views/子目录。</li>
-<li>✅ <strong>TokenMonitor 智能缓存失效</strong> — 实现基于 mtime 的缓存失效（invalidate_if_changed），替代无条件的30秒缓存清除，添加 OnceLock CLI 路径缓存。</li>
-<li>✅ <strong>TokenMonitor 窗口大小调整时机与锚点修复</strong> — 调整 CSS 过渡时机以防止 IPC 风暴（opacity 0.8s + 延迟最大高度折叠），添加 SWP_NOCOPYBITS 消除视觉漂移，实现动态垂直锚点检测（5px阈值）。</li>
-<li>✅ <strong>TokenMonitor 成本计算迁移至 ccusage</strong> — 添加具有静默执行的 ccusage CLI 适配器（Windows CREATE_NO_WINDOW），实现基于优先级的回退机制（ccusage → 解析器），前端显示 usage_source 和 usage_warning 字段。</li>
-<li>✅ <strong>TokenMonitor 图表悬停细节优化</strong> — 将 panelVisible（CSS控制）与 displayedIdx（内容控制）分离，实现1秒的淡出过渡；重构为块式布局，通过回调驱动的窗口动画和 ResizeObserver 抑制；添加隐藏 .detail-measure 块的稳定高度测量功能。</li>
+<li>✅ <strong>BOSS 基准测试集成与评估器适配</strong> — 将 BOSS 基准测试资产迁移到 OpenPI 的 LIBERO 生态系统中，创建集成模块，并针对服务器客户端架构调整评估脚本。</li>
+<li>✅ <strong>Tauri-Svelte 悬停同步与图表布局稳定化</strong> — 通过用明确的切换驱动高度动画替代被动的 ResizeObserver 逻辑，并在过渡期间暂时抑制观察器传播，从而消除窗口抖动。</li>
+<li>✅ <strong>跨平台浮球架构重构</strong> — 将浮球与嵌入式面板分离，解决透明度/卡顿问题，实现边缘捕捉几何状态机，并统一状态载荷。</li>
 </ul>
 <h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
 <ul>
-<li>✅ <strong>TokenMonitor UI 优化批次</strong> — 将图表悬停动画调整至约1秒，提高 Windows 深色模式文本透明度（&ndash;t1: 0.88→0.93），移除窗口边框，增加0.5秒的滑动过渡效果，移除调试 instrumentation（100+ resizeDebug 引用）。</li>
-<li>✅ <strong>AGENTS.md 贡献者文档</strong> — 生成400字的项目指南，涵盖项目结构、构建/测试命令、编码风格、测试要求及提交/PR 规范。</li>
+<li>✅ <strong>TokenMonitor 贡献者文档</strong> — 生成了结构化的贡献者指南，详细说明了项目布局、构建/测试命令、编码标准和提交规范。</li>
 </ul>
 <h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
 <h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
-<h4 id="1-ccplan-自动执行阶段4-6因浅层分析而进展过快受到持续执行要求的推动">1. ccplan 自动执行阶段（4-6）因浅层分析而进展过快，受到“持续执行要求”的推动。<a hidden class="anchor" aria-hidden="true" href="#1-ccplan-自动执行阶段4-6因浅层分析而进展过快受到持续执行要求的推动">#</a></h4>
-<p><strong>解决方案：</strong> 增加明确的深度要求：阶段4扩展为10个维度，并设定最低发现阈值；阶段5变为4层分析（链/交叉/数据流/合同）；阶段6需至少1次探测及结构化风险评估。</p>
-<p><strong>关键洞察：</strong> 自动执行阶段需要定量深度要求和最低输出阈值；像“ thorough”这样的定性指示不足以应对效率激励。</p>
-<h4 id="2-websearchwebfetch工具返回--标签时ccplan工作流中断导致技能列表重新加载并失去阶段上下文">2. WebSearch/WebFetch工具返回 <system-reminder> 标签时，ccplan工作流中断，导致技能列表重新加载并失去阶段上下文。<a hidden class="anchor" aria-hidden="true" href="#2-websearchwebfetch工具返回--标签时ccplan工作流中断导致技能列表重新加载并失去阶段上下文">#</a></h4>
-<p><strong>解决方案：</strong> 添加工具调用状态保存协议，包含3步恢复机制：在工具调用前记录当前阶段，工具返回后重新锚定至 ECL 状态字段，忽略系统提醒元数据；在0/3/7阶段添加内联注释，提示可能进行搜索。</p>
-<p><strong>关键洞察：</strong> 复杂的多阶段工作流在调用返回大量元数据的外部工具时，需要明确的状态保存协议；无法依赖隐式上下文的连续性</p>
-<h4 id="3-修复漏洞时功能的退化claude-code-因上下文压缩而忘记某些功能导致意外删除">3. 修复漏洞时功能的退化——Claude Code 因上下文压缩而忘记某些功能，导致意外删除<a hidden class="anchor" aria-hidden="true" href="#3-修复漏洞时功能的退化claude-code-因上下文压缩而忘记某些功能导致意外删除">#</a></h4>
-<p><strong>解决方案：</strong> 实施“功能保护协议”，包含包含 <code>feature_guard</code> 部分的持久性 ECL 文档，配备具有安全加固功能的 <code>guard-check.py</code> 命令行工具（包含命令执行的互动确认机制），采用 Phase 10 自动生成方式，以及预修改检查协议</p>
-<p><strong>关键洞察：</strong> 内存和上下文是短暂的，但磁盘数据却具有持久性。写入 ECL 文件中的保护机制能在不同会话和压缩过程中保留下来。可移植性（随技能目录一起携带）优于针对特定项目的解决方案。</p>
-<h4 id="4-float-球拖拽失败的原因在于-settimeout-回调中调用了-startdragging从而失去了-windows-所需的指针事件上下文解决方案-改为手动捕获指针onpointerdown-捕获指针并记录起始位置onpointermove-检查-180ms-阈值并调用-move_float_ball_to-ipconpointerup-若低于阈值则切换展开状态">4. Float 球拖拽失败的原因在于 <code>setTimeout</code> 回调中调用了 <code>startDragging()</code>，从而失去了 Windows 所需的指针事件上下文<strong>解决方案：</strong> 改为手动捕获指针：onPointerDown 捕获指针并记录起始位置，onPointerMove 检查 180ms 阈值并调用 move_float_ball_to IPC，onPointerUp 若低于阈值则切换展开状态<a hidden class="anchor" aria-hidden="true" href="#4-float-球拖拽失败的原因在于-settimeout-回调中调用了-startdragging从而失去了-windows-所需的指针事件上下文解决方案-改为手动捕获指针onpointerdown-捕获指针并记录起始位置onpointermove-检查-180ms-阈值并调用-move_float_ball_to-ipconpointerup-若低于阈值则切换展开状态">#</a></h4>
-<p><strong>关键洞察：</strong> Windows 要求拖拽操作必须在原始指针事件上下文中启动；setTimeout/async 会破坏这一约束</p>
-<h4 id="5-css-max-height-过渡期间窗口调整导致底部边缘失去任务栏对齐原因是多次快速的-resizeobserveripc-调用">5. CSS max-height 过渡期间窗口调整导致底部边缘失去任务栏对齐，原因是多次快速的 ResizeObserver→IPC 调用<a hidden class="anchor" aria-hidden="true" href="#5-css-max-height-过渡期间窗口调整导致底部边缘失去任务栏对齐原因是多次快速的-resizeobserveripc-调用">#</a></h4>
-<p><strong>解决方案：</strong> 将 .detail CSS 过渡改为 &lsquo;opacity 0.8s ease, max-height 0s linear 0.8s&rsquo;——先通过透明度淡出而不改变布局，随后在延迟后瞬间压缩 max-height，触发单次调整</p>
-<p><strong>关键洞察：</strong> 影响布局尺寸的 CSS 过渡会在每一帧触发 ResizeObserver；将布局变化延迟到动画完成可避免 IPC 调用风暴并保留窗口重新定位的原子性</p>
-<h4 id="6-浮球展开面板溢出屏幕时靠近边缘windows-窗口调整始终以底部为锚点无论实际位置如何">6. 浮球展开面板溢出屏幕时靠近边缘；Windows 窗口调整始终以底部为锚点，无论实际位置如何<a hidden class="anchor" aria-hidden="true" href="#6-浮球展开面板溢出屏幕时靠近边缘windows-窗口调整始终以底部为锚点无论实际位置如何">#</a></h4>
-<p><strong>解决方案：</strong> 添加 EXPAND_MARGIN=8.0 常量以确保展开时与边缘至少保持 8px 距离；实现动态锚点检测，以 5px 为阈值——接触顶部边缘时以顶部为锚点，接触底部时以底部为锚点；添加 SWP_NOCOPYBITS 标志防止旧客户端区域内容被复制回</p>
-<p><strong>关键洞察：</strong> 展开和收缩状态需要不同的定位策略；锚点应基于当前窗口位置动态确定而非硬编码；Windows 默认调整行为会保留旧内容导致视觉偏移</p>
-<h4 id="7-浮球透明框伪影和悬停延迟由同时存在的窗口系统引起主窗口全局-css--浮球页面">7. 浮球透明框伪影和悬停延迟由同时存在的窗口系统引起（主窗口全局 CSS + 浮球页面）<a hidden class="anchor" aria-hidden="true" href="#7-浮球透明框伪影和悬停延迟由同时存在的窗口系统引起主窗口全局-css--浮球页面">#</a></h4>
-<p><strong>解决方案：</strong> 从浮球页面移除全局 CSS 复用，添加 Windows 原生区域裁剪（SetWindowRgn），用统一的 rect 计算重写窗口几何状态机，确保底部边缘始终与工作区底部对齐</p>
-<p><strong>关键洞察：</strong> 同时存在的窗口系统导致样式和容器堆叠冲突；需要完全分离而非补丁修复</p>
-<h4 id="8-图表悬停细节覆盖解决方案导致元素间视觉重叠违反-ux-要求">8. 图表悬停细节覆盖解决方案导致元素间视觉重叠，违反 UX 要求<a hidden class="anchor" aria-hidden="true" href="#8-图表悬停细节覆盖解决方案导致元素间视觉重叠违反-ux-要求">#</a></h4>
-<p><strong>解决方案：</strong> 转向块式布局，通过 onDetailToggle 回调协调明确的窗口高度动画（遵循现有的 AccordionToggleDetail 模式），在 App.svelte 中实现 handleChartDetailToggle 并添加观察器抑制机制</p>
-<p><strong>关键洞察：</strong> 当涉及原生窗口操作时，在协调动画期间必须抑制被动观察（ResizeObserver），以防止双重触发和视觉伪影</p>
-<h4 id="9-当前成本计算使用本地硬编码定价表与-ccusage-官方计算不一致">9. 当前成本计算使用本地硬编码定价表，与 ccusage 官方计算不一致<a hidden class="anchor" aria-hidden="true" href="#9-当前成本计算使用本地硬编码定价表与-ccusage-官方计算不一致">#</a></h4>
-<p><strong>解决方案：</strong> 添加 ccusage CLI 适配器（ccusage.rs），使用 Windows CREATE_NO_WINDOW 静默执行，实现基于优先级的机制（先尝试 ccusage，失败则回退到解析器），UsagePayload 包含 usage_source 和 usage_warning 字段，前端显示明确的警告</p>
-<p><strong>关键洞察：</strong> 透明回退机制至关重要：不要将降级结果伪装为正常状态；明确告知用户数据来源和限制</p>
-<h4 id="10-非-macos-平台过于透明因为-glasseffect-被应用于所有平台而缺乏原生模糊支持">10. 非 macOS 平台过于透明，因为 glassEffect 被应用于所有平台而缺乏原生模糊支持<a hidden class="anchor" aria-hidden="true" href="#10-非-macos-平台过于透明因为-glasseffect-被应用于所有平台而缺乏原生模糊支持">#</a></h4>
-<p><strong>解决方案：</strong> 在 applyGlass() 中添加 isMacOS() 检查以强制非 macOS 为不透明，将默认值改为 false，更新测试快照</p>
-<p><strong>关键洞察：</strong> 平台差异（macOS 有原生模糊，Windows/Linux 没有）导致相同配置产生不同的视觉结果；需要应用层平台检测和补偿</p>
+<h4 id="1-图表细节面板闪烁以及窗口过早缩小是由被动-dom-观察导致在悬停过渡期间-tauri-窗口调整事件引发的">1. 图表细节面板闪烁以及窗口过早缩小是由被动 DOM 观察导致在悬停过渡期间 Tauri 窗口调整事件引发的。<a hidden class="anchor" aria-hidden="true" href="#1-图表细节面板闪烁以及窗口过早缩小是由被动-dom-观察导致在悬停过渡期间-tauri-窗口调整事件引发的">#</a></h4>
+<p><strong>解决方案：</strong> 从绝对定位转向严格的内嵌块结构。实现了明确的 <code>onDetailToggle</code> 事件系统，在过渡期间手动驱动高度动画，同时暂时抑制观察器传播。</p>
+<p><strong>关键洞察：</strong> 混合式桌面框架无法依赖被动观察器进行自动缩放；带有状态隔离的事件驱动高度控制器是防止原生重绘级联的关键。</p>
+<h4 id="2-windows-浮球因冲突的-css-继承和双-ui-初始化路径导致半透明覆盖重叠动画卡顿和垂直对齐失败">2. Windows 浮球因冲突的 CSS 继承和双 UI 初始化路径导致半透明覆盖重叠、动画卡顿和垂直对齐失败。<a hidden class="anchor" aria-hidden="true" href="#2-windows-浮球因冲突的-css-继承和双-ui-初始化路径导致半透明覆盖重叠动画卡顿和垂直对齐失败">#</a></h4>
+<p><strong>解决方案：</strong> 删除了多余的嵌入式面板初始化，强制实施严格的 CSS 范围控制，使用原生 Win32 区域裁剪确保几何完整性，并通过 Rust/TS 补丁统一状态载荷。</p>
+<p><strong>关键洞察：</strong> 跨平台桌面应用需要特定平台的原生边界而非纯前端样式，以消除持续的覆盖冲突和布局卡顿问题。</p>
 <h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
-<h4 id="11-编辑工具的-replace_all-需要先读取文件跨多个文件的批量路径更新因文件尚未读取错误而失败">11. 编辑工具的 replace_all 需要先读取文件；跨多个文件的批量路径更新因“文件尚未读取”错误而失败<a hidden class="anchor" aria-hidden="true" href="#11-编辑工具的-replace_all-需要先读取文件跨多个文件的批量路径更新因文件尚未读取错误而失败">#</a></h4>
-<p><strong>解决方案：</strong> 改为使用 sed 进行跨文件批量替换（crate::parser → crate::usage::parser 在多个 .rs 文件中）</p>
-<p><strong>关键洞察：</strong> 对于跨多个文件的大规模路径更新，shell 工具（sed、grep）优于逐个工具的 Edit 调用，因为存在读前编辑的限制</p>
+<h4 id="3-boss-推理导致重复的数据集路径验证警告以及由于压缩的初始化状态数组在有限的-pruned_init-文件中循环而产生的索引混淆">3. BOSS 推理导致重复的数据集路径验证警告，以及由于压缩的初始化状态数组在有限的 <code>.pruned_init</code> 文件中循环而产生的索引混淆。<a hidden class="anchor" aria-hidden="true" href="#3-boss-推理导致重复的数据集路径验证警告以及由于压缩的初始化状态数组在有限的-pruned_init-文件中循环而产生的索引混淆">#</a></h4>
+<p><strong>解决方案：</strong> 创建了 <code>_config.yaml_</code> 中引用的缺失目录结构，并明确说明基于模数的状态循环是故意的基准测试优化。在不改变评估行为的情况下抑制了非功能性的日志噪声。</p>
+<p><strong>关键洞察：</strong> 评估框架通常急切地验证所有配置键；主动的路径准备或延迟加载可避免基准测试运行中的重复日志记录。</p>
 <h2 id="人类与-ai-方法">人类与 AI 方法<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法">#</a></h2>
 <h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
-<h4 id="识别工作流阶段中浅层自动执行行为">识别工作流阶段中浅层自动执行行为<a hidden class="anchor" aria-hidden="true" href="#识别工作流阶段中浅层自动执行行为">#</a></h4>
+<h4 id="悬停动画协调与严格的布局约束策略">悬停动画协调与严格的布局约束策略<a hidden class="anchor" aria-hidden="true" href="#悬停动画协调与严格的布局约束策略">#</a></h4>
 <table>
   <thead>
       <tr>
@@ -332,16 +314,16 @@
   <tbody>
       <tr>
           <td>人类</td>
-          <td>用户观察到第 3-7 阶段进展过快，立即询问具体操作，然后诊断根本原因：“能否更彻底地搜索？”——从观察到的速度出发的主动质量检测</td>
+          <td>准确诊断动画卡顿，强制空间约束，优先采用严格的布局边界和完全折叠，而非视觉覆盖的平滑性。</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>我以事实方式解释了这些阶段，但最初并未将浅层行为视为问题；直到用户提问后才诊断出“当前技能说明倾向于在可能时跳过”</td>
+          <td>追踪 Svelte 组件中的 <code>ResizeObserver</code> 冲突，将候选过渡模式与现有子系统进行映射，并构建标准化的折叠协议及过渡后收缩回调。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>差异分析：</strong> 人类从与彻底性相关的观察速度中发现了质量问题；AI 将快速执行视为预期行为，直到被询问。人类的产品直觉发现了 AI 忽略的设计缺陷。</p>
-<h4 id="功能保护方案架构可移植性与项目特定性">功能保护方案架构——可移植性与项目特定性<a hidden class="anchor" aria-hidden="true" href="#功能保护方案架构可移植性与项目特定性">#</a></h4>
+<p><strong>差异分析：</strong> 人类优先保证不可妥协的空间完整性；AI 提供技术映射和解耦机制，但通过从 CSS 覆盖转向明确的事件驱动高度系统来适应更严格的约束。</p>
+<h4 id="浮球-ux-范围与平台限制">浮球 UX 范围与平台限制<a hidden class="anchor" aria-hidden="true" href="#浮球-ux-范围与平台限制">#</a></h4>
 <table>
   <thead>
       <tr>
@@ -352,189 +334,134 @@
   <tbody>
       <tr>
           <td>人类</td>
-          <td>立即意识到可移植性至关重要——解决方案必须随技能目录一起使用，而非项目特定。要求在 ccplan 中实现 ECL + 钩子-based 保护机制</td>
+          <td>定义严格的产品边界，强制使用状态组件替代整个应用覆盖，指定具体的交互模型和特定平台的托盘图标保留规则。</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>最初提出了 5 种解决方案，按易用性与效果排序，将项目级解决方案（CLAUDE.md 注册表）排在可移植性解决方案之前</td>
+          <td>通过结构化提示迭代最终得到受限架构，实现方向扩展逻辑和 Rust 侧的几何锚定，同时避免主窗口可访问性冲突。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>差异分析：</strong> 人类认识到可移植性解决方案（随技能/工具一起使用）比项目特定解决方案对可复用组件更有价值。AI 首先提出项目级解决方案，未将可移植性作为主要约束。</p>
-<h4 id="以研究为先的功能设计方法">以研究为先的功能设计方法<a hidden class="anchor" aria-hidden="true" href="#以研究为先的功能设计方法">#</a></h4>
-<table>
-  <thead>
-      <tr>
-          <th>角色</th>
-          <th>方法</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>人类</td>
-          <td>用户明确要求在设计第 0 阶段前在 GitHub 中搜索星数超过 1k 的提示优化技能，为经过验证的解决方案设定明确的质量标准</td>
-      </tr>
-      <tr>
-          <td>AI</td>
-          <td>如果直接被问到“添加提示优化步骤”，我可能会直接开始设计，无需先研究现有解决方案</td>
-      </tr>
-  </tbody>
-</table>
-<p><strong>差异分析：</strong> 人类系统地应用“搜索优先”原则并带有质量约束；AI 倾向于立即实施。人类的做法确保从成熟解决方案中学习，而非从零发明。</p>
-<h4 id="浮球的视觉设计与交互模型">浮球的视觉设计与交互模型<a hidden class="anchor" aria-hidden="true" href="#浮球的视觉设计与交互模型">#</a></h4>
-<p>|| 角色 | 方法 |
-|&mdash;&mdash;|&mdash;&mdash;|
-| 人类 | 提供了所需药丸/胶囊形状的截图，指定展开状态为药丸形态，保留当前内容和颜色；选择“简化版本：球体成本 + 展开使用条”，拒绝更复杂的选项；尽管实现复杂，仍坚持使用真正的块式布局以防止元素重叠 |
-| AI   | 最初被理解为将球体和面板元素分开，并调整其重叠方式；提供了从简单到详细的3种选项，包括“完整主窗口复制品”；提出覆盖式解决方案作为技术上更简单的路径 |</p>
-<p><strong>差异分析：</strong> 人类从截图中能明确看到最终视觉效果，并偏好简洁实用的界面；AI需要澄清交互模型，以将视觉效果转化为实际实现，最初倾向于通过最少代码修改来实现视觉质量的最大化。</p>
-<h4 id="窗口大小调整锚点检测要求">窗口大小调整锚点检测要求<a hidden class="anchor" aria-hidden="true" href="#窗口大小调整锚点检测要求">#</a></h4>
-<table>
-  <thead>
-      <tr>
-          <th>角色</th>
-          <th>方法</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>人类</td>
-          <td>明确说明“不一定要是底部边缘，只要对齐的边保持不变即可”——强调动态判断而非单一底部锚点；描述可观察现象：窗口在动画过程中保持位置不变，然后才进行大小调整</td>
-      </tr>
-      <tr>
-          <td>AI</td>
-          <td>最初理解为仅修复底部锚点问题，将“底部对齐意味着底部不动”视为唯一场景</td>
-      </tr>
-  </tbody>
-</table>
-<p><strong>差异分析：</strong> AI过早地锁定单一场景；用户指出需要动态检测垂直锚点。人类关注用户可见行为，而AI需理解 Windows 平台的语义。</p>
-<h4 id="ccusage-集成中的错误处理策略">ccusage 集成中的错误处理策略<a hidden class="anchor" aria-hidden="true" href="#ccusage-集成中的错误处理策略">#</a></h4>
-<table>
-  <thead>
-      <tr>
-          <th>角色</th>
-          <th>方法</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>人类</td>
-          <td>要求“显示明显的错误，并回退到当前逻辑”——既向用户说明，又通过明确的警告与降级回退相结合确保可用性</td>
-      </tr>
-      <tr>
-          <td>AI</td>
-          <td>提供互斥选项：“显示清晰错误”或“以空状态继续”，未考虑混合方案</td>
-      </tr>
-  </tbody>
-</table>
-<p><strong>差异分析：</strong> AI倾向于使用互斥选项；人类要求更灵活的组合策略：透明沟通 + 优雅降级</p>
-<h4 id="何时使用完整规划流程-vs-直接实现">何时使用完整规划流程 vs 直接实现<a hidden class="anchor" aria-hidden="true" href="#何时使用完整规划流程-vs-直接实现">#</a></h4>
-<table>
-  <thead>
-      <tr>
-          <th>角色</th>
-          <th>方法</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>人类</td>
-          <td>即使需求相对简单，也调用 /ccplan 命令处理浮动球 UI 任务</td>
-      </tr>
-      <tr>
-          <td>AI</td>
-          <td>正确判断某些任务为简单的 UI 优化，需求明确，选择直接实现而非12阶段规划流程</td>
-      </tr>
-  </tbody>
-</table>
-<p><strong>差异分析：</strong> 人类默认使用结构化规划；AI正确判断出部分需求已明确，无需进一步探索或假设验证。</p>
-<h2 id="ai-局限性">AI 局限性<a hidden class="anchor" aria-hidden="true" href="#ai-局限性">#</a></h2>
-<h3 id="关键局限性">关键局限性<a hidden class="anchor" aria-hidden="true" href="#关键局限性">#</a></h3>
+<p><strong>差异分析：</strong> 人类强制执行精确的产品边界和特定设备可用性标准；AI 将初始模糊转化为架构提案，并快速调整代码以符合受限 UX 定义。</p>
+<h2 id="ai-限制">AI 限制<a hidden class="anchor" aria-hidden="true" href="#ai-限制">#</a></h2>
+<h3 id="一般限制">一般限制<a hidden class="anchor" aria-hidden="true" href="#一般限制">#</a></h3>
 <ul>
-<li>未能主动识别 ccplan 中的“连续执行要求”会在自动执行阶段鼓励浅层分析；直到用户观察到问题（第4-6阶段过快）后才发现设计缺陷</li>
-<li>对 Windows 窗口大小调整行为的理解最初不完整：没有意识到默认行为会保留并复制旧客户端内容，从左上角开始，导致视觉偏移；需要用户指出“内容向上移动”后才添加 SWP_NOCOPYBITS</li>
-<li>没有预料到多意图提示处理是需求之一，尽管这是常见的现实使用场景；理论设计忽略了实际使用模式</li>
-<li>没有立即意识到可移植解决方案（携带技能目录旅行）在架构上优于项目特定解决方案，适用于可复用组件</li>
-<li>初始解决方案（覆盖式）用于图表悬停细节在技术上合理，但未能满足隐含的 UX 要求（无重叠），该要求直到实施后才被明确</li>
-<li>在实现固定浮动球行为后，仍保留设置菜单依赖关系，直到用户指出才意识到逻辑一致性问题</li>
-</ul>
-<h3 id="一般局限性">一般局限性<a hidden class="anchor" aria-hidden="true" href="#一般局限性">#</a></h3>
-<ul>
-<li>在 ccplan 第0阶段意图校准过程中需要多次调用 AskUserQuestion 来消除歧义，无法直接从上下文中直接推断用户的确切意图</li>
-<li>过度依赖规划文档，而用户真正的担忧（“无终端弹出窗口”）是更简单的技术细节；当用户需要直接约束验证时，却花费时间从文档中解释 MCP 逻辑</li>
+<li>沙箱环境限制了深度类型检查和原生工具链执行，需要手动 fallback 验证和直接编译器验证。</li>
+<li>初始架构提案往往过于复杂或范围不匹配，直到利益相关者逐步应用明确的几何和 UX 约束。</li>
 </ul>
 <h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
-<h3 id="关键经验--复杂的多阶段工作流在调用返回大量元数据的外部工具时需要明确的状态保存协议不能依赖隐式的上下文连续性返回标签的工具可能会破坏工作流状态">关键经验- 复杂的多阶段工作流在调用返回大量元数据的外部工具时，需要明确的状态保存协议；不能依赖隐式的上下文连续性。返回<system-reminder>标签的工具可能会破坏工作流状态。<a hidden class="anchor" aria-hidden="true" href="#关键经验--复杂的多阶段工作流在调用返回大量元数据的外部工具时需要明确的状态保存协议不能依赖隐式的上下文连续性返回标签的工具可能会破坏工作流状态">#</a></h3>
+<h3 id="关键经验--基准测试集成需要主动验证路径解析和状态缓存逻辑而不仅仅是标准配置文件以避免无意识的评估问题">关键经验- 基准测试集成需要主动验证路径解析和状态缓存逻辑，而不仅仅是标准配置文件，以避免无意识的评估问题。<a hidden class="anchor" aria-hidden="true" href="#关键经验--基准测试集成需要主动验证路径解析和状态缓存逻辑而不仅仅是标准配置文件以避免无意识的评估问题">#</a></h3>
 <ul>
-<li>工作流中的自动执行阶段需要定量深度要求（至少N个发现点、M层分析、至少1次探测）以防止“快速但浅层”的行为；像“彻底处理”这样的定性指示不足以应对效率激励。</li>
-<li>持久性保护机制（ECL feature_guard）+ 自动化检查（guard-check.py）可以防止不同会话中功能的退化。内存和上下文是短暂的，但磁盘是持久的。测试很理想，但保护机制为增量开发提供了更轻量的安全网。</li>
-<li>Windows GUI应用程序静默执行子进程的最佳实践：使用std::os::windows::process::CommandExt创建标志加上CREATE_NO_WINDOW（0x0800_0000）以避免控制台窗口弹出。</li>
-<li>Windows窗口调整大小的视觉锚点控制：默认行为通过左上角复制旧客户端内容导致视觉偏移；需要SWP_NOCOPYBITS来禁用复制并强制完全重绘，再加上动态detect_vertical_anchor来修复适当的边缘。</li>
-<li>影响布局尺寸的CSS过渡会触发每帧的ResizeObserver；将布局变化延迟到视觉过渡完成之后（例如‘opacity 0.8s ease, max-height 0s linear 0.8s’）可以防止IPC调用风暴并保留原子窗口重新定位。</li>
-<li>基于波形的执行配合验证检查点（cargo check、cargo test、每波后vitest）可以通过早期发现问题来防止大型重构中的级联故障。</li>
-<li>使用目录mtime的智能缓存失效比无条件失效更高效；现有的基础设施（DirectoryStamp）可以用于低开销的变化检测。</li>
-<li>当涉及原生窗口操作时，在协调动画期间必须抑制被动观察（ResizeObserver），以防止双重触发和视觉伪影。</li>
-<li>透明回退机制至关重要：不要将降级结果伪装成正常状态；通过数据模型字段和UI警告明确告知用户。</li>
-<li>提示工程技能应在意图提取之前分解多意图输入；单一意图假设是实际使用中的常见失败模式。第一步：多意图分解使得每个跟踪独立处理。</li>
-<li>以研究为先的方法结合质量约束（例如，&gt;1k GitHub stars）比孤立发明产生更好的设计；借鉴经过验证的解决方案可以减少盲点。</li>
-<li>Tauri v2能力系统需要对所有窗口API进行明确的权限声明；缺少权限会导致无声失败（返回null）而不是可见错误。需要：core:window:allow-outer-position、allow-scale-factor、allow-current-monitor以实现拖拽功能。</li>
-<li>大文件分解应保持每个模块单一责任，同时将测试代码放在同一文件中；987行的usage_query.rs是可以接受的，因为大部分都是测试。</li>
-<li>混合工具策略（复杂逻辑使用并行代理，批量字符串替换使用sed/bash，针对性修复使用直接编辑）在代码库范围内的重构中同时优化正确性和速度。</li>
-<li>遵循现有代码库模式（例如，AccordionToggleDetail回调机制）比引入新的通信范式更能实现可维护的解决方案。</li>
-<li>跨平台UI一致性问题通常源于平台API差异（macOS的模糊与Windows/Linux的无模糊）；需要应用层平台检测和补偿。</li>
-<li>固定的UI行为不应有运行时配置依赖。如果行为是恒定的，代码应通过删除条件逻辑、提高清晰度和可维护性来反映这一点。</li>
+<li>在混合 Tauri-Svelte 应用中，必须采用事件驱动的高度动画并暂时禁用观察器，以防止布局重新渲染的连锁反应。</li>
+<li>跨平台桌面 UI 稳定性要求使用原生几何边界，而非仅依赖 CSS 或被动 DOM 观察器来确保渲染完整性。</li>
 </ul>
 <h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
-<h3 id="gadget-skills---ccplan">Gadget Skills - ccplan<a hidden class="anchor" aria-hidden="true" href="#gadget-skills---ccplan">#</a></h3>
-<p><strong>✅ 阶段0提示校准、多意图分解、深度增强、功能保护协议</strong>
-<em>02:14:39.233 | claude_code</em>
-通过一天中的五次主要迭代系统性地提升了ccplan技能。首先添加了阶段0，包含提示优化（研究了3个GitHub项目&gt;1k stars，综合了5步校准、9维意图提取和35种反模式）。使用工具调用状态保存协议修复了网络搜索状态保存错误。增加了步骤1：多意图分解以处理捆绑需求。加强了阶段4-6分析严格性（10个检查维度、4层依赖分析、强制探测）。实施基于ECL的功能保护协议、可移植的guard-check.py CLI工具（347行，包含安全加固），并集成钩子。将所有更新同步到已安装的~/.claude/skills/ccplan/中。代表了ccplan从线性规划器到具有跨会话持久性的复杂需求工程系统的转变。</p>
-<h3 id="gadget-skills---other">Gadget Skills - Other<a hidden class="anchor" aria-hidden="true" href="#gadget-skills---other">#</a></h3>
-<p><strong>✅ 创建slurm-gpu技能并增强代码总结</strong>
-<em>13:29:09.109 | claude_code</em>
-创建了用于集群GPU检测的slurm-gpu技能（解析sinfo/squeue，显示分区摘要和节点详情）。通过&ndash;for <audience>参数增强了代码总结技能，支持4种角色（自我/同事/用户/显示），通过完整的/ccplan工作流具有不同的内容优先级和术语水平。</p>
+<h3 id="openpi-boss-集成">OpenPI-BOSS 集成<a hidden class="anchor" aria-hidden="true" href="#openpi-boss-集成">#</a></h3>
+<p><strong>✅ 将 BOSS 基准测试整合到 OpenPI 的 LIBERO 环境中</strong>
+<em>07:13:35.580 | claude_code</em>
+将基准测试资源合并到现有评估流程中，消除了环境重复。脚本适配、模块生成和配置验证解决了路径警告问题，并明确了状态循环机制，从而能够直接对 PI 系列模型进行测试。</p>
 <h3 id="tokenmonitor">TokenMonitor<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor">#</a></h3>
-<p><strong>✅ Windows/Linux浮动球UI重构+成本计算迁移</strong>
-<em>19:52:32.768 | codex</em>
-对存在的窗口系统进行了深入分析，通过结构化问题明确了需求，然后完全重构了浮动球几何结构（在Windows/Linux上移除任务栏嵌入面板，添加原生区域裁剪，统一状态控件显示）。单独将成本计算从本地定价表迁移到ccusage CLI，并提供透明回退（添加了带有CREATE_NO_WINDOW静默执行的ccusage.rs适配器，UsagePayload包含usage_source和usage_warning字段）。通过了所有测试（Rust 199，npm 164，svelte-check 0错误）。</p>
-<p><strong>✅ 浮动球初始实现+UI优化批量工作</strong>
-<em>03:31:03.730 | claude_code</em>
-使用ccplan技能实现了浮动球控件（Tauri次级WebView窗口，支持拖拽、边缘对齐、可扩展使用条）以及另外3项改进：将图表悬停动画调整为约1秒，提高Windows深色模式文本对比度，移除窗口边框。创建了多页Vite构建（index.html + float-ball.html）。修复了透明度问题（glassEffect默认设为false+平台检查）。所有163个前端和199个Rust测试通过，生产安装程序成功构建。<strong>✅ 重大重构：文件拆分 + 类型安全 + 缓存机制</strong>
-<em>12:49:21.122 | claude_code</em>
-完成了计划中的7项工作项中的5项 / 简化后续任务。拆分了commands.rs（从2466行缩减为7个模块内的131行），以及rate_limits.rs（从1202行缩减为5个模块内的124行）。将TrayConfig字符串字段转换为枚举类型（BarDisplay、PercentageFormat、CostPrecision）。通过mtime检查实现智能缓存失效机制（invalidate_if_changed），替代无条件的30秒缓存清除。为CLI路径解析添加OnceLock缓存机制。所有199个Rust代码和164个前端测试均通过。</p>
-<p><strong>✅ 浮球多功能增强（指针捕获拖拽、分离效果、凹凸面板）</strong>
-<em>16:23:53.985 | claude_code</em>
-利用ccplan工具系统性地实现了5项相互关联的浮球改进：指针捕获拖拽（替代setTimeout方法），独立的浮球/任务栏控制设置，通过CSS过渡时间实现窗口底部对齐调整，使用GDI区域合成技术生成凹凸面板形状，以及通过CSS镜像实现自动自适应方向。创建了ECL文档，在TypeScript和Rust中实现，所有165+199个测试均通过。</p>
-<p><strong>✅ 浮球药丸重新设计 + 调整尺寸时机修复</strong>
-<em>19:46:01.881 | claude_code</em>
-利用ccplan进行第二次重大迭代：将独立的浮球+面板结构重新设计为统一的药丸/胶囊形状，使用单一的圆润矩形GDI区域。通过延迟CSS max-height变化直到透明度过渡完成（透明度0.8秒 + max-height 0秒线性0.8秒）来修复窗口调整尺寸时机问题，避免导致底部对齐偏移的多次IPC调用。所有测试均通过。</p>
-<p><strong>✅ 执行5波文件重组并移除调试代码</strong>
-<em>01:09:48.212 | claude_code</em>
-执行了批准的重组计划：归档未使用的MCP/docs/ccusage文件（第1波），使用并行代理和sed在8个文件中移除100多个resizeDebug引用（第2波），将Rust后端重新组织为usage/、stats/、tray/子目录并更新所有路径（第3波），将前端重新组织为tray/、window/、views/子目录（第4波），并运行完整验证套件。最终结果：191个Rust测试通过，163个JS测试通过，无clippy警告，无错误。更新了CLAUDE.md文件，添加新架构图。</p>
-<p><strong>✅ 通过块布局重构解决图表悬停细节闪烁问题</strong>
+<p><strong>✅ 架构强化与 UI 同步重构</strong>
 <em>20:22:04.107 | codex</em>
-解决了图表悬停时细节消失的UI闪烁问题。通过Chart.svelte → ResizeObserver → Tauri原生窗口调整尺寸链追踪根本原因。最初的覆盖方案因导致重叠而被拒绝。最终解决方案采用块布局，通过onDetailToggle回调协调窗口动画，在App.svelte中抑制ResizeObserver，并通过隐藏的.detail-measure块实现稳定的高度测量。</p>
-<p><strong>✅ UI错误修复：浮球显示、拖拽、窗口调整尺寸</strong>
-<em>19:26:56.368 | claude_code</em>
-使用用户提供的截图修复了3个关键UI错误。错误1：从.ball默认规则中移除CSS margin-left: -28px，防止内容在视口外渲染。错误2：添加3个缺失的Tauri权限（allow-outer-position、allow-scale-factor、allow-current-monitor）以支持拖拽操作。错误3：从设置/日历关闭处理中移除500ms的阻塞退出动画，替换为即时状态变化和250ms平滑高度过渡。所有测试均通过。</p>
-<p><strong>✅ 浮球展开/折叠 + 窗口锚点逻辑</strong>
-<em>21:21:57.278 | claude_code</em>
-通过ccplan实现了两个独立机制：(1) 浮球展开行为——展开时无自动吸附，全显时留8px边距，模糊事件触发折叠；(2) 窗口调整尺寸锚点检测——根据5px阈值在顶部锚定和底部锚定之间动态切换。所有更改均位于Rust后端（float_ball.rs、windows/window.rs、platform/mod.rs）。通过207个Rust测试和165个前端测试。</p>
-<p><strong>✅ 浮球吸附阈值 + 四边支持</strong>
-<em>20:25:43.075 | claude_code</em>
-添加条件性吸附机制，使用42px阈值（为球半径的1.5倍）——球仅在靠近边缘时吸附。将FloatBallAnchor扩展为支持Top（之前仅支持Left/Right/Bottom），所有边缘采用半隐藏定位方式。修改choose_float_ball_anchor返回Option类型。使用ccplan和AskUserQuestion澄清模糊需求。通过9个测试。</p>
-<p><strong>✅ 浮球UI优化：吸附行为与面板布局</strong>
-<em>21:03:52.013 | claude_code</em>
-修改了浮球尺寸（展开面板为152×56px），移除展开时的吸附功能，添加半球边缘限制，简化面板为价格+C/X条，移除设置菜单依赖。修改了Rust后端（尺寸、限制逻辑、更新9个测试）和Svelte前端。所有测试均通过。</p>
-<p><strong>✅ 生成AGENTS.md贡献者指南</strong>
-<em>05:11:47.747 | codex</em>
-分析项目结构、构建工具、提交历史及CI配置，生成了400字的AGENTS.md文件，涵盖结构、命令、风格、测试和PR指南，供开源贡献者参考。</p>
-<p><strong>✅ 文档化通信、窗口可见性以及tray/浮球架构</strong>
-<em>14:09:58.305 | claude_code</em>
-部署了3个并行Explore代理来分析并记录代码库架构。发现：无SSH机制，使用Tauri IPC（17个命令）和Anthropic API处理速率限制；显示/隐藏采用弹出层模式，在窗口模糊时自动隐藏，具有平台特定的定位方式；tray和浮球是独立的UI表面，共享AppState并具有不同的交互模型。提供了全面的架构文档。</p>
-<h2 id="令牌使用情况">令牌使用情况<a hidden class="anchor" aria-hidden="true" href="#令牌使用情况">#</a></h2>
-<p><img alt="Token Usage" loading="lazy" src="2026-03-26-usage.png"></p>
-<p><strong>总计：16.26美元</strong> — 2100万个令牌</p>
-<!-- gadget:src-hash:77c4ca8816f84b9e -->
+提供了贡献者文档，重建了 Windows/Linux 浮动球交互功能，采用了原生几何裁剪机制，并解决了持续的图表悬停抖动问题。主要技术突破在于用明确的切换驱动高度动画替代被动的 ResizeObserver 逻辑，从而确保严格的空间约束并消除连锁重新渲染。</p>
+<h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-03-26</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$37.18</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>53M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>800K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>86.1%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $5</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $33</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (12.5%), Codex (87.5%)">
+          <span style="width:12.5%; background:var(--usage-cost-main)"></span>
+          <span style="width:87.5%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 86.1%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 13.9%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (86.1%), active tokens (13.9%)">
+          <span style="width:86.1%; background:var(--usage-cache)"></span>
+          <span style="width:13.9%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Codex drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:d95c5b2b1b5d5ecd -->
 
 
   </div>

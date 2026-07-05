@@ -127,8 +127,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "每日报告 — 2026-04-28 日常概述 完成事项： 发布了 TokenMonitor v0.12.1，包含关键窗口行为修复（500px 滚动阈值限制）、UI优化（SSH 同步标签）以及 CI/CD 合规性修复（cargo fmt 和 clippy） 实现方式： 通过添加固定常量 SCROLL_THRESHOLD_CAP 修改窗口尺寸逻辑，添加单元测试，更新 UI 组件，修复 Rust 格式和 lint 问题，管理 git 标签和 GitHub 发布流程 影响： 解决了导致窗口底部从任务栏偏移的用户界面窗口定位问题；通过更清晰的同步按钮标签提升了用户体验；确保发布通过多平台分布的 CI 检查 DesktopLinux 完成事项： 由于组织访问问题，一次会话尝试失败 实现方式： 尝试基本交互但遇到 Claude API 访问错误 影响： 没有完成任何有效工作；可能是认证或配置问题 TzJsDesktop 完成事项： 完成了 TokenMonitor Tauri 应用的完整功能实现、发布管理和 CI 修复 实现方式： 在 TypeScript/Svelte 中实现滚动阈值限制（包含测试），添加 UI 文本标签，对三个配置文件进行版本升级，管理 git 标签/提交，修复 Rust 格式和 clippy 警告 影响： 成功发布 v0.12.1，修复了窗口行为问题并提升了用户体验；建立了用于自动化跨平台构建的干净 CI 管道 发布了 TokenMonitor v0.12.1，包含窗口调整修复、UI 优化和 CI 合规性改进\n任务 架构与策略 ✅ 通过 500px 滚动阈值限制修复窗口调整行为 — 添加了 SCROLL_THRESHOLD_CAP 常量并修改 resolveScrollThresholdHeight，防止窗口调整超过 500px；内容改为滚动显示。包含3个新单元测试，涵盖阈值逻辑、基于比例的值和回退行为 ✅ 在 GitHub 发布 v0.12.1 — 对 package.json、Cargo.toml 和 tauri.conf.json 进行版本升级；创建 git 提交、标签并推送到 origin，触发发布流程 ✅ 在 CI 修复后重新发布 v0.12.1 — 本地和远程删除旧的 v0.12.1 标签，提交 CI 修复，重新添加标签并推送以触发干净的 CI 构建 实现与修复 ✅ 修复 window.rs 中的 cargo fmt 违规 — 使用 rustfmt 修复 CI 标记的导入顺序和行长度违规；仅进行格式调整，未修改逻辑 ✅ 修复 clippy 不必要的 return 警告 — 在 config.rs launch_cursor 函数中删除不必要的 ‘return’ 关键字（第 182、221 行），以通过 clippy lint 检查并消除 -D 警告 ✅ 在 SSH Host 同步按钮添加 ‘Sync’ 标签 — 在 SshHostsSettings 组件中同步图标旁添加文本标签，使用适当的样式（8px Inter 字体，2px 边距）提升用户体验 问题与解决方案 关键问题 1. 当悬停在图表条上时，细节面板扩展导致窗口调整，窗口底部从任务栏偏移 解决方案： 引入 SCROLL_THRESHOLD_CAP = 500 常量；修改 resolveScrollThresholdHeight 以返回基于比例计算的最小值和阈值；内容现在在固定高度的窗口内滚动，而不是调整大小\n关键洞察： 用户指定的固定阈值（500px）可在所有显示器尺寸下提供可预测的行为，而现有的滚动机制处理溢出情况；基于比例的方法（0.75 * 工作区域）在较大显示器上过于宽松\n2. 初始 v0.12.1 发布因 cargo fmt 和 clippy 的 CI 检查失败 解决方案： 对 window.rs 应用 cargo fmt 以修复导入顺序和行宽限制；删除 config.rs 中的不必要的 return 语句；删除旧标签并重新发布以修复问题\n关键洞察： 预发布本地验证应包含完整的 CI 检查套件（fmt、带有 -D 警告的 clippy），以避免标签变动；rustfmt 和 clippy 规则在 CI 管道中是不可妥协的\n一般问题 3. 编辑工具在尝试更新版本号时出现“文件尚未读取”错误 解决方案： 在编辑前读取所有三个版本文件（package.json、Cargo.toml、tauri.conf.json）；工具在写入前需要读取操作\n关键洞察： Claude Code Edit 工具有严格的先读后写要求；工作流程应为：读取 → 编辑，而不是直接编辑\n人类与 AI 方法 战略层面 窗口调整修复方法 角色 方法 人类 提出简单的解决方案：设置固定的 500px 高度限制，使用滚动处理溢出情况 AI 通过添加常量并修改现有的滚动阈值计算以使用 Math.min 实现人类的解决方案 差异分析： 人类识别问题并给出确切解决方案（500px 限制）；AI 执行实现并添加了全面的测试覆盖\nCI 失败后的发布管理 角色 方法 人类 指示 AI 修复所有错误，清除标签并重新推送；指定确切版本号 v0.12.1 AI AI 可能使用 amend 或 force-push 而不通过明确的标签删除流程 差异分析： 人类通过删除和重建标签来维护干净的 git 历史，而非修改；体现了对公共发布标签不可变性最佳实践的理解\nAI 限制 关键限制 在初始发布标签前没有主动进行本地 cargo fmt/clippy 检查，导致 CI 失败和标签变动 一般限制 试图编辑文件而不先读取，违反了工具要求；必须在编辑前通过读取操作重试 DesktopLinux 上认证失败（“您的组织无法访问 Claude”），但未提供任何故障排除指导 学习成果 关键学习点 预发布验证必须在本地包含完整的 CI 检查套件；cargo fmt –check 和 cargo clippy – -D 警告可防止标签变动并维护干净的发布历史 硬编码的 UI 阈值比基于比例的计算更可预测，适用于跨设备一致性；500px 限制确保 1080p、1440p 和 4K 显示器下的统一行为 公共发布的 git 标签管理需要删除/重建流程（git tag -d、git push –delete、重新添加标签、推送），而非 force-push 或 amend 以保持完整性 实际学习点 MCP 工具（mcp__hex-line__edit_file）和标准编辑工具有不同的读取要求；MCP 工具在读取操作中接受 edit_ready 标志，以简化工作流程 对话总结 ✅ 修复窗口调整错误并添加同步标签 00:22:49.471 | claude_code 用户要求设置固定的 500px 高度限制，防止悬停在图表上时窗口调整；AI 添加了带有单元测试的 SCROLL_THRESHOLD_CAP 常量。然后用户要求在 SSH Host 同步按钮旁添加 ‘Sync’ 文本标签；AI 添加了具有适当样式的标签。会话中包含了在实施前经过审批的计划模式工作流程**✅ 将 v0.12.1 发布到 GitHub** 01:28:02.537 | claude_code 用户要求对 v0.12.1 进行标记并推送到 GitHub。AI 修改了 package.json、Cargo.toml 和 tauri.conf.json 中的版本号，提交更改后创建标签并推送到源仓库。由于工具限制，首先读取版本文件，然后执行标准发布流程以触发 CI 流水线。\n✅ 修复 CI 失败并重新发布 v0.12.1 04:59:14.431 | claude_code 用户报告了 CI 日志中的 cargo fmt 和 clippy 失败问题。AI 对 window.rs 进行了 cargo fmt 处理（调整导入顺序、换行规则），删除了 clippy 指出的 config.rs 中不必要的返回语句，在本地验证后删除旧的 v0.12.1 标签，并在提交后重新发布。清理了发布流程以通过所有检查。\n❌ 因访问错误导致会话失败 05:32:07.673 | claude_code 用户发送了“仅回复 OK”命令，但 AI 返回了组织访问错误消息。会话立即结束，没有产生任何有效工作。\n代币使用情况 总计：40.36 美元 — 2700 万代币\n",
-  "wordCount" : "393",
+  "articleBody": "每日报告 — 2026-04-28 日常概述 完成事项： 发布了 TokenMonitor v0.12.1，包含关键窗口行为修复（500px 滚动阈值限制）、UI优化（SSH 同步标签）以及 CI/CD 合规修复（cargo fmt 和 clippy） 实现方式： 通过添加固定常量 SCROLL_THRESHOLD_CAP 修改窗口尺寸逻辑，增加单元测试，更新 UI 组件，修复 Rust 格式和 lint 问题，管理 git 标签和 GitHub 发布流程 影响： 解决了导致窗口底部从任务栏偏移的用户界面窗口定位问题；通过更清晰的同步按钮标签提升了用户体验；确保发布通过多平台分布的 CI 检查 DesktopLinux 完成事项： 由于组织访问问题，一次会话尝试失败 实现方式： 尝试基本交互但遇到 Claude API 访问错误 影响： 没有完成任何有效工作；可能是认证或配置问题 TzJsDesktop 完成事项： 完成了 TokenMonitor Tauri 应用的完整功能实现、发布管理和 CI 修复 实现方式： 在 TypeScript/Svelte 中实现滚动阈值限制（含测试），添加 UI 文本标签，对三个配置文件进行版本升级，管理 git 标签/提交，修复 Rust 格式和 clippy 警告 影响： 成功发布 v0.12.1，修复了窗口行为问题并提升了用户体验；建立了干净的 CI 流水线以实现自动化跨平台构建 发布了 TokenMonitor v0.12.1，包含窗口调整修复、UI 优化和 CI 合规改进\n任务 架构与策略 ✅ 通过 500px 滚动阈值限制修复窗口调整行为 — 添加了 SCROLL_THRESHOLD_CAP 常量并修改 resolveScrollThresholdHeight，防止窗口调整超过 500px；内容改为滚动显示。包含3个新单元测试，覆盖阈值逻辑、基于比例的计算和回退行为 ✅ 在 GitHub 发布 v0.12.1 — 对 package.json、Cargo.toml 和 tauri.conf.json 进行版本升级；创建 git 提交、标签并推送到 origin，触发发布流程 ✅ 在 CI 修复后重新发布 v0.12.1 — 本地和远程删除旧的 v0.12.1 标签，提交 CI 修复，重新打标签并推送以触发干净的 CI 构建 实现与修复 ✅ 修复 window.rs 中的 cargo fmt 违规 — 使用 rustfmt 修复 CI 标记的导入顺序和行长度问题；仅进行格式调整，未修改逻辑 ✅ 修复 clippy 不必要的 return 警告 — 在 config.rs launch_cursor 函数中删除不必要的 ‘return’ 关键字（第 182、221 行），以通过 clippy lint 检查并消除 -D 警告 ✅ 在 SSH Host 同步按钮添加 ‘Sync’ 标签 — 在 SshHostsSettings 组件中同步图标旁添加文本标签，使用合适的样式（8px Inter 字体，2px 边距）以提升用户体验 问题与解决方案 关键问题 1. 当悬停在图表条上时，细节面板扩展导致窗口调整，使窗口底部从任务栏偏移 解决方案： 引入 SCROLL_THRESHOLD_CAP = 500 常量；修改 resolveScrollThresholdHeight 以返回基于比例计算的最小值和阈值；内容现在在固定高度的窗口内滚动，而非调整大小\n关键洞察： 用户指定的固定阈值（500px）可在所有显示器尺寸下提供可预测的行为，而现有的滚动机制处理溢出情况；基于比例的方法（0.75 * 工作区域）在较大显示器上过于宽松\n2. 初始 v0.12.1 发布未能通过 cargo fmt 和 clippy 的 CI 检查 解决方案： 对 window.rs 应用 cargo fmt 以修复导入顺序和行宽限制；删除 config.rs 中的不必要的 return 语句；删除旧标签并重新发布以修复问题\n关键洞察： 预发布本地验证应包含完整的 CI 检查套件（fmt、带有 -D 警告的 clippy），以避免标签变更；rustfmt 和 clippy 规则在 CI 流水线中是不可妥协的\n一般问题 3. 编辑工具在尝试更新版本号时出现“文件尚未读取”错误 解决方案： 在编辑前读取所有三个版本文件（package.json、Cargo.toml、tauri.conf.json）；工具在写入前需要读取操作\n关键洞察： Claude Code Edit 工具有严格的“读取后写入”要求；工作流程应为：读取 → 编辑，而不是直接编辑\n人类与 AI 方法 战略层面 窗口调整修复方法 角色 方法 人类 提出简单解决方案：设置固定的 500px 高度限制，使用滚动处理溢出情况 AI 通过添加常量并修改现有的滚动阈值计算逻辑以使用 Math.min，实现人类方案 差异分析： 人类识别问题并给出确切解决方案（500px 限制）；AI 执行实现并增加全面的测试覆盖\nCI 失败后的发布管理 角色 方法 人类 指示 AI 修复所有错误，清除标签并重新推送；指定确切版本号 v0.12.1 AI AI 可能使用 amend 或 force-push 而不通过明确的标签删除流程 差异分析： 人类通过删除和重建标签而非修改来保持干净的 git 历史，表明理解公共发布标签不可变性最佳实践\nAI 限制 关键限制 在初始发布标签前没有主动进行本地 cargo fmt/clippy 检查，导致 CI 失败和标签变更 一般限制 试图编辑文件而不先读取，违反工具要求；必须在编辑前通过读取操作重试 DesktopLinux 上认证失败（“您的组织无法访问 Claude”），但未提供任何故障排除建议 经验教训 关键经验 预发布验证必须在本地包含完整的 CI 检查套件；cargo fmt –check 和 cargo clippy – -D 警告可防止标签变更并保持干净的发布历史 硬编码的 UI 阈值比基于比例的计算更可预测，适用于跨设备一致性；500px 限制确保 1080p、1440p 和 4K 显示器下行为一致 公共发布的 git 标签管理需要删除/重建流程（git tag -d、git push –delete、重新打标签、推送），而不是 force-push 或 amend 以保持完整性 实际经验 MCP 工具（mcp__hex-line__edit_file）和标准编辑工具有不同的读取要求；MCP 工具在读取操作中接受 edit_ready 标志，以简化工作流程 对话总结 ✅ 修复窗口调整错误并添加同步标签 00:22:49.471 | claude_code 用户要求设置固定的 500px 高度限制，以防止悬停在图表上时窗口调整；AI 添加了带有单元测试的 SCROLL_THRESHOLD_CAP 常量。然后用户要求在 SSH Host 同步按钮旁添加 ‘Sync’ 文本标签；AI 添加了具有合适样式的标签。会话中包含了在实施前进行审批的规划模式流程**✅ 将 v0.12.1 发布到 GitHub** 01:28:02.537 | claude_code 用户要求对 v0.12.1 进行标记并推送到 GitHub。AI 修改了 package.json、Cargo.toml 和 tauri.conf.json 中的版本号，提交更改，创建标签后推送到源仓库。由于工具限制，首先读取版本文件，然后执行标准发布流程以触发 CI 管道。\n✅ 解决 CI 失败问题并重新发布 v0.12.1 04:59:14.431 | claude_code 用户报告了 CI 日志中的 cargo fmt 和 clippy 失败问题。AI 对 window.rs 应用了 cargo fmt 优化（导入顺序、行宽限制），删除了 clippy 指出的 config.rs 中不必要的返回语句，在本地验证后，删除旧的 v0.12.1 标签并在提交后重新发布。清理了发布流程以通过所有检查。\n❌ 因访问错误导致会话失败 05:32:07.673 | claude_code 用户发送了“仅回复 OK”命令，但 AI 返回了组织访问错误消息。会话立即结束，没有产生任何有效工作。\n令牌使用 AI Usage · 2026-04-28\rClaude Code + Codex\rTotal cost$134.77\rTotal tokens183M\rOutput tokens2M\rCache read90.0%\rCost split\rClaude Code $110 ·\rCodex $25\rToken character\rCache reads 90.0% ·\rActive 10.0%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "432",
   "inLanguage": "zh",
   "datePublished": "2026-04-28T00:00:00-05:00",
   "dateModified": "2026-04-28T00:00:00-05:00",
@@ -252,15 +252,15 @@
     </h1>
     <div class="post-meta">
 
-<span title='2026-04-28 00:00:00 -0500 -0500'>2026年4月28日</span>&nbsp;·&nbsp;<span>2 分钟</span>
+<span title='2026-04-28 00:00:00 -0500 -0500'>2026年4月28日</span>&nbsp;·&nbsp;<span>3 分钟</span>
 
 </div>
   </header> 
   <div class="post-content md-content"><h1 id="每日报告--2026-04-28">每日报告 — 2026-04-28<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-04-28">#</a></h1>
 <h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
 <ul>
-<li><strong>完成事项：</strong> 发布了 TokenMonitor v0.12.1，包含关键窗口行为修复（500px 滚动阈值限制）、UI优化（SSH 同步标签）以及 CI/CD 合规性修复（cargo fmt 和 clippy）</li>
-<li><strong>实现方式：</strong> 通过添加固定常量 SCROLL_THRESHOLD_CAP 修改窗口尺寸逻辑，添加单元测试，更新 UI 组件，修复 Rust 格式和 lint 问题，管理 git 标签和 GitHub 发布流程</li>
+<li><strong>完成事项：</strong> 发布了 TokenMonitor v0.12.1，包含关键窗口行为修复（500px 滚动阈值限制）、UI优化（SSH 同步标签）以及 CI/CD 合规修复（cargo fmt 和 clippy）</li>
+<li><strong>实现方式：</strong> 通过添加固定常量 SCROLL_THRESHOLD_CAP 修改窗口尺寸逻辑，增加单元测试，更新 UI 组件，修复 Rust 格式和 lint 问题，管理 git 标签和 GitHub 发布流程</li>
 <li><strong>影响：</strong> 解决了导致窗口底部从任务栏偏移的用户界面窗口定位问题；通过更清晰的同步按钮标签提升了用户体验；确保发布通过多平台分布的 CI 检查</li>
 </ul>
 <h3 id="desktoplinux">DesktopLinux<a hidden class="anchor" aria-hidden="true" href="#desktoplinux">#</a></h3>
@@ -272,37 +272,37 @@
 <h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
 <ul>
 <li><strong>完成事项：</strong> 完成了 TokenMonitor Tauri 应用的完整功能实现、发布管理和 CI 修复</li>
-<li><strong>实现方式：</strong> 在 TypeScript/Svelte 中实现滚动阈值限制（包含测试），添加 UI 文本标签，对三个配置文件进行版本升级，管理 git 标签/提交，修复 Rust 格式和 clippy 警告</li>
-<li><strong>影响：</strong> 成功发布 v0.12.1，修复了窗口行为问题并提升了用户体验；建立了用于自动化跨平台构建的干净 CI 管道</li>
+<li><strong>实现方式：</strong> 在 TypeScript/Svelte 中实现滚动阈值限制（含测试），添加 UI 文本标签，对三个配置文件进行版本升级，管理 git 标签/提交，修复 Rust 格式和 clippy 警告</li>
+<li><strong>影响：</strong> 成功发布 v0.12.1，修复了窗口行为问题并提升了用户体验；建立了干净的 CI 流水线以实现自动化跨平台构建</li>
 </ul>
 <blockquote>
-<p>发布了 TokenMonitor v0.12.1，包含窗口调整修复、UI 优化和 CI 合规性改进</p>
+<p>发布了 TokenMonitor v0.12.1，包含窗口调整修复、UI 优化和 CI 合规改进</p>
 </blockquote>
 <h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
 <h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
 <ul>
-<li>✅ <strong>通过 500px 滚动阈值限制修复窗口调整行为</strong> — 添加了 SCROLL_THRESHOLD_CAP 常量并修改 resolveScrollThresholdHeight，防止窗口调整超过 500px；内容改为滚动显示。包含3个新单元测试，涵盖阈值逻辑、基于比例的值和回退行为</li>
+<li>✅ <strong>通过 500px 滚动阈值限制修复窗口调整行为</strong> — 添加了 SCROLL_THRESHOLD_CAP 常量并修改 resolveScrollThresholdHeight，防止窗口调整超过 500px；内容改为滚动显示。包含3个新单元测试，覆盖阈值逻辑、基于比例的计算和回退行为</li>
 <li>✅ <strong>在 GitHub 发布 v0.12.1</strong> — 对 package.json、Cargo.toml 和 tauri.conf.json 进行版本升级；创建 git 提交、标签并推送到 origin，触发发布流程</li>
-<li>✅ <strong>在 CI 修复后重新发布 v0.12.1</strong> — 本地和远程删除旧的 v0.12.1 标签，提交 CI 修复，重新添加标签并推送以触发干净的 CI 构建</li>
+<li>✅ <strong>在 CI 修复后重新发布 v0.12.1</strong> — 本地和远程删除旧的 v0.12.1 标签，提交 CI 修复，重新打标签并推送以触发干净的 CI 构建</li>
 </ul>
 <h3 id="实现与修复">实现与修复<a hidden class="anchor" aria-hidden="true" href="#实现与修复">#</a></h3>
 <ul>
-<li>✅ <strong>修复 window.rs 中的 cargo fmt 违规</strong> — 使用 rustfmt 修复 CI 标记的导入顺序和行长度违规；仅进行格式调整，未修改逻辑</li>
+<li>✅ <strong>修复 window.rs 中的 cargo fmt 违规</strong> — 使用 rustfmt 修复 CI 标记的导入顺序和行长度问题；仅进行格式调整，未修改逻辑</li>
 <li>✅ <strong>修复 clippy 不必要的 return 警告</strong> — 在 config.rs launch_cursor 函数中删除不必要的 &lsquo;return&rsquo; 关键字（第 182、221 行），以通过 clippy lint 检查并消除 -D 警告</li>
-<li>✅ <strong>在 SSH Host 同步按钮添加 &lsquo;Sync&rsquo; 标签</strong> — 在 SshHostsSettings 组件中同步图标旁添加文本标签，使用适当的样式（8px Inter 字体，2px 边距）提升用户体验</li>
+<li>✅ <strong>在 SSH Host 同步按钮添加 &lsquo;Sync&rsquo; 标签</strong> — 在 SshHostsSettings 组件中同步图标旁添加文本标签，使用合适的样式（8px Inter 字体，2px 边距）以提升用户体验</li>
 </ul>
 <h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
 <h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
-<h4 id="1-当悬停在图表条上时细节面板扩展导致窗口调整窗口底部从任务栏偏移">1. 当悬停在图表条上时，细节面板扩展导致窗口调整，窗口底部从任务栏偏移<a hidden class="anchor" aria-hidden="true" href="#1-当悬停在图表条上时细节面板扩展导致窗口调整窗口底部从任务栏偏移">#</a></h4>
-<p><strong>解决方案：</strong> 引入 SCROLL_THRESHOLD_CAP = 500 常量；修改 resolveScrollThresholdHeight 以返回基于比例计算的最小值和阈值；内容现在在固定高度的窗口内滚动，而不是调整大小</p>
+<h4 id="1-当悬停在图表条上时细节面板扩展导致窗口调整使窗口底部从任务栏偏移">1. 当悬停在图表条上时，细节面板扩展导致窗口调整，使窗口底部从任务栏偏移<a hidden class="anchor" aria-hidden="true" href="#1-当悬停在图表条上时细节面板扩展导致窗口调整使窗口底部从任务栏偏移">#</a></h4>
+<p><strong>解决方案：</strong> 引入 SCROLL_THRESHOLD_CAP = 500 常量；修改 resolveScrollThresholdHeight 以返回基于比例计算的最小值和阈值；内容现在在固定高度的窗口内滚动，而非调整大小</p>
 <p><strong>关键洞察：</strong> 用户指定的固定阈值（500px）可在所有显示器尺寸下提供可预测的行为，而现有的滚动机制处理溢出情况；基于比例的方法（0.75 * 工作区域）在较大显示器上过于宽松</p>
-<h4 id="2-初始-v0121-发布因-cargo-fmt-和-clippy-的-ci-检查失败">2. 初始 v0.12.1 发布因 cargo fmt 和 clippy 的 CI 检查失败<a hidden class="anchor" aria-hidden="true" href="#2-初始-v0121-发布因-cargo-fmt-和-clippy-的-ci-检查失败">#</a></h4>
+<h4 id="2-初始-v0121-发布未能通过-cargo-fmt-和-clippy-的-ci-检查">2. 初始 v0.12.1 发布未能通过 cargo fmt 和 clippy 的 CI 检查<a hidden class="anchor" aria-hidden="true" href="#2-初始-v0121-发布未能通过-cargo-fmt-和-clippy-的-ci-检查">#</a></h4>
 <p><strong>解决方案：</strong> 对 window.rs 应用 cargo fmt 以修复导入顺序和行宽限制；删除 config.rs 中的不必要的 return 语句；删除旧标签并重新发布以修复问题</p>
-<p><strong>关键洞察：</strong> 预发布本地验证应包含完整的 CI 检查套件（fmt、带有 -D 警告的 clippy），以避免标签变动；rustfmt 和 clippy 规则在 CI 管道中是不可妥协的</p>
+<p><strong>关键洞察：</strong> 预发布本地验证应包含完整的 CI 检查套件（fmt、带有 -D 警告的 clippy），以避免标签变更；rustfmt 和 clippy 规则在 CI 流水线中是不可妥协的</p>
 <h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
 <h4 id="3-编辑工具在尝试更新版本号时出现文件尚未读取错误">3. 编辑工具在尝试更新版本号时出现“文件尚未读取”错误<a hidden class="anchor" aria-hidden="true" href="#3-编辑工具在尝试更新版本号时出现文件尚未读取错误">#</a></h4>
 <p><strong>解决方案：</strong> 在编辑前读取所有三个版本文件（package.json、Cargo.toml、tauri.conf.json）；工具在写入前需要读取操作</p>
-<p><strong>关键洞察：</strong> Claude Code Edit 工具有严格的先读后写要求；工作流程应为：读取 → 编辑，而不是直接编辑</p>
+<p><strong>关键洞察：</strong> Claude Code Edit 工具有严格的“读取后写入”要求；工作流程应为：读取 → 编辑，而不是直接编辑</p>
 <h2 id="人类与-ai-方法">人类与 AI 方法<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法">#</a></h2>
 <h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
 <h4 id="窗口调整修复方法">窗口调整修复方法<a hidden class="anchor" aria-hidden="true" href="#窗口调整修复方法">#</a></h4>
@@ -316,15 +316,15 @@
   <tbody>
       <tr>
           <td>人类</td>
-          <td>提出简单的解决方案：设置固定的 500px 高度限制，使用滚动处理溢出情况</td>
+          <td>提出简单解决方案：设置固定的 500px 高度限制，使用滚动处理溢出情况</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>通过添加常量并修改现有的滚动阈值计算以使用 Math.min 实现人类的解决方案</td>
+          <td>通过添加常量并修改现有的滚动阈值计算逻辑以使用 Math.min，实现人类方案</td>
       </tr>
   </tbody>
 </table>
-<p><strong>差异分析：</strong> 人类识别问题并给出确切解决方案（500px 限制）；AI 执行实现并添加了全面的测试覆盖</p>
+<p><strong>差异分析：</strong> 人类识别问题并给出确切解决方案（500px 限制）；AI 执行实现并增加全面的测试覆盖</p>
 <h4 id="ci-失败后的发布管理">CI 失败后的发布管理<a hidden class="anchor" aria-hidden="true" href="#ci-失败后的发布管理">#</a></h4>
 <table>
   <thead>
@@ -344,43 +344,138 @@
       </tr>
   </tbody>
 </table>
-<p><strong>差异分析：</strong> 人类通过删除和重建标签来维护干净的 git 历史，而非修改；体现了对公共发布标签不可变性最佳实践的理解</p>
+<p><strong>差异分析：</strong> 人类通过删除和重建标签而非修改来保持干净的 git 历史，表明理解公共发布标签不可变性最佳实践</p>
 <h2 id="ai-限制">AI 限制<a hidden class="anchor" aria-hidden="true" href="#ai-限制">#</a></h2>
 <h3 id="关键限制">关键限制<a hidden class="anchor" aria-hidden="true" href="#关键限制">#</a></h3>
 <ul>
-<li>在初始发布标签前没有主动进行本地 cargo fmt/clippy 检查，导致 CI 失败和标签变动</li>
+<li>在初始发布标签前没有主动进行本地 cargo fmt/clippy 检查，导致 CI 失败和标签变更</li>
 </ul>
 <h3 id="一般限制">一般限制<a hidden class="anchor" aria-hidden="true" href="#一般限制">#</a></h3>
 <ul>
-<li>试图编辑文件而不先读取，违反了工具要求；必须在编辑前通过读取操作重试</li>
-<li>DesktopLinux 上认证失败（“您的组织无法访问 Claude”），但未提供任何故障排除指导</li>
+<li>试图编辑文件而不先读取，违反工具要求；必须在编辑前通过读取操作重试</li>
+<li>DesktopLinux 上认证失败（“您的组织无法访问 Claude”），但未提供任何故障排除建议</li>
 </ul>
-<h2 id="学习成果">学习成果<a hidden class="anchor" aria-hidden="true" href="#学习成果">#</a></h2>
-<h3 id="关键学习点">关键学习点<a hidden class="anchor" aria-hidden="true" href="#关键学习点">#</a></h3>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="关键经验">关键经验<a hidden class="anchor" aria-hidden="true" href="#关键经验">#</a></h3>
 <ul>
-<li>预发布验证必须在本地包含完整的 CI 检查套件；cargo fmt &ndash;check 和 cargo clippy &ndash; -D 警告可防止标签变动并维护干净的发布历史</li>
-<li>硬编码的 UI 阈值比基于比例的计算更可预测，适用于跨设备一致性；500px 限制确保 1080p、1440p 和 4K 显示器下的统一行为</li>
-<li>公共发布的 git 标签管理需要删除/重建流程（git tag -d、git push &ndash;delete、重新添加标签、推送），而非 force-push 或 amend 以保持完整性</li>
+<li>预发布验证必须在本地包含完整的 CI 检查套件；cargo fmt &ndash;check 和 cargo clippy &ndash; -D 警告可防止标签变更并保持干净的发布历史</li>
+<li>硬编码的 UI 阈值比基于比例的计算更可预测，适用于跨设备一致性；500px 限制确保 1080p、1440p 和 4K 显示器下行为一致</li>
+<li>公共发布的 git 标签管理需要删除/重建流程（git tag -d、git push &ndash;delete、重新打标签、推送），而不是 force-push 或 amend 以保持完整性</li>
 </ul>
-<h3 id="实际学习点">实际学习点<a hidden class="anchor" aria-hidden="true" href="#实际学习点">#</a></h3>
+<h3 id="实际经验">实际经验<a hidden class="anchor" aria-hidden="true" href="#实际经验">#</a></h3>
 <ul>
 <li>MCP 工具（mcp__hex-line__edit_file）和标准编辑工具有不同的读取要求；MCP 工具在读取操作中接受 edit_ready 标志，以简化工作流程</li>
 </ul>
 <h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
 <p><strong>✅ 修复窗口调整错误并添加同步标签</strong>
 <em>00:22:49.471 | claude_code</em>
-用户要求设置固定的 500px 高度限制，防止悬停在图表上时窗口调整；AI 添加了带有单元测试的 SCROLL_THRESHOLD_CAP 常量。然后用户要求在 SSH Host 同步按钮旁添加 &lsquo;Sync&rsquo; 文本标签；AI 添加了具有适当样式的标签。会话中包含了在实施前经过审批的计划模式工作流程**✅ 将 v0.12.1 发布到 GitHub**
+用户要求设置固定的 500px 高度限制，以防止悬停在图表上时窗口调整；AI 添加了带有单元测试的 SCROLL_THRESHOLD_CAP 常量。然后用户要求在 SSH Host 同步按钮旁添加 &lsquo;Sync&rsquo; 文本标签；AI 添加了具有合适样式的标签。会话中包含了在实施前进行审批的规划模式流程**✅ 将 v0.12.1 发布到 GitHub**
 <em>01:28:02.537 | claude_code</em>
-用户要求对 v0.12.1 进行标记并推送到 GitHub。AI 修改了 package.json、Cargo.toml 和 tauri.conf.json 中的版本号，提交更改后创建标签并推送到源仓库。由于工具限制，首先读取版本文件，然后执行标准发布流程以触发 CI 流水线。</p>
-<p><strong>✅ 修复 CI 失败并重新发布 v0.12.1</strong>
+用户要求对 v0.12.1 进行标记并推送到 GitHub。AI 修改了 package.json、Cargo.toml 和 tauri.conf.json 中的版本号，提交更改，创建标签后推送到源仓库。由于工具限制，首先读取版本文件，然后执行标准发布流程以触发 CI 管道。</p>
+<p><strong>✅ 解决 CI 失败问题并重新发布 v0.12.1</strong>
 <em>04:59:14.431 | claude_code</em>
-用户报告了 CI 日志中的 cargo fmt 和 clippy 失败问题。AI 对 window.rs 进行了 cargo fmt 处理（调整导入顺序、换行规则），删除了 clippy 指出的 config.rs 中不必要的返回语句，在本地验证后删除旧的 v0.12.1 标签，并在提交后重新发布。清理了发布流程以通过所有检查。</p>
+用户报告了 CI 日志中的 cargo fmt 和 clippy 失败问题。AI 对 window.rs 应用了 cargo fmt 优化（导入顺序、行宽限制），删除了 clippy 指出的 config.rs 中不必要的返回语句，在本地验证后，删除旧的 v0.12.1 标签并在提交后重新发布。清理了发布流程以通过所有检查。</p>
 <p><strong>❌ 因访问错误导致会话失败</strong>
 <em>05:32:07.673 | claude_code</em>
 用户发送了“仅回复 OK”命令，但 AI 返回了组织访问错误消息。会话立即结束，没有产生任何有效工作。</p>
-<h2 id="代币使用情况">代币使用情况<a hidden class="anchor" aria-hidden="true" href="#代币使用情况">#</a></h2>
-<p><strong>总计：40.36 美元</strong> — 2700 万代币</p>
-<!-- gadget:src-hash:75449d2fee8a4552 -->
+<h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-04-28</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$134.77</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>183M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>2M</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>90.0%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $110</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $25</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (81.3%), Codex (18.7%)">
+          <span style="width:81.3%; background:var(--usage-cost-main)"></span>
+          <span style="width:18.7%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 90.0%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 10.0%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (90.0%), active tokens (10.0%)">
+          <span style="width:90.0%; background:var(--usage-cache)"></span>
+          <span style="width:10.0%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:e251002daff2998c -->
 
 
   </div>
