@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Weekly Summary 2026-W26 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal, Weekly Summary">
+<meta name="description" content="本周重点在于稳定核心人工智能基础设施、推进机器人视觉研究，以及完成空间转录组评估工作。AI Companion框架中的关键并发错误已得到解决，跨平台钩子集成也取得了成功。机器人验证表明，冻结的VLM需要参数优化或候选选择方法才能实现零样本视觉指令生成；而MIHD分析则明确指出了JEPA嵌入式的局限性，支持使用PCA进行小样本聚类。基础设施改进包括加密的DAG可视化部署、安全的服务器引入自动化流程，以及全面的环境迁移至WSL2/Linux。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w26-weekly/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/weekly/2026-w26-weekly/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w26-weekly/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w26-weekly/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Weekly Summary 2026-W26">
+  <meta property="og:description" content="本周重点在于稳定核心人工智能基础设施、推进机器人视觉研究，以及完成空间转录组评估工作。AI Companion框架中的关键并发错误已得到解决，跨平台钩子集成也取得了成功。机器人验证表明，冻结的VLM需要参数优化或候选选择方法才能实现零样本视觉指令生成；而MIHD分析则明确指出了JEPA嵌入式的局限性，支持使用PCA进行小样本聚类。基础设施改进包括加密的DAG可视化部署、安全的服务器引入自动化流程，以及全面的环境迁移至WSL2/Linux。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-06-28T23:59:00-05:00">
+    <meta property="article:modified_time" content="2026-06-28T23:59:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Weekly Summary 2026-W26">
+  <meta name="twitter:description" content="本周重点在于稳定核心人工智能基础设施、推进机器人视觉研究，以及完成空间转录组评估工作。AI Companion框架中的关键并发错误已得到解决，跨平台钩子集成也取得了成功。机器人验证表明，冻结的VLM需要参数优化或候选选择方法才能实现零样本视觉指令生成；而MIHD分析则明确指出了JEPA嵌入式的局限性，支持使用PCA进行小样本聚类。基础设施改进包括加密的DAG可视化部署、安全的服务器引入自动化流程，以及全面的环境迁移至WSL2/Linux。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Weekly Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/weekly/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Weekly Summary 2026-W26",
+      "item": "https://tzj2006.github.io/zh/bugjournal/weekly/2026-w26-weekly/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Weekly Summary 2026-W26",
+  "name": "Weekly Summary 2026-W26",
+  "description": "本周重点在于稳定核心人工智能基础设施、推进机器人视觉研究，以及完成空间转录组评估工作。AI Companion框架中的关键并发错误已得到解决，跨平台钩子集成也取得了成功。机器人验证表明，冻结的VLM需要参数优化或候选选择方法才能实现零样本视觉指令生成；而MIHD分析则明确指出了JEPA嵌入式的局限性，支持使用PCA进行小样本聚类。基础设施改进包括加密的DAG可视化部署、安全的服务器引入自动化流程，以及全面的环境迁移至WSL2/Linux。",
+  "keywords": [
+    "Bug Journal", "Weekly Summary"
+  ],
+  "articleBody": "每周报告 — 2026-W26（2026-06-22 ~ 2026-06-28） 本周重点在于稳定核心AI基础设施、推进机器人视觉研究以及完成空间转录组评估。AI Companion框架中的关键并发错误已解决，跨平台钩子集成也取得成功。机器人验证表明，冻结的VLM需要参数优化或候选选择方法才能生成零样本视觉指令，而MIHD分析明确指出了JEPA嵌入式的局限性，更适合用于小样本聚类时的PCA算法。基础设施改进包括加密的DAG可视化部署、安全服务器自动上架以及完整的环境迁移至WSL2/Linux。\n每周概览 指标 数值 日期范围 2026-06-22 ~ 2026-06-28 活跃天数 5 / 7 总对话数 18 项目数 18 已完成任务 39 进行中任务 6 总令牌数 651,067,850 总成本 $818.29 Claude代码令牌 607,777,964 Claude代码成本 $780.74 Codex令牌 43,289,886 Codex成本 $37.55 日平均成本 $136.38 项目进展 AI Companion框架（7天活跃） — 🔄 活跃 成就：\n解决了并发错误并实现了文件锁定单例保护机制 通过TypeScript适配器统一了Claude Code/Codex钩子模式 整合了全局技能与跨平台插件manifest 机器人与Cosmos3-Nano评估（6天活跃） — 🔄 活跃 成就：\n部署了vLLM环境并将模型权重移植到Tianhe-2上 执行了视觉指令A/B测试，实现了参数优化 对VLM奖励模型进行了与机器人模拟器（RoboCasa/LIBERO）的基准测试 阻碍因素：\n⚠️ 冻结模型在零样本坐标生成方面出现初始故障 Gadget仓库基础设施（5天活跃） — 🔄 活跃 成就：\n实现了带有StatiCrypt加密的全跨项目Live DAG流程 设计了自动的Ubuntu服务器上架工作流 重构了git历史记录并解决了分支合并差异问题 MIHD空间转录组分析（3天活跃） — ✅ 完成 成就：\n汇总了ARI指标，确认了“FM悖论”（检索与聚类之间的关系） 对JEPA进行了可行性探测，空间领域结果均为负面 将QUEST论文复现图与原始配置对齐 桌面视频平台（2天活跃） — 解决 成就：\n完成了对抗性安全审查和SlideshowController错误修复 打包了v5.0预览版本DMG，采用自定义布局 关键任务 ✅ AI Companion并发错误修复与集成（2026-06-24）— 解决了未限流后台守护进程导致的CPU拥塞问题，并将 companion模块整合为跨平台插件归入gadget单仓库。 ✅ 对Phantom Tasks中AI幻觉的审计（2026-06-25）— 通过git历史与文件系统状态对比，消除了虚假提交断言，恢复了工作流的信任基础。 ✅ 跨项目Live DAG功能实现（2026-06-25）— 构建了端到端的注册表、聚合器及加密部署流程，支持全景缩放和筛选界面可视化。 ✅ 机器人成功检测基准测试（2026-06-23）— 在模拟器上对Cosmos-Reason1与RoboReward进行了对比测试；确认需要针对零样本迁移和冷启动初始化进行微调。 ✅ JEPA对MIHD的可行性分析（2026-06-23）— 调查了JEPA在空间组学中的应用情况；确认由于各向异性与库大小偏差，嵌入式模型在空间聚类方面表现不佳。 ✅ 视觉指令参数优化（2026-06-27）— 诊断了VLM输出中的坐标错位问题；实现了标准化提示词、放大输入以及温度控制，以进行确定性评估。 ✅ 实现ccplan→ccedit计划可视化功能（2026-06-25）— 通过扁平函数渲染和宽松解析器增强了工作流计划显示，在规划阶段绕过严格的类型验证。 ✅ 解决AI Companion双代理钩子兼容性问题（2026-06-22）— 修复了工具名称不匹配、文件路径处理及Windows stdin/BOM问题，实现Claude/Codex负载的标准化处理。 ✅ 修复Windows下翻译应用启动崩溃问题（2026-06-25）— 通过绕过localhost路由和通过stdlib解析DOCX文件，解决了httpx代理拒绝和WeasyPrint/Marker依赖失败问题。 ✅ 将RoboCasa/wm_detect部署到Tianhe-2集群（2026-06-22）— 打包了仓库，在远程服务器上验证完整性，安装了vllm==0.19.1带Cosmos3插件，并启用了GPU OpenGL渲染。 问题与解决方案 1. 后台守护进程启动（‘collect-report-data.ts’）导致严重的CPU拥塞和静默资源消耗。[AI Companion框架]（2026-06-24） 解决方案： 实现了文件锁定单例保护机制，防止重复执行；通过CLI追踪进程树以隔离并终止根源。\n2. AI根据上下文压缩伪象而非实际文件系统状态报告完成不存在的功能。[AI Companion框架]（2026-06-25） 解决方案： 强制使用直接CLI验证（‘git log’, ’ls’），确保AI输出符合现实；通过审计跟踪重置操作上下文并建立信任。\n3. 冻结的VLM（Cosmos-Reason1）在零样本空间推理方面失败，输出静态坐标而不受输入文本影响。[机器人与Cosmos3-Nano评估]（2026-06-27） 解决方案： 放弃直接生成方式，转向候选选择架构，并优化推理参数（标准化提示词、放大输入、温度=0）。\n4. GeneJEPA嵌入式模型表现出高各向异性及库大小偏差，在空间聚类方面不如PCA。[MIHD空间转录组分析]（2026-06-23） 解决方案： 进行了SVD/相关性诊断；得出结论，对于小样本领域，JEPA不可行，因此选择PCA并设计基准模型作为更优方案。\n5. 远程Cosmos3-Nano模型权重被截断，导致vLLM启动失败和过时评估数据。[机器人与Cosmos3-Nano评估]（2026-06-24） 解决方案： 使用Safetensors头信息识别损坏片段；通过跨设备同步获取替代版本，并在重新部署前验证完整性。\n经验教训 架构（architecture） 在静态托管上实施客户端加密并结合‘noindex’指令，为私有工具提供了无需基础设施分裂的实用安全模型。 单仓库后台自动化必须实施单例锁定或速率限制，以防止突发事件或手动重试导致的静默资源耗尽。 调试（debugging）- Git 合并标题并非内容包含情况的可靠指标；需要以树级方式验证。此外，仅依赖 AI 摘要而不进行外部真实数据检查会带来严重的状态差异风险。 远程模型文件可能悄无声息地损坏；在提供权重之前务必验证文件完整性（头信息/大小）。在重新启动服务前，必须通过网络工具跟踪进程状态，以避免端口冲突。 工具（tools） 使用非交互式标志用于自动化测试管道，以防止进程卡住。语义版本控制需要数值比较逻辑，且像 PROXY_BYPASS 这样的环境变量必须在启动时通过程序设置。 领域知识（domain） 在细胞数据上预训练的基础模型由于领域差异，往往无法应用于空间转录组分析。通用推理 VLM 缺乏零样本机器人迁移能力，需要微调或候选集选择策略。 AI 使用注意事项 有效模式：\n✓ 多智能体并行审计能够有效隔离大型代码库中的逻辑错误，并加速修复过程 ✓ 通过强制直接系统命令验证来减轻上下文压缩带来的问题，从而可靠地缓解任务摘要的误差 ✓ 参数化推理（归一化、温度控制）能够成功将不可用的 VLM 输出转化为可用的评估工具 限制：\n✗ AI 始终低估了明确状态基准化的需求，当上下文窗口缩小时会导致任务幻觉现象 ✗ 远程执行工具在 SSH 模式匹配和间歇性的代理隧道方面存在困难，需要人工干预来稳定系统 ✗ 自动化脚本生成偶尔会引入细微的字符串格式错误（例如符号链接路径），这些错误会绕过验证逻辑 下周计划 继续通过实施经过验证的候选集选择架构，并将时间抽象研究扩展到移动相机数据集，以推进 Robotics/Cosmos3-Nano 评估工作。通过探索除 JEPA/PCA 管道之外的替代编码器，完成 MIHD 空间组学分析，并完善更多供体切片上的 QUEST 再现指标。优化 Gadget 基础设施：完成无需 sudo 的自动服务器配置脚本，将 ccplan/ccedit 宽松解析器完全集成到生产流程中，加强部署检查点以防止未来自动化过程中 AI 工作流的幻觉现象。\n令牌使用统计 AI Usage · 2026-W26\rClaude Code + Codex\rTotal cost$818.29\rTotal tokens651M\rOutput tokens5M\rCache read87.4%\rCost split\rClaude Code $781 ·\rCodex $38\rToken character\rCache reads 87.4% ·\rActive 12.6%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r高峰日： 2026-06-23 — $322.98 / 178.1M 个令牌\n每日平均： $136.38\n",
+  "wordCount" : "260",
+  "inLanguage": "zh",
+  "datePublished": "2026-06-28T23:59:00-05:00",
+  "dateModified": "2026-06-28T23:59:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/weekly/2026-w26-weekly/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="zh"
+                        data-translation-url="https://tzj2006.github.io/bugjournal/weekly/2026-w26-weekly/">EN
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span>bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">Weekly Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Weekly Summary 2026-W26
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-06-28 23:59:00 -0500 -0500'>2026年6月28日</span>&nbsp;·&nbsp;<span>2 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每周报告--2026-w262026-06-22--2026-06-28">每周报告 — 2026-W26（2026-06-22 ~ 2026-06-28）<a hidden class="anchor" aria-hidden="true" href="#每周报告--2026-w262026-06-22--2026-06-28">#</a></h1>
+<blockquote>
+<p>本周重点在于稳定核心AI基础设施、推进机器人视觉研究以及完成空间转录组评估。AI Companion框架中的关键并发错误已解决，跨平台钩子集成也取得成功。机器人验证表明，冻结的VLM需要参数优化或候选选择方法才能生成零样本视觉指令，而MIHD分析明确指出了JEPA嵌入式的局限性，更适合用于小样本聚类时的PCA算法。基础设施改进包括加密的DAG可视化部署、安全服务器自动上架以及完整的环境迁移至WSL2/Linux。</p>
+</blockquote>
+<h2 id="每周概览">每周概览<a hidden class="anchor" aria-hidden="true" href="#每周概览">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>指标</th>
+          <th>数值</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>日期范围</td>
+          <td>2026-06-22 ~ 2026-06-28</td>
+      </tr>
+      <tr>
+          <td>活跃天数</td>
+          <td>5 / 7</td>
+      </tr>
+      <tr>
+          <td>总对话数</td>
+          <td>18</td>
+      </tr>
+      <tr>
+          <td>项目数</td>
+          <td>18</td>
+      </tr>
+      <tr>
+          <td>已完成任务</td>
+          <td>39</td>
+      </tr>
+      <tr>
+          <td>进行中任务</td>
+          <td>6</td>
+      </tr>
+      <tr>
+          <td>总令牌数</td>
+          <td>651,067,850</td>
+      </tr>
+      <tr>
+          <td>总成本</td>
+          <td>$818.29</td>
+      </tr>
+      <tr>
+          <td>Claude代码令牌</td>
+          <td>607,777,964</td>
+      </tr>
+      <tr>
+          <td>Claude代码成本</td>
+          <td>$780.74</td>
+      </tr>
+      <tr>
+          <td>Codex令牌</td>
+          <td>43,289,886</td>
+      </tr>
+      <tr>
+          <td>Codex成本</td>
+          <td>$37.55</td>
+      </tr>
+      <tr>
+          <td>日平均成本</td>
+          <td>$136.38</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="项目进展">项目进展<a hidden class="anchor" aria-hidden="true" href="#项目进展">#</a></h2>
+<h3 id="ai-companion框架7天活跃---活跃">AI Companion框架（7天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#ai-companion框架7天活跃---活跃">#</a></h3>
+<p><strong>成就：</strong></p>
+<ul>
+<li>解决了并发错误并实现了文件锁定单例保护机制</li>
+<li>通过TypeScript适配器统一了Claude Code/Codex钩子模式</li>
+<li>整合了全局技能与跨平台插件manifest</li>
+</ul>
+<h3 id="机器人与cosmos3-nano评估6天活跃---活跃">机器人与Cosmos3-Nano评估（6天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#机器人与cosmos3-nano评估6天活跃---活跃">#</a></h3>
+<p><strong>成就：</strong></p>
+<ul>
+<li>部署了vLLM环境并将模型权重移植到Tianhe-2上</li>
+<li>执行了视觉指令A/B测试，实现了参数优化</li>
+<li>对VLM奖励模型进行了与机器人模拟器（RoboCasa/LIBERO）的基准测试</li>
+</ul>
+<p><strong>阻碍因素：</strong></p>
+<ul>
+<li>⚠️ 冻结模型在零样本坐标生成方面出现初始故障</li>
+</ul>
+<h3 id="gadget仓库基础设施5天活跃---活跃">Gadget仓库基础设施（5天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#gadget仓库基础设施5天活跃---活跃">#</a></h3>
+<p><strong>成就：</strong></p>
+<ul>
+<li>实现了带有StatiCrypt加密的全跨项目Live DAG流程</li>
+<li>设计了自动的Ubuntu服务器上架工作流</li>
+<li>重构了git历史记录并解决了分支合并差异问题</li>
+</ul>
+<h3 id="mihd空间转录组分析3天活跃---完成">MIHD空间转录组分析（3天活跃） — ✅ 完成<a hidden class="anchor" aria-hidden="true" href="#mihd空间转录组分析3天活跃---完成">#</a></h3>
+<p><strong>成就：</strong></p>
+<ul>
+<li>汇总了ARI指标，确认了“FM悖论”（检索与聚类之间的关系）</li>
+<li>对JEPA进行了可行性探测，空间领域结果均为负面</li>
+<li>将QUEST论文复现图与原始配置对齐</li>
+</ul>
+<h3 id="桌面视频平台2天活跃--解决">桌面视频平台（2天活跃） — 解决<a hidden class="anchor" aria-hidden="true" href="#桌面视频平台2天活跃--解决">#</a></h3>
+<p><strong>成就：</strong></p>
+<ul>
+<li>完成了对抗性安全审查和SlideshowController错误修复</li>
+<li>打包了v5.0预览版本DMG，采用自定义布局</li>
+</ul>
+<h2 id="关键任务">关键任务<a hidden class="anchor" aria-hidden="true" href="#关键任务">#</a></h2>
+<ul>
+<li>✅ <strong>AI Companion并发错误修复与集成</strong>（2026-06-24）— 解决了未限流后台守护进程导致的CPU拥塞问题，并将 companion模块整合为跨平台插件归入gadget单仓库。</li>
+<li>✅ <strong>对Phantom Tasks中AI幻觉的审计</strong>（2026-06-25）— 通过git历史与文件系统状态对比，消除了虚假提交断言，恢复了工作流的信任基础。</li>
+<li>✅ <strong>跨项目Live DAG功能实现</strong>（2026-06-25）— 构建了端到端的注册表、聚合器及加密部署流程，支持全景缩放和筛选界面可视化。</li>
+<li>✅ <strong>机器人成功检测基准测试</strong>（2026-06-23）— 在模拟器上对Cosmos-Reason1与RoboReward进行了对比测试；确认需要针对零样本迁移和冷启动初始化进行微调。</li>
+<li>✅ <strong>JEPA对MIHD的可行性分析</strong>（2026-06-23）— 调查了JEPA在空间组学中的应用情况；确认由于各向异性与库大小偏差，嵌入式模型在空间聚类方面表现不佳。</li>
+<li>✅ <strong>视觉指令参数优化</strong>（2026-06-27）— 诊断了VLM输出中的坐标错位问题；实现了标准化提示词、放大输入以及温度控制，以进行确定性评估。</li>
+<li>✅ <strong>实现ccplan→ccedit计划可视化功能</strong>（2026-06-25）— 通过扁平函数渲染和宽松解析器增强了工作流计划显示，在规划阶段绕过严格的类型验证。</li>
+<li>✅ <strong>解决AI Companion双代理钩子兼容性问题</strong>（2026-06-22）— 修复了工具名称不匹配、文件路径处理及Windows stdin/BOM问题，实现Claude/Codex负载的标准化处理。</li>
+<li>✅ <strong>修复Windows下翻译应用启动崩溃问题</strong>（2026-06-25）— 通过绕过localhost路由和通过stdlib解析DOCX文件，解决了httpx代理拒绝和WeasyPrint/Marker依赖失败问题。</li>
+<li>✅ <strong>将RoboCasa/wm_detect部署到Tianhe-2集群</strong>（2026-06-22）— 打包了仓库，在远程服务器上验证完整性，安装了vllm==0.19.1带Cosmos3插件，并启用了GPU OpenGL渲染。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="1-后台守护进程启动collect-report-datats导致严重的cpu拥塞和静默资源消耗ai-companion框架2026-06-24">1. 后台守护进程启动（&lsquo;collect-report-data.ts&rsquo;）导致严重的CPU拥塞和静默资源消耗。[AI Companion框架]（2026-06-24）<a hidden class="anchor" aria-hidden="true" href="#1-后台守护进程启动collect-report-datats导致严重的cpu拥塞和静默资源消耗ai-companion框架2026-06-24">#</a></h3>
+<p><strong>解决方案：</strong> 实现了文件锁定单例保护机制，防止重复执行；通过CLI追踪进程树以隔离并终止根源。</p>
+<h3 id="2-ai根据上下文压缩伪象而非实际文件系统状态报告完成不存在的功能ai-companion框架2026-06-25">2. AI根据上下文压缩伪象而非实际文件系统状态报告完成不存在的功能。[AI Companion框架]（2026-06-25）<a hidden class="anchor" aria-hidden="true" href="#2-ai根据上下文压缩伪象而非实际文件系统状态报告完成不存在的功能ai-companion框架2026-06-25">#</a></h3>
+<p><strong>解决方案：</strong> 强制使用直接CLI验证（&lsquo;git log&rsquo;, &rsquo;ls&rsquo;），确保AI输出符合现实；通过审计跟踪重置操作上下文并建立信任。</p>
+<h3 id="3-冻结的vlmcosmos-reason1在零样本空间推理方面失败输出静态坐标而不受输入文本影响机器人与cosmos3-nano评估2026-06-27">3. 冻结的VLM（Cosmos-Reason1）在零样本空间推理方面失败，输出静态坐标而不受输入文本影响。[机器人与Cosmos3-Nano评估]（2026-06-27）<a hidden class="anchor" aria-hidden="true" href="#3-冻结的vlmcosmos-reason1在零样本空间推理方面失败输出静态坐标而不受输入文本影响机器人与cosmos3-nano评估2026-06-27">#</a></h3>
+<p><strong>解决方案：</strong> 放弃直接生成方式，转向候选选择架构，并优化推理参数（标准化提示词、放大输入、温度=0）。</p>
+<h3 id="4-genejepa嵌入式模型表现出高各向异性及库大小偏差在空间聚类方面不如pcamihd空间转录组分析2026-06-23">4. GeneJEPA嵌入式模型表现出高各向异性及库大小偏差，在空间聚类方面不如PCA。[MIHD空间转录组分析]（2026-06-23）<a hidden class="anchor" aria-hidden="true" href="#4-genejepa嵌入式模型表现出高各向异性及库大小偏差在空间聚类方面不如pcamihd空间转录组分析2026-06-23">#</a></h3>
+<p><strong>解决方案：</strong> 进行了SVD/相关性诊断；得出结论，对于小样本领域，JEPA不可行，因此选择PCA并设计基准模型作为更优方案。</p>
+<h3 id="5-远程cosmos3-nano模型权重被截断导致vllm启动失败和过时评估数据机器人与cosmos3-nano评估2026-06-24">5. 远程Cosmos3-Nano模型权重被截断，导致vLLM启动失败和过时评估数据。[机器人与Cosmos3-Nano评估]（2026-06-24）<a hidden class="anchor" aria-hidden="true" href="#5-远程cosmos3-nano模型权重被截断导致vllm启动失败和过时评估数据机器人与cosmos3-nano评估2026-06-24">#</a></h3>
+<p><strong>解决方案：</strong> 使用Safetensors头信息识别损坏片段；通过跨设备同步获取替代版本，并在重新部署前验证完整性。</p>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="架构architecture">架构（architecture）<a hidden class="anchor" aria-hidden="true" href="#架构architecture">#</a></h3>
+<ul>
+<li>在静态托管上实施客户端加密并结合‘noindex’指令，为私有工具提供了无需基础设施分裂的实用安全模型。</li>
+<li>单仓库后台自动化必须实施单例锁定或速率限制，以防止突发事件或手动重试导致的静默资源耗尽。</li>
+</ul>
+<h3 id="调试debugging--git-合并标题并非内容包含情况的可靠指标需要以树级方式验证此外仅依赖-ai-摘要而不进行外部真实数据检查会带来严重的状态差异风险">调试（debugging）- Git 合并标题并非内容包含情况的可靠指标；需要以树级方式验证。此外，仅依赖 AI 摘要而不进行外部真实数据检查会带来严重的状态差异风险。<a hidden class="anchor" aria-hidden="true" href="#调试debugging--git-合并标题并非内容包含情况的可靠指标需要以树级方式验证此外仅依赖-ai-摘要而不进行外部真实数据检查会带来严重的状态差异风险">#</a></h3>
+<ul>
+<li>远程模型文件可能悄无声息地损坏；在提供权重之前务必验证文件完整性（头信息/大小）。在重新启动服务前，必须通过网络工具跟踪进程状态，以避免端口冲突。</li>
+</ul>
+<h3 id="工具tools">工具（tools）<a hidden class="anchor" aria-hidden="true" href="#工具tools">#</a></h3>
+<ul>
+<li>使用非交互式标志用于自动化测试管道，以防止进程卡住。语义版本控制需要数值比较逻辑，且像 PROXY_BYPASS 这样的环境变量必须在启动时通过程序设置。</li>
+</ul>
+<h3 id="领域知识domain">领域知识（domain）<a hidden class="anchor" aria-hidden="true" href="#领域知识domain">#</a></h3>
+<ul>
+<li>在细胞数据上预训练的基础模型由于领域差异，往往无法应用于空间转录组分析。通用推理 VLM 缺乏零样本机器人迁移能力，需要微调或候选集选择策略。</li>
+</ul>
+<h2 id="ai-使用注意事项">AI 使用注意事项<a hidden class="anchor" aria-hidden="true" href="#ai-使用注意事项">#</a></h2>
+<p><strong>有效模式：</strong></p>
+<ul>
+<li>✓ 多智能体并行审计能够有效隔离大型代码库中的逻辑错误，并加速修复过程</li>
+<li>✓ 通过强制直接系统命令验证来减轻上下文压缩带来的问题，从而可靠地缓解任务摘要的误差</li>
+<li>✓ 参数化推理（归一化、温度控制）能够成功将不可用的 VLM 输出转化为可用的评估工具</li>
+</ul>
+<p><strong>限制：</strong></p>
+<ul>
+<li>✗ AI 始终低估了明确状态基准化的需求，当上下文窗口缩小时会导致任务幻觉现象</li>
+<li>✗ 远程执行工具在 SSH 模式匹配和间歇性的代理隧道方面存在困难，需要人工干预来稳定系统</li>
+<li>✗ 自动化脚本生成偶尔会引入细微的字符串格式错误（例如符号链接路径），这些错误会绕过验证逻辑</li>
+</ul>
+<h2 id="下周计划">下周计划<a hidden class="anchor" aria-hidden="true" href="#下周计划">#</a></h2>
+<p>继续通过实施经过验证的候选集选择架构，并将时间抽象研究扩展到移动相机数据集，以推进 Robotics/Cosmos3-Nano 评估工作。通过探索除 JEPA/PCA 管道之外的替代编码器，完成 MIHD 空间组学分析，并完善更多供体切片上的 QUEST 再现指标。优化 Gadget 基础设施：完成无需 sudo 的自动服务器配置脚本，将 ccplan/ccedit 宽松解析器完全集成到生产流程中，加强部署检查点以防止未来自动化过程中 AI 工作流的幻觉现象。</p>
+<h2 id="令牌使用统计">令牌使用统计<a hidden class="anchor" aria-hidden="true" href="#令牌使用统计">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-W26</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$818.29</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>651M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>5M</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>87.4%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $781</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $38</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (95.4%), Codex (4.6%)">
+          <span style="width:95.4%; background:var(--usage-cost-main)"></span>
+          <span style="width:4.6%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 87.4%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 12.6%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (87.4%), active tokens (12.6%)">
+          <span style="width:87.4%; background:var(--usage-cache)"></span>
+          <span style="width:12.6%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<p><strong>高峰日：</strong> 2026-06-23 — $322.98 / 178.1M 个令牌</p>
+<p><strong>每日平均：</strong> $136.38</p>
+<!-- gadget:src-hash:3f143f787a0c546e -->
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
