@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Weekly Summary 2026-W24 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal, Weekly Summary">
+<meta name="description" content="本周在基准测试、机器人技术和应用工程领域发生了重大转变，从协议调整转向实际执行。Error Recovery Benchmark通过将评估指标建立在权威的M16/Panorama框架上，成功纠正了关键的规格偏差，使得其在Tianhe2上的部署具有统计有效性。与此同时，Gadget生态系统完成了向ccusage 20.x的全面架构迁移，同时修复了58个漏洞，主要针对缓存中毒和异常处理漏洞。应用开发方面实现了对TokenMonitor（CPU热点解决）和Desktop Video（符合Apple标准的UI设计）的高影响力优化；而基础设施诊断则解决了硬件误报问题以及Secure Boot驱动冲突问题。AI策略工作整合了可操作的JEPA方向，并通过广泛的统计测试严格验证了UNI2相较于随机基线的优势。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w24-weekly/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/weekly/2026-w24-weekly/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w24-weekly/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w24-weekly/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Weekly Summary 2026-W24">
+  <meta property="og:description" content="本周在基准测试、机器人技术和应用工程领域发生了重大转变，从协议调整转向实际执行。Error Recovery Benchmark通过将评估指标建立在权威的M16/Panorama框架上，成功纠正了关键的规格偏差，使得其在Tianhe2上的部署具有统计有效性。与此同时，Gadget生态系统完成了向ccusage 20.x的全面架构迁移，同时修复了58个漏洞，主要针对缓存中毒和异常处理漏洞。应用开发方面实现了对TokenMonitor（CPU热点解决）和Desktop Video（符合Apple标准的UI设计）的高影响力优化；而基础设施诊断则解决了硬件误报问题以及Secure Boot驱动冲突问题。AI策略工作整合了可操作的JEPA方向，并通过广泛的统计测试严格验证了UNI2相较于随机基线的优势。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-06-14T23:59:00-05:00">
+    <meta property="article:modified_time" content="2026-06-14T23:59:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Weekly Summary 2026-W24">
+  <meta name="twitter:description" content="本周在基准测试、机器人技术和应用工程领域发生了重大转变，从协议调整转向实际执行。Error Recovery Benchmark通过将评估指标建立在权威的M16/Panorama框架上，成功纠正了关键的规格偏差，使得其在Tianhe2上的部署具有统计有效性。与此同时，Gadget生态系统完成了向ccusage 20.x的全面架构迁移，同时修复了58个漏洞，主要针对缓存中毒和异常处理漏洞。应用开发方面实现了对TokenMonitor（CPU热点解决）和Desktop Video（符合Apple标准的UI设计）的高影响力优化；而基础设施诊断则解决了硬件误报问题以及Secure Boot驱动冲突问题。AI策略工作整合了可操作的JEPA方向，并通过广泛的统计测试严格验证了UNI2相较于随机基线的优势。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Weekly Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/weekly/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Weekly Summary 2026-W24",
+      "item": "https://tzj2006.github.io/zh/bugjournal/weekly/2026-w24-weekly/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Weekly Summary 2026-W24",
+  "name": "Weekly Summary 2026-W24",
+  "description": "本周在基准测试、机器人技术和应用工程领域发生了重大转变，从协议调整转向实际执行。Error Recovery Benchmark通过将评估指标建立在权威的M16/Panorama框架上，成功纠正了关键的规格偏差，使得其在Tianhe2上的部署具有统计有效性。与此同时，Gadget生态系统完成了向ccusage 20.x的全面架构迁移，同时修复了58个漏洞，主要针对缓存中毒和异常处理漏洞。应用开发方面实现了对TokenMonitor（CPU热点解决）和Desktop Video（符合Apple标准的UI设计）的高影响力优化；而基础设施诊断则解决了硬件误报问题以及Secure Boot驱动冲突问题。AI策略工作整合了可操作的JEPA方向，并通过广泛的统计测试严格验证了UNI2相较于随机基线的优势。",
+  "keywords": [
+    "Bug Journal", "Weekly Summary"
+  ],
+  "articleBody": "每周报告 — 2026-W24（2026-06-08 ~ 2026-06-14） 本周在基准测试、机器人研究和应用工程领域，从协议调整转向执行方面发生了显著变化。Error Recovery Benchmark 通过将评估指标与权威的 M16/Panorama 框架对齐，成功纠正了关键规格偏差，使部署在 Tianhe2 上具有统计有效性。同时，Gadget 生态系统进行了全面的架构迁移至 ccusage 20.x，并修复了 58 个漏洞，主要针对缓存注入和异常处理泄漏问题。应用开发方面实现了对 TokenMonitor（CPU 热点解决）和 Desktop Video（符合 Apple 标准的 UI 重新设计）的高影响优化，而基础设施诊断则解决了硬件误报和 Secure Boot 驱动冲突问题。AI 策略工作整合了可操作的 JEPA 方向，并通过广泛的统计测试严格验证了 UNI2 相对于随机基线的优势。\n每周概览 指标 数值 日期范围 2026-06-08 ~ 2026-06-14 活跃天数 6 / 7 总对话数 21 项目数 18 已完成任务数 34 进行中任务数 4 总 tokens 数 475,436,123 总成本 $585.14 Claude 代码 tokens 数 460,147,011 Claude 代码成本 $572.64 Codex tokens 数 15,289,112 Codex 成本 $12.50 日平均成本 $97.52 项目进展 Error Recovery Benchmark（活跃5天） — 🔄 活跃 成果：\n将评估协议与权威的 Panorama/M16 规格对齐 实施分层采样（约50个场景/子类型）和 Fisher 精确检验 将核心评估器部署到 Tianhe2 并启动大规模批量执行 AI 研究策略（JEPA/MIHD/STAIG）（活跃5天） — 🔄 活跃 成果：\n整合了结合层次规划与情节记忆的三种可操作的 JEPA 研究方向 通过100个样本的统计测试验证了 UNI2 编码器相对于 scGPT/TEDDY 的优势 将 MIHD 目标映射到 QueST/OmniGCD 框架，并识别出共享空间嵌入策略 阻碍：\n⚠️ 最初将 mclust 随机性误认为是实现漏洞 Gadget 生态系统与 ccusage 迁移（活跃4天） — 进行中 成果：\n执行多智能体审计，修复了58个漏洞，包括关键缓存注入和异常泄漏问题 从分裂依赖迁移到统一的 ccusage 20.x 架构 实现按源头的 tokens 发现与动态模式规范化 阻碍：\n⚠️ 多智能体工作流偶尔会跳过需要手动覆盖的边界情况项 TokenMonitor（活跃4天） — 🔄 活跃 成果：\n通过增量缓存失效逻辑解决了关键的 CPU 热点问题 扩展遥测导出，包含带有明确刷新机制的 SSH 和 Cursor 源 实现基于主机名的跨机器同步，确保本地优先的数据完整性 阻碍：\n⚠️ 新的供应商模型定价表需要定期维护 Desktop Video（活跃2天） — 🔄 活跃 成果：\n提供了符合 macOS 标准的 SwiftUI 架构用于壁纸画廊 添加了自动幻灯片播放、文件夹支持和 Web URL 预览恢复功能 通过每屏幕历史数据的同步 NSCache 刷新，消除了标签页切换的闪烁现象 阻碍：\n⚠️ NTFS/FUSE 挂载的开发驱动器偶尔会导致 Vite 缓存不同步 工作站与开发基础设施（活跃2天） — ✅ 完成 成果：\n通过用 Canonical 模块替换自签名 DKMS，恢复了 RTX 5090 CUDA 计算能力 将致命的 WHEA Event 17 错误诊断为由软件引起的 PCIe 探测噪声 解决了导致 CSS/模块图无声故障的旧 Vite optimize-deps 缓存问题 关键任务 ✅ Error Recovery Benchmark 协议重新对齐与 HPC 部署（2026-06-10） — 放弃不同的论文衍生指标，实施与 M16 规格一致的统计有效的 SR + Fisher 精确检验；部署了确定性的分层采样器，并在 Tianhe2 上评估了1,000个场景。 ✅ Gadget 研究模块审计与58个漏洞修复（2026-06-12） — 协调多智能体对抗式工作流，识别缓存注入和异常泄漏问题；为失败状态实现 TTL 验证机制，并统一后端错误契约。 ✅ ccusage 20.x 架构迁移与按源头的跟踪（2026-06-14） — 用统一的 ccusage 20.x 架构替换旧的分裂依赖；启用动态按源头的 tokens 发现、JSON 模式规范化以及可扩展的多智能体使用跟踪。 ✅ AI 研究策略整合与框架验证（2026-06-13） — 进行深度文献综述并对空间编码器进行基准测试；通过严格的统计验证证明 UNI2 的优势，揭示了已发布基线中的 mclust 初始化变异。 ✅ TokenMonitor CPU 优化与导出扩展（2026-06-13） — 用基于变更类型的增量更新替代广泛的缓存失效；扩展遥测导出，包含 SSH 和 Cursor 源，同时确保跨机器同步兼容性。 ✅ Desktop Video Apple 风格 UI 重新设计与功能开发（2026-06-14） — 提供适用于壁纸画廊的原生 SwiftUI 架构；实现同步状态刷新以消除预览闪烁，并添加自动幻灯片播放/文件夹逻辑及安全的书签恢复功能。 ✅ 工作站基础设施稳定性与驱动程序恢复（2026-06-14） — 将致命崩溃诊断为 HP 垃圾软件和 WHEA 噪声而非硬件故障；通过签名模块恢复 CUDA 计算能力，并在外部 NVMe 驱动器上解决 Vite 缓存不同步问题。 问题与解决方案 1. 评估代码实施了与论文/EVALUATION.md 规格相冲突的部署，使用单帧成功、间隙指标，而非权威的 Panorama/M16 协议（连续成功、持续 RP）。Error Recovery Benchmark 解决方案： 执行意图与代码日志证明 Panorama 是真实来源；放弃不同路径的工作，重建评估流程以强制实施 SR + Bootstrap CI + Fisher 精确检验。\n2. 研究模块 call_llm_raw 允许子进程超时逃逸，导致管道崩溃；失败的 LLM 响应被永久缓存而不设置 TTL，造成持续的数据污染。Gadget 生态系统与 ccusage 迁移 解决方案： 将所有后端调用包裹在统一的 try/except 块中，根据契约将异常转换为 RuntimeError；添加质量检查机制及缓存持久化前的 TTL 失效，以区分短暂故障和永久状态。\n3. TokenMonitor 在仅内容追加时因过于广泛的缓存失效而每2秒触发全树统计和昂贵的重新解析；SSH/Cursor 数据从导出中缺失。TokenMonitor 解决方案： 使用基于变更类型的增量更新替代广泛的缓存失效；扩展遥测导出，包含 SSH 和 Cursor 源，同时确保跨机器同步兼容性。解决方案： 重构了解析器逻辑，能够区分目录结构变化（全量重新扫描）与内容追加（增量更新）；增加了明确的远程刷新机制，并支持源键路由以完成完整遥测快照。\n4. STAIg基线ARI分数不可复现；scGPT/TEDDY嵌入在空间GCN融合下崩溃，与已发布的性能声明不符。[AI研究策略 (JEPA/MIHD/STAIG)] (2026-06-14) 解决方案： 执行了100种子mclust统计扫描，发现初始化方差较高（0.49-0.64），而UNI2的峰值则较为稳定（0.703 ARI）；记录了基因-FM悖论，即基础模型会失去空间区分信号。\n5. 桌面视频图库缩略图显示空白，标签页切换导致UI闪烁严重，原因是异步状态解析和范围书签失败。[桌面视频] (2026-06-14) 解决方案： 实现了带修改日期缓存键的双分支书签解析；在SwiftUI视图初始化期间强制同步NSCache查询，以确保渲染前数据可用。\n6. 启用安全启动的Ubuntu系统上NVIDIA RTX 5090驱动程序因自签名DKMS模块被拒绝而无法运行，导致GPU计算中断。[工作站与开发基础设施] (2026-06-14) 解决方案： 删除了自定义nvidia-dkms包，通过depmod加载Canonical预签名内核模块，恢复完整的CUDA加速功能，同时不破坏系统安全策略。\n经验教训 架构 (architecture) 分布式或外部API工作流中的失败状态不得在没有明确TTL或验证机制的情况下被缓存；区分临时错误与永久状态对长期数据完整性至关重要。 针对基于文件的监视器和实时统计聚合器，采用广泛扫描模式进行增量无效化对于性能至关重要，以防止仅内容变更导致的CPU瓶颈。 在CLI工具迁移过程中（例如ccusage 20.x），架构规范化层是必需的，以在保持每个源的细粒度性和向后兼容性的同时bridge不兼容的输出格式。 调试 (debugging) NTFS或FUSE挂载驱动器上的旧依赖缓存（Vite .vite-temp）经常导致模块图同步中断；原子重命名失败需要手动清理缓存，而非重启开发服务器。 高端GPU上的WHEA事件17“可纠正错误”通常是软件引起的PCIe配置探测噪声，而非硬件退化；直接解析事件日志的XML比二进制解析更快。 包含绝对本地路径的公共仓库工件存在数据泄露风险；安装程序和同步生成器必须根据仓库可见性（公开 vs 私有）动态调整gitignore/配置策略。 工具 (tools) 多智能体审计工作流显著加速大规模错误发现，但缺乏自动化的范围完整性检查；仍需手动验证边缘案例和未分配项目。 在AI辅助开发早期就必须建立明确的本地优先约束，以防止智能体过度设计混合云或外部API架构，当内部结构足够时即可。 领域知识 (domain) 内部项目全景图和执行摘要必须取代学术论文协议作为实现对齐的权威来源；死代码或旧规范不应被假设为活跃状态。 mclust EM聚类对复杂数据集中的初始化范围非常敏感；单次ARI/ARI基准测试在统计上不可靠，需要多种子验证以描述方差。 通用基因基础模型在与图对比网络（GCN）融合时经常失去空间区分信号，因此像UNI2这样的专用嵌入更适合高维空间转录组聚类任务。 AI使用说明 有效模式：\n✓ 先文档分析再分析差距，使实现代码与执行意图和权威项目规范一致 ✓ 用于大规模、并行错误发现和修复计划的多智能体对抗性审计工作流 ✓ 在指标聚合或架构变更前执行测试优先协议（L1锁 + L2规范） ✓ 通过逻辑限流实现同步状态初始化，确保UI数据可用并防止感知闪烁 限制：\n✗ 深度基准分析期间的上下文窗口截断导致连续工作流执行中断 ✗ 过度依赖学术论文EVALUATION.md规范，在内部全景图作为锚点出现之前就出现了架构不匹配 ✗ 静态分析代理错误地将AppKit/AVFoundation引用语义标记为内存泄漏或范围违规 ✗ 多智能体任务分配偶尔遗漏低比例边缘案例（例如入口点修复），需要手动调整工作流 下周计划 重点将放在完成Error Recovery Benchmark的Tianhe2完整评估批次、分析Fisher测试分布以及最终确定指标聚合管道。Gadget项目将推进到发布候选版本稳定化，并监控新的ccusage 20.x多智能体令牌架构在生产负载下的表现。TokenMonitor v0.13.7修复将推送到稳定通道，同时扩展CI/CD自动化以进行跨机器同步验证。桌面视频开发将转向最终确定自动幻灯片逻辑、解决外部驱动器开发服务器缓存问题以及准备部署工件。在研究方面，将执行针对JEPA架构的后续分层规划实验，UNI2嵌入将集成到MIHD管道中，初步发现将整理好用于发表或内部报告。\n令牌使用统计 AI Usage · 2026-W24\rClaude Code + Codex\rTotal cost$585.14\rTotal tokens475M\rOutput tokens5M\rCache read90.6%\rCost split\rClaude Code $573 ·\rCodex $12\rToken character\rCache reads 90.6% ·\rActive 9.4%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r高峰日： 2026-06-14 — $166.43 / 202.8M tokens\n每日平均： $97.52\n",
+  "wordCount" : "456",
+  "inLanguage": "zh",
+  "datePublished": "2026-06-14T23:59:00-05:00",
+  "dateModified": "2026-06-14T23:59:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/weekly/2026-w24-weekly/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="zh"
+                        data-translation-url="https://tzj2006.github.io/bugjournal/weekly/2026-w24-weekly/">EN
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span>bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">Weekly Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Weekly Summary 2026-W24
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-06-14 23:59:00 -0500 -0500'>2026年6月14日</span>&nbsp;·&nbsp;<span>3 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每周报告--2026-w242026-06-08--2026-06-14">每周报告 — 2026-W24（2026-06-08 ~ 2026-06-14）<a hidden class="anchor" aria-hidden="true" href="#每周报告--2026-w242026-06-08--2026-06-14">#</a></h1>
+<blockquote>
+<p>本周在基准测试、机器人研究和应用工程领域，从协议调整转向执行方面发生了显著变化。Error Recovery Benchmark 通过将评估指标与权威的 M16/Panorama 框架对齐，成功纠正了关键规格偏差，使部署在 Tianhe2 上具有统计有效性。同时，Gadget 生态系统进行了全面的架构迁移至 ccusage 20.x，并修复了 58 个漏洞，主要针对缓存注入和异常处理泄漏问题。应用开发方面实现了对 TokenMonitor（CPU 热点解决）和 Desktop Video（符合 Apple 标准的 UI 重新设计）的高影响优化，而基础设施诊断则解决了硬件误报和 Secure Boot 驱动冲突问题。AI 策略工作整合了可操作的 JEPA 方向，并通过广泛的统计测试严格验证了 UNI2 相对于随机基线的优势。</p>
+</blockquote>
+<h2 id="每周概览">每周概览<a hidden class="anchor" aria-hidden="true" href="#每周概览">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>指标</th>
+          <th>数值</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>日期范围</td>
+          <td>2026-06-08 ~ 2026-06-14</td>
+      </tr>
+      <tr>
+          <td>活跃天数</td>
+          <td>6 / 7</td>
+      </tr>
+      <tr>
+          <td>总对话数</td>
+          <td>21</td>
+      </tr>
+      <tr>
+          <td>项目数</td>
+          <td>18</td>
+      </tr>
+      <tr>
+          <td>已完成任务数</td>
+          <td>34</td>
+      </tr>
+      <tr>
+          <td>进行中任务数</td>
+          <td>4</td>
+      </tr>
+      <tr>
+          <td>总 tokens 数</td>
+          <td>475,436,123</td>
+      </tr>
+      <tr>
+          <td>总成本</td>
+          <td>$585.14</td>
+      </tr>
+      <tr>
+          <td>Claude 代码 tokens 数</td>
+          <td>460,147,011</td>
+      </tr>
+      <tr>
+          <td>Claude 代码成本</td>
+          <td>$572.64</td>
+      </tr>
+      <tr>
+          <td>Codex  tokens 数</td>
+          <td>15,289,112</td>
+      </tr>
+      <tr>
+          <td>Codex 成本</td>
+          <td>$12.50</td>
+      </tr>
+      <tr>
+          <td>日平均成本</td>
+          <td>$97.52</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="项目进展">项目进展<a hidden class="anchor" aria-hidden="true" href="#项目进展">#</a></h2>
+<h3 id="error-recovery-benchmark活跃5天---活跃">Error Recovery Benchmark（活跃5天） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#error-recovery-benchmark活跃5天---活跃">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>将评估协议与权威的 Panorama/M16 规格对齐</li>
+<li>实施分层采样（约50个场景/子类型）和 Fisher 精确检验</li>
+<li>将核心评估器部署到 Tianhe2 并启动大规模批量执行</li>
+</ul>
+<h3 id="ai-研究策略jepamihdstaig活跃5天---活跃">AI 研究策略（JEPA/MIHD/STAIG）（活跃5天） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#ai-研究策略jepamihdstaig活跃5天---活跃">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>整合了结合层次规划与情节记忆的三种可操作的 JEPA 研究方向</li>
+<li>通过100个样本的统计测试验证了 UNI2 编码器相对于 scGPT/TEDDY 的优势</li>
+<li>将 MIHD 目标映射到 QueST/OmniGCD 框架，并识别出共享空间嵌入策略</li>
+</ul>
+<p><strong>阻碍：</strong></p>
+<ul>
+<li>⚠️ 最初将 mclust 随机性误认为是实现漏洞</li>
+</ul>
+<h3 id="gadget-生态系统与-ccusage-迁移活跃4天--进行中">Gadget 生态系统与 ccusage 迁移（活跃4天） — 进行中<a hidden class="anchor" aria-hidden="true" href="#gadget-生态系统与-ccusage-迁移活跃4天--进行中">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>执行多智能体审计，修复了58个漏洞，包括关键缓存注入和异常泄漏问题</li>
+<li>从分裂依赖迁移到统一的 ccusage 20.x 架构</li>
+<li>实现按源头的 tokens 发现与动态模式规范化</li>
+</ul>
+<p><strong>阻碍：</strong></p>
+<ul>
+<li>⚠️ 多智能体工作流偶尔会跳过需要手动覆盖的边界情况项</li>
+</ul>
+<h3 id="tokenmonitor活跃4天---活跃">TokenMonitor（活跃4天） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor活跃4天---活跃">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>通过增量缓存失效逻辑解决了关键的 CPU 热点问题</li>
+<li>扩展遥测导出，包含带有明确刷新机制的 SSH 和 Cursor 源</li>
+<li>实现基于主机名的跨机器同步，确保本地优先的数据完整性</li>
+</ul>
+<p><strong>阻碍：</strong></p>
+<ul>
+<li>⚠️ 新的供应商模型定价表需要定期维护</li>
+</ul>
+<h3 id="desktop-video活跃2天---活跃">Desktop Video（活跃2天） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#desktop-video活跃2天---活跃">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>提供了符合 macOS 标准的 SwiftUI 架构用于壁纸画廊</li>
+<li>添加了自动幻灯片播放、文件夹支持和 Web URL 预览恢复功能</li>
+<li>通过每屏幕历史数据的同步 NSCache 刷新，消除了标签页切换的闪烁现象</li>
+</ul>
+<p><strong>阻碍：</strong></p>
+<ul>
+<li>⚠️ NTFS/FUSE 挂载的开发驱动器偶尔会导致 Vite 缓存不同步</li>
+</ul>
+<h3 id="工作站与开发基础设施活跃2天---完成">工作站与开发基础设施（活跃2天） — ✅ 完成<a hidden class="anchor" aria-hidden="true" href="#工作站与开发基础设施活跃2天---完成">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>通过用 Canonical 模块替换自签名 DKMS，恢复了 RTX 5090 CUDA 计算能力</li>
+<li>将致命的 WHEA Event 17 错误诊断为由软件引起的 PCIe 探测噪声</li>
+<li>解决了导致 CSS/模块图无声故障的旧 Vite optimize-deps 缓存问题</li>
+</ul>
+<h2 id="关键任务">关键任务<a hidden class="anchor" aria-hidden="true" href="#关键任务">#</a></h2>
+<ul>
+<li>✅ <strong>Error Recovery Benchmark 协议重新对齐与 HPC 部署</strong>（2026-06-10） — 放弃不同的论文衍生指标，实施与 M16 规格一致的统计有效的 SR + Fisher 精确检验；部署了确定性的分层采样器，并在 Tianhe2 上评估了1,000个场景。</li>
+<li>✅ <strong>Gadget 研究模块审计与58个漏洞修复</strong>（2026-06-12） — 协调多智能体对抗式工作流，识别缓存注入和异常泄漏问题；为失败状态实现 TTL 验证机制，并统一后端错误契约。</li>
+<li>✅ <strong>ccusage 20.x 架构迁移与按源头的跟踪</strong>（2026-06-14） — 用统一的 ccusage 20.x 架构替换旧的分裂依赖；启用动态按源头的 tokens 发现、JSON 模式规范化以及可扩展的多智能体使用跟踪。</li>
+<li>✅ <strong>AI 研究策略整合与框架验证</strong>（2026-06-13） — 进行深度文献综述并对空间编码器进行基准测试；通过严格的统计验证证明 UNI2 的优势，揭示了已发布基线中的 mclust 初始化变异。</li>
+<li>✅ <strong>TokenMonitor CPU 优化与导出扩展</strong>（2026-06-13） — 用基于变更类型的增量更新替代广泛的缓存失效；扩展遥测导出，包含 SSH 和 Cursor 源，同时确保跨机器同步兼容性。</li>
+<li>✅ <strong>Desktop Video Apple 风格 UI 重新设计与功能开发</strong>（2026-06-14） — 提供适用于壁纸画廊的原生 SwiftUI 架构；实现同步状态刷新以消除预览闪烁，并添加自动幻灯片播放/文件夹逻辑及安全的书签恢复功能。</li>
+<li>✅ <strong>工作站基础设施稳定性与驱动程序恢复</strong>（2026-06-14） — 将致命崩溃诊断为 HP 垃圾软件和 WHEA 噪声而非硬件故障；通过签名模块恢复 CUDA 计算能力，并在外部 NVMe 驱动器上解决 Vite 缓存不同步问题。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="1-评估代码实施了与论文evaluationmd-规格相冲突的部署使用单帧成功间隙指标而非权威的-panoramam16-协议连续成功持续-rperror-recovery-benchmark">1. 评估代码实施了与论文/EVALUATION.md 规格相冲突的部署，使用单帧成功、间隙指标，而非权威的 Panorama/M16 协议（连续成功、持续 RP）。<a href="2026-06-10">Error Recovery Benchmark</a><a hidden class="anchor" aria-hidden="true" href="#1-评估代码实施了与论文evaluationmd-规格相冲突的部署使用单帧成功间隙指标而非权威的-panoramam16-协议连续成功持续-rperror-recovery-benchmark">#</a></h3>
+<p><strong>解决方案：</strong> 执行意图与代码日志证明 Panorama 是真实来源；放弃不同路径的工作，重建评估流程以强制实施 SR + Bootstrap CI + Fisher 精确检验。</p>
+<h3 id="2-研究模块-call_llm_raw-允许子进程超时逃逸导致管道崩溃失败的-llm-响应被永久缓存而不设置-ttl造成持续的数据污染gadget-生态系统与-ccusage-迁移">2. 研究模块 <code>call_llm_raw</code> 允许子进程超时逃逸，导致管道崩溃；失败的 LLM 响应被永久缓存而不设置 TTL，造成持续的数据污染。<a href="2026-06-12">Gadget 生态系统与 ccusage 迁移</a><a hidden class="anchor" aria-hidden="true" href="#2-研究模块-call_llm_raw-允许子进程超时逃逸导致管道崩溃失败的-llm-响应被永久缓存而不设置-ttl造成持续的数据污染gadget-生态系统与-ccusage-迁移">#</a></h3>
+<p><strong>解决方案：</strong> 将所有后端调用包裹在统一的 try/except 块中，根据契约将异常转换为 RuntimeError；添加质量检查机制及缓存持久化前的 TTL 失效，以区分短暂故障和永久状态。</p>
+<h3 id="3-tokenmonitor-在仅内容追加时因过于广泛的缓存失效而每2秒触发全树统计和昂贵的重新解析sshcursor-数据从导出中缺失tokenmonitor">3. TokenMonitor 在仅内容追加时因过于广泛的缓存失效而每2秒触发全树统计和昂贵的重新解析；SSH/Cursor 数据从导出中缺失。<a href="2026-06-13">TokenMonitor</a><a hidden class="anchor" aria-hidden="true" href="#3-tokenmonitor-在仅内容追加时因过于广泛的缓存失效而每2秒触发全树统计和昂贵的重新解析sshcursor-数据从导出中缺失tokenmonitor">#</a></h3>
+<p><strong>解决方案：</strong> 使用基于变更类型的增量更新替代广泛的缓存失效；扩展遥测导出，包含 SSH 和 Cursor 源，同时确保跨机器同步兼容性。<strong>解决方案：</strong> 重构了解析器逻辑，能够区分目录结构变化（全量重新扫描）与内容追加（增量更新）；增加了明确的远程刷新机制，并支持源键路由以完成完整遥测快照。</p>
+<h3 id="4-staig基线ari分数不可复现scgptteddy嵌入在空间gcn融合下崩溃与已发布的性能声明不符ai研究策略-jepamihdstaig-2026-06-14">4. STAIg基线ARI分数不可复现；scGPT/TEDDY嵌入在空间GCN融合下崩溃，与已发布的性能声明不符。[AI研究策略 (JEPA/MIHD/STAIG)] (2026-06-14)<a hidden class="anchor" aria-hidden="true" href="#4-staig基线ari分数不可复现scgptteddy嵌入在空间gcn融合下崩溃与已发布的性能声明不符ai研究策略-jepamihdstaig-2026-06-14">#</a></h3>
+<p><strong>解决方案：</strong> 执行了100种子mclust统计扫描，发现初始化方差较高（0.49-0.64），而UNI2的峰值则较为稳定（0.703 ARI）；记录了基因-FM悖论，即基础模型会失去空间区分信号。</p>
+<h3 id="5-桌面视频图库缩略图显示空白标签页切换导致ui闪烁严重原因是异步状态解析和范围书签失败桌面视频-2026-06-14">5. 桌面视频图库缩略图显示空白，标签页切换导致UI闪烁严重，原因是异步状态解析和范围书签失败。[桌面视频] (2026-06-14)<a hidden class="anchor" aria-hidden="true" href="#5-桌面视频图库缩略图显示空白标签页切换导致ui闪烁严重原因是异步状态解析和范围书签失败桌面视频-2026-06-14">#</a></h3>
+<p><strong>解决方案：</strong> 实现了带修改日期缓存键的双分支书签解析；在SwiftUI视图初始化期间强制同步NSCache查询，以确保渲染前数据可用。</p>
+<h3 id="6-启用安全启动的ubuntu系统上nvidia-rtx-5090驱动程序因自签名dkms模块被拒绝而无法运行导致gpu计算中断工作站与开发基础设施-2026-06-14">6. 启用安全启动的Ubuntu系统上NVIDIA RTX 5090驱动程序因自签名DKMS模块被拒绝而无法运行，导致GPU计算中断。[工作站与开发基础设施] (2026-06-14)<a hidden class="anchor" aria-hidden="true" href="#6-启用安全启动的ubuntu系统上nvidia-rtx-5090驱动程序因自签名dkms模块被拒绝而无法运行导致gpu计算中断工作站与开发基础设施-2026-06-14">#</a></h3>
+<p><strong>解决方案：</strong> 删除了自定义<code>nvidia-dkms</code>包，通过depmod加载Canonical预签名内核模块，恢复完整的CUDA加速功能，同时不破坏系统安全策略。</p>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="架构-architecture">架构 (architecture)<a hidden class="anchor" aria-hidden="true" href="#架构-architecture">#</a></h3>
+<ul>
+<li>分布式或外部API工作流中的失败状态不得在没有明确TTL或验证机制的情况下被缓存；区分临时错误与永久状态对长期数据完整性至关重要。</li>
+<li>针对基于文件的监视器和实时统计聚合器，采用广泛扫描模式进行增量无效化对于性能至关重要，以防止仅内容变更导致的CPU瓶颈。</li>
+<li>在CLI工具迁移过程中（例如ccusage 20.x），架构规范化层是必需的，以在保持每个源的细粒度性和向后兼容性的同时bridge不兼容的输出格式。</li>
+</ul>
+<h3 id="调试-debugging">调试 (debugging)<a hidden class="anchor" aria-hidden="true" href="#调试-debugging">#</a></h3>
+<ul>
+<li>NTFS或FUSE挂载驱动器上的旧依赖缓存（Vite <code>.vite-temp</code>）经常导致模块图同步中断；原子重命名失败需要手动清理缓存，而非重启开发服务器。</li>
+<li>高端GPU上的WHEA事件17“可纠正错误”通常是软件引起的PCIe配置探测噪声，而非硬件退化；直接解析事件日志的XML比二进制解析更快。</li>
+<li>包含绝对本地路径的公共仓库工件存在数据泄露风险；安装程序和同步生成器必须根据仓库可见性（公开 vs 私有）动态调整gitignore/配置策略。</li>
+</ul>
+<h3 id="工具-tools">工具 (tools)<a hidden class="anchor" aria-hidden="true" href="#工具-tools">#</a></h3>
+<ul>
+<li>多智能体审计工作流显著加速大规模错误发现，但缺乏自动化的范围完整性检查；仍需手动验证边缘案例和未分配项目。</li>
+<li>在AI辅助开发早期就必须建立明确的本地优先约束，以防止智能体过度设计混合云或外部API架构，当内部结构足够时即可。</li>
+</ul>
+<h3 id="领域知识-domain">领域知识 (domain)<a hidden class="anchor" aria-hidden="true" href="#领域知识-domain">#</a></h3>
+<ul>
+<li>内部项目全景图和执行摘要必须取代学术论文协议作为实现对齐的权威来源；死代码或旧规范不应被假设为活跃状态。</li>
+<li>mclust EM聚类对复杂数据集中的初始化范围非常敏感；单次ARI/ARI基准测试在统计上不可靠，需要多种子验证以描述方差。</li>
+<li>通用基因基础模型在与图对比网络（GCN）融合时经常失去空间区分信号，因此像UNI2这样的专用嵌入更适合高维空间转录组聚类任务。</li>
+</ul>
+<h2 id="ai使用说明">AI使用说明<a hidden class="anchor" aria-hidden="true" href="#ai使用说明">#</a></h2>
+<p><strong>有效模式：</strong></p>
+<ul>
+<li>✓ 先文档分析再分析差距，使实现代码与执行意图和权威项目规范一致</li>
+<li>✓ 用于大规模、并行错误发现和修复计划的多智能体对抗性审计工作流</li>
+<li>✓ 在指标聚合或架构变更前执行测试优先协议（L1锁 + L2规范）</li>
+<li>✓ 通过逻辑限流实现同步状态初始化，确保UI数据可用并防止感知闪烁</li>
+</ul>
+<p><strong>限制：</strong></p>
+<ul>
+<li>✗ 深度基准分析期间的上下文窗口截断导致连续工作流执行中断</li>
+<li>✗ 过度依赖学术论文EVALUATION.md规范，在内部全景图作为锚点出现之前就出现了架构不匹配</li>
+<li>✗ 静态分析代理错误地将AppKit/AVFoundation引用语义标记为内存泄漏或范围违规</li>
+<li>✗ 多智能体任务分配偶尔遗漏低比例边缘案例（例如入口点修复），需要手动调整工作流</li>
+</ul>
+<h2 id="下周计划">下周计划<a hidden class="anchor" aria-hidden="true" href="#下周计划">#</a></h2>
+<p>重点将放在完成Error Recovery Benchmark的Tianhe2完整评估批次、分析Fisher测试分布以及最终确定指标聚合管道。Gadget项目将推进到发布候选版本稳定化，并监控新的ccusage 20.x多智能体令牌架构在生产负载下的表现。TokenMonitor v0.13.7修复将推送到稳定通道，同时扩展CI/CD自动化以进行跨机器同步验证。桌面视频开发将转向最终确定自动幻灯片逻辑、解决外部驱动器开发服务器缓存问题以及准备部署工件。在研究方面，将执行针对JEPA架构的后续分层规划实验，UNI2嵌入将集成到MIHD管道中，初步发现将整理好用于发表或内部报告。</p>
+<h2 id="令牌使用统计">令牌使用统计<a hidden class="anchor" aria-hidden="true" href="#令牌使用统计">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-W24</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$585.14</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>475M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>5M</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>90.6%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $573</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $12</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (97.9%), Codex (2.1%)">
+          <span style="width:97.9%; background:var(--usage-cost-main)"></span>
+          <span style="width:2.1%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 90.6%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 9.4%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (90.6%), active tokens (9.4%)">
+          <span style="width:90.6%; background:var(--usage-cache)"></span>
+          <span style="width:9.4%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<p><strong>高峰日：</strong> 2026-06-14 — $166.43 / 202.8M tokens</p>
+<p><strong>每日平均：</strong> $97.52</p>
+<!-- gadget:src-hash:64aa64f0bebf40a5 -->
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
