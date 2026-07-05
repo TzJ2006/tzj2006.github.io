@@ -7,7 +7,7 @@
 <meta name="robots" content="index, follow">
 <title>Bug Journal 2026-05-02 | TzJ&#39;s Net</title>
 <meta name="keywords" content="Bug Journal">
-<meta name="description" content="Analyzed robotics model performance regressions and fixed TokenMonitor Cursor utilization display bug">
+<meta name="description" content="Analyzed the performance fluctuation problem of robot models and the display vulnerability of fixed TokenMonitor cursor usage">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/bugjournal/daily/2026-05-02/">
 <link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
@@ -79,7 +79,7 @@
 <meta property="og:url" content="https://tzj2006.github.io/bugjournal/daily/2026-05-02/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="Bug Journal 2026-05-02">
-  <meta property="og:description" content="Analyzed robotics model performance regressions and fixed TokenMonitor Cursor utilization display bug">
+  <meta property="og:description" content="Analyzed the performance fluctuation problem of robot models and the display vulnerability of fixed TokenMonitor cursor usage">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="bugjournal">
@@ -88,7 +88,7 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Bug Journal 2026-05-02">
-  <meta name="twitter:description" content="Analyzed robotics model performance regressions and fixed TokenMonitor Cursor utilization display bug">
+  <meta name="twitter:description" content="Analyzed the performance fluctuation problem of robot models and the display vulnerability of fixed TokenMonitor cursor usage">
 
 
 <script type="application/ld+json">
@@ -123,12 +123,12 @@
   "@type": "BlogPosting",
   "headline": "Bug Journal 2026-05-02",
   "name": "Bug Journal 2026-05-02",
-  "description": "Analyzed robotics model performance regressions and fixed TokenMonitor Cursor utilization display bug",
+  "description": "Analyzed the performance fluctuation problem of robot models and the display vulnerability of fixed TokenMonitor cursor usage",
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-05-02 Daily Overview What was done: Evaluated pi0.5 model v2 performance across Clean Rollout and Error Recovery tasks; debugged and fixed TokenMonitor FloatBall Cursor utilization display How it was done: Statistical analysis of benchmark data with delta calculations and regression identification; Rust backend modification with fallback logic and comprehensive test coverage Impact: Identified critical regression patterns in pick_place task requiring investigation; restored functional Cursor rate limit monitoring for users without spend_limit_usage data MacBook What was done: Multiple login attempts without substantive work How it was done: Attempted to interact with Claude Code but encountered authentication barriers Impact: No productive output; sessions did not proceed beyond login screen TzJsDesktop What was done: Analyzed pi0.5 v1/v2 model comparison across 6 robotics tasks; fixed TokenMonitor Cursor FloatBall N/A display bug How it was done: Formatted performance tables with delta columns, computed aggregate statistics, identified task-specific patterns; modified tray.rs utilization extraction with extra_usage→primary_window fallback Impact: Discovered v2 regression in Clean Rollout (-5.6pp) and pick_place task (-24.1pp in Error Recovery), flagged for investigation; restored Cursor utilization display for users with plan_usage-only data Analyzed robotics model performance regressions and fixed TokenMonitor Cursor utilization display bug\nTasks Architecture \u0026 Strategy ✅ Analyze pi0.5 model v2 performance vs v1 — Formatted benchmark tables for BCRNN and pi0.5 models across Clean Rollout and Error Recovery scenarios, computed deltas, and identified regression patterns in v2 Implementation \u0026 Fixes ✅ Fix TokenMonitor Cursor FloatBall N/A display — Modified tray.rs to fallback from extra_usage_utilization to primary_window_utilization for Cursor, added two tests, verified with 21 passing tests and clippy clean Problems \u0026 Solutions Critical Issues 1. pi0.5 v2 showed overall regression in Clean Rollout (-5.6pp average) despite improvement in threading task (+24pp) Solution: Formatted comparison tables with delta columns to isolate task-specific performance changes; identified pick_place, coffee, stack, and stack_three as regressing tasks\nKey Insight: Model v2 has task-specific performance variance: significant improvement in threading contrasts with widespread regression in manipulation tasks, suggesting architectural trade-offs rather than uniform degradation\n2. pick_place task showed severe regression in Error Recovery scenario: pi0.5 v2 dropped -24.1pp (42.9% → 18.8%) Solution: Flagged pick_place as critical investigation priority in analysis summary; no immediate fix implemented, pending deeper diagnosis\nKey Insight: Error recovery performance can degrade significantly even when base task completion rate is acceptable, suggesting v2 may have reduced robustness to perturbations\nGeneral Issues 3. TokenMonitor FloatBall displayed N/A for Cursor utilization because extra_usage field was None for users with only plan_usage data Solution: Changed Cursor utilization extraction in tray_utilization_from_rate_limits() from extra_usage-only to fallback chain: extra_usage_utilization().or_else(|| primary_window_utilization())\nKey Insight: Most Cursor users have plan_usage (windows-based with auto_percent_used/api_percent_used) but lack spend_limit_usage (extra_usage-based); previous code only checked extra_usage, causing None → N/A display\nHuman vs AI Approaches Strategic Level Model performance comparison methodology Role Approach Human User provided raw benchmark tables with running/completed markers and asked for formatted comparison with v2-v1 delta analysis AI Claude added delta columns, emoji indicators for running tasks, highlighted better-performing versions per task, computed aggregate statistics, and provided written interpretation of regression patterns Difference Analysis: Human focused on visual presentation and high-level comparison request; AI added statistical depth (aggregate changes, task-specific pattern analysis) and diagnostic recommendations without being asked\nAI Limitations General Limitations Multiple MacBook sessions showed Claude was not logged in but no proactive guidance was provided on resolving authentication issues Learnings Key Learnings Model version improvements can be task-specific rather than uniform: pi0.5 v2 improved threading by +24pp while regressing in 4 other Clean Rollout tasks, indicating architectural trade-offs that warrant per-task investigation Error recovery performance can decouple from base task success rate: pick_place regressed -24.1pp in Error Recovery despite unknown Clean Rollout status, highlighting robustness as a distinct evaluation dimension Practical Learnings Rate limit data sources vary by user tier: Cursor users may have plan_usage (windows-based) without spend_limit_usage (extra_usage-based), requiring fallback logic in UI data extraction to avoid null/N/A display Conversation Summaries Robotics Model Benchmarking ✅ pi0.5 v2 performance evaluation vs v1 across 6 tasks 05:56:19.034 | claude_code User provided raw benchmark tables for BCRNN and pi0.5 models (v1/v2) across Clean Rollout and Error Recovery scenarios. Claude formatted the data with delta columns, computed aggregate statistics, and identified that pi0.5 v2 regressed overall in Clean Rollout (-5.6pp) except threading (+24pp), with pick_place showing severe Error Recovery regression (-24.1pp). Recommended investigating v2’s pick_place and coffee task regressions.\nTokenMonitor ✅ Fix Cursor FloatBall N/A display bug 05:57:21.549 | claude_code Continued from previous session to fix Cursor rate limit utilization showing N/A in FloatBall widget. Root cause: tray_utilization_from_rate_limits() only checked extra_usage_utilization (from spend_limit_usage), but most Cursor users only have plan_usage (primary_window data). Modified Cursor extraction to fallback from extra_usage to primary_window. Added two tests, all 21 tests passed, clippy clean.\nToken Usage Total: $3.27 — 1.9M tokens\n",
-  "wordCount" : "785",
+  "articleBody": "Daily Report — 2026-05-02 Overall Status Completed Work: Evaluated the performance of pi0.5 model v2 in Clean Rollout and Error Recovery tasks; debugged and fixed the display issue of TokenMonitor FloatBall Cursor Implementation: Conducted statistical analysis on benchmark data, calculated differences, and identified regression patterns; modified the Rust backend, added fallback logic, and achieved comprehensive test coverage Impact: Found key regression patterns in pick_place tasks that require further investigation; restored normal Cursor usage rate limit display for users without spend_limit_usage data MacBook Completed Work: Multiple logins without any substantive operations Implementation: Attempted interaction with Claude Code but encountered authentication issues Impact: No valid output; the session remained at the login interface TzJsDesktop Completed Work: Analyzed the comparison of pi0.5 v1/v2 models across 6 robot tasks; fixed the TokenMonitor Cursor FloatBall N/A display error Implementation: Formatted performance tables using difference columns, calculated summary statistics, and identified task-specific patterns; modified the utilization extraction logic in tray.rs, with extra_usage → primary_window as a fallback solution Impact: Identified regression in v2 during Clean Rollout (-5.6pp) and in pick_place tasks during Error Recovery (-24.1pp), marked for further investigation; restored Cursor usage display for users with only plan_usage data Analyzed robot model performance regressions and fixed the TokenMonitor Cursor display error\nTasks Architecture and Strategy ✅ Analyzed performance comparison between pi0.5 model v2 and v1 — Formatted benchmark tables for BCRNN and pi0.5 models in Clean Rollout and Error Recovery scenarios, calculated differences, and identified regression patterns in v2 Implementation and Fixes ✅ Fixed the TokenMonitor Cursor FloatBall N/A display issue — Modified the Cursor utilization extraction logic in tray.rs, switching from extra_usage_utilization to primary_window_utilization, added two tests, passed 21 tests, and satisfied clippy specifications Issues and Solutions Key Issues 1. pi0.5 v2 shows overall regression in Clean Rollout (average -5.6pp), despite improved performance in thread tasks (+24pp) Solution: Used difference-column formatted comparison tables to isolate task-specific performance changes; identified pick_place, coffee, stack, and stack_three as tasks with declining performance\nKey Insight: There are task-specific performance differences in model v2: the significant improvement in thread tasks contrasts with widespread regression in operation tasks, indicating a structural trade-off rather than uniform degradation\n2. pick_place tasks show severe regression in Error Recovery scenarios: pi0.5 v2 drops -24.1pp (42.9% → 18.8%) Solution: Marked pick_place as a key investigation priority in the analysis summary; no immediate fix applied, pending deeper diagnosis\nKey Insight: Even if the base task completion rate is acceptable, Error Recovery performance may decline significantly, indicating that v2’s robustness against interference may be reduced\nGeneral Issues 3. TokenMonitor FloatBall displays Cursor usage as N/A because only users with plan_usage data have an extra_usage field of None Solution: Modified the Cursor utilization extraction logic in tray_utilization_from_rate_limits(), changing from checking only extra_usage to a fallback chain: extra_usage_utilization().or_else(|| primary_window_utilization())\nKey Insight: Most Cursor users have plan_usage (based on window and including auto_percent_used/api_percent_used), but lack spend_limit_usage (based on extra_usage); previous code checked only extra_usage, leading to None → N/A display\nHuman and AI Approaches Strategic Level Model Performance Comparison Method Role Method Human User provides raw benchmark tables with run/completed markers, requesting formatted comparison and difference analysis between v2-v1 AI Claude adds difference columns, emoji indicators for task execution, highlights the version performing better in each task, calculates summary statistics, and provides written explanations of regression patterns Difference Analysis: Humans focus on visual presentation and advanced comparison needs; AI adds statistical depth analysis (summary changes, task-specific pattern analysis) and diagnostic suggestions without being explicitly requested\nAI Limitations General Limitations Multiple MacBook sessions show Claude not logged in, but no proactive guidance to resolve authentication issues provided Learning Outcomes Key Learnings Model version improvements may be task-specific rather than uniform: pi0.5 v2 improved by +24pp in thread tasks but declined in the other 4 Clean Rollout tasks, indicating the need for architectural trade-off analysis per task Error Recovery performance may be separate from base task success rates: despite unknown Clean Rollout status, pick_place dropped -24.1pp in Error Recovery, highlighting that robustness is an independent evaluation dimension Practical Learnings Source of rate limit data varies by user level: Cursor users may have plan_usage (based on window), but lack spend_limit_usage (based on extra_usage), requiring fallback logic in UI data extraction to avoid null/N/A display Dialogue Summary Robot Model Benchmarking ✅ Performance evaluation of pi0.5 v2 and v1 across 6 tasks 05:56:19.034 | claude_code User provided raw benchmark tables for BCRNN and pi0.5 models (v1/v2) covering Clean Rollout and Error Recovery scenarios. Claude formatted the data, added difference columns, calculated summary statistics, and found that pi0.5 v2 overall dropped (-5.6pp) in Clean Rollout, but improved (+24pp) in thread tasks, and pick_place dropped severely (-24.1pp) in Error Recovery. Recommended investigation into regression in v2 for pick_place and coffee tasks.\nTokenMonitor ✅ Fixed the Cursor FloatBall N/A display error 05:57:21.549 | claude_code Continued from the previous session, fixed the issue where the Cursor rate limit utilization displayed as N/A in the FloatBall widget. Root cause: tray_utilization_from_rate_limits() only checks extra_usage_utilization (from spend_limit_usage), but most Cursor users have only plan_usage (primary_window data). Modified the Cursor extraction logic to fallback from extra_usage to primary_window. Added two tests, all 21 tests passed, and clippy specifications satisfied.\nToken Usage AI Usage · 2026-05-02\rClaude Code + Codex\rTotal cost$62.31\rTotal tokens81M\rOutput tokens481K\rCache read86.8%\rCost split\rClaude Code $9 ·\rCodex $53\rToken character\rCache reads 86.8% ·\rActive 13.2%\rMost token volume came from cache reads; Codex drove nearly all cost.\r",
+  "wordCount" : "901",
   "inLanguage": "en",
   "datePublished": "2026-05-02T00:00:00-05:00",
   "dateModified": "2026-05-02T00:00:00-05:00",
@@ -252,103 +252,197 @@
     </h1>
     <div class="post-meta">
 
-<span title='2026-05-02 00:00:00 -0500 -0500'>May 2, 2026</span>&nbsp;·&nbsp;<span>4 min</span>
+<span title='2026-05-02 00:00:00 -0500 -0500'>May 2, 2026</span>&nbsp;·&nbsp;<span>5 min</span>
 
 </div>
   </header> 
   <div class="post-content md-content"><h1 id="daily-report--2026-05-02">Daily Report — 2026-05-02<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-05-02">#</a></h1>
-<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<h2 id="overall-status">Overall Status<a hidden class="anchor" aria-hidden="true" href="#overall-status">#</a></h2>
 <ul>
-<li><strong>What was done:</strong> Evaluated pi0.5 model v2 performance across Clean Rollout and Error Recovery tasks; debugged and fixed TokenMonitor FloatBall Cursor utilization display</li>
-<li><strong>How it was done:</strong> Statistical analysis of benchmark data with delta calculations and regression identification; Rust backend modification with fallback logic and comprehensive test coverage</li>
-<li><strong>Impact:</strong> Identified critical regression patterns in pick_place task requiring investigation; restored functional Cursor rate limit monitoring for users without spend_limit_usage data</li>
+<li><strong>Completed Work:</strong> Evaluated the performance of pi0.5 model v2 in Clean Rollout and Error Recovery tasks; debugged and fixed the display issue of TokenMonitor FloatBall Cursor</li>
+<li><strong>Implementation:</strong> Conducted statistical analysis on benchmark data, calculated differences, and identified regression patterns; modified the Rust backend, added fallback logic, and achieved comprehensive test coverage</li>
+<li><strong>Impact:</strong> Found key regression patterns in pick_place tasks that require further investigation; restored normal Cursor usage rate limit display for users without spend_limit_usage data</li>
 </ul>
 <h3 id="macbook">MacBook<a hidden class="anchor" aria-hidden="true" href="#macbook">#</a></h3>
 <ul>
-<li><strong>What was done:</strong> Multiple login attempts without substantive work</li>
-<li><strong>How it was done:</strong> Attempted to interact with Claude Code but encountered authentication barriers</li>
-<li><strong>Impact:</strong> No productive output; sessions did not proceed beyond login screen</li>
+<li><strong>Completed Work:</strong> Multiple logins without any substantive operations</li>
+<li><strong>Implementation:</strong> Attempted interaction with Claude Code but encountered authentication issues</li>
+<li><strong>Impact:</strong> No valid output; the session remained at the login interface</li>
 </ul>
 <h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
 <ul>
-<li><strong>What was done:</strong> Analyzed pi0.5 v1/v2 model comparison across 6 robotics tasks; fixed TokenMonitor Cursor FloatBall N/A display bug</li>
-<li><strong>How it was done:</strong> Formatted performance tables with delta columns, computed aggregate statistics, identified task-specific patterns; modified tray.rs utilization extraction with extra_usage→primary_window fallback</li>
-<li><strong>Impact:</strong> Discovered v2 regression in Clean Rollout (-5.6pp) and pick_place task (-24.1pp in Error Recovery), flagged for investigation; restored Cursor utilization display for users with plan_usage-only data</li>
+<li><strong>Completed Work:</strong> Analyzed the comparison of pi0.5 v1/v2 models across 6 robot tasks; fixed the TokenMonitor Cursor FloatBall N/A display error</li>
+<li><strong>Implementation:</strong> Formatted performance tables using difference columns, calculated summary statistics, and identified task-specific patterns; modified the utilization extraction logic in tray.rs, with extra_usage → primary_window as a fallback solution</li>
+<li><strong>Impact:</strong> Identified regression in v2 during Clean Rollout (-5.6pp) and in pick_place tasks during Error Recovery (-24.1pp), marked for further investigation; restored Cursor usage display for users with only plan_usage data</li>
 </ul>
 <blockquote>
-<p>Analyzed robotics model performance regressions and fixed TokenMonitor Cursor utilization display bug</p>
+<p>Analyzed robot model performance regressions and fixed the TokenMonitor Cursor display error</p>
 </blockquote>
 <h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
-<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<h3 id="architecture-and-strategy">Architecture and Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture-and-strategy">#</a></h3>
 <ul>
-<li>✅ <strong>Analyze pi0.5 model v2 performance vs v1</strong> — Formatted benchmark tables for BCRNN and pi0.5 models across Clean Rollout and Error Recovery scenarios, computed deltas, and identified regression patterns in v2</li>
+<li>✅ <strong>Analyzed performance comparison between pi0.5 model v2 and v1</strong> — Formatted benchmark tables for BCRNN and pi0.5 models in Clean Rollout and Error Recovery scenarios, calculated differences, and identified regression patterns in v2</li>
 </ul>
-<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<h3 id="implementation-and-fixes">Implementation and Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation-and-fixes">#</a></h3>
 <ul>
-<li>✅ <strong>Fix TokenMonitor Cursor FloatBall N/A display</strong> — Modified tray.rs to fallback from extra_usage_utilization to primary_window_utilization for Cursor, added two tests, verified with 21 passing tests and clippy clean</li>
+<li>✅ <strong>Fixed the TokenMonitor Cursor FloatBall N/A display issue</strong> — Modified the Cursor utilization extraction logic in tray.rs, switching from extra_usage_utilization to primary_window_utilization, added two tests, passed 21 tests, and satisfied clippy specifications</li>
 </ul>
-<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
-<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
-<h4 id="1-pi05-v2-showed-overall-regression-in-clean-rollout--56pp-average-despite-improvement-in-threading-task-24pp">1. pi0.5 v2 showed overall regression in Clean Rollout (-5.6pp average) despite improvement in threading task (+24pp)<a hidden class="anchor" aria-hidden="true" href="#1-pi05-v2-showed-overall-regression-in-clean-rollout--56pp-average-despite-improvement-in-threading-task-24pp">#</a></h4>
-<p><strong>Solution:</strong> Formatted comparison tables with delta columns to isolate task-specific performance changes; identified pick_place, coffee, stack, and stack_three as regressing tasks</p>
-<p><strong>Key Insight:</strong> Model v2 has task-specific performance variance: significant improvement in threading contrasts with widespread regression in manipulation tasks, suggesting architectural trade-offs rather than uniform degradation</p>
-<h4 id="2-pick_place-task-showed-severe-regression-in-error-recovery-scenario-pi05-v2-dropped--241pp-429--188">2. pick_place task showed severe regression in Error Recovery scenario: pi0.5 v2 dropped -24.1pp (42.9% → 18.8%)<a hidden class="anchor" aria-hidden="true" href="#2-pick_place-task-showed-severe-regression-in-error-recovery-scenario-pi05-v2-dropped--241pp-429--188">#</a></h4>
-<p><strong>Solution:</strong> Flagged pick_place as critical investigation priority in analysis summary; no immediate fix implemented, pending deeper diagnosis</p>
-<p><strong>Key Insight:</strong> Error recovery performance can degrade significantly even when base task completion rate is acceptable, suggesting v2 may have reduced robustness to perturbations</p>
+<h2 id="issues-and-solutions">Issues and Solutions<a hidden class="anchor" aria-hidden="true" href="#issues-and-solutions">#</a></h2>
+<h3 id="key-issues">Key Issues<a hidden class="anchor" aria-hidden="true" href="#key-issues">#</a></h3>
+<h4 id="1-pi05-v2-shows-overall-regression-in-clean-rollout-average--56pp-despite-improved-performance-in-thread-tasks-24pp">1. pi0.5 v2 shows overall regression in Clean Rollout (average -5.6pp), despite improved performance in thread tasks (+24pp)<a hidden class="anchor" aria-hidden="true" href="#1-pi05-v2-shows-overall-regression-in-clean-rollout-average--56pp-despite-improved-performance-in-thread-tasks-24pp">#</a></h4>
+<p><strong>Solution:</strong> Used difference-column formatted comparison tables to isolate task-specific performance changes; identified pick_place, coffee, stack, and stack_three as tasks with declining performance</p>
+<p><strong>Key Insight:</strong> There are task-specific performance differences in model v2: the significant improvement in thread tasks contrasts with widespread regression in operation tasks, indicating a structural trade-off rather than uniform degradation</p>
+<h4 id="2-pick_place-tasks-show-severe-regression-in-error-recovery-scenarios-pi05-v2-drops--241pp-429--188">2. pick_place tasks show severe regression in Error Recovery scenarios: pi0.5 v2 drops -24.1pp (42.9% → 18.8%)<a hidden class="anchor" aria-hidden="true" href="#2-pick_place-tasks-show-severe-regression-in-error-recovery-scenarios-pi05-v2-drops--241pp-429--188">#</a></h4>
+<p><strong>Solution:</strong> Marked pick_place as a key investigation priority in the analysis summary; no immediate fix applied, pending deeper diagnosis</p>
+<p><strong>Key Insight:</strong> Even if the base task completion rate is acceptable, Error Recovery performance may decline significantly, indicating that v2’s robustness against interference may be reduced</p>
 <h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
-<h4 id="3-tokenmonitor-floatball-displayed-na-for-cursor-utilization-because-extra_usage-field-was-none-for-users-with-only-plan_usage-data">3. TokenMonitor FloatBall displayed N/A for Cursor utilization because extra_usage field was None for users with only plan_usage data<a hidden class="anchor" aria-hidden="true" href="#3-tokenmonitor-floatball-displayed-na-for-cursor-utilization-because-extra_usage-field-was-none-for-users-with-only-plan_usage-data">#</a></h4>
-<p><strong>Solution:</strong> Changed Cursor utilization extraction in tray_utilization_from_rate_limits() from extra_usage-only to fallback chain: extra_usage_utilization().or_else(|| primary_window_utilization())</p>
-<p><strong>Key Insight:</strong> Most Cursor users have plan_usage (windows-based with auto_percent_used/api_percent_used) but lack spend_limit_usage (extra_usage-based); previous code only checked extra_usage, causing None → N/A display</p>
-<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h4 id="3-tokenmonitor-floatball-displays-cursor-usage-as-na-because-only-users-with-plan_usage-data-have-an-extra_usage-field-of-none">3. TokenMonitor FloatBall displays Cursor usage as N/A because only users with plan_usage data have an extra_usage field of None<a hidden class="anchor" aria-hidden="true" href="#3-tokenmonitor-floatball-displays-cursor-usage-as-na-because-only-users-with-plan_usage-data-have-an-extra_usage-field-of-none">#</a></h4>
+<p><strong>Solution:</strong> Modified the Cursor utilization extraction logic in tray_utilization_from_rate_limits(), changing from checking only extra_usage to a fallback chain: extra_usage_utilization().or_else(|| primary_window_utilization())</p>
+<p><strong>Key Insight:</strong> Most Cursor users have plan_usage (based on window and including auto_percent_used/api_percent_used), but lack spend_limit_usage (based on extra_usage); previous code checked only extra_usage, leading to None → N/A display</p>
+<h2 id="human-and-ai-approaches">Human and AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-and-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
-<h4 id="model-performance-comparison-methodology">Model performance comparison methodology<a hidden class="anchor" aria-hidden="true" href="#model-performance-comparison-methodology">#</a></h4>
+<h4 id="model-performance-comparison-method">Model Performance Comparison Method<a hidden class="anchor" aria-hidden="true" href="#model-performance-comparison-method">#</a></h4>
 <table>
   <thead>
       <tr>
           <th>Role</th>
-          <th>Approach</th>
+          <th>Method</th>
       </tr>
   </thead>
   <tbody>
       <tr>
           <td>Human</td>
-          <td>User provided raw benchmark tables with running/completed markers and asked for formatted comparison with v2-v1 delta analysis</td>
+          <td>User provides raw benchmark tables with run/completed markers, requesting formatted comparison and difference analysis between v2-v1</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>Claude added delta columns, emoji indicators for running tasks, highlighted better-performing versions per task, computed aggregate statistics, and provided written interpretation of regression patterns</td>
+          <td>Claude adds difference columns, emoji indicators for task execution, highlights the version performing better in each task, calculates summary statistics, and provides written explanations of regression patterns</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human focused on visual presentation and high-level comparison request; AI added statistical depth (aggregate changes, task-specific pattern analysis) and diagnostic recommendations without being asked</p>
+<p><strong>Difference Analysis:</strong> Humans focus on visual presentation and advanced comparison needs; AI adds statistical depth analysis (summary changes, task-specific pattern analysis) and diagnostic suggestions without being explicitly requested</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
 <ul>
-<li>Multiple MacBook sessions showed Claude was not logged in but no proactive guidance was provided on resolving authentication issues</li>
+<li>Multiple MacBook sessions show Claude not logged in, but no proactive guidance to resolve authentication issues provided</li>
 </ul>
-<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h2 id="learning-outcomes">Learning Outcomes<a hidden class="anchor" aria-hidden="true" href="#learning-outcomes">#</a></h2>
 <h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
 <ul>
-<li>Model version improvements can be task-specific rather than uniform: pi0.5 v2 improved threading by +24pp while regressing in 4 other Clean Rollout tasks, indicating architectural trade-offs that warrant per-task investigation</li>
-<li>Error recovery performance can decouple from base task success rate: pick_place regressed -24.1pp in Error Recovery despite unknown Clean Rollout status, highlighting robustness as a distinct evaluation dimension</li>
+<li>Model version improvements may be task-specific rather than uniform: pi0.5 v2 improved by +24pp in thread tasks but declined in the other 4 Clean Rollout tasks, indicating the need for architectural trade-off analysis per task</li>
+<li>Error Recovery performance may be separate from base task success rates: despite unknown Clean Rollout status, pick_place dropped -24.1pp in Error Recovery, highlighting that robustness is an independent evaluation dimension</li>
 </ul>
 <h3 id="practical-learnings">Practical Learnings<a hidden class="anchor" aria-hidden="true" href="#practical-learnings">#</a></h3>
 <ul>
-<li>Rate limit data sources vary by user tier: Cursor users may have plan_usage (windows-based) without spend_limit_usage (extra_usage-based), requiring fallback logic in UI data extraction to avoid null/N/A display</li>
+<li>Source of rate limit data varies by user level: Cursor users may have plan_usage (based on window), but lack spend_limit_usage (based on extra_usage), requiring fallback logic in UI data extraction to avoid null/N/A display</li>
 </ul>
-<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
-<h3 id="robotics-model-benchmarking">Robotics Model Benchmarking<a hidden class="anchor" aria-hidden="true" href="#robotics-model-benchmarking">#</a></h3>
-<p><strong>✅ pi0.5 v2 performance evaluation vs v1 across 6 tasks</strong>
+<h2 id="dialogue-summary">Dialogue Summary<a hidden class="anchor" aria-hidden="true" href="#dialogue-summary">#</a></h2>
+<h3 id="robot-model-benchmarking">Robot Model Benchmarking<a hidden class="anchor" aria-hidden="true" href="#robot-model-benchmarking">#</a></h3>
+<p><strong>✅ Performance evaluation of pi0.5 v2 and v1 across 6 tasks</strong>
 <em>05:56:19.034 | claude_code</em>
-User provided raw benchmark tables for BCRNN and pi0.5 models (v1/v2) across Clean Rollout and Error Recovery scenarios. Claude formatted the data with delta columns, computed aggregate statistics, and identified that pi0.5 v2 regressed overall in Clean Rollout (-5.6pp) except threading (+24pp), with pick_place showing severe Error Recovery regression (-24.1pp). Recommended investigating v2&rsquo;s pick_place and coffee task regressions.</p>
+User provided raw benchmark tables for BCRNN and pi0.5 models (v1/v2) covering Clean Rollout and Error Recovery scenarios. Claude formatted the data, added difference columns, calculated summary statistics, and found that pi0.5 v2 overall dropped (-5.6pp) in Clean Rollout, but improved (+24pp) in thread tasks, and pick_place dropped severely (-24.1pp) in Error Recovery. Recommended investigation into regression in v2 for pick_place and coffee tasks.</p>
 <h3 id="tokenmonitor">TokenMonitor<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor">#</a></h3>
-<p><strong>✅ Fix Cursor FloatBall N/A display bug</strong>
+<p><strong>✅ Fixed the Cursor FloatBall N/A display error</strong>
 <em>05:57:21.549 | claude_code</em>
-Continued from previous session to fix Cursor rate limit utilization showing N/A in FloatBall widget. Root cause: tray_utilization_from_rate_limits() only checked extra_usage_utilization (from spend_limit_usage), but most Cursor users only have plan_usage (primary_window data). Modified Cursor extraction to fallback from extra_usage to primary_window. Added two tests, all 21 tests passed, clippy clean.</p>
+Continued from the previous session, fixed the issue where the Cursor rate limit utilization displayed as N/A in the FloatBall widget. Root cause: tray_utilization_from_rate_limits() only checks extra_usage_utilization (from spend_limit_usage), but most Cursor users have only plan_usage (primary_window data). Modified the Cursor extraction logic to fallback from extra_usage to primary_window. Added two tests, all 21 tests passed, and clippy specifications satisfied.</p>
 <h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
-<p><strong>Total: $3.27</strong> — 1.9M tokens</p>
-<!-- gadget:src-hash:4f3ff9841cddc09c -->
-
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-05-02</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$62.31</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>81M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>481K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>86.8%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $9</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $53</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (14.5%), Codex (85.5%)">
+          <span style="width:14.5%; background:var(--usage-cost-main)"></span>
+          <span style="width:85.5%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 86.8%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 13.2%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (86.8%), active tokens (13.2%)">
+          <span style="width:86.8%; background:var(--usage-cache)"></span>
+          <span style="width:13.2%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Codex drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:ea1ffe6717c7cd58 -->
 
   </div>
 

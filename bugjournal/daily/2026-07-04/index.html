@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-07-04 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="Fixed CSS priority bugs in the token usage summary card, mapped cost data flow and daily report generation pipelines, and conducted a deep architectural analysis of cross-device data synchronization to resolve historical data recovery concerns and alias collision risks.">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/bugjournal/daily/2026-07-04/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-07-04/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-04/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/bugjournal/daily/2026-07-04/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-07-04">
+  <meta property="og:description" content="Fixed CSS priority bugs in the token usage summary card, mapped cost data flow and daily report generation pipelines, and conducted a deep architectural analysis of cross-device data synchronization to resolve historical data recovery concerns and alias collision risks.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-07-04T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-07-04T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-07-04">
+  <meta name="twitter:description" content="Fixed CSS priority bugs in the token usage summary card, mapped cost data flow and daily report generation pipelines, and conducted a deep architectural analysis of cross-device data synchronization to resolve historical data recovery concerns and alias collision risks.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-07-04",
+      "item": "https://tzj2006.github.io/bugjournal/daily/2026-07-04/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-07-04",
+  "name": "Bug Journal 2026-07-04",
+  "description": "Fixed CSS priority bugs in the token usage summary card, mapped cost data flow and daily report generation pipelines, and conducted a deep architectural analysis of cross-device data synchronization to resolve historical data recovery concerns and alias collision risks.",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-07-04 Daily Overview What was done: Corrected layout rendering issues for usage metrics, traced cost normalization workflows, and evaluated distributed archive formats for potential deduplication vulnerabilities. How it was done: Overrode conflicting CMS theme CSS selectors to restore grid layouts, performed static analysis on export and merge routines in Python and Rust codebases, and validated data integrity by comparing external JSONL backups against local snapshots. Impact: Restored accurate daily report visualization, established a clear understanding of the cost injection pipeline, and identified critical edge cases in SSH-based device aliasing while preserving historical token costs from source-side rolling deletions. Fixed CSS priority bugs in the token usage summary card, mapped cost data flow and daily report generation pipelines, and conducted a deep architectural analysis of cross-device data synchronization to resolve historical data recovery concerns and alias collision risks.\nTasks Architecture \u0026 Strategy ✅ Audit cross-device JSONL export schema and deduplication risks — Decoded source_key vs device semantics, validated OneDrive TokenMonitor backups for historical gaps, and identified alias collision hazards in peer imports. Implementation \u0026 Fixes ✅ Fix token usage card layout overflow — Resolved display obstruction by increasing CSS selector specificity for .usage-card__stats, resetting definition list widths, and verifying against formatter tests. ✅ Trace cost pricing injection and report generation pipeline — Mapped totalCost flow through usage.py, confirmed embedding in usage_card.py, and executed local preview workflows using merge/deploy commands. Problems \u0026 Solutions Critical Issues 1. Ambiguity in cross-device JSONL export files where identical SSH aliases from different machines would falsely merge distinct hosts upon import, skewing costs. Solution: Defined strict remapping rules via remap_peer_source, confirmed the architecture rewrites peer local:* keys on ingestion, and identified that preserving user-chosen aliases for remote hosts remains a vulnerability requiring stable host fingerprinting to resolve.\nKey Insight: Distributed synchronization protocols cannot rely on mutable user configurations as unique identifiers; machine identity must be decoupled from display labels and derived from invariant hardware or network fingerprints to prevent silent data fusion attacks.\n2. Risk of permanent historical token cost loss because the source generator’s rolling window deletes past session JSONL files before full archive capture. Solution: Confirmed that save_usage_file employs an idempotent merge strategy on top of existing snapshots, preserving data beyond the source export window; additionally mapped external backup files to reconstruct missing periods.\nKey Insight: Aggregation pipelines must implement local history merging as a defensive layer against volatile source exporters; without this, rolling cleanups will create insurmountable gaps in long-term analytics.\nGeneral Issues 3. Token usage card collapsed into unreadable vertical text due to PaperMod theme overriding grid styles and forcing fixed column widths on dl/dt/dd elements. Solution: Scoped the CSS reset to .usage-card descendants, increased cascade priority, and explicitly applied width: auto to definition terms and data lists; verified with self-check scripts.\nKey Insight: Third-party CMS themes apply broad structural styles (like definition lists) that can silently destroy custom component layouts, requiring strictly targeted selectors rather than relying on standard HTML tag behavior.\nHuman vs AI Approaches Strategic Level Distribution model vs central merge file for cross-device archives Role Approach Human Advocated for a unified ‘objective’ merged file written by all devices to single-source truth, citing size discrepancies and data convergence concerns. AI Explained the danger of multi-writer race conditions over cloud-synced folders, validated the current per-device write model, and demonstrated how local incremental imports already function as a robust merge engine without central coordination. Difference Analysis: Human focused on logical data unification and schema consistency; AI countered with operational concurrency constraints inherent to file-based synchronization, successfully redirecting the approach away from fragile centralized writes.\nAI Limitations General Limitations Initially confused local vs. remote log paths for the daily merge command, requiring user correction to specify exact file paths or sync flags before proceeding with the report workflow. Deferred detailed explanation of JSONL schema fields until directly challenged, missing an opportunity to proactively clarify source_key, device, and record structures during initial export analysis. Learnings Key Learnings Hugo’s markdown rendering with unsafe HTML enables custom components but demands rigorous CSS isolation; standard theme resets and generic tag styles will inevitably collide, making scoped wrappers and high-specificity selectors mandatory for reliable UI embedding. Local-first data sync architectures benefit immensely from single-writer-per-file guarantees combined with peer-side incremental imports; attempting to centralize writes introduces catastrophic concurrency risks that outweigh the benefits of a physical merge file. Conversation Summaries Gadget ✅ Repair token usage card CSS overflow and theme conflict 18:59:26.574 | claude_code Addressed a display bug where the token usage footer card was obscured by width constraints. Diagnosed a cascade conflict between the site’s PaperMod theme definition list styles and the card’s grid layout. Patches increased selector specificity, applied column resets, and verified functionality through automated formatter tests.\n✅ Trace cost pricing injection and daily report generation pipeline 21:30:58.810 | claude_code Investigated the complete lifecycle of token cost data from export normalization (usage.py) to HTML visualization (usage_card.py). Generated a localized test workflow for previewing July 3rd reports, corrected merge command usage by addressing synchronization flags, and resolved deployment gaps where generated markdown failed to land in the Hugo content tree.\nTokenMonitor 🔄 Validate historical data recovery and deduplication architecture against alias collisions 03:47:17.321 | claude_code Ensured that rolling window deletions do not permanently erase token history due to snapshot merging logic, and mapped external TokenMonitor JSONL backups for missing dates. Conducted a structural review of the export format, decoding record semantics, and exposed a critical alias collision vulnerability in SSH host deduplication while evaluating distributed vs centralized sync models.\nToken Usage AI Usage · 2026-07-04\rClaude Code\rTotal cost$7.61\rTotal tokens2M\rOutput tokens21K\rCache read80.0%\rToken character\rCache reads 80.0% ·\rActive 20.0%\rMost token volume came from cache reads.\r",
+  "wordCount" : "946",
+  "inLanguage": "en",
+  "datePublished": "2026-07-04T00:00:00-05:00",
+  "dateModified": "2026-07-04T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/bugjournal/daily/2026-07-04/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="en"
+                        data-translation-url="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-04/">中文
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-07-04
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-07-04 00:00:00 -0500 -0500'>July 4, 2026</span>&nbsp;·&nbsp;<span>5 min</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-07-04">Daily Report — 2026-07-04<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-07-04">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>What was done:</strong> Corrected layout rendering issues for usage metrics, traced cost normalization workflows, and evaluated distributed archive formats for potential deduplication vulnerabilities.</li>
+<li><strong>How it was done:</strong> Overrode conflicting CMS theme CSS selectors to restore grid layouts, performed static analysis on export and merge routines in Python and Rust codebases, and validated data integrity by comparing external JSONL backups against local snapshots.</li>
+<li><strong>Impact:</strong> Restored accurate daily report visualization, established a clear understanding of the cost injection pipeline, and identified critical edge cases in SSH-based device aliasing while preserving historical token costs from source-side rolling deletions.</li>
+</ul>
+<blockquote>
+<p>Fixed CSS priority bugs in the token usage summary card, mapped cost data flow and daily report generation pipelines, and conducted a deep architectural analysis of cross-device data synchronization to resolve historical data recovery concerns and alias collision risks.</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<ul>
+<li>✅ <strong>Audit cross-device JSONL export schema and deduplication risks</strong> — Decoded <code>source_key</code> vs <code>device</code> semantics, validated OneDrive TokenMonitor backups for historical gaps, and identified alias collision hazards in peer imports.</li>
+</ul>
+<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<ul>
+<li>✅ <strong>Fix token usage card layout overflow</strong> — Resolved display obstruction by increasing CSS selector specificity for <code>.usage-card__stats</code>, resetting definition list widths, and verifying against formatter tests.</li>
+<li>✅ <strong>Trace cost pricing injection and report generation pipeline</strong> — Mapped <code>totalCost</code> flow through <code>usage.py</code>, confirmed embedding in <code>usage_card.py</code>, and executed local preview workflows using merge/deploy commands.</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-ambiguity-in-cross-device-jsonl-export-files-where-identical-ssh-aliases-from-different-machines-would-falsely-merge-distinct-hosts-upon-import-skewing-costs">1. Ambiguity in cross-device JSONL export files where identical SSH aliases from different machines would falsely merge distinct hosts upon import, skewing costs.<a hidden class="anchor" aria-hidden="true" href="#1-ambiguity-in-cross-device-jsonl-export-files-where-identical-ssh-aliases-from-different-machines-would-falsely-merge-distinct-hosts-upon-import-skewing-costs">#</a></h4>
+<p><strong>Solution:</strong> Defined strict remapping rules via <code>remap_peer_source</code>, confirmed the architecture rewrites peer <code>local:*</code> keys on ingestion, and identified that preserving user-chosen aliases for remote hosts remains a vulnerability requiring stable host fingerprinting to resolve.</p>
+<p><strong>Key Insight:</strong> Distributed synchronization protocols cannot rely on mutable user configurations as unique identifiers; machine identity must be decoupled from display labels and derived from invariant hardware or network fingerprints to prevent silent data fusion attacks.</p>
+<h4 id="2-risk-of-permanent-historical-token-cost-loss-because-the-source-generators-rolling-window-deletes-past-session-jsonl-files-before-full-archive-capture">2. Risk of permanent historical token cost loss because the source generator&rsquo;s rolling window deletes past session JSONL files before full archive capture.<a hidden class="anchor" aria-hidden="true" href="#2-risk-of-permanent-historical-token-cost-loss-because-the-source-generators-rolling-window-deletes-past-session-jsonl-files-before-full-archive-capture">#</a></h4>
+<p><strong>Solution:</strong> Confirmed that <code>save_usage_file</code> employs an idempotent merge strategy on top of existing snapshots, preserving data beyond the source export window; additionally mapped external backup files to reconstruct missing periods.</p>
+<p><strong>Key Insight:</strong> Aggregation pipelines must implement local history merging as a defensive layer against volatile source exporters; without this, rolling cleanups will create insurmountable gaps in long-term analytics.</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="3-token-usage-card-collapsed-into-unreadable-vertical-text-due-to-papermod-theme-overriding-grid-styles-and-forcing-fixed-column-widths-on-dldtdd-elements">3. Token usage card collapsed into unreadable vertical text due to PaperMod theme overriding grid styles and forcing fixed column widths on dl/dt/dd elements.<a hidden class="anchor" aria-hidden="true" href="#3-token-usage-card-collapsed-into-unreadable-vertical-text-due-to-papermod-theme-overriding-grid-styles-and-forcing-fixed-column-widths-on-dldtdd-elements">#</a></h4>
+<p><strong>Solution:</strong> Scoped the CSS reset to <code>.usage-card</code> descendants, increased cascade priority, and explicitly applied <code>width: auto</code> to definition terms and data lists; verified with self-check scripts.</p>
+<p><strong>Key Insight:</strong> Third-party CMS themes apply broad structural styles (like definition lists) that can silently destroy custom component layouts, requiring strictly targeted selectors rather than relying on standard HTML tag behavior.</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="distribution-model-vs-central-merge-file-for-cross-device-archives">Distribution model vs central merge file for cross-device archives<a hidden class="anchor" aria-hidden="true" href="#distribution-model-vs-central-merge-file-for-cross-device-archives">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>Advocated for a unified &lsquo;objective&rsquo; merged file written by all devices to single-source truth, citing size discrepancies and data convergence concerns.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>Explained the danger of multi-writer race conditions over cloud-synced folders, validated the current per-device write model, and demonstrated how local incremental imports already function as a robust merge engine without central coordination.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human focused on logical data unification and schema consistency; AI countered with operational concurrency constraints inherent to file-based synchronization, successfully redirecting the approach away from fragile centralized writes.</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<ul>
+<li>Initially confused local vs. remote log paths for the <code>daily merge</code> command, requiring user correction to specify exact file paths or sync flags before proceeding with the report workflow.</li>
+<li>Deferred detailed explanation of JSONL schema fields until directly challenged, missing an opportunity to proactively clarify <code>source_key</code>, <code>device</code>, and record structures during initial export analysis.</li>
+</ul>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<ul>
+<li>Hugo&rsquo;s markdown rendering with unsafe HTML enables custom components but demands rigorous CSS isolation; standard theme resets and generic tag styles will inevitably collide, making scoped wrappers and high-specificity selectors mandatory for reliable UI embedding.</li>
+<li>Local-first data sync architectures benefit immensely from single-writer-per-file guarantees combined with peer-side incremental imports; attempting to centralize writes introduces catastrophic concurrency risks that outweigh the benefits of a physical merge file.</li>
+</ul>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<h3 id="gadget">Gadget<a hidden class="anchor" aria-hidden="true" href="#gadget">#</a></h3>
+<p><strong>✅ Repair token usage card CSS overflow and theme conflict</strong>
+<em>18:59:26.574 | claude_code</em>
+Addressed a display bug where the token usage footer card was obscured by width constraints. Diagnosed a cascade conflict between the site&rsquo;s PaperMod theme definition list styles and the card&rsquo;s grid layout. Patches increased selector specificity, applied column resets, and verified functionality through automated formatter tests.</p>
+<p><strong>✅ Trace cost pricing injection and daily report generation pipeline</strong>
+<em>21:30:58.810 | claude_code</em>
+Investigated the complete lifecycle of token cost data from export normalization (<code>usage.py</code>) to HTML visualization (<code>usage_card.py</code>). Generated a localized test workflow for previewing July 3rd reports, corrected merge command usage by addressing synchronization flags, and resolved deployment gaps where generated markdown failed to land in the Hugo content tree.</p>
+<h3 id="tokenmonitor">TokenMonitor<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor">#</a></h3>
+<p><strong>🔄 Validate historical data recovery and deduplication architecture against alias collisions</strong>
+<em>03:47:17.321 | claude_code</em>
+Ensured that rolling window deletions do not permanently erase token history due to snapshot merging logic, and mapped external TokenMonitor JSONL backups for missing dates. Conducted a structural review of the export format, decoding record semantics, and exposed a critical alias collision vulnerability in SSH host deduplication while evaluating distributed vs centralized sync models.</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-07-04</span>
+        <span class="usage-card__source">Claude Code</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$7.61</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>2M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>21K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>80.0%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 80.0%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 20.0%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (80.0%), active tokens (20.0%)">
+          <span style="width:80.0%; background:var(--usage-cache)"></span>
+          <span style="width:20.0%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:8484b6b39bd51d52 -->
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

@@ -7,7 +7,7 @@
 <meta name="robots" content="index, follow">
 <title>Bug Journal 2026-03-22 | TzJ&#39;s Net</title>
 <meta name="keywords" content="Bug Journal">
-<meta name="description" content="完成了W05-W12历史周报的批量生成工作，修复了关键网站部署问题（包括PaperMod主题更新、update.sh系统的稳定性优化），并对gadget的Hugo部署架构进行了重构，设置了统一的输出/站点预置区、bugJournal下拉导航功能，还整合了基准测试报告发布功能">
+<meta name="description" content="当天，我们改进了离线成功案例的LoRA数据处理流程，诊断了机器人错误恢复测试中的阈值瓶颈问题，同时重构了基于Hugo的博客导航结构，并统一了自动化部署工作流程。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-03-22/">
 <link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
@@ -79,7 +79,7 @@
 <meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-03-22/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="Bug Journal 2026-03-22">
-  <meta property="og:description" content="完成了W05-W12历史周报的批量生成工作，修复了关键网站部署问题（包括PaperMod主题更新、update.sh系统的稳定性优化），并对gadget的Hugo部署架构进行了重构，设置了统一的输出/站点预置区、bugJournal下拉导航功能，还整合了基准测试报告发布功能">
+  <meta property="og:description" content="当天，我们改进了离线成功案例的LoRA数据处理流程，诊断了机器人错误恢复测试中的阈值瓶颈问题，同时重构了基于Hugo的博客导航结构，并统一了自动化部署工作流程。">
   <meta property="og:locale" content="zh_cn">
   <meta property="og:type" content="article">
     <meta property="article:section" content="bugjournal">
@@ -88,7 +88,7 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Bug Journal 2026-03-22">
-  <meta name="twitter:description" content="完成了W05-W12历史周报的批量生成工作，修复了关键网站部署问题（包括PaperMod主题更新、update.sh系统的稳定性优化），并对gadget的Hugo部署架构进行了重构，设置了统一的输出/站点预置区、bugJournal下拉导航功能，还整合了基准测试报告发布功能">
+  <meta name="twitter:description" content="当天，我们改进了离线成功案例的LoRA数据处理流程，诊断了机器人错误恢复测试中的阈值瓶颈问题，同时重构了基于Hugo的博客导航结构，并统一了自动化部署工作流程。">
 
 
 <script type="application/ld+json">
@@ -123,12 +123,12 @@
   "@type": "BlogPosting",
   "headline": "Bug Journal 2026-03-22",
   "name": "Bug Journal 2026-03-22",
-  "description": "完成了W05-W12历史周报的批量生成工作，修复了关键网站部署问题（包括PaperMod主题更新、update.sh系统的稳定性优化），并对gadget的Hugo部署架构进行了重构，设置了统一的输出/站点预置区、bugJournal下拉导航功能，还整合了基准测试报告发布功能",
+  "description": "当天，我们改进了离线成功案例的LoRA数据处理流程，诊断了机器人错误恢复测试中的阈值瓶颈问题，同时重构了基于Hugo的博客导航结构，并统一了自动化部署工作流程。",
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "每日报告 — 2026-03-22 日常概述 已完成工作： 建立了完整的周报存档（W05-W12），解决了网站部署中的阻塞问题，并通过将所有自动生成的内容（摘要、研究数据、基准测试）集中到具有分层导航的统一 staging 目录中，对整个 Hugo 部署流程进行了重构。 实现方式： 通过 LLM 批量生成了8周的结构化报告；更新了 PaperMod 主题，并增强了 update.sh 脚本以应对边缘情况（无更改提交、查找竞争条件）；构建了 common.site_staging 基础设施，采用链接或复制同步机制，将所有工具部署逻辑迁移到 staging 环境，创建了 website/sync_staging.py 并包含 Bootstrap 迁移功能，还实现了带有悬停下拉效果的自定义 Hugo 标题部分。 影响： 建立了完整的项目历史文档；消除了三个部署阻塞问题，使系统具备生产级能力；建立了自动生成内容的单一真实来源，避免了双重写入不一致问题，实现了自动跨平台回退的原子式更新，并提供了更清晰的内容组织结构及分层多层级导航。 完成了 W05-W12 历史周报的批量生成，修复了关键的网站部署错误（PaperMod 主题更新、update.sh 脚本的鲁棒性），通过统一的输出/站点 staging 区域、bugJournal 下拉导航以及集成化的基准测试报告发布功能，对 gadget 的 Hugo 部署架构进行了重构。\n任务 架构与策略 ✅ 设计与实现统一 staging 架构 — 创建了 common/site_staging.py 文件，包含 resolve_site_staging_root、write_site_content、copy_site_static 辅助函数；将 outputs/site/{content,static} 定义为规范的 staging 根目录；在 common/paths.py 中添加了 paths.SITE_OUTPUTS_DIR 路径。 ✅ 构建 website/sync_staging.py 同步脚本 — 创建了 Python 脚本，实现链接或复制功能，并使用 os.link 作为 shutil.copytree 的回退方案；包含 bootstrap_source，用于首次运行时将现有内容从 website/ 迁移到 outputs/site；管理 bugJournal/{daily,weekly,monthly}、research、benchmark.md 以及 static/{images,benchmark-report}。 ✅ 解决网站部署阻塞问题并部署到 GitHub Pages — 更新了 PaperMod 主题至最新版本，解决了缺失部分问题；解决了合并冲突，保留了 MathJax 和复选框自定义设置；增强了 update.sh 脚本以处理无更改情况及查找竞争条件，成功完成全量部署。 ✅ 将摘要部署迁移到 staging — 对 daily_summary.py、weekly_summary.py、monthly_summary.py 进行了重构，使其向 outputs/site 写入内容而非 website/content；更新了部署检测逻辑以检查 staging 路径；保留了现有的 CLI 界面。 ✅ 将研究部署迁移到 staging — 更新了 research/output.py 中的 deploy_to_hugo 和 research_scout.py 中的 generate_hugo_post 函数，使用 common.site_staging 辅助函数；将研究人员资料和每日报告整合到单一研究部分下。 ✅ 添加基准测试 Hugo 发布层 — 创建了 test/benchmark/publish.py 文件，包含 stage_benchmark_report 函数；在基准测试 CLI 中添加 –deploy 参数；生成 /benchmark/ 包装页面，使用 iframe 嵌入 /benchmark-report/report.html，通过固定过去日期避免 Hugo 未来内容被跳过；添加了基准测试菜单项。 ✅ 添加 bugJournal 分层下拉导航 — 在 Hugo config.yml 中实现了父子菜单结构，创建了自定义布局/部分/header.html，包含子菜单渲染和悬停下拉 CSS 效果，更新了 section _index.md 文件中的描述性文本，将所有 URL 转换为小写 /bugjournal/ 以适应区分大小写的托管环境。 实施与修复 ✅ 更新网站构建脚本 (update.sh 和 update.ps1) — 修改了两个脚本，使其在 Hugo 构建步骤之前运行 python sync_staging.py；保留了现有的增量图像/视频压缩和 git push 工作流；更新了 sync.py 中的 rclone 配置，以同步 outputs/site/* 而非 website/content/*。 ✅ 批量生成历史周报 (W05-W12) — 生成了2026年第5-12周的结构化周报，涵盖 MIHD、Error Recovery Benchmark、CalendarPro、RoboBrain、Life Copilot 及其他跨设备并行项目。 ✅ 验证端到端 staging 同步和 Hugo 构建 — 对所有修改过的文件进行了 py_compile 验证，执行了 sync_staging.py 以确认 Bootstrap 和链接或复制逻辑，运行 hugo –destination . verify-public3 确认 /benchmark/index.html、/benchmark-report/report.html 以及所有 bugjournal 部分正确渲染；未执行最终向 GitHub Pages 的推送。 问题与解决方案 关键问题 1. 首次 staging 同步会覆盖数月累积的网站/content 历史记录 解决方案： 在 sync_staging.py 中实现了 bootstrap_source：如果 staging 路径不存在但 website 路径存在，先将网站内容移动到 staging 后继续进行常规同步；一次性迁移可保留所有历史数据。\n关键见解： 切换真实来源需要保留迁移路径以保存现有数据；首次运行时的 Bootstrap 模式可实现安全切换，无需手动预迁移或数据丢失风险。\n2. PaperMod 主题过时导致 Hugo v0.157.0 构建失败，因为缺少 get-page-images 部分。 解决方案： 清理了 macOS 资源 Fork 文件 (._pack-*) 导致的 git 损坏问题，保存本地更改并下载最新主题，手动解决了 head.html 合并冲突，保留了上游 theme-toggle 以及本地 MathJax 和复选框脚本。\n关键见解： macOS 资源 Fork 文件 (._ 前缀) 会导致跨平台项目中的 git 仓库损坏；主题更新需要通过手动冲突解决来谨慎保留本地自定义设置。\n3. update.sh 脚本在无更改情况下 git 提交返回非零退出码时中止。 解决方案： 在提交前执行 git diff –cached –quiet 检查；当未检测到更改时跳过提交并推送，并发送友好消息。\n关键见解： 使用 set -e 的 Shell 脚本必须明确处理所有正常失败情况；依赖命令退出码而不进行状态检查会导致自动化系统脆弱。\n4. /benchmark/ 包装页面无法渲染：Hugo 识别到了 content/benchmark.md 内容，但未能生成 /benchmark/index.html。 解决方案： 将包装页面的日期从 datetime.now()（未来内容）改为固定的 2025-01-01 过去日期；将内容/benchmark/_index.md 改为内容/benchmark.md 以避免与 static/benchmark 目录冲突。\n关键见解： Hugo 默认会忽略未来日期的内容；与静态目录同名的部分会导致输出路径不明确，单一页面更适合包装内容使用。\n一般问题 5. 在递归清理过程中删除父目录后访问子目录时，update.sh 中的 find 命令失败。 解决方案： 在 find … -exec rm -rf {} + 之后添加 2\u003e/dev/null || true，以优雅地忽略预期的竞争条件错误。关键洞察： 递归删除操作会导致竞态条件，即查找过程会遍历在执行过程中被删除的路径；为实现此预期行为，需明确抑制错误\n6. Hugo URL 大小写规范问题：config.yml 使用 /bugJournal/，但 Hugo 生成 /bugjournal/，可能导致对大小写敏感的 GitHub Pages 出现 404 错误 解决方案： 将 config.yml 和内容前导信息中的所有 bugJournal 引用规范为小写 /bugjournal/，以符合 Hugo 的规范化行为\n关键洞察： Hugo 的 canonifyURLs 和 slug 生成功能会自动将章节名称规范为小写；config 中的混合大小写 URL 会导致在对大小写敏感的静态主机上出现不一致问题\n7. Windows PowerShell 执行策略阻止 py_compile 和验证脚本运行 解决方案： 直接使用 python -m py_compile，或将 Python 代码嵌入到 PowerShell 字符串中并通过 python - 来执行，从而绕过脚本文件执行的限制\n关键洞察： 环境执行策略甚至会阻止非破坏性验证命令；通过标准输入嵌入 Python 可以无需权限提升即可绕过基于文件的限制\n人类与 AI 方法对比 战略层面 部署架构：统一的测试环境目录作为单一真实来源 角色 方法 人类 用户发现了双重写入问题（工具同时写入输出和网站），并提出了清晰的架构改进方案：将所有工具输出集中到 outputs/site 中，与网站结构一致，然后在 Hugo 构建前自动链接或复制至最终位置 AI AI 最初检查了网站/content/* 中分散的每种工具部署路径，并在现有结构内寻找逐步重构的机会，未质疑基本架构 差异分析： 人类发现了系统设计缺陷并直接提出了架构解决方案；AI 则依赖现有代码模式，很可能继续进行零散重构，无需明确的架构指令\n网站部署系统修复迭代过程 角色 方法 人类 用户在 AI 修复后执行脚本以验证结果，通过实际测试发现新问题，并在多阶段修复过程中保持整个系统完整性的监控 AI AI 采用逐步修复策略，仅解决当前可见的问题，需要多次用户反馈迭代才能在所有边缘情况下实现完全稳健性 差异分析： 用户的经验测试推动了修复的完整性；AI 的初始解决方案解决了表面问题，直到通过实际执行用户反馈才发现更深层次的边缘情况\n实施层面 基准测试发布策略：包含嵌入 iframe 的包装页面 角色 方法 人类 用户未指定实施细节；在 AI 在探索过程中遇到 Hugo 路径冲突后，接受了 AI 基于 iframe 的提议 AI AI 最初尝试基于章节的发布方式（内容/benchmark/_index.md 与静态文件/benchmark/report.html），遇到 Hugo 渲染冲突后，转向使用 iframe 嵌入的页面和独立静态目录模式 差异分析： AI 通过试错探索了多种 Hugo 内容模型方案（章节、页面、静态文件）；用户信任 AI 能发现正确的 Hugo 模式，未提前提出技术解决方案\nAI 局限性 关键局限 在修复 update.sh 时未能预见所有 shell 脚本边缘情况，需要多次用户测试反馈循环来处理无更改提交处理，并逐步发现竞态条件，而非全面解决 一般局限 需要 3 次迭代才能诊断 Hugo /benchmark/ 渲染失败：最初怀疑是测试环境路径问题，然后出现章节与页面混淆问题，最终发现日期相关的问题：datetime.now() 导致的未来内容问题 未主动验证 Hugo 的 URL 大小写规范行为，也未警告对大小写敏感的托管的影响；用户必须独立发现 /bugJournal/ 与 /bugjournal/ 不一致问题 在 git merge 冲突解决过程中，正确保留了双方的关键代码（theme-toggle 和本地自定义配置），但这一判断依赖于对代码功能的理解——复杂情况可能需要人类审核 经验教训 关键经验 源真实切换的 Bootstrap 迁移策略：从分散的部署目标转向集中式测试环境时，通过自动内容重新定位的首次运行检测（将现有网站/移动到 outputs/site 之前）可避免数据丢失，并消除手动迁移前的负担 Hugo 主题更新需要三层策略：①git 仓库完整性（清理损坏的资源合并文件），②依赖关系匹配（主题版本与 Hugo 版本兼容），③本地自定义配置的保留（对 head.html 的手动冲突解决、配置覆盖） Hugo 内容模型边缘情况：章节 (_index.md) 与相同名称的静态目录冲突导致路径不明确；单个页面 (foo.md) 更适合作为包装内容；未来日期的内容除非使用 –buildFuture 标志，否则会被静默跳过；canonifyURLs 将所有章节名称规范为小写，需在 config 中执行大小写规范化 Shell 脚本健壮性原则：①操作前检查 git 状态而非依赖退出码，②对文件系统操作添加错误处理（对于预期失败使用 2\u003e/dev/null || true），③使用 set -e 时明确排除正常失败场景 链接或复制同步模式：当文件系统支持硬链接时，os.link 提供零复制原子更新；自动 fallback 到 shutil.copytree 确保跨平台兼容性（Windows FAT32、网络驱动器）无需手动干预或用户配置 对话总结 gadget/summarize ✅ 批量生成 W05-W12 历史周报 19:30:00.000 | claude_code 使用 daily_summary.py 工具生成了 2026 年第 5-12 周的结构化周报。报告涵盖了 MIHD 空间转录组学（STAIG 对齐修复、scGPT 融合、Harmony 实验）、错误恢复基准测试（错误注入框架、三池架构）、CalendarPro（意图分类升级）、RoboBrain（任务完成检测）、Life Copilot（多意图重构）以及 DCC、tianhe、MacBook、TzJsDesktop 设备上的 Pi0.5 LoRA 训练。重点介绍了多个高密度并行项目周及阶段突破\ngadget/website**✅ 解决部署阻塞问题，成功部署至 GitHub Pages** 20:55:34.064 | claude_code 诊断出由过旧の PaperMod 主题导致的 Hugo 构建失败问题，缺失 get-page-images 部分内容。更新为最新版本主题后，解决了 head.html 合并冲突问题，同时保留了本地 MathJax 和复选框自定义设置。修复了 two update.sh 脚本中的两个稳定性问题：无更改提交处理（添加 git diff –cached –quiet 检查）和查找竞争条件（添加 2\u003e/dev/null || true 逻辑）。成功完成全部部署流程至 GitHub Pages。\n小工具 ✅ Hugo 导航结构重构及统一部署架构优化 01:21:42.819 | codex 实现基于自定义标题部分与悬停 CSS 的层级化 bugJournal 下拉菜单导航，包含每日/每周/每月子菜单。用户建议将所有工具输出集中至 outputs/site staging 目录，以消除双重写入不一致问题。AI 对 summarize、research 和 test 工具的部署逻辑进行了重构，使其使用 common.site_staging 辅助函数；创建了 website/sync_staging.py 脚本，包含链接或复制功能及 Bootstrap 迁移机制；添加了带有 iframe 包裹的 Hugo 发布基准测试层；更新构建脚本以在 Hugo 构建前同步 staging 环境。通过 Hugo 构建验证，/benchmark/、/bugjournal/{daily,weekly,monthly}/、/research/ 均正确渲染。解决了 Hugo URL 大小写规范化、未来内容日期以及章节/静态路径冲突问题。\n令牌使用 总计：8.07美元 — 1700万个令牌\n",
-  "wordCount" : "629",
+  "articleBody": "每日报告 — 2026-03-22 日常概述 **已完成工作：**对离线策略微调流程进行了端到端验证，解决了机器人基准测试中的系统性故障问题，同时通过实施集中内容暂存和优化静态站点生成流程来重构网络基础设施。 **实现方式：**在机器人领域应用了张量形状审核、损失掩码追踪和统计相位检测映射；在网络项目中使用共享的Python暂存辅助工具、模板覆盖和跨平台同步包装器。 **影响：**为动作适应建立了精确的监督目标，消除了推理特征漂移，畅通了场景生成流程，统一了各工具的部署架构，解决了内容发布冲突问题。 TzJsDesktop **已完成工作：**优化离线策略微调逻辑，重构了Hugo博客导航结构以提高内容分离和路由清晰度。 **实现方式：**审核了合成的H5张量形状和桥接前处理步骤以隔离推理不匹配；修改了YAML配置、CSS扩展和布局模板，同时部署基于Python的暂存同步工具。 **影响：**为动作头部适应的监督目标设定了锁定机制，防止了部署过程中的隐性特征漂移，并建立了跨所有工具会话的统一、无冲突的部署流程。 athena.egr.duke.edu **已完成工作：**未记录直接开发或基准测试执行；两个领域的工作始终集中在本地工作站上。 **实现方式：**保留了历史背景以供参考，但在报告期间未进行远程代码执行、文件检查或工具交互。 **影响：**每日进展完全来自本地处理，确保了无需外部依赖即可进行离线验证流程和静态配置。 tianhe **已完成工作：**未执行任何主动自动化脚本编写；保留了之前的基准测试上下文，没有新增任务注入或计算分配。 **实现方式：**执行流程处于休眠状态，所有架构决策和解决步骤都推迟到本地主要环境进行即时控制。 **影响：**这里没有产生任何工作负担，表明今天的技术里程碑完全通过本地处理而非分布式计算集群解决。 当天涉及优化离线成功案例LoRA数据流程，诊断机器人错误恢复基准测试中的阈值瓶颈，同时重构了基于Hugo的博客导航并集中其自动化部署流程。\n任务 架构与策略 ✅ 优化离线成功案例LoRA流程与监督对齐 — 设计并验证了一个离线流程，该流程能够过滤成功轨迹，计算无在线噪声的桥接特征，并在评估过程中强制执行明确的delta零化操作以防止文本令牌漂移。 ✅ Gadget博客导航架构与信息分离 — 重新组织Hugo内容以清晰区分人工智能生成的摘要和人类帖子，为bugJournal部分实现悬停下拉菜单，并应用明确过滤机制以消除旧文件泄露。 ✅ 集中部署暂存与静态站点命名空间解决 — 创建output/site/作为统一的暂存根目录，重构所有工具CLI和同步包装器以指向共享路径，通过强制明确的架构边界解决内容/静态资源冲突。 ✅ three_piece_assembly阶段检测修正与验证器阈值校准 — 通过优先选择grasp_geoms而非基于接近性的固定装置来纠正扫描次数回归，并校准严格的验证常数以畅通多个基准测试中的可行案例生成。 问题与解决方案 关键问题 1. 桥接模型训练时间掩蔽未能限制推理输出，导致文本令牌漂移；严格的验证器阈值和基于接近性的固定装置选择在组装基准测试中错误地拒绝了可行的错误案例。 **解决方案：**在评估过程中强制对非图像通道执行明确的delta零化；统一目标对象选择优先选择grasp_geoms，并校准注入幅度与位移指标，以恢复场景生成可行性。\n**关键洞察：**训练时间损失掩蔽不会自动冻结模型输出在推理阶段，几何接近性约束在组装任务中无法在没有基于能力的过滤的情况下发挥作用；两者都需要明确的架构边界约束。\n一般问题 2. Hugo默认列表行为将旧文件与章节条目合并，动态前文时间戳导致不可预测的发布状态，静态/内容路径冲突阻碍正确的基准测试报告。 **解决方案：**在列表模板中实施明确的类型/标题过滤以隔离直接子项，用固定历史日期替代动态时间戳以实现确定性的发布，并将内容包装器与静态资源路径分离以解决命名空间冲突。\n**关键洞察：**静态站点生成工具需要明确的架构边界和可预测的状态管理，以防止内容泄露、路由冲突和不可靠的发布流程。\n人类与AI方法 战略层面 推理对齐策略与部署架构设计 角色 方法 人类 依赖LoRA流程的结构等价假设，提出一个与站点布局一致的统一暂存目录，强调操作安全性和git历史维护。 AI 跟踪H5/评估路径中的实际流程以定位推理时间的掩蔽问题；设计site_staging.py用于跨平台解决，生成同步包装器，并实施明确的命名空间分离以解决静态与内容冲突。 **差异分析：**人类关注架构边界和理论等价性，忽视运行时掩码执行；AI利用直接的流程审计和细粒度文件I/O来定位实现错误，强制确定性的状态，并弥补本地与远程部署之间的差距，尽管最初存在静态路径冲突，人类帮助解决了这些问题。\nAI局限性 一般局限性 重复的沙箱包装器冲突和权限限制迫使依赖明确的文件读取、手动补丁规划和迭代工具链修正，降低了调试效率并掩盖了直接代码执行。 学习成果 关键学习点- 训练时通道掩码处理不会自动限制推理行为；在部署时必须明确执行架构归零操作，以防止静态序列部分出现无声特征漂移。 将工具输出解耦为统一的发布根目录可简化 CI/CD 流程，同时内容目录与静态资源之间必须明确划分命名空间，以防止自动化发布过程中的冲突。 对话总结 机器人策略管道与错误恢复基准测试 ✅ 离线 LoRA 构建、掩码对齐调试及阶段检测回归分析 18:45:00.000 | codex 通过验证特征对齐和解决推理时掩码缺失导致的文本标记漂移问题，完善了离线成功案例 LoRA 管道。同时诊断出 three_piece_assembly 基准测试中的严重扫描次数回归问题，其根源在于基于接近度的固定器选择失败和严格的验证阈值。关键决策包括：在部署过程中明确执行零值归零操作，将目标对象选择与抓取几何约束统一起来，以及校准验证幅度，以恢复被阻塞任务下的场景生成能力。\nGadget Web 基础设施 ✅ Hugo 博客导航重构与集中式部署管道优化 15:30:00.000 | codex 整理了关于重构 Hugo 博客信息架构的会议内容，将人工智能生成的摘要与人类文章清晰分离，并实现了集中式发布目录 (outputs/site/)。所有工具特定的部署钩子被重构为针对此统一路径的共享 Python 辅助函数，同时使用了同步包装器确保跨平台兼容性。关键决策包括严格的章节过滤、固定发布的日期以实现确定性状态，以及命名空间分离，以防止生成器冲突并确保可靠的自动化发布。\nLiPM_me 🔄 会话初始化与握手 04:29:22.838 | codex 发生了标准的会话初始化交换，无需技术讨论、代码执行或架构探讨；双方都采用了中立的问候格式。\n令牌使用 AI Usage · 2026-03-22\rClaude Code + Codex\rTotal cost$26.96\rTotal tokens46M\rOutput tokens294K\rCache read93.4%\rCost split\rClaude Code $10 ·\rCodex $17\rToken character\rCache reads 93.4% ·\rActive 6.6%\rMost token volume came from cache reads.\r",
+  "wordCount" : "144",
   "inLanguage": "zh",
   "datePublished": "2026-03-22T00:00:00-05:00",
   "dateModified": "2026-03-22T00:00:00-05:00",
@@ -252,63 +252,58 @@
     </h1>
     <div class="post-meta">
 
-<span title='2026-03-22 00:00:00 -0500 -0500'>2026年3月22日</span>&nbsp;·&nbsp;<span>3 分钟</span>
+<span title='2026-03-22 00:00:00 -0500 -0500'>2026年3月22日</span>&nbsp;·&nbsp;<span>1 分钟</span>
 
 </div>
   </header> 
   <div class="post-content md-content"><h1 id="每日报告--2026-03-22">每日报告 — 2026-03-22<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-03-22">#</a></h1>
 <h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
 <ul>
-<li><strong>已完成工作：</strong> 建立了完整的周报存档（W05-W12），解决了网站部署中的阻塞问题，并通过将所有自动生成的内容（摘要、研究数据、基准测试）集中到具有分层导航的统一 staging 目录中，对整个 Hugo 部署流程进行了重构。</li>
-<li><strong>实现方式：</strong> 通过 LLM 批量生成了8周的结构化报告；更新了 PaperMod 主题，并增强了 update.sh 脚本以应对边缘情况（无更改提交、查找竞争条件）；构建了 common.site_staging 基础设施，采用链接或复制同步机制，将所有工具部署逻辑迁移到 staging 环境，创建了 website/sync_staging.py 并包含 Bootstrap 迁移功能，还实现了带有悬停下拉效果的自定义 Hugo 标题部分。</li>
-<li><strong>影响：</strong> 建立了完整的项目历史文档；消除了三个部署阻塞问题，使系统具备生产级能力；建立了自动生成内容的单一真实来源，避免了双重写入不一致问题，实现了自动跨平台回退的原子式更新，并提供了更清晰的内容组织结构及分层多层级导航。</li>
+<li>**已完成工作：**对离线策略微调流程进行了端到端验证，解决了机器人基准测试中的系统性故障问题，同时通过实施集中内容暂存和优化静态站点生成流程来重构网络基础设施。</li>
+<li>**实现方式：**在机器人领域应用了张量形状审核、损失掩码追踪和统计相位检测映射；在网络项目中使用共享的Python暂存辅助工具、模板覆盖和跨平台同步包装器。</li>
+<li>**影响：**为动作适应建立了精确的监督目标，消除了推理特征漂移，畅通了场景生成流程，统一了各工具的部署架构，解决了内容发布冲突问题。</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li>**已完成工作：**优化离线策略微调逻辑，重构了Hugo博客导航结构以提高内容分离和路由清晰度。</li>
+<li>**实现方式：**审核了合成的H5张量形状和桥接前处理步骤以隔离推理不匹配；修改了YAML配置、CSS扩展和布局模板，同时部署基于Python的暂存同步工具。</li>
+<li>**影响：**为动作头部适应的监督目标设定了锁定机制，防止了部署过程中的隐性特征漂移，并建立了跨所有工具会话的统一、无冲突的部署流程。</li>
+</ul>
+<h3 id="athenaegrdukeedu">athena.egr.duke.edu<a hidden class="anchor" aria-hidden="true" href="#athenaegrdukeedu">#</a></h3>
+<ul>
+<li>**已完成工作：**未记录直接开发或基准测试执行；两个领域的工作始终集中在本地工作站上。</li>
+<li>**实现方式：**保留了历史背景以供参考，但在报告期间未进行远程代码执行、文件检查或工具交互。</li>
+<li>**影响：**每日进展完全来自本地处理，确保了无需外部依赖即可进行离线验证流程和静态配置。</li>
+</ul>
+<h3 id="tianhe">tianhe<a hidden class="anchor" aria-hidden="true" href="#tianhe">#</a></h3>
+<ul>
+<li>**已完成工作：**未执行任何主动自动化脚本编写；保留了之前的基准测试上下文，没有新增任务注入或计算分配。</li>
+<li>**实现方式：**执行流程处于休眠状态，所有架构决策和解决步骤都推迟到本地主要环境进行即时控制。</li>
+<li>**影响：**这里没有产生任何工作负担，表明今天的技术里程碑完全通过本地处理而非分布式计算集群解决。</li>
 </ul>
 <blockquote>
-<p>完成了 W05-W12 历史周报的批量生成，修复了关键的网站部署错误（PaperMod 主题更新、update.sh 脚本的鲁棒性），通过统一的输出/站点 staging 区域、bugJournal 下拉导航以及集成化的基准测试报告发布功能，对 gadget 的 Hugo 部署架构进行了重构。</p>
+<p>当天涉及优化离线成功案例LoRA数据流程，诊断机器人错误恢复基准测试中的阈值瓶颈，同时重构了基于Hugo的博客导航并集中其自动化部署流程。</p>
 </blockquote>
 <h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
 <h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
 <ul>
-<li>✅ <strong>设计与实现统一 staging 架构</strong> — 创建了 common/site_staging.py 文件，包含 resolve_site_staging_root、write_site_content、copy_site_static 辅助函数；将 outputs/site/{content,static} 定义为规范的 staging 根目录；在 common/paths.py 中添加了 paths.SITE_OUTPUTS_DIR 路径。</li>
-<li>✅ <strong>构建 website/sync_staging.py 同步脚本</strong> — 创建了 Python 脚本，实现链接或复制功能，并使用 os.link 作为 shutil.copytree 的回退方案；包含 bootstrap_source，用于首次运行时将现有内容从 website/ 迁移到 outputs/site；管理 bugJournal/{daily,weekly,monthly}、research、benchmark.md 以及 static/{images,benchmark-report}。</li>
-<li>✅ <strong>解决网站部署阻塞问题并部署到 GitHub Pages</strong> — 更新了 PaperMod 主题至最新版本，解决了缺失部分问题；解决了合并冲突，保留了 MathJax 和复选框自定义设置；增强了 update.sh 脚本以处理无更改情况及查找竞争条件，成功完成全量部署。</li>
-<li>✅ <strong>将摘要部署迁移到 staging</strong> — 对 daily_summary.py、weekly_summary.py、monthly_summary.py 进行了重构，使其向 outputs/site 写入内容而非 website/content；更新了部署检测逻辑以检查 staging 路径；保留了现有的 CLI 界面。</li>
-<li>✅ <strong>将研究部署迁移到 staging</strong> — 更新了 research/output.py 中的 deploy_to_hugo 和 research_scout.py 中的 generate_hugo_post 函数，使用 common.site_staging 辅助函数；将研究人员资料和每日报告整合到单一研究部分下。</li>
-<li>✅ <strong>添加基准测试 Hugo 发布层</strong> — 创建了 test/benchmark/publish.py 文件，包含 stage_benchmark_report 函数；在基准测试 CLI 中添加 &ndash;deploy 参数；生成 /benchmark/ 包装页面，使用 iframe 嵌入 /benchmark-report/report.html，通过固定过去日期避免 Hugo 未来内容被跳过；添加了基准测试菜单项。</li>
-<li>✅ <strong>添加 bugJournal 分层下拉导航</strong> — 在 Hugo config.yml 中实现了父子菜单结构，创建了自定义布局/部分/header.html，包含子菜单渲染和悬停下拉 CSS 效果，更新了 section _index.md 文件中的描述性文本，将所有 URL 转换为小写 /bugjournal/ 以适应区分大小写的托管环境。</li>
-</ul>
-<h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
-<ul>
-<li>✅ <strong>更新网站构建脚本 (update.sh 和 update.ps1)</strong> — 修改了两个脚本，使其在 Hugo 构建步骤之前运行 python sync_staging.py；保留了现有的增量图像/视频压缩和 git push 工作流；更新了 sync.py 中的 rclone 配置，以同步 outputs/site/* 而非 website/content/*。</li>
-<li>✅ <strong>批量生成历史周报 (W05-W12)</strong> — 生成了2026年第5-12周的结构化周报，涵盖 MIHD、Error Recovery Benchmark、CalendarPro、RoboBrain、Life Copilot 及其他跨设备并行项目。</li>
-<li>✅ <strong>验证端到端 staging 同步和 Hugo 构建</strong> — 对所有修改过的文件进行了 py_compile 验证，执行了 sync_staging.py 以确认 Bootstrap 和链接或复制逻辑，运行 hugo &ndash;destination . verify-public3 确认 /benchmark/index.html、/benchmark-report/report.html 以及所有 bugjournal 部分正确渲染；未执行最终向 GitHub Pages 的推送。</li>
+<li>✅ <strong>优化离线成功案例LoRA流程与监督对齐</strong> — 设计并验证了一个离线流程，该流程能够过滤成功轨迹，计算无在线噪声的桥接特征，并在评估过程中强制执行明确的delta零化操作以防止文本令牌漂移。</li>
+<li>✅ <strong>Gadget博客导航架构与信息分离</strong> — 重新组织Hugo内容以清晰区分人工智能生成的摘要和人类帖子，为bugJournal部分实现悬停下拉菜单，并应用明确过滤机制以消除旧文件泄露。</li>
+<li>✅ <strong>集中部署暂存与静态站点命名空间解决</strong> — 创建output/site/作为统一的暂存根目录，重构所有工具CLI和同步包装器以指向共享路径，通过强制明确的架构边界解决内容/静态资源冲突。</li>
+<li>✅ <strong>three_piece_assembly阶段检测修正与验证器阈值校准</strong> — 通过优先选择grasp_geoms而非基于接近性的固定装置来纠正扫描次数回归，并校准严格的验证常数以畅通多个基准测试中的可行案例生成。</li>
 </ul>
 <h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
 <h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
-<h4 id="1-首次-staging-同步会覆盖数月累积的网站content-历史记录">1. 首次 staging 同步会覆盖数月累积的网站/content 历史记录<a hidden class="anchor" aria-hidden="true" href="#1-首次-staging-同步会覆盖数月累积的网站content-历史记录">#</a></h4>
-<p><strong>解决方案：</strong> 在 sync_staging.py 中实现了 bootstrap_source：如果 staging 路径不存在但 website 路径存在，先将网站内容移动到 staging 后继续进行常规同步；一次性迁移可保留所有历史数据。</p>
-<p><strong>关键见解：</strong> 切换真实来源需要保留迁移路径以保存现有数据；首次运行时的 Bootstrap 模式可实现安全切换，无需手动预迁移或数据丢失风险。</p>
-<h4 id="2-papermod-主题过时导致-hugo-v01570-构建失败因为缺少-get-page-images-部分">2. PaperMod 主题过时导致 Hugo v0.157.0 构建失败，因为缺少 get-page-images 部分。<a hidden class="anchor" aria-hidden="true" href="#2-papermod-主题过时导致-hugo-v01570-构建失败因为缺少-get-page-images-部分">#</a></h4>
-<p><strong>解决方案：</strong> 清理了 macOS 资源 Fork 文件 (._pack-*) 导致的 git 损坏问题，保存本地更改并下载最新主题，手动解决了 head.html 合并冲突，保留了上游 theme-toggle 以及本地 MathJax 和复选框脚本。</p>
-<p><strong>关键见解：</strong> macOS 资源 Fork 文件 (._ 前缀) 会导致跨平台项目中的 git 仓库损坏；主题更新需要通过手动冲突解决来谨慎保留本地自定义设置。</p>
-<h4 id="3-updatesh-脚本在无更改情况下-git-提交返回非零退出码时中止">3. update.sh 脚本在无更改情况下 git 提交返回非零退出码时中止。<a hidden class="anchor" aria-hidden="true" href="#3-updatesh-脚本在无更改情况下-git-提交返回非零退出码时中止">#</a></h4>
-<p><strong>解决方案：</strong> 在提交前执行 git diff &ndash;cached &ndash;quiet 检查；当未检测到更改时跳过提交并推送，并发送友好消息。</p>
-<p><strong>关键见解：</strong> 使用 set -e 的 Shell 脚本必须明确处理所有正常失败情况；依赖命令退出码而不进行状态检查会导致自动化系统脆弱。</p>
-<h4 id="4-benchmark-包装页面无法渲染hugo-识别到了-contentbenchmarkmd-内容但未能生成-benchmarkindexhtml">4. /benchmark/ 包装页面无法渲染：Hugo 识别到了 content/benchmark.md 内容，但未能生成 /benchmark/index.html。<a hidden class="anchor" aria-hidden="true" href="#4-benchmark-包装页面无法渲染hugo-识别到了-contentbenchmarkmd-内容但未能生成-benchmarkindexhtml">#</a></h4>
-<p><strong>解决方案：</strong> 将包装页面的日期从 datetime.now()（未来内容）改为固定的 2025-01-01 过去日期；将内容/benchmark/_index.md 改为内容/benchmark.md 以避免与 static/benchmark 目录冲突。</p>
-<p><strong>关键见解：</strong> Hugo 默认会忽略未来日期的内容；与静态目录同名的部分会导致输出路径不明确，单一页面更适合包装内容使用。</p>
+<h4 id="1-桥接模型训练时间掩蔽未能限制推理输出导致文本令牌漂移严格的验证器阈值和基于接近性的固定装置选择在组装基准测试中错误地拒绝了可行的错误案例">1. 桥接模型训练时间掩蔽未能限制推理输出，导致文本令牌漂移；严格的验证器阈值和基于接近性的固定装置选择在组装基准测试中错误地拒绝了可行的错误案例。<a hidden class="anchor" aria-hidden="true" href="#1-桥接模型训练时间掩蔽未能限制推理输出导致文本令牌漂移严格的验证器阈值和基于接近性的固定装置选择在组装基准测试中错误地拒绝了可行的错误案例">#</a></h4>
+<p>**解决方案：**在评估过程中强制对非图像通道执行明确的delta零化；统一目标对象选择优先选择grasp_geoms，并校准注入幅度与位移指标，以恢复场景生成可行性。</p>
+<p>**关键洞察：**训练时间损失掩蔽不会自动冻结模型输出在推理阶段，几何接近性约束在组装任务中无法在没有基于能力的过滤的情况下发挥作用；两者都需要明确的架构边界约束。</p>
 <h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
-<h4 id="5-在递归清理过程中删除父目录后访问子目录时updatesh-中的-find-命令失败">5. 在递归清理过程中删除父目录后访问子目录时，update.sh 中的 find 命令失败。<a hidden class="anchor" aria-hidden="true" href="#5-在递归清理过程中删除父目录后访问子目录时updatesh-中的-find-命令失败">#</a></h4>
-<p><strong>解决方案：</strong> 在 find &hellip; -exec rm -rf {} + 之后添加 2&gt;/dev/null || true，以优雅地忽略预期的竞争条件错误。<strong>关键洞察：</strong> 递归删除操作会导致竞态条件，即查找过程会遍历在执行过程中被删除的路径；为实现此预期行为，需明确抑制错误</p>
-<h4 id="6-hugo-url-大小写规范问题configyml-使用-bugjournal但-hugo-生成-bugjournal可能导致对大小写敏感的-github-pages-出现-404-错误">6. Hugo URL 大小写规范问题：config.yml 使用 /bugJournal/，但 Hugo 生成 /bugjournal/，可能导致对大小写敏感的 GitHub Pages 出现 404 错误<a hidden class="anchor" aria-hidden="true" href="#6-hugo-url-大小写规范问题configyml-使用-bugjournal但-hugo-生成-bugjournal可能导致对大小写敏感的-github-pages-出现-404-错误">#</a></h4>
-<p><strong>解决方案：</strong> 将 config.yml 和内容前导信息中的所有 bugJournal 引用规范为小写 /bugjournal/，以符合 Hugo 的规范化行为</p>
-<p><strong>关键洞察：</strong> Hugo 的 canonifyURLs 和 slug 生成功能会自动将章节名称规范为小写；config 中的混合大小写 URL 会导致在对大小写敏感的静态主机上出现不一致问题</p>
-<h4 id="7-windows-powershell-执行策略阻止-py_compile-和验证脚本运行">7. Windows PowerShell 执行策略阻止 py_compile 和验证脚本运行<a hidden class="anchor" aria-hidden="true" href="#7-windows-powershell-执行策略阻止-py_compile-和验证脚本运行">#</a></h4>
-<p><strong>解决方案：</strong> 直接使用 python -m py_compile，或将 Python 代码嵌入到 PowerShell 字符串中并通过 python - 来执行，从而绕过脚本文件执行的限制</p>
-<p><strong>关键洞察：</strong> 环境执行策略甚至会阻止非破坏性验证命令；通过标准输入嵌入 Python 可以无需权限提升即可绕过基于文件的限制</p>
-<h2 id="人类与-ai-方法对比">人类与 AI 方法对比<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法对比">#</a></h2>
+<h4 id="2-hugo默认列表行为将旧文件与章节条目合并动态前文时间戳导致不可预测的发布状态静态内容路径冲突阻碍正确的基准测试报告">2. Hugo默认列表行为将旧文件与章节条目合并，动态前文时间戳导致不可预测的发布状态，静态/内容路径冲突阻碍正确的基准测试报告。<a hidden class="anchor" aria-hidden="true" href="#2-hugo默认列表行为将旧文件与章节条目合并动态前文时间戳导致不可预测的发布状态静态内容路径冲突阻碍正确的基准测试报告">#</a></h4>
+<p>**解决方案：**在列表模板中实施明确的类型/标题过滤以隔离直接子项，用固定历史日期替代动态时间戳以实现确定性的发布，并将内容包装器与静态资源路径分离以解决命名空间冲突。</p>
+<p>**关键洞察：**静态站点生成工具需要明确的架构边界和可预测的状态管理，以防止内容泄露、路由冲突和不可靠的发布流程。</p>
+<h2 id="人类与ai方法">人类与AI方法<a hidden class="anchor" aria-hidden="true" href="#人类与ai方法">#</a></h2>
 <h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
-<h4 id="部署架构统一的测试环境目录作为单一真实来源">部署架构：统一的测试环境目录作为单一真实来源<a hidden class="anchor" aria-hidden="true" href="#部署架构统一的测试环境目录作为单一真实来源">#</a></h4>
+<h4 id="推理对齐策略与部署架构设计">推理对齐策略与部署架构设计<a hidden class="anchor" aria-hidden="true" href="#推理对齐策略与部署架构设计">#</a></h4>
 <table>
   <thead>
       <tr>
@@ -319,92 +314,136 @@
   <tbody>
       <tr>
           <td>人类</td>
-          <td>用户发现了双重写入问题（工具同时写入输出和网站），并提出了清晰的架构改进方案：将所有工具输出集中到 outputs/site 中，与网站结构一致，然后在 Hugo 构建前自动链接或复制至最终位置</td>
+          <td>依赖LoRA流程的结构等价假设，提出一个与站点布局一致的统一暂存目录，强调操作安全性和git历史维护。</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>AI 最初检查了网站/content/* 中分散的每种工具部署路径，并在现有结构内寻找逐步重构的机会，未质疑基本架构</td>
+          <td>跟踪H5/评估路径中的实际流程以定位推理时间的掩蔽问题；设计site_staging.py用于跨平台解决，生成同步包装器，并实施明确的命名空间分离以解决静态与内容冲突。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>差异分析：</strong> 人类发现了系统设计缺陷并直接提出了架构解决方案；AI 则依赖现有代码模式，很可能继续进行零散重构，无需明确的架构指令</p>
-<h4 id="网站部署系统修复迭代过程">网站部署系统修复迭代过程<a hidden class="anchor" aria-hidden="true" href="#网站部署系统修复迭代过程">#</a></h4>
-<table>
-  <thead>
-      <tr>
-          <th>角色</th>
-          <th>方法</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>人类</td>
-          <td>用户在 AI 修复后执行脚本以验证结果，通过实际测试发现新问题，并在多阶段修复过程中保持整个系统完整性的监控</td>
-      </tr>
-      <tr>
-          <td>AI</td>
-          <td>AI 采用逐步修复策略，仅解决当前可见的问题，需要多次用户反馈迭代才能在所有边缘情况下实现完全稳健性</td>
-      </tr>
-  </tbody>
-</table>
-<p><strong>差异分析：</strong> 用户的经验测试推动了修复的完整性；AI 的初始解决方案解决了表面问题，直到通过实际执行用户反馈才发现更深层次的边缘情况</p>
-<h3 id="实施层面">实施层面<a hidden class="anchor" aria-hidden="true" href="#实施层面">#</a></h3>
-<h4 id="基准测试发布策略包含嵌入-iframe-的包装页面">基准测试发布策略：包含嵌入 iframe 的包装页面<a hidden class="anchor" aria-hidden="true" href="#基准测试发布策略包含嵌入-iframe-的包装页面">#</a></h4>
-<table>
-  <thead>
-      <tr>
-          <th>角色</th>
-          <th>方法</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>人类</td>
-          <td>用户未指定实施细节；在 AI 在探索过程中遇到 Hugo 路径冲突后，接受了 AI 基于 iframe 的提议</td>
-      </tr>
-      <tr>
-          <td>AI</td>
-          <td>AI 最初尝试基于章节的发布方式（内容/benchmark/_index.md 与静态文件/benchmark/report.html），遇到 Hugo 渲染冲突后，转向使用 iframe 嵌入的页面和独立静态目录模式</td>
-      </tr>
-  </tbody>
-</table>
-<p><strong>差异分析：</strong> AI 通过试错探索了多种 Hugo 内容模型方案（章节、页面、静态文件）；用户信任 AI 能发现正确的 Hugo 模式，未提前提出技术解决方案</p>
-<h2 id="ai-局限性">AI 局限性<a hidden class="anchor" aria-hidden="true" href="#ai-局限性">#</a></h2>
-<h3 id="关键局限">关键局限<a hidden class="anchor" aria-hidden="true" href="#关键局限">#</a></h3>
+<p>**差异分析：**人类关注架构边界和理论等价性，忽视运行时掩码执行；AI利用直接的流程审计和细粒度文件I/O来定位实现错误，强制确定性的状态，并弥补本地与远程部署之间的差距，尽管最初存在静态路径冲突，人类帮助解决了这些问题。</p>
+<h2 id="ai局限性">AI局限性<a hidden class="anchor" aria-hidden="true" href="#ai局限性">#</a></h2>
+<h3 id="一般局限性">一般局限性<a hidden class="anchor" aria-hidden="true" href="#一般局限性">#</a></h3>
 <ul>
-<li>在修复 update.sh 时未能预见所有 shell 脚本边缘情况，需要多次用户测试反馈循环来处理无更改提交处理，并逐步发现竞态条件，而非全面解决</li>
+<li>重复的沙箱包装器冲突和权限限制迫使依赖明确的文件读取、手动补丁规划和迭代工具链修正，降低了调试效率并掩盖了直接代码执行。</li>
 </ul>
-<h3 id="一般局限">一般局限<a hidden class="anchor" aria-hidden="true" href="#一般局限">#</a></h3>
+<h2 id="学习成果">学习成果<a hidden class="anchor" aria-hidden="true" href="#学习成果">#</a></h2>
+<h3 id="关键学习点--训练时通道掩码处理不会自动限制推理行为在部署时必须明确执行架构归零操作以防止静态序列部分出现无声特征漂移">关键学习点- 训练时通道掩码处理不会自动限制推理行为；在部署时必须明确执行架构归零操作，以防止静态序列部分出现无声特征漂移。<a hidden class="anchor" aria-hidden="true" href="#关键学习点--训练时通道掩码处理不会自动限制推理行为在部署时必须明确执行架构归零操作以防止静态序列部分出现无声特征漂移">#</a></h3>
 <ul>
-<li>需要 3 次迭代才能诊断 Hugo /benchmark/ 渲染失败：最初怀疑是测试环境路径问题，然后出现章节与页面混淆问题，最终发现日期相关的问题：datetime.now() 导致的未来内容问题</li>
-<li>未主动验证 Hugo 的 URL 大小写规范行为，也未警告对大小写敏感的托管的影响；用户必须独立发现 /bugJournal/ 与 /bugjournal/ 不一致问题</li>
-<li>在 git merge 冲突解决过程中，正确保留了双方的关键代码（theme-toggle 和本地自定义配置），但这一判断依赖于对代码功能的理解——复杂情况可能需要人类审核</li>
-</ul>
-<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
-<h3 id="关键经验">关键经验<a hidden class="anchor" aria-hidden="true" href="#关键经验">#</a></h3>
-<ul>
-<li>源真实切换的 Bootstrap 迁移策略：从分散的部署目标转向集中式测试环境时，通过自动内容重新定位的首次运行检测（将现有网站/移动到 outputs/site 之前）可避免数据丢失，并消除手动迁移前的负担</li>
-<li>Hugo 主题更新需要三层策略：①git 仓库完整性（清理损坏的资源合并文件），②依赖关系匹配（主题版本与 Hugo 版本兼容），③本地自定义配置的保留（对 head.html 的手动冲突解决、配置覆盖）</li>
-<li>Hugo 内容模型边缘情况：章节 (_index.md) 与相同名称的静态目录冲突导致路径不明确；单个页面 (foo.md) 更适合作为包装内容；未来日期的内容除非使用 &ndash;buildFuture 标志，否则会被静默跳过；canonifyURLs 将所有章节名称规范为小写，需在 config 中执行大小写规范化</li>
-<li>Shell 脚本健壮性原则：①操作前检查 git 状态而非依赖退出码，②对文件系统操作添加错误处理（对于预期失败使用 2&gt;/dev/null || true），③使用 set -e 时明确排除正常失败场景</li>
-<li>链接或复制同步模式：当文件系统支持硬链接时，os.link 提供零复制原子更新；自动 fallback 到 shutil.copytree 确保跨平台兼容性（Windows FAT32、网络驱动器）无需手动干预或用户配置</li>
+<li>将工具输出解耦为统一的发布根目录可简化 CI/CD 流程，同时内容目录与静态资源之间必须明确划分命名空间，以防止自动化发布过程中的冲突。</li>
 </ul>
 <h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
-<h3 id="gadgetsummarize">gadget/summarize<a hidden class="anchor" aria-hidden="true" href="#gadgetsummarize">#</a></h3>
-<p><strong>✅ 批量生成 W05-W12 历史周报</strong>
-<em>19:30:00.000 | claude_code</em>
-使用 daily_summary.py 工具生成了 2026 年第 5-12 周的结构化周报。报告涵盖了 MIHD 空间转录组学（STAIG 对齐修复、scGPT 融合、Harmony 实验）、错误恢复基准测试（错误注入框架、三池架构）、CalendarPro（意图分类升级）、RoboBrain（任务完成检测）、Life Copilot（多意图重构）以及 DCC、tianhe、MacBook、TzJsDesktop 设备上的 Pi0.5 LoRA 训练。重点介绍了多个高密度并行项目周及阶段突破</p>
-<h3 id="gadgetwebsite-解决部署阻塞问题成功部署至-github-pages">gadget/website**✅ 解决部署阻塞问题，成功部署至 GitHub Pages**<a hidden class="anchor" aria-hidden="true" href="#gadgetwebsite-解决部署阻塞问题成功部署至-github-pages">#</a></h3>
-<p><em>20:55:34.064 | claude_code</em>
-诊断出由过旧の PaperMod 主题导致的 Hugo 构建失败问题，缺失 get-page-images 部分内容。更新为最新版本主题后，解决了 head.html 合并冲突问题，同时保留了本地 MathJax 和复选框自定义设置。修复了 two update.sh 脚本中的两个稳定性问题：无更改提交处理（添加 git diff &ndash;cached &ndash;quiet 检查）和查找竞争条件（添加 2&gt;/dev/null || true 逻辑）。成功完成全部部署流程至 GitHub Pages。</p>
-<h3 id="小工具">小工具<a hidden class="anchor" aria-hidden="true" href="#小工具">#</a></h3>
-<p><strong>✅ Hugo 导航结构重构及统一部署架构优化</strong>
-<em>01:21:42.819 | codex</em>
-实现基于自定义标题部分与悬停 CSS 的层级化 bugJournal 下拉菜单导航，包含每日/每周/每月子菜单。用户建议将所有工具输出集中至 outputs/site staging 目录，以消除双重写入不一致问题。AI 对 summarize、research 和 test 工具的部署逻辑进行了重构，使其使用 common.site_staging 辅助函数；创建了 website/sync_staging.py 脚本，包含链接或复制功能及 Bootstrap 迁移机制；添加了带有 iframe 包裹的 Hugo 发布基准测试层；更新构建脚本以在 Hugo 构建前同步 staging 环境。通过 Hugo 构建验证，/benchmark/、/bugjournal/{daily,weekly,monthly}/、/research/ 均正确渲染。解决了 Hugo URL 大小写规范化、未来内容日期以及章节/静态路径冲突问题。</p>
+<h3 id="机器人策略管道与错误恢复基准测试">机器人策略管道与错误恢复基准测试<a hidden class="anchor" aria-hidden="true" href="#机器人策略管道与错误恢复基准测试">#</a></h3>
+<p><strong>✅ 离线 LoRA 构建、掩码对齐调试及阶段检测回归分析</strong>
+<em>18:45:00.000 | codex</em>
+通过验证特征对齐和解决推理时掩码缺失导致的文本标记漂移问题，完善了离线成功案例 LoRA 管道。同时诊断出 three_piece_assembly 基准测试中的严重扫描次数回归问题，其根源在于基于接近度的固定器选择失败和严格的验证阈值。关键决策包括：在部署过程中明确执行零值归零操作，将目标对象选择与抓取几何约束统一起来，以及校准验证幅度，以恢复被阻塞任务下的场景生成能力。</p>
+<h3 id="gadget-web-基础设施">Gadget Web 基础设施<a hidden class="anchor" aria-hidden="true" href="#gadget-web-基础设施">#</a></h3>
+<p><strong>✅ Hugo 博客导航重构与集中式部署管道优化</strong>
+<em>15:30:00.000 | codex</em>
+整理了关于重构 Hugo 博客信息架构的会议内容，将人工智能生成的摘要与人类文章清晰分离，并实现了集中式发布目录 (outputs/site/)。所有工具特定的部署钩子被重构为针对此统一路径的共享 Python 辅助函数，同时使用了同步包装器确保跨平台兼容性。关键决策包括严格的章节过滤、固定发布的日期以实现确定性状态，以及命名空间分离，以防止生成器冲突并确保可靠的自动化发布。</p>
+<h3 id="lipm_me">LiPM_me<a hidden class="anchor" aria-hidden="true" href="#lipm_me">#</a></h3>
+<p><strong>🔄 会话初始化与握手</strong>
+<em>04:29:22.838 | codex</em>
+发生了标准的会话初始化交换，无需技术讨论、代码执行或架构探讨；双方都采用了中立的问候格式。</p>
 <h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
-<p><img alt="令牌使用情况" loading="lazy" src="2026-03-22-usage.png"></p>
-<p><strong>总计：8.07美元</strong> — 1700万个令牌</p>
-<!-- gadget:src-hash:ad854ec7bc69620d -->
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-03-22</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$26.96</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>46M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>294K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>93.4%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $10</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $17</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (38.7%), Codex (61.3%)">
+          <span style="width:38.7%; background:var(--usage-cost-main)"></span>
+          <span style="width:61.3%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 93.4%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 6.6%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (93.4%), active tokens (6.6%)">
+          <span style="width:93.4%; background:var(--usage-cache)"></span>
+          <span style="width:6.6%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:424563941a643056 -->
 
 
   </div>

@@ -7,7 +7,7 @@
 <meta name="robots" content="index, follow">
 <title>Bug Journal 2026-03-14 | TzJ&#39;s Net</title>
 <meta name="keywords" content="Bug Journal">
-<meta name="description" content="实现GPU监控脚本自适应UI、HDF5数据可视化工具、以及pi05模型的4组progress prediction实验框架">
+<meta name="description" content="开发了自适应GPU监控界面，构建了自动化的多摄像头HDF5到MP4可视化处理流程，并在pi05 VLA策略架构中设计了四种实验性配置，以实现逐步任务条件化。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-03-14/">
 <link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
@@ -79,7 +79,7 @@
 <meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-03-14/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="Bug Journal 2026-03-14">
-  <meta property="og:description" content="实现GPU监控脚本自适应UI、HDF5数据可视化工具、以及pi05模型的4组progress prediction实验框架">
+  <meta property="og:description" content="开发了自适应GPU监控界面，构建了自动化的多摄像头HDF5到MP4可视化处理流程，并在pi05 VLA策略架构中设计了四种实验性配置，以实现逐步任务条件化。">
   <meta property="og:locale" content="zh_cn">
   <meta property="og:type" content="article">
     <meta property="article:section" content="bugjournal">
@@ -88,7 +88,7 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Bug Journal 2026-03-14">
-  <meta name="twitter:description" content="实现GPU监控脚本自适应UI、HDF5数据可视化工具、以及pi05模型的4组progress prediction实验框架">
+  <meta name="twitter:description" content="开发了自适应GPU监控界面，构建了自动化的多摄像头HDF5到MP4可视化处理流程，并在pi05 VLA策略架构中设计了四种实验性配置，以实现逐步任务条件化。">
 
 
 <script type="application/ld+json">
@@ -123,12 +123,12 @@
   "@type": "BlogPosting",
   "headline": "Bug Journal 2026-03-14",
   "name": "Bug Journal 2026-03-14",
-  "description": "实现GPU监控脚本自适应UI、HDF5数据可视化工具、以及pi05模型的4组progress prediction实验框架",
+  "description": "开发了自适应GPU监控界面，构建了自动化的多摄像头HDF5到MP4可视化处理流程，并在pi05 VLA策略架构中设计了四种实验性配置，以实现逐步任务条件化。",
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-03-14 Daily Overview What was done: 为robobrain_pi项目增强GPU监控脚本、为RoboTwin创建HDF5摄像头数据可视化工具、为pi05策略模型设计并实现4组manipulation progress预测对比实验 How it was done: 通过ANSI转义码实现备用屏幕缓冲区和自适应布局、使用OpenCV解码JPEG并拼接多摄像头视图、在JAX/Flax框架中添加MLP解码器和特殊token机制 Impact: 监控工具达到nvitop级别的用户体验、50个episode的4摄像头数据完整可视化、建立了完整的progress-conditioned action预测实验框架 实现GPU监控脚本自适应UI、HDF5数据可视化工具、以及pi05模型的4组progress prediction实验框架\nTasks Architecture \u0026 Strategy ✅ pi05模型progress prediction框架设计 — 设计4组对比实验:last_token vs special_token × time vs distance ✅ pi05模型修改实现(6文件) — 修改pi0_config.py/model.py/tokenizer.py/robotwin_policy.py/config.py/pi0.py,实现MLP解码器、特殊token、条件注入和辅助loss ❌ 数据转换脚本更新 — 需要修改convert_robotwin_democlean_to_lerobot.py添加progress相关字段才能启动训练 Implementation \u0026 Fixes ✅ HDF5摄像头数据可视化脚本 — 创建visualize_hdf5_cameras.py,将50个episode的4摄像头数据拼接为2x2网格MP4视频 ✅ GPU监控脚本gpumon.py UI增强 — 添加备用屏幕缓冲区、自适应列宽/行数、进程去重和噪声过滤 Problems \u0026 Solutions Critical Issues 1. 训练数据尚未转换为lerobot格式,缺少progress相关字段导致实验无法启动 Solution: 需要修改convert_robotwin_democlean_to_lerobot.py添加manip_progress_time/distance_left/distance_right/target_endpose/target_joint等键\nKey Insight: 模型实验依赖于数据pipeline的完整性,数据格式转换是阻塞性前置步骤\nGeneral Issues 2. os.get_terminal_size()在子进程中无法读取环境变量COLUMNS/LINES,导致表格宽度不自适应 Solution: 先尝试读取COLUMNS/LINES环境变量并转为int,失败时再fallback到os.get_terminal_size()\nKey Insight: 环境变量在跨进程传递终端信息时比系统调用更可靠\nHuman vs AI Approaches Strategic Level pi05实验设计中的梯度策略选择 Role Approach Human 直接选择方案A(全部stop_gradient),理由是’最安全,不影响action预测,后续效果不好再改’——体现了迭代实验的保守起步策略 AI AI提出了3种方案(A全阻断/B全回传/C混合),并分析了每种方案的trade-off,倾向于方案A但强调了special token的特殊性 Difference Analysis: 人类基于工程经验快速决策,AI倾向于详尽列举选项和trade-off,但最终人类的简洁决策策略(先保守再迭代)是合理的\n实验配置的命名和组织方式 Role Approach Human 要求’需要config开关,越方便启动实验越好’,体现了对实验工程效率的重视 AI AI设计了统一的ProgressConfig类和4个独立的命名配置(exp1~4),通过tyro CLI直接选择 Difference Analysis: 人类关注实用性和便利性,AI将其具体化为config类设计和CLI接口,双方在’方便实验切换’这一目标上一致\nAI Limitations Critical Limitations AI在最后没有主动预见数据pipeline问题——修改完模型后应该立即检查数据加载是否支持新字段,而不是等用户报错后才发现 AI在实现pi05修改时没有运行实际的训练smoke test,仅做了配置类的import测试,导致遗漏了数据转换脚本的依赖 Learnings Key Learnings 复杂模型实验的完整性检查应该覆盖模型代码、配置、数据pipeline、训练脚本4个层面,而不是仅验证模型代码 在JAX/Flax中使用stop_gradient实现辅助任务是常见的多任务学习模式,既能利用特征又能避免干扰主任务 Special token机制需要3步配套实现:tokenizer注册token ID、模型扩展embedding层、数据加载时拼接prompt Conversation Summaries Robobrain-PI (GPU Monitoring) ✅ GPU monitor script UI enhancement with adaptive layout 09:24:23.170 | claude_code User requested nvitop-like alternate screen buffer and adaptive column/row sizing for gpumon.py. Implemented ANSI escape codes for screen buffer switching, dynamic width/height calculation from COLUMNS/LINES env vars, proportional column sizing, and process deduplication. The script now provides a professional terminal UI that exits cleanly without polluting the terminal history.\nRoboTwin VLA (HDF5 Visualization) ✅ Visualize 4-camera HDF5 data as MP4 videos 13:16:50.918 | claude_code User needed to visualize observation data from 50 HDF5 episodes (front/head/left/right cameras). Created visualize_hdf5_cameras.py that decodes JPEG-encoded frames, tiles them into 2×2 grids with labels, and writes 30fps MP4 files. Successfully processed all 50 episodes (~2.3MB each) to all_videos/ directory.\nRoboTwin VLA (PI05 Experiments) 🔄 Design and implement 4 progress prediction experiments for pi05 14:21:07.908 | claude_code User requested 4 contrastive experiments for manipulation progress prediction: (1) last_token+time, (2) special_token+time, (3) last_token+distance, (4) special_token+distance. After discussing architecture (MLP 2048→256→out, λ=0.1, stop_gradient strategy), modified 6 files to add ProgressConfig, 3 special tokens, MLP decoder, condition injection logic, and auxiliary MSE loss. Created 4 training configs (pi05_robotwin_prog_exp1~4). Verified all imports but discovered data pipeline blocker at the end.\nToken Usage Total: $6.79 — 10.5M tokens\n",
-  "wordCount" : "324",
+  "articleBody": "每日报告 — 2026-03-14 日常概述 已完成工作： 增强了终端资源监控工具，创建了机器人轨迹数据集检查脚本，并将辅助进度指标整合到六个核心代码模块中的多模态策略模型中。 实现方式： 实现了动态环境变量解析和转义序列缓冲机制以自适应TUI渲染，利用OpenCV图像解码和VideoWriter进行批量MP4生成，并通过可训练的MLP解码器、梯度隔离策略和CLI驱动实验开关扩展Flax NNX配置。 影响： 通过强大的集群端GPU跟踪简化了开发者工作流程，加快了50个场景机器人数据集的数据验证速度，并建立了可复现、模块化的多目标具身AI训练框架。 开发了自适应GPU监控UI，构建了自动化的多摄像头HDF5到MP4可视化管道，并在pi05 VLA策略架构中设计了四种渐进式任务条件配置。\n任务 架构与策略 ✅ pi05渐进式条件实验架构 — 设计并实现了四个实验管道，结合最后标记与特殊占位符标记的特征提取与时间/距离预测，通过配置驱动标志将解码后的进度作为条件标记注入动作专家中。 实施与修复 ✅ 自适应GPU监控UI与备用屏幕实现 — 重构gpumon.py以支持动态终端宽度/高度适应和安全的备用屏幕缓冲区进入/退出机制，模仿nvitop行为的同时过滤噪声并去重PID号。 ✅ HDF5多摄像头到MP4可视化脚本 — 开发了一个独立的Python脚本，用于解码来自50个机器人轨迹HDF5文件的JPEG编码摄像头流，将其划分为2x2网格并添加标签，然后导出为同步MP4视频。 ❌ Lerobot数据格式更新以添加进度键 — 尝试修改数据集转换脚本以添加用于pi05训练的操控进度、距离和目标姿态键，但由于API连接问题导致执行失败。 问题与解决方案 关键问题 1. 启动时训练管道因lerobot格式数据集加载器缺少辅助目标（manip_progress_time、manip_progress_distance_left/right、target_endpose）而失败。 解决方案： 定义明确的数据映射要求以扩展转换脚本和策略变换，一旦外部API限制解决，即可明确推进进程。\n关键洞察： 在训练进行之前，辅助条件管道需要在数据格式、变换工厂和模型观察模式之间实现双向更新，否则会存在关键错误。\n一般问题 2. 在子进程测试期间动态终端宽度适应失败，因为os.get_terminal_size()忽略导出的COLUMNS/LINES环境变量，导致宽终端上出现固定布局。 解决方案： 用从环境字典中解析$COLUMNS和$LINES的显式逻辑替代回退逻辑，确保所有执行上下文中的列分配准确。\n关键洞察： 某些进程环境会删除或忽略导出的终端大小变量；仅依赖os.get_terminal_size()限制了自动化工作流的可测试性和可移植性。\n人类与AI方法 战略层面 pi05渐进式条件VLA实验设计 角色 方法 人类 设计了四种不同的实验条件，改变特征提取来源（最后有效标记与特殊占位符标记）和预测目标（标量时间与2D双手动距离），直接与动作专家的状态标记管道连接，而不指定训练动态。 AI 实现了完整的架构集成，标准化MLP解码器维度（2048→256→输出），推荐MSE损失权重为λ=0.1，强制使用保守的stop_gradient策略以隔离VLM特征与辅助梯度，并在六个模块中实现可复现配置开关。 差异分析： 人类提出了比较实验矩阵和架构耦合意图，而AI将其转化为具体的梯度控制策略、模块化配置抽象和验证代码框架，确保优化稳定性和超参数灵活性。\nAI局限性 一般局限性 在尝试执行外部文件修改以进行数据转换时遇到ConnectionRefused API错误，表明在网络延迟或端点限制下跨会话工具链连接脆弱。 学习成果 关键学习点 在辅助损失反向传播期间通过stop_gradient冻结中间VLM表示，有效将策略特征学习与任务特定条件更新分离，显著简化了多目标具身AI训练中的优化稳定性。 实际学习点 终端TUI可靠性依赖于双重回退机制：标准os.get_terminal_size()用于交互式会话，显式环境变量解析用于CI/测试运行器或重定向管道。 对话总结 GPUMonitor ✅ 自适应GPU监控UI与屏幕缓冲区 09:24:23.170 | claude_code 用户要求一个具有自适应布局和安全屏幕缓冲区切换功能的终端监控工具，类似nvitop。AI实现了动态列分配解析、基于转义序列的备用屏幕进入/退出机制，以及用于进程去重和噪声过滤的优化显示逻辑。更新后的脚本现在可以在80-120+列终端上正确缩放，并在退出时恢复终端状态。\nRoboTwin数据工具 ✅ HDF5摄像头流到MP4可视化器 13:18:03.922 | claude_code 用户要求一个批量可视化管道，从50个机器人轨迹HDF5文件中提取并渲染四个摄像头视图为MP4视频。AI分析了数据结构，复用现有的JPEG解码模式，生成了带有2x2网格分割和标签覆盖的专用脚本，并在所有剧集上成功执行。输出验证确认了正确的格式、分辨率和同步性。\nPi05策略**🔄 基于进度条件的VLA实验与数据修复** 14:21:07.908 | claude_code 用户提出了四种实验设计，旨在通过MLP解码和token条件化将习得的操作进度指标引入pi05策略中。AI分析了架构，制定了超参数和梯度控制策略，并获用户批准后，对包括配置注册和分词器扩展在内的六个核心文件进行了修改。后端验证通过，但后续数据转换更新因API连接问题而未能完成。\nToken使用情况 AI Usage · 2026-03-14\rClaude Code\rTotal cost$28.16\rTotal tokens48M\rOutput tokens201K\rCache read91.5%\rToken character\rCache reads 91.5% ·\rActive 8.5%\rMost token volume came from cache reads.\r",
+  "wordCount" : "118",
   "inLanguage": "zh",
   "datePublished": "2026-03-14T00:00:00-05:00",
   "dateModified": "2026-03-14T00:00:00-05:00",
@@ -252,113 +252,173 @@
     </h1>
     <div class="post-meta">
 
-<span title='2026-03-14 00:00:00 -0500 -0500'>2026年3月14日</span>&nbsp;·&nbsp;<span>2 分钟</span>
+<span title='2026-03-14 00:00:00 -0500 -0500'>2026年3月14日</span>&nbsp;·&nbsp;<span>1 分钟</span>
 
 </div>
   </header> 
-  <div class="post-content md-content"><h1 id="daily-report--2026-03-14">Daily Report — 2026-03-14<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-03-14">#</a></h1>
-<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+  <div class="post-content md-content"><h1 id="每日报告--2026-03-14">每日报告 — 2026-03-14<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-03-14">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
 <ul>
-<li><strong>What was done:</strong> 为robobrain_pi项目增强GPU监控脚本、为RoboTwin创建HDF5摄像头数据可视化工具、为pi05策略模型设计并实现4组manipulation progress预测对比实验</li>
-<li><strong>How it was done:</strong> 通过ANSI转义码实现备用屏幕缓冲区和自适应布局、使用OpenCV解码JPEG并拼接多摄像头视图、在JAX/Flax框架中添加MLP解码器和特殊token机制</li>
-<li><strong>Impact:</strong> 监控工具达到nvitop级别的用户体验、50个episode的4摄像头数据完整可视化、建立了完整的progress-conditioned action预测实验框架</li>
+<li><strong>已完成工作：</strong> 增强了终端资源监控工具，创建了机器人轨迹数据集检查脚本，并将辅助进度指标整合到六个核心代码模块中的多模态策略模型中。</li>
+<li><strong>实现方式：</strong> 实现了动态环境变量解析和转义序列缓冲机制以自适应TUI渲染，利用OpenCV图像解码和VideoWriter进行批量MP4生成，并通过可训练的MLP解码器、梯度隔离策略和CLI驱动实验开关扩展Flax NNX配置。</li>
+<li><strong>影响：</strong> 通过强大的集群端GPU跟踪简化了开发者工作流程，加快了50个场景机器人数据集的数据验证速度，并建立了可复现、模块化的多目标具身AI训练框架。</li>
 </ul>
 <blockquote>
-<p>实现GPU监控脚本自适应UI、HDF5数据可视化工具、以及pi05模型的4组progress prediction实验框架</p>
+<p>开发了自适应GPU监控UI，构建了自动化的多摄像头HDF5到MP4可视化管道，并在pi05 VLA策略架构中设计了四种渐进式任务条件配置。</p>
 </blockquote>
-<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
-<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
 <ul>
-<li>✅ <strong>pi05模型progress prediction框架设计</strong> — 设计4组对比实验:last_token vs special_token × time vs distance</li>
-<li>✅ <strong>pi05模型修改实现(6文件)</strong> — 修改pi0_config.py/model.py/tokenizer.py/robotwin_policy.py/config.py/pi0.py,实现MLP解码器、特殊token、条件注入和辅助loss</li>
-<li>❌ <strong>数据转换脚本更新</strong> — 需要修改convert_robotwin_democlean_to_lerobot.py添加progress相关字段才能启动训练</li>
+<li>✅ <strong>pi05渐进式条件实验架构</strong> — 设计并实现了四个实验管道，结合最后标记与特殊占位符标记的特征提取与时间/距离预测，通过配置驱动标志将解码后的进度作为条件标记注入动作专家中。</li>
 </ul>
-<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
 <ul>
-<li>✅ <strong>HDF5摄像头数据可视化脚本</strong> — 创建visualize_hdf5_cameras.py,将50个episode的4摄像头数据拼接为2x2网格MP4视频</li>
-<li>✅ <strong>GPU监控脚本gpumon.py UI增强</strong> — 添加备用屏幕缓冲区、自适应列宽/行数、进程去重和噪声过滤</li>
+<li>✅ <strong>自适应GPU监控UI与备用屏幕实现</strong> — 重构gpumon.py以支持动态终端宽度/高度适应和安全的备用屏幕缓冲区进入/退出机制，模仿nvitop行为的同时过滤噪声并去重PID号。</li>
+<li>✅ <strong>HDF5多摄像头到MP4可视化脚本</strong> — 开发了一个独立的Python脚本，用于解码来自50个机器人轨迹HDF5文件的JPEG编码摄像头流，将其划分为2x2网格并添加标签，然后导出为同步MP4视频。</li>
+<li>❌ <strong>Lerobot数据格式更新以添加进度键</strong> — 尝试修改数据集转换脚本以添加用于pi05训练的操控进度、距离和目标姿态键，但由于API连接问题导致执行失败。</li>
 </ul>
-<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
-<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
-<h4 id="1-训练数据尚未转换为lerobot格式缺少progress相关字段导致实验无法启动">1. 训练数据尚未转换为lerobot格式,缺少progress相关字段导致实验无法启动<a hidden class="anchor" aria-hidden="true" href="#1-训练数据尚未转换为lerobot格式缺少progress相关字段导致实验无法启动">#</a></h4>
-<p><strong>Solution:</strong> 需要修改convert_robotwin_democlean_to_lerobot.py添加manip_progress_time/distance_left/distance_right/target_endpose/target_joint等键</p>
-<p><strong>Key Insight:</strong> 模型实验依赖于数据pipeline的完整性,数据格式转换是阻塞性前置步骤</p>
-<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
-<h4 id="2-osget_terminal_size在子进程中无法读取环境变量columnslines导致表格宽度不自适应">2. os.get_terminal_size()在子进程中无法读取环境变量COLUMNS/LINES,导致表格宽度不自适应<a hidden class="anchor" aria-hidden="true" href="#2-osget_terminal_size在子进程中无法读取环境变量columnslines导致表格宽度不自适应">#</a></h4>
-<p><strong>Solution:</strong> 先尝试读取COLUMNS/LINES环境变量并转为int,失败时再fallback到os.get_terminal_size()</p>
-<p><strong>Key Insight:</strong> 环境变量在跨进程传递终端信息时比系统调用更可靠</p>
-<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
-<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
-<h4 id="pi05实验设计中的梯度策略选择">pi05实验设计中的梯度策略选择<a hidden class="anchor" aria-hidden="true" href="#pi05实验设计中的梯度策略选择">#</a></h4>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-启动时训练管道因lerobot格式数据集加载器缺少辅助目标manip_progress_timemanip_progress_distance_leftrighttarget_endpose而失败">1. 启动时训练管道因lerobot格式数据集加载器缺少辅助目标（manip_progress_time、manip_progress_distance_left/right、target_endpose）而失败。<a hidden class="anchor" aria-hidden="true" href="#1-启动时训练管道因lerobot格式数据集加载器缺少辅助目标manip_progress_timemanip_progress_distance_leftrighttarget_endpose而失败">#</a></h4>
+<p><strong>解决方案：</strong> 定义明确的数据映射要求以扩展转换脚本和策略变换，一旦外部API限制解决，即可明确推进进程。</p>
+<p><strong>关键洞察：</strong> 在训练进行之前，辅助条件管道需要在数据格式、变换工厂和模型观察模式之间实现双向更新，否则会存在关键错误。</p>
+<h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
+<h4 id="2-在子进程测试期间动态终端宽度适应失败因为osget_terminal_size忽略导出的columnslines环境变量导致宽终端上出现固定布局">2. 在子进程测试期间动态终端宽度适应失败，因为os.get_terminal_size()忽略导出的COLUMNS/LINES环境变量，导致宽终端上出现固定布局。<a hidden class="anchor" aria-hidden="true" href="#2-在子进程测试期间动态终端宽度适应失败因为osget_terminal_size忽略导出的columnslines环境变量导致宽终端上出现固定布局">#</a></h4>
+<p><strong>解决方案：</strong> 用从环境字典中解析$COLUMNS和$LINES的显式逻辑替代回退逻辑，确保所有执行上下文中的列分配准确。</p>
+<p><strong>关键洞察：</strong> 某些进程环境会删除或忽略导出的终端大小变量；仅依赖os.get_terminal_size()限制了自动化工作流的可测试性和可移植性。</p>
+<h2 id="人类与ai方法">人类与AI方法<a hidden class="anchor" aria-hidden="true" href="#人类与ai方法">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="pi05渐进式条件vla实验设计">pi05渐进式条件VLA实验设计<a hidden class="anchor" aria-hidden="true" href="#pi05渐进式条件vla实验设计">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
-          <td>直接选择方案A(全部stop_gradient),理由是&rsquo;最安全,不影响action预测,后续效果不好再改&rsquo;——体现了迭代实验的保守起步策略</td>
+          <td>人类</td>
+          <td>设计了四种不同的实验条件，改变特征提取来源（最后有效标记与特殊占位符标记）和预测目标（标量时间与2D双手动距离），直接与动作专家的状态标记管道连接，而不指定训练动态。</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>AI提出了3种方案(A全阻断/B全回传/C混合),并分析了每种方案的trade-off,倾向于方案A但强调了special token的特殊性</td>
+          <td>实现了完整的架构集成，标准化MLP解码器维度（2048→256→输出），推荐MSE损失权重为λ=0.1，强制使用保守的stop_gradient策略以隔离VLM特征与辅助梯度，并在六个模块中实现可复现配置开关。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> 人类基于工程经验快速决策,AI倾向于详尽列举选项和trade-off,但最终人类的简洁决策策略(先保守再迭代)是合理的</p>
-<h4 id="实验配置的命名和组织方式">实验配置的命名和组织方式<a hidden class="anchor" aria-hidden="true" href="#实验配置的命名和组织方式">#</a></h4>
-<table>
-  <thead>
-      <tr>
-          <th>Role</th>
-          <th>Approach</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Human</td>
-          <td>要求&rsquo;需要config开关,越方便启动实验越好&rsquo;,体现了对实验工程效率的重视</td>
-      </tr>
-      <tr>
-          <td>AI</td>
-          <td>AI设计了统一的ProgressConfig类和4个独立的命名配置(exp1~4),通过tyro CLI直接选择</td>
-      </tr>
-  </tbody>
-</table>
-<p><strong>Difference Analysis:</strong> 人类关注实用性和便利性,AI将其具体化为config类设计和CLI接口,双方在&rsquo;方便实验切换&rsquo;这一目标上一致</p>
-<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
-<h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
+<p><strong>差异分析：</strong> 人类提出了比较实验矩阵和架构耦合意图，而AI将其转化为具体的梯度控制策略、模块化配置抽象和验证代码框架，确保优化稳定性和超参数灵活性。</p>
+<h2 id="ai局限性">AI局限性<a hidden class="anchor" aria-hidden="true" href="#ai局限性">#</a></h2>
+<h3 id="一般局限性">一般局限性<a hidden class="anchor" aria-hidden="true" href="#一般局限性">#</a></h3>
 <ul>
-<li>AI在最后没有主动预见数据pipeline问题——修改完模型后应该立即检查数据加载是否支持新字段,而不是等用户报错后才发现</li>
-<li>AI在实现pi05修改时没有运行实际的训练smoke test,仅做了配置类的import测试,导致遗漏了数据转换脚本的依赖</li>
+<li>在尝试执行外部文件修改以进行数据转换时遇到ConnectionRefused API错误，表明在网络延迟或端点限制下跨会话工具链连接脆弱。</li>
 </ul>
-<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
-<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<h2 id="学习成果">学习成果<a hidden class="anchor" aria-hidden="true" href="#学习成果">#</a></h2>
+<h3 id="关键学习点">关键学习点<a hidden class="anchor" aria-hidden="true" href="#关键学习点">#</a></h3>
 <ul>
-<li>复杂模型实验的完整性检查应该覆盖模型代码、配置、数据pipeline、训练脚本4个层面,而不是仅验证模型代码</li>
-<li>在JAX/Flax中使用stop_gradient实现辅助任务是常见的多任务学习模式,既能利用特征又能避免干扰主任务</li>
-<li>Special token机制需要3步配套实现:tokenizer注册token ID、模型扩展embedding层、数据加载时拼接prompt</li>
+<li>在辅助损失反向传播期间通过stop_gradient冻结中间VLM表示，有效将策略特征学习与任务特定条件更新分离，显著简化了多目标具身AI训练中的优化稳定性。</li>
 </ul>
-<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
-<h3 id="robobrain-pi-gpu-monitoring">Robobrain-PI (GPU Monitoring)<a hidden class="anchor" aria-hidden="true" href="#robobrain-pi-gpu-monitoring">#</a></h3>
-<p><strong>✅ GPU monitor script UI enhancement with adaptive layout</strong>
+<h3 id="实际学习点">实际学习点<a hidden class="anchor" aria-hidden="true" href="#实际学习点">#</a></h3>
+<ul>
+<li>终端TUI可靠性依赖于双重回退机制：标准os.get_terminal_size()用于交互式会话，显式环境变量解析用于CI/测试运行器或重定向管道。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<h3 id="gpumonitor">GPUMonitor<a hidden class="anchor" aria-hidden="true" href="#gpumonitor">#</a></h3>
+<p><strong>✅ 自适应GPU监控UI与屏幕缓冲区</strong>
 <em>09:24:23.170 | claude_code</em>
-User requested nvitop-like alternate screen buffer and adaptive column/row sizing for gpumon.py. Implemented ANSI escape codes for screen buffer switching, dynamic width/height calculation from COLUMNS/LINES env vars, proportional column sizing, and process deduplication. The script now provides a professional terminal UI that exits cleanly without polluting the terminal history.</p>
-<h3 id="robotwin-vla-hdf5-visualization">RoboTwin VLA (HDF5 Visualization)<a hidden class="anchor" aria-hidden="true" href="#robotwin-vla-hdf5-visualization">#</a></h3>
-<p><strong>✅ Visualize 4-camera HDF5 data as MP4 videos</strong>
-<em>13:16:50.918 | claude_code</em>
-User needed to visualize observation data from 50 HDF5 episodes (front/head/left/right cameras). Created visualize_hdf5_cameras.py that decodes JPEG-encoded frames, tiles them into 2×2 grids with labels, and writes 30fps MP4 files. Successfully processed all 50 episodes (~2.3MB each) to all_videos/ directory.</p>
-<h3 id="robotwin-vla-pi05-experiments">RoboTwin VLA (PI05 Experiments)<a hidden class="anchor" aria-hidden="true" href="#robotwin-vla-pi05-experiments">#</a></h3>
-<p><strong>🔄 Design and implement 4 progress prediction experiments for pi05</strong>
-<em>14:21:07.908 | claude_code</em>
-User requested 4 contrastive experiments for manipulation progress prediction: (1) last_token+time, (2) special_token+time, (3) last_token+distance, (4) special_token+distance. After discussing architecture (MLP 2048→256→out, λ=0.1, stop_gradient strategy), modified 6 files to add ProgressConfig, 3 special tokens, MLP decoder, condition injection logic, and auxiliary MSE loss. Created 4 training configs (pi05_robotwin_prog_exp1~4). Verified all imports but discovered data pipeline blocker at the end.</p>
-<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
-<p><img alt="Token Usage" loading="lazy" src="2026-03-14-usage.png"></p>
-<p><strong>Total: $6.79</strong> — 10.5M tokens</p>
-<!-- gadget:src-hash:626afe975a0c0b4e -->
+用户要求一个具有自适应布局和安全屏幕缓冲区切换功能的终端监控工具，类似nvitop。AI实现了动态列分配解析、基于转义序列的备用屏幕进入/退出机制，以及用于进程去重和噪声过滤的优化显示逻辑。更新后的脚本现在可以在80-120+列终端上正确缩放，并在退出时恢复终端状态。</p>
+<h3 id="robotwin数据工具">RoboTwin数据工具<a hidden class="anchor" aria-hidden="true" href="#robotwin数据工具">#</a></h3>
+<p><strong>✅ HDF5摄像头流到MP4可视化器</strong>
+<em>13:18:03.922 | claude_code</em>
+用户要求一个批量可视化管道，从50个机器人轨迹HDF5文件中提取并渲染四个摄像头视图为MP4视频。AI分析了数据结构，复用现有的JPEG解码模式，生成了带有2x2网格分割和标签覆盖的专用脚本，并在所有剧集上成功执行。输出验证确认了正确的格式、分辨率和同步性。</p>
+<h3 id="pi05策略-基于进度条件的vla实验与数据修复">Pi05策略**🔄 基于进度条件的VLA实验与数据修复**<a hidden class="anchor" aria-hidden="true" href="#pi05策略-基于进度条件的vla实验与数据修复">#</a></h3>
+<p><em>14:21:07.908 | claude_code</em>
+用户提出了四种实验设计，旨在通过MLP解码和token条件化将习得的操作进度指标引入pi05策略中。AI分析了架构，制定了超参数和梯度控制策略，并获用户批准后，对包括配置注册和分词器扩展在内的六个核心文件进行了修改。后端验证通过，但后续数据转换更新因API连接问题而未能完成。</p>
+<h2 id="token使用情况">Token使用情况<a hidden class="anchor" aria-hidden="true" href="#token使用情况">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-03-14</span>
+        <span class="usage-card__source">Claude Code</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$28.16</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>48M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>201K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>91.5%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 91.5%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 8.5%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (91.5%), active tokens (8.5%)">
+          <span style="width:91.5%; background:var(--usage-cache)"></span>
+          <span style="width:8.5%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:0be35ebb8f38de80 -->
 
 
   </div>

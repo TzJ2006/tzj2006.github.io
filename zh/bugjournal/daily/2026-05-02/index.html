@@ -7,7 +7,7 @@
 <meta name="robots" content="index, follow">
 <title>Bug Journal 2026-05-02 | TzJ&#39;s Net</title>
 <meta name="keywords" content="Bug Journal">
-<meta name="description" content="分析了机器人模型性能波动以及固定的TokenMonitor光标使用显示错误">
+<meta name="description" content="分析了机器人模型性能波动问题以及固定的TokenMonitor光标使用显示漏洞">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-05-02/">
 <link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
@@ -79,7 +79,7 @@
 <meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-05-02/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="Bug Journal 2026-05-02">
-  <meta property="og:description" content="分析了机器人模型性能波动以及固定的TokenMonitor光标使用显示错误">
+  <meta property="og:description" content="分析了机器人模型性能波动问题以及固定的TokenMonitor光标使用显示漏洞">
   <meta property="og:locale" content="zh_cn">
   <meta property="og:type" content="article">
     <meta property="article:section" content="bugjournal">
@@ -88,7 +88,7 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Bug Journal 2026-05-02">
-  <meta name="twitter:description" content="分析了机器人模型性能波动以及固定的TokenMonitor光标使用显示错误">
+  <meta name="twitter:description" content="分析了机器人模型性能波动问题以及固定的TokenMonitor光标使用显示漏洞">
 
 
 <script type="application/ld+json">
@@ -123,12 +123,12 @@
   "@type": "BlogPosting",
   "headline": "Bug Journal 2026-05-02",
   "name": "Bug Journal 2026-05-02",
-  "description": "分析了机器人模型性能波动以及固定的TokenMonitor光标使用显示错误",
+  "description": "分析了机器人模型性能波动问题以及固定的TokenMonitor光标使用显示漏洞",
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "每日报告 — 2026-05-02 日常概述 已完成工作： 评估了 pi0.5 模型 v2 在清洁展开和错误恢复任务中的性能；调试并修复了 TokenMonitor 浮球光标使用显示问题 实施方式： 对基准数据进行统计分析，计算差值并识别回归现象；对 Rust 后端进行了修改，增加了回退逻辑并实现了全面测试覆盖 影响： 发现了 pick_place 任务中的关键回归模式，需要进一步调查；为没有 spend_limit_usage 数据的用户恢复了功能性的光标速率限制监控 MacBook 已完成工作： 多次登录但未进行实质性操作 实施方式： 尝试与 Claude Code 交互但遇到认证障碍 影响： 无有效输出；会话仅在登录界面结束 TzJsDesktop 已完成工作： 分析了 pi0.5 v1/v2 模型在6项机器人任务中的对比情况；修复了 TokenMonitor 光标浮球 N/A 显示错误 实施方式： 使用差值列格式化性能表格，计算汇总统计信息，识别任务特定模式；修改了 tray.rs 的利用提取逻辑，将 extra_usage→primary_window 作为回退方案 影响： 发现 Clean Rollout 中 v2 的回归（-5.6pp）和 pick_place 任务中的回归（-24.1pp 在错误恢复中），已标记用于调查；为只有 plan_usage 数据的用户恢复了光标利用显示 分析了机器人模型性能回归问题并修复了 TokenMonitor 光标利用显示错误\n任务 架构与策略 ✅ 分析 pi0.5 模型 v2 与 v1 的性能对比 — 为 BCRNN 和 pi0.5 模型格式化了清洁展开和错误恢复场景下的基准表格，计算差值并识别 v2 中的回归现象 实施与修复 ✅ 修复 TokenMonitor 光标浮球 N/A 显示问题 — 修改了 tray.rs 使光标利用从 extra_usage_utilization 回退为 primary_window_utilization，添加了两项测试，通过21项测试验证且 clippy无错误 问题与解决方案 关键问题 1. pi0.5 v2 在清洁展开任务中整体出现回归（平均 -5.6pp），尽管线程处理任务有所改善（+24pp） 解决方案： 使用带有差值列的格式化对比表格以分离任务特定的性能变化；识别出 pick_place、咖啡、堆叠和 stack_three 为表现下降的任务\n关键洞察： 模型 v2 存在任务特定的性能差异：线程处理的显著改善与操作任务中的广泛回归形成对比，表明这是架构权衡而非均匀退化\n2. pick_place 任务在错误恢复场景中出现严重回归：pi0.5 v2 下降了 -24.1pp（42.9% → 18.8%） 解决方案： 在分析摘要中将 pick_place 标记为关键调查优先级；未立即实施修复，等待更深入的诊断\n关键洞察： 即使基础任务完成率可接受，错误恢复性能也可能显著下降，表明 v2 对干扰的鲁棒性可能降低\n一般问题 3. TokenMonitor 浮球显示光标利用为 N/A，因为只有 plan_usage 数据的用户存在 extra_usage 字段为 None 解决方案： 在 tray_utilization_from_rate_limits() 中修改了光标利用提取逻辑，从仅检查 extra_usage 改为回退链：extra_usage_utilization().or_else(|| primary_window_utilization())\n关键洞察： 大多数光标用户有 plan_usage（基于窗口且包含 auto_percent_used/api_percent_used），但缺乏 spend_limit_usage（基于 extra_usage）；之前的代码仅检查 extra_usage，导致 None → N/A 显示\n人类与 AI 方法 战略层面 模型性能对比方法 角色 方法 人类 用户提供带有运行/完成标记的原始基准表格，要求格式化的 v2-v1 差值分析对比 AI Claude 添加差值列、运行任务的表情符号指示、突出显示各任务中表现更好的版本、计算汇总统计信息，并提供回归现象的书面解释 差异分析： 人类关注视觉呈现和高级对比要求；AI 在未被请求的情况下添加了统计深度（汇总变化、任务特定模式分析）和诊断建议\nAI 限制 一般限制 多个 MacBook 会话显示 Claude 未登录，但未提供解决认证问题的主动指导 经验教训 关键经验 模型版本改进可能是任务特定的而非统一的：pi0.5 v2 在4项清洁展开任务中表现下降24pp，而在线程处理方面有所改善，表明需要针对每个任务进行架构权衡分析 错误恢复性能可能与基础任务成功率分离：尽管清洁展开状态未知，pick_place 在错误恢复中下降24.1pp，这凸显了鲁棒性作为独立评估维度 实际经验 速率限制数据来源因用户等级而异：光标用户可能有 plan_usage（基于窗口），但缺乏 spend_limit_usage（基于 extra_usage），需要在UI数据提取中添加回退逻辑以避免 null/N/A 显示 对话总结 机器人模型基准测试 ✅ pi0.5 v2 在6项任务中的性能与v1对比 05:56:19.034 | claude_code 用户提供了 BCRNN 和 pi0.5 模型（v1/v2）的原始基准表格，适用于清洁展开和错误恢复场景。Claude 格式化了数据并添加差值列，计算汇总统计信息，发现 pi0.5 v2 在清洁展开中整体下降（-5.6pp），但线程处理上升24pp，pick_place 在错误恢复中严重下降（-24.1pp）。建议调查v2的pick_place和咖啡任务回归问题。\nTokenMonitor ✅ 修复光标浮球 N/A 显示错误 05:57:21.549 | claude_code 继续之前的工作，修复了浮球部件中光标速率限制利用显示为N/A的问题。根本原因：tray_utilization_from_rate_limits()仅检查extra_usage_utilization（来自spend_limit_usage），但大多数光标用户只有plan_usage（primary_window数据）。修改了光标提取逻辑，从extra_usage回退为primary_window。添加了两项测试，所有21项测试通过，clippy无错误\n令牌使用 总计：3.27美元 — 190万个令牌\n",
-  "wordCount" : "227",
+  "articleBody": "每日报告 — 2026-05-02 日常概述 已完成工作： 评估了 pi0.5 模型 v2 在 Clean Rollout 和 Error Recovery 任务中的性能；调试并修复了 TokenMonitor FloatBall Cursor 使用显示问题 实施方式： 对基准数据进行统计分析，计算差值并识别回归现象；对 Rust 后端进行了修改，增加了回退逻辑并实现了全面测试覆盖 影响： 发现了 pick_place 任务中的关键回归模式，需要进一步调查；为没有 spend_limit_usage 数据的用户恢复了正常的 Cursor 使用率限制显示 MacBook 已完成工作： 多次登录但未进行实质性操作 实施方式： 尝试与 Claude Code 交互但遇到认证障碍 影响： 无有效输出；会话仅停留在登录界面 TzJsDesktop 已完成工作： 分析了 pi0.5 v1/v2 模型在6项机器人任务中的对比情况；修复了 TokenMonitor Cursor FloatBall N/A 显示错误 实施方式： 使用差值列格式化性能表格，计算汇总统计值，识别任务特定模式；修改了 tray.rs 中的利用提取逻辑，将 extra_usage→primary_window 作为回退方案 影响： 发现 Clean Rollout 中 v2 的回归（-5.6pp）以及 pick_place 任务中的回归（-24.1pp 在 Error Recovery 中），已标记待调查；为只有 plan_usage 数据的用户恢复了 Cursor 使用显示 分析了机器人模型性能回归情况并修复了 TokenMonitor Cursor 使用显示错误\n任务 架构与策略 ✅ 分析 pi0.5 模型 v2 与 v1 的性能对比 — 为 BCRNN 和 pi0.5 模型格式化了 Clean Rollout 和 Error Recovery 场景下的基准表格，计算差值并识别 v2 中的回归现象 实施与修复 ✅ 修复 TokenMonitor Cursor FloatBall N/A 显示问题 — 修改了 tray.rs 中 Cursor 的利用提取逻辑，从 extra_usage_utilization 回退到 primary_window_utilization，增加了两项测试，通过21项测试并满足 clippy 规范 问题与解决方案 关键问题 1. pi0.5 v2 在 Clean Rollout 中整体出现回归（平均 -5.6pp），尽管线程任务表现改善（+24pp） 解决方案： 使用差值列格式化的对比表格以分离任务特定的性能变化；识别出 pick_place、coffee、stack 和 stack_three 为表现下降的任务\n关键洞察： 模型 v2 存在任务特定的性能差异：线程任务的显著改善与操作任务中的广泛回归形成对比，表明这是架构层面的权衡而非均匀退化\n2. pick_place 任务在 Error Recovery 场景中出现严重回归：pi0.5 v2 下降 -24.1pp（42.9% → 18.8%） 解决方案： 在分析总结中将 pick_place 标记为关键调查优先级；未立即实施修复，等待更深入诊断\n关键洞察： 即使基础任务完成率尚可，Error Recovery 性能也可能显著下降，表明 v2 对干扰的鲁棒性可能降低\n一般问题 3. TokenMonitor FloatBall 显示 Cursor 使用率为 N/A，因为只有 plan_usage 数据的用户中 extra_usage 字段为 None 解决方案： 在 tray_utilization_from_rate_limits() 中修改了 Cursor 利用提取逻辑，从仅检查 extra_usage 改为回退链：extra_usage_utilization().or_else(|| primary_window_utilization())\n关键洞察： 大多数 Cursor 用户有 plan_usage（基于窗口且包含 auto_percent_used/api_percent_used），但缺乏 spend_limit_usage（基于 extra_usage）；之前的代码仅检查 extra_usage，导致 None → N/A 显示\n人类与 AI 方法 战略层面 模型性能对比方法 角色 方法 人类 用户提供包含运行/完成标记的原始基准表格，要求对 v2-v1 进行格式化的对比及差值分析 AI Claude 添加差值列、运行任务的表情符号指示、突出显示各任务中表现更好的版本、计算汇总统计值，并提供回归现象的书面解释 差异分析： 人类关注视觉呈现和高级对比需求；AI 在未被要求的情况下添加了统计深度分析（汇总变化、任务特定模式分析）和诊断建议\nAI 限制 一般限制 多个 MacBook 会话显示 Claude 未登录，但未提供解决认证问题的主动指导 学习成果 关键学习点 模型版本改进可能是任务特定的而非统一的：pi0.5 v2 在线程任务中改善了 +24pp，但在其他4项 Clean Rollout 任务中表现下降，表明需要针对每个任务进行架构权衡分析 Error Recovery 性能可能与基础任务成功率分离：尽管 Clean Rollout 状态未知，pick_place 在 Error Recovery 中下降 -24.1pp，凸显鲁棒性是一个独立的评估维度 实际学习点 速率限制数据来源因用户等级而异：Cursor 用户可能有 plan_usage（基于窗口），但缺乏 spend_limit_usage（基于 extra_usage），需要在 UI 数据提取中添加回退逻辑以避免 null/N/A 显示 对话总结 机器人模型基准测试 ✅ pi0.5 v2 与 v1 在6项任务中的性能评估 05:56:19.034 | claude_code 用户提供了 BCRNN 和 pi0.5 模型（v1/v2）的原始基准表格，涵盖 Clean Rollout 和 Error Recovery 场景。Claude 格式化了数据并添加差值列，计算了汇总统计值，发现 pi0.5 v2 在 Clean Rollout 中整体下降（-5.6pp），但线程任务改善（+24pp），pick_place 在 Error Recovery 中严重下降（-24.1pp）。建议调查 v2 的 pick_place 和 coffee 任务回归情况。\nTokenMonitor ✅ 修复 Cursor FloatBall N/A 显示错误 05:57:21.549 | claude_code 继续前一次会话，修复了 FloatBall 小部件中 Cursor 速率限制利用显示为 N/A 的问题。根本原因：tray_utilization_from_rate_limits() 仅检查 extra_usage_utilization（来自 spend_limit_usage），但大多数 Cursor 用户只有 plan_usage（primary_window 数据）。修改了 Cursor 提取逻辑，从 extra_usage 回退到 primary_window。增加了两项测试，所有21项测试通过，clippy 规范满足。\n令牌使用 AI Usage · 2026-05-02\rClaude Code + Codex\rTotal cost$62.31\rTotal tokens81M\rOutput tokens481K\rCache read86.8%\rCost split\rClaude Code $9 ·\rCodex $53\rToken character\rCache reads 86.8% ·\rActive 13.2%\rMost token volume came from cache reads; Codex drove nearly all cost.\r",
+  "wordCount" : "368",
   "inLanguage": "zh",
   "datePublished": "2026-05-02T00:00:00-05:00",
   "dateModified": "2026-05-02T00:00:00-05:00",
@@ -259,46 +259,46 @@
   <div class="post-content md-content"><h1 id="每日报告--2026-05-02">每日报告 — 2026-05-02<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-05-02">#</a></h1>
 <h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
 <ul>
-<li><strong>已完成工作：</strong> 评估了 pi0.5 模型 v2 在清洁展开和错误恢复任务中的性能；调试并修复了 TokenMonitor 浮球光标使用显示问题</li>
+<li><strong>已完成工作：</strong> 评估了 pi0.5 模型 v2 在 Clean Rollout 和 Error Recovery 任务中的性能；调试并修复了 TokenMonitor FloatBall Cursor 使用显示问题</li>
 <li><strong>实施方式：</strong> 对基准数据进行统计分析，计算差值并识别回归现象；对 Rust 后端进行了修改，增加了回退逻辑并实现了全面测试覆盖</li>
-<li><strong>影响：</strong> 发现了 pick_place 任务中的关键回归模式，需要进一步调查；为没有 spend_limit_usage 数据的用户恢复了功能性的光标速率限制监控</li>
+<li><strong>影响：</strong> 发现了 pick_place 任务中的关键回归模式，需要进一步调查；为没有 spend_limit_usage 数据的用户恢复了正常的 Cursor 使用率限制显示</li>
 </ul>
 <h3 id="macbook">MacBook<a hidden class="anchor" aria-hidden="true" href="#macbook">#</a></h3>
 <ul>
 <li><strong>已完成工作：</strong> 多次登录但未进行实质性操作</li>
 <li><strong>实施方式：</strong> 尝试与 Claude Code 交互但遇到认证障碍</li>
-<li><strong>影响：</strong> 无有效输出；会话仅在登录界面结束</li>
+<li><strong>影响：</strong> 无有效输出；会话仅停留在登录界面</li>
 </ul>
 <h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
 <ul>
-<li><strong>已完成工作：</strong> 分析了 pi0.5 v1/v2 模型在6项机器人任务中的对比情况；修复了 TokenMonitor 光标浮球 N/A 显示错误</li>
-<li><strong>实施方式：</strong> 使用差值列格式化性能表格，计算汇总统计信息，识别任务特定模式；修改了 tray.rs 的利用提取逻辑，将 extra_usage→primary_window 作为回退方案</li>
-<li><strong>影响：</strong> 发现 Clean Rollout 中 v2 的回归（-5.6pp）和 pick_place 任务中的回归（-24.1pp 在错误恢复中），已标记用于调查；为只有 plan_usage 数据的用户恢复了光标利用显示</li>
+<li><strong>已完成工作：</strong> 分析了 pi0.5 v1/v2 模型在6项机器人任务中的对比情况；修复了 TokenMonitor Cursor FloatBall N/A 显示错误</li>
+<li><strong>实施方式：</strong> 使用差值列格式化性能表格，计算汇总统计值，识别任务特定模式；修改了 tray.rs 中的利用提取逻辑，将 extra_usage→primary_window 作为回退方案</li>
+<li><strong>影响：</strong> 发现 Clean Rollout 中 v2 的回归（-5.6pp）以及 pick_place 任务中的回归（-24.1pp 在 Error Recovery 中），已标记待调查；为只有 plan_usage 数据的用户恢复了 Cursor 使用显示</li>
 </ul>
 <blockquote>
-<p>分析了机器人模型性能回归问题并修复了 TokenMonitor 光标利用显示错误</p>
+<p>分析了机器人模型性能回归情况并修复了 TokenMonitor Cursor 使用显示错误</p>
 </blockquote>
 <h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
 <h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
 <ul>
-<li>✅ <strong>分析 pi0.5 模型 v2 与 v1 的性能对比</strong> — 为 BCRNN 和 pi0.5 模型格式化了清洁展开和错误恢复场景下的基准表格，计算差值并识别 v2 中的回归现象</li>
+<li>✅ <strong>分析 pi0.5 模型 v2 与 v1 的性能对比</strong> — 为 BCRNN 和 pi0.5 模型格式化了 Clean Rollout 和 Error Recovery 场景下的基准表格，计算差值并识别 v2 中的回归现象</li>
 </ul>
 <h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
 <ul>
-<li>✅ <strong>修复 TokenMonitor 光标浮球 N/A 显示问题</strong> — 修改了 tray.rs 使光标利用从 extra_usage_utilization 回退为 primary_window_utilization，添加了两项测试，通过21项测试验证且 clippy无错误</li>
+<li>✅ <strong>修复 TokenMonitor Cursor FloatBall N/A 显示问题</strong> — 修改了 tray.rs 中 Cursor 的利用提取逻辑，从 extra_usage_utilization 回退到 primary_window_utilization，增加了两项测试，通过21项测试并满足 clippy 规范</li>
 </ul>
 <h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
 <h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
-<h4 id="1-pi05-v2-在清洁展开任务中整体出现回归平均--56pp尽管线程处理任务有所改善24pp">1. pi0.5 v2 在清洁展开任务中整体出现回归（平均 -5.6pp），尽管线程处理任务有所改善（+24pp）<a hidden class="anchor" aria-hidden="true" href="#1-pi05-v2-在清洁展开任务中整体出现回归平均--56pp尽管线程处理任务有所改善24pp">#</a></h4>
-<p><strong>解决方案：</strong> 使用带有差值列的格式化对比表格以分离任务特定的性能变化；识别出 pick_place、咖啡、堆叠和 stack_three 为表现下降的任务</p>
-<p><strong>关键洞察：</strong> 模型 v2 存在任务特定的性能差异：线程处理的显著改善与操作任务中的广泛回归形成对比，表明这是架构权衡而非均匀退化</p>
-<h4 id="2-pick_place-任务在错误恢复场景中出现严重回归pi05-v2-下降了--241pp429--188">2. pick_place 任务在错误恢复场景中出现严重回归：pi0.5 v2 下降了 -24.1pp（42.9% → 18.8%）<a hidden class="anchor" aria-hidden="true" href="#2-pick_place-任务在错误恢复场景中出现严重回归pi05-v2-下降了--241pp429--188">#</a></h4>
-<p><strong>解决方案：</strong> 在分析摘要中将 pick_place 标记为关键调查优先级；未立即实施修复，等待更深入的诊断</p>
-<p><strong>关键洞察：</strong> 即使基础任务完成率可接受，错误恢复性能也可能显著下降，表明 v2 对干扰的鲁棒性可能降低</p>
+<h4 id="1-pi05-v2-在-clean-rollout-中整体出现回归平均--56pp尽管线程任务表现改善24pp">1. pi0.5 v2 在 Clean Rollout 中整体出现回归（平均 -5.6pp），尽管线程任务表现改善（+24pp）<a hidden class="anchor" aria-hidden="true" href="#1-pi05-v2-在-clean-rollout-中整体出现回归平均--56pp尽管线程任务表现改善24pp">#</a></h4>
+<p><strong>解决方案：</strong> 使用差值列格式化的对比表格以分离任务特定的性能变化；识别出 pick_place、coffee、stack 和 stack_three 为表现下降的任务</p>
+<p><strong>关键洞察：</strong> 模型 v2 存在任务特定的性能差异：线程任务的显著改善与操作任务中的广泛回归形成对比，表明这是架构层面的权衡而非均匀退化</p>
+<h4 id="2-pick_place-任务在-error-recovery-场景中出现严重回归pi05-v2-下降--241pp429--188">2. pick_place 任务在 Error Recovery 场景中出现严重回归：pi0.5 v2 下降 -24.1pp（42.9% → 18.8%）<a hidden class="anchor" aria-hidden="true" href="#2-pick_place-任务在-error-recovery-场景中出现严重回归pi05-v2-下降--241pp429--188">#</a></h4>
+<p><strong>解决方案：</strong> 在分析总结中将 pick_place 标记为关键调查优先级；未立即实施修复，等待更深入诊断</p>
+<p><strong>关键洞察：</strong> 即使基础任务完成率尚可，Error Recovery 性能也可能显著下降，表明 v2 对干扰的鲁棒性可能降低</p>
 <h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
-<h4 id="3-tokenmonitor-浮球显示光标利用为-na因为只有-plan_usage-数据的用户存在-extra_usage-字段为-none">3. TokenMonitor 浮球显示光标利用为 N/A，因为只有 plan_usage 数据的用户存在 extra_usage 字段为 None<a hidden class="anchor" aria-hidden="true" href="#3-tokenmonitor-浮球显示光标利用为-na因为只有-plan_usage-数据的用户存在-extra_usage-字段为-none">#</a></h4>
-<p><strong>解决方案：</strong> 在 tray_utilization_from_rate_limits() 中修改了光标利用提取逻辑，从仅检查 extra_usage 改为回退链：extra_usage_utilization().or_else(|| primary_window_utilization())</p>
-<p><strong>关键洞察：</strong> 大多数光标用户有 plan_usage（基于窗口且包含 auto_percent_used/api_percent_used），但缺乏 spend_limit_usage（基于 extra_usage）；之前的代码仅检查 extra_usage，导致 None → N/A 显示</p>
+<h4 id="3-tokenmonitor-floatball-显示-cursor-使用率为-na因为只有-plan_usage-数据的用户中-extra_usage-字段为-none">3. TokenMonitor FloatBall 显示 Cursor 使用率为 N/A，因为只有 plan_usage 数据的用户中 extra_usage 字段为 None<a hidden class="anchor" aria-hidden="true" href="#3-tokenmonitor-floatball-显示-cursor-使用率为-na因为只有-plan_usage-数据的用户中-extra_usage-字段为-none">#</a></h4>
+<p><strong>解决方案：</strong> 在 tray_utilization_from_rate_limits() 中修改了 Cursor 利用提取逻辑，从仅检查 extra_usage 改为回退链：extra_usage_utilization().or_else(|| primary_window_utilization())</p>
+<p><strong>关键洞察：</strong> 大多数 Cursor 用户有 plan_usage（基于窗口且包含 auto_percent_used/api_percent_used），但缺乏 spend_limit_usage（基于 extra_usage）；之前的代码仅检查 extra_usage，导致 None → N/A 显示</p>
 <h2 id="人类与-ai-方法">人类与 AI 方法<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法">#</a></h2>
 <h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
 <h4 id="模型性能对比方法">模型性能对比方法<a hidden class="anchor" aria-hidden="true" href="#模型性能对比方法">#</a></h4>
@@ -312,42 +312,137 @@
   <tbody>
       <tr>
           <td>人类</td>
-          <td>用户提供带有运行/完成标记的原始基准表格，要求格式化的 v2-v1 差值分析对比</td>
+          <td>用户提供包含运行/完成标记的原始基准表格，要求对 v2-v1 进行格式化的对比及差值分析</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>Claude 添加差值列、运行任务的表情符号指示、突出显示各任务中表现更好的版本、计算汇总统计信息，并提供回归现象的书面解释</td>
+          <td>Claude 添加差值列、运行任务的表情符号指示、突出显示各任务中表现更好的版本、计算汇总统计值，并提供回归现象的书面解释</td>
       </tr>
   </tbody>
 </table>
-<p><strong>差异分析：</strong> 人类关注视觉呈现和高级对比要求；AI 在未被请求的情况下添加了统计深度（汇总变化、任务特定模式分析）和诊断建议</p>
+<p><strong>差异分析：</strong> 人类关注视觉呈现和高级对比需求；AI 在未被要求的情况下添加了统计深度分析（汇总变化、任务特定模式分析）和诊断建议</p>
 <h2 id="ai-限制">AI 限制<a hidden class="anchor" aria-hidden="true" href="#ai-限制">#</a></h2>
 <h3 id="一般限制">一般限制<a hidden class="anchor" aria-hidden="true" href="#一般限制">#</a></h3>
 <ul>
 <li>多个 MacBook 会话显示 Claude 未登录，但未提供解决认证问题的主动指导</li>
 </ul>
-<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
-<h3 id="关键经验">关键经验<a hidden class="anchor" aria-hidden="true" href="#关键经验">#</a></h3>
+<h2 id="学习成果">学习成果<a hidden class="anchor" aria-hidden="true" href="#学习成果">#</a></h2>
+<h3 id="关键学习点">关键学习点<a hidden class="anchor" aria-hidden="true" href="#关键学习点">#</a></h3>
 <ul>
-<li>模型版本改进可能是任务特定的而非统一的：pi0.5 v2 在4项清洁展开任务中表现下降24pp，而在线程处理方面有所改善，表明需要针对每个任务进行架构权衡分析</li>
-<li>错误恢复性能可能与基础任务成功率分离：尽管清洁展开状态未知，pick_place 在错误恢复中下降24.1pp，这凸显了鲁棒性作为独立评估维度</li>
+<li>模型版本改进可能是任务特定的而非统一的：pi0.5 v2 在线程任务中改善了 +24pp，但在其他4项 Clean Rollout 任务中表现下降，表明需要针对每个任务进行架构权衡分析</li>
+<li>Error Recovery 性能可能与基础任务成功率分离：尽管 Clean Rollout 状态未知，pick_place 在 Error Recovery 中下降 -24.1pp，凸显鲁棒性是一个独立的评估维度</li>
 </ul>
-<h3 id="实际经验">实际经验<a hidden class="anchor" aria-hidden="true" href="#实际经验">#</a></h3>
+<h3 id="实际学习点">实际学习点<a hidden class="anchor" aria-hidden="true" href="#实际学习点">#</a></h3>
 <ul>
-<li>速率限制数据来源因用户等级而异：光标用户可能有 plan_usage（基于窗口），但缺乏 spend_limit_usage（基于 extra_usage），需要在UI数据提取中添加回退逻辑以避免 null/N/A 显示</li>
+<li>速率限制数据来源因用户等级而异：Cursor 用户可能有 plan_usage（基于窗口），但缺乏 spend_limit_usage（基于 extra_usage），需要在 UI 数据提取中添加回退逻辑以避免 null/N/A 显示</li>
 </ul>
 <h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
 <h3 id="机器人模型基准测试">机器人模型基准测试<a hidden class="anchor" aria-hidden="true" href="#机器人模型基准测试">#</a></h3>
-<p><strong>✅ pi0.5 v2 在6项任务中的性能与v1对比</strong>
+<p><strong>✅ pi0.5 v2 与 v1 在6项任务中的性能评估</strong>
 <em>05:56:19.034 | claude_code</em>
-用户提供了 BCRNN 和 pi0.5 模型（v1/v2）的原始基准表格，适用于清洁展开和错误恢复场景。Claude 格式化了数据并添加差值列，计算汇总统计信息，发现 pi0.5 v2 在清洁展开中整体下降（-5.6pp），但线程处理上升24pp，pick_place 在错误恢复中严重下降（-24.1pp）。建议调查v2的pick_place和咖啡任务回归问题。</p>
+用户提供了 BCRNN 和 pi0.5 模型（v1/v2）的原始基准表格，涵盖 Clean Rollout 和 Error Recovery 场景。Claude 格式化了数据并添加差值列，计算了汇总统计值，发现 pi0.5 v2 在 Clean Rollout 中整体下降（-5.6pp），但线程任务改善（+24pp），pick_place 在 Error Recovery 中严重下降（-24.1pp）。建议调查 v2 的 pick_place 和 coffee 任务回归情况。</p>
 <h3 id="tokenmonitor">TokenMonitor<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor">#</a></h3>
-<p><strong>✅ 修复光标浮球 N/A 显示错误</strong>
+<p><strong>✅ 修复 Cursor FloatBall N/A 显示错误</strong>
 <em>05:57:21.549 | claude_code</em>
-继续之前的工作，修复了浮球部件中光标速率限制利用显示为N/A的问题。根本原因：tray_utilization_from_rate_limits()仅检查extra_usage_utilization（来自spend_limit_usage），但大多数光标用户只有plan_usage（primary_window数据）。修改了光标提取逻辑，从extra_usage回退为primary_window。添加了两项测试，所有21项测试通过，clippy无错误</p>
+继续前一次会话，修复了 FloatBall 小部件中 Cursor 速率限制利用显示为 N/A 的问题。根本原因：tray_utilization_from_rate_limits() 仅检查 extra_usage_utilization（来自 spend_limit_usage），但大多数 Cursor 用户只有 plan_usage（primary_window 数据）。修改了 Cursor 提取逻辑，从 extra_usage 回退到 primary_window。增加了两项测试，所有21项测试通过，clippy 规范满足。</p>
 <h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
-<p><strong>总计：3.27美元</strong> — 190万个令牌</p>
-<!-- gadget:src-hash:4f3ff9841cddc09c -->
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-05-02</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$62.31</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>81M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>481K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>86.8%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $9</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $53</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (14.5%), Codex (85.5%)">
+          <span style="width:14.5%; background:var(--usage-cost-main)"></span>
+          <span style="width:85.5%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 86.8%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 13.2%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (86.8%), active tokens (13.2%)">
+          <span style="width:86.8%; background:var(--usage-cache)"></span>
+          <span style="width:13.2%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Codex drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:ea1ffe6717c7cd58 -->
 
 
   </div>

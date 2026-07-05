@@ -7,7 +7,7 @@
 <meta name="robots" content="index, follow">
 <title>Bug Journal 2026-04-05 | TzJ&#39;s Net</title>
 <meta name="keywords" content="Bug Journal">
-<meta name="description" content="完成 Linux FloatBall 固定窗口 &#43; GDK Input Shape 架构性重构以根治平台级几何偏移，并系统性解决 Life-Copilot Discord Bot 的结构化日志缺失与 MCP 工具权限拒绝两大根因问题">
+<meta name="description" content="实现了关键基础设施改进，包括稳定的Linux浮动界面、增强的结构化日志功能，以及解决MCP路由问题；同时稳定了模拟到模拟的轨迹数据管道，调试了多GPU评估框架，并验证了不同学术基准测试中的数学一致性。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-04-05/">
 <link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
@@ -79,7 +79,7 @@
 <meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-04-05/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="Bug Journal 2026-04-05">
-  <meta property="og:description" content="完成 Linux FloatBall 固定窗口 &#43; GDK Input Shape 架构性重构以根治平台级几何偏移，并系统性解决 Life-Copilot Discord Bot 的结构化日志缺失与 MCP 工具权限拒绝两大根因问题">
+  <meta property="og:description" content="实现了关键基础设施改进，包括稳定的Linux浮动界面、增强的结构化日志功能，以及解决MCP路由问题；同时稳定了模拟到模拟的轨迹数据管道，调试了多GPU评估框架，并验证了不同学术基准测试中的数学一致性。">
   <meta property="og:locale" content="zh_cn">
   <meta property="og:type" content="article">
     <meta property="article:section" content="bugjournal">
@@ -88,7 +88,7 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Bug Journal 2026-04-05">
-  <meta name="twitter:description" content="完成 Linux FloatBall 固定窗口 &#43; GDK Input Shape 架构性重构以根治平台级几何偏移，并系统性解决 Life-Copilot Discord Bot 的结构化日志缺失与 MCP 工具权限拒绝两大根因问题">
+  <meta name="twitter:description" content="实现了关键基础设施改进，包括稳定的Linux浮动界面、增强的结构化日志功能，以及解决MCP路由问题；同时稳定了模拟到模拟的轨迹数据管道，调试了多GPU评估框架，并验证了不同学术基准测试中的数学一致性。">
 
 
 <script type="application/ld+json">
@@ -123,12 +123,12 @@
   "@type": "BlogPosting",
   "headline": "Bug Journal 2026-04-05",
   "name": "Bug Journal 2026-04-05",
-  "description": "完成 Linux FloatBall 固定窗口 + GDK Input Shape 架构性重构以根治平台级几何偏移，并系统性解决 Life-Copilot Discord Bot 的结构化日志缺失与 MCP 工具权限拒绝两大根因问题",
+  "description": "实现了关键基础设施改进，包括稳定的Linux浮动界面、增强的结构化日志功能，以及解决MCP路由问题；同时稳定了模拟到模拟的轨迹数据管道，调试了多GPU评估框架，并验证了不同学术基准测试中的数学一致性。",
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-04-05 Daily Overview What was done: 将 Linux FloatBall 从动态 resize 架构重构为固定尺寸窗口 + GDK Input Shape 方案，并为 Life-Copilot Discord Bot 新增 structlog 结构化日志/操作审计系统，同时完整修复 Claude CLI -p 模式下 MCP 工具配置缺失与权限拒绝两个叠加问题 How it was done: FloatBall 通过 ccplan 规划六方案后实施 cairo::Region + GTK geometry_hints 固定窗口方案，拖拽期间临时扩展 input shape 到全窗口；Life-Copilot 通过逐层排查嵌套进程调用链，依次补全 –mcp-config 参数和 –permission-mode bypassPermissions 解决非交互模式权限拒绝 Impact: 根治 Linux WM +305px/+113px 系统性位置偏移并删除约 150 行 probe/corrective 补丁代码；Discord Bot 完整对话记录已落盘，Google Calendar MCP 工具在生产环境完全可用 完成 Linux FloatBall 固定窗口 + GDK Input Shape 架构性重构以根治平台级几何偏移，并系统性解决 Life-Copilot Discord Bot 的结构化日志缺失与 MCP 工具权限拒绝两大根因问题\nTasks Architecture \u0026 Strategy 🔄 TokenMonitor FloatBall Linux 架构性重构（固定窗口 + GDK Input Shape） — 通过 ccplan 规划 6 个备选方案后实施固定窗口方案：窗口永久使用 expanded 尺寸（152×56）不再 resize，用 GDK input_shape_combine_region 控制点击穿透区域（collapsed 时仅球区域，expanded 时全窗口，拖拽时临时全窗口）。新增 cairo-rs 依赖，删除 probe/corrective reapply 机制约 150 行代码，追加修复球压扁（GTK geometry_hints）、无法展开（CSS direction 定位）、无法拖拽（set_float_ball_dragging 命令）三类问题，并去除 snap 功能优先保证移动稳定。284 Rust + 205 前端测试通过，等待最终运行时验证。 ✅ Life-Copilot Discord Bot MCP 工具调用完整修复 — 两阶段修复：第一阶段发现 claude -p 不自动加载项目级 .claude/mcp_servers.json，在 claude_adapter.py 命令中添加 –mcp-config 参数（加载 19 个 MCP 工具）；第二阶段通过直接运行 claude -p 命令发现 permission_denials 根因（非交互模式无法完成权限确认），–allowedTools 通配符因时序问题不可靠，最终用 –permission-mode bypassPermissions 彻底解决，验证日程查询正常返回结果。 ✅ Life-Copilot 结构化日志系统（structlog + 文件 rotation + 操作审计） — 用 structlog 替换 stdlib logging，实现 dev 彩色输出 + prod JSON 格式 + 10MB rotation；新建 audit_log.py 在 Discord on_message、FastAPI 中间件、CLISelector.send 三处写入 JSONL 审计记录，覆盖完整对话（用户输入 + bot 回复）；修复 ExtraAdder processor 遗漏导致 extra 字段静默丢失的 bug；清理 4 处 print() 语句。420 个测试通过。 Implementation \u0026 Fixes ✅ FloatBall 会话改动回退 — 因某 AI 会话的 CSS min() 修改和 collapse 流程重构导致更多问题，用户要求回退。AI 误用 git stash 回退了所有未提交改动，git stash pop 恢复后手动精确撤销了本会话的三处具体改动。 Problems \u0026 Solutions Critical Issues 1. Linux WM 无法原子处理透明无边框窗口的动态 resize，导致系统性 +305px/+113px 位置偏移、probe/corrective 机制闪烁、WebView 与 native window 尺寸不一致裁切 Solution: 固定窗口尺寸为 expanded（152×56）永不 resize；用 GDK input_shape_combine_region 控制点击穿透：collapsed 时仅球区域（56×56），expanded 及拖拽时全窗口接受事件\nKey Insight: 这是平台架构问题而非计算 bug：Linux WM 用不同语义解释同一 rect 请求；消除 resize 才是根治，局部补丁只会在症状间转移\n2. Life-Copilot Discord Bot 对日程查询持续回复\"需要 OAuth 认证\"，根本原因为两个叠加问题：(1) claude -p 不加载项目级 MCP 配置；(2) 非交互模式下 MCP tool 调用权限被静默拒绝 Solution: 在 claude_adapter.py 命令中依次添加 –mcp-config .claude/mcp_servers.json 和 –permission-mode bypassPermissions；通过直接运行 claude -p 命令复现 permission_denials 字段定位根因\nKey Insight: Claude CLI session-less 模式与 interactive 模式 MCP 加载行为不同；–allowedTools 通配符在非交互模式下因与 MCP server 初始化存在竞争条件而不可靠；bypassPermissions 是后端服务调用的正确模式\n3. 固定窗口方案首次实现后出现三类平台细节问题：球显示压扁（window builder 仍用 56×56 创建）、无法展开（CSS 未按 data-direction 应用）、拖拽失效（input shape 阻断鼠标移出球区域后的 X11 事件） Solution: (1) window builder 改用 expanded 尺寸并用 GTK geometry_hints 锁定 min=max；(2) CSS justify-content 根据 data-direction 始终生效；(3) 新增 set_float_ball_dragging 命令，拖拽期间将 input shape 扩展到全窗口，结束后恢复\nKey Insight: WebKitGTK 有默认最小自然尺寸约束；X11 层 input shape 事件拦截早于 setPointerCapture，需在 Rust 侧同步扩大区域\nGeneral Issues 4. structlog 包装 stdlib logging 时，extra={} 字段在 JSON 输出中静默丢失 Solution: 在 shared_processors 中加入 structlog.stdlib.ExtraAdder()，使 extra 字段合并到结构化输出\nKey Insight: structlog 包装 stdlib 时 extra 参数不会自动传递，需显式添加 ExtraAdder，无报错但字段静默丢失\n5. 用户要求回退\"本会话改动\"时 AI 误用 git stash，险些造成历史工作丢失 Solution: git stash pop 恢复后，手动识别本会话三处具体改动并精确撤销\nKey Insight: git stash 影响所有未提交改动，不适合\"只撤销当前会话改动\"的场景；应先 git diff 理清改动范围再逐一撤销\nHuman vs AI Approaches Strategic Level Linux FloatBall 根本原因诊断与方案选择 Role Approach Human 会话开始前已完成完整诊断：4 层几何系统失配、11 次先前尝试及失败原因、日志证据（+305px = expanded 宽度、+113px = collapsed 宽度的系统性规律） AI 通过 Explore agent 确认诊断后，将其结构化为 6 个备选方案并驱动对抗审查和可行性验证，推荐固定窗口方案后完整实施 Difference Analysis: 人类的诊断深度和证据质量远超 AI；AI 的价值在于方案设计结构化和执行，而非问题发现\nMCP 问题排查策略 Role Approach Human 持续施压推动 AI 深入排查，而非接受表面解释 AI 从 token → MCP server 启动 → CLI 调用链逐层系统性排查，最终通过直接测试 claude -p 命令复现 permission_denials 定位根因 Difference Analysis: 人类通过持续施压确保问题得到彻底解决而非草草修复；AI 提供了系统性多层排查方法\n发现 Bot 回复内容未被记录 Role Approach Human 直觉性追问「discord bot 如何回复我的？」，发现日志只记录了用户输入而遗漏了 AI 回复 AI 实现时只关注用户输入侧的审计入口点，未主动考虑对话完整性 Difference Analysis: 人类从使用者视角发现了关键遗漏（对话完整性），AI 只考虑了系统架构层面的审计入口\n日志系统需求范围界定 Role Approach Human 简单说「写一个 log 记录的代码」，被反问后明确选择文件持久化 + 结构化日志 + 全量操作审计 AI 扫描现有代码发现 73/114 文件已有 logging，主动识别需求模糊性并提出三类方向让用户选择 Difference Analysis: 人类提出模糊需求，AI 通过代码探索将其具体化为可选方案；最终方向由人类选择，AI 执行\nImplementation Level git 回退操作范围判断 Role Approach Human 意图只撤销当前 AI 会话的改动，保留之前的历史工作 AI 使用了 git stash，影响范围远超用户意图（回退所有未提交改动） Difference Analysis: AI 未能准确理解\"本会话改动\"与\"所有未提交改动\"的边界，选择了影响过大的操作\nFloatBall 功能优先级取舍（去除 snap） Role Approach Human 测试发现移动仍不稳定后，明确要求暂时去掉 snap，优先解决核心移动问题 AI 方案设计阶段将 snap 列为 REQ-005 需保留功能并已实施，未主动提出分阶段优先级 Difference Analysis: AI 倾向一次性完整实现所有功能，用户在实测中做了更务实的优先级取舍\nAI Limitations Critical Limitations 单元测试通过无法预测平台特定运行时行为：FloatBall 284 Rust + 205 前端测试全部通过，但球压扁、无法展开、拖拽失效三个问题均未被捕获；Claude CLI –allowedTools 在非交互模式下的时序问题同样未能通过测试提前发现 首次实现频繁遗漏平台特定细节，需用户实测或日志反馈才能发现：window builder 必须用 expanded 尺寸创建、WebKitGTK 需要 GTK geometry_hints 约束、structlog 包装时需显式 ExtraAdder() General Limitations git 操作范围判断失误：在用户要求\"回退本会话改动\"时误用 git stash，险些造成历史工作丢失 Learnings Key Learnings Linux X11 WM 对透明无边框窗口 resize 请求无原子性保证，不同 WM 用不同语义解释同一坐标，导致系统性偏移；彻底消除 resize（固定窗口 + GDK input shape）是唯一可靠解法，局部补丁只会在症状间转移 Claude CLI -p 模式的 MCP 完整配置需两步：(1) 显式传 –mcp-config 加载项目级工具；(2) 添加 –permission-mode bypassPermissions 绕过非交互模式下无法完成的权限确认；–allowedTools 通配符在此模式下因与 MCP server 初始化存在竞争条件而不可靠，bypassPermissions 是后端服务调用的正确模式 GDK input shape 在 X11 层拦截事件，setPointerCapture 不能越过它；拖拽场景需在 Rust 侧用 set_float_ball_dragging 命令临时扩展 input shape 到全窗口；cairo-rs 0.18 + gdk 0.18 下可在 Tauri with_webview 回调中直接使用 input_shape_combine_region，无需新增复杂依赖 调试嵌套进程 CLI 工具（主进程 → Claude CLI → MCP server）时，先记录实际传递的命令行参数再逐一隔离验证参数效果，比直接猜测参数行为更高效 ccplan 技能的发散探索（6 方案）+ 对抗审查 + 可行性探测流程能有效将复杂平台架构问题转化为可执行计划，ECL 文档提供跨会话上下文持久化，减少重复分析成本 Practical Learnings structlog 包装 stdlib logging 时，stdlib extra={} 参数需显式添加 ExtraAdder() processor 才能出现在输出字段中；否则字段静默丢失且无报错 Conversation Summaries TokenMonitor 🔄 Linux FloatBall 架构性重构：ccplan 规划 + 固定窗口方案实施与多轮调试 02:52:43.137 | claude_code 用户携带完整根因分析（4 层几何失配、11 次先前尝试、日志证据）启动 ccplan 流程，AI 生成 6 个备选方案并推荐固定窗口 + GDK Input Shape，批准后完整实施。运行时出现三个问题（球压扁、无法展开、无法拖拽），依次通过 GTK geometry_hints、CSS direction 定位、set_float_ball_dragging 命令修复并去除 snap 后，284 Rust + 205 前端测试通过，等待最终运行时验证。期间一次 git stash 误操作被及时识别并 stash pop 恢复，随后手动精确撤销本会话相关改动。\nLife-Copilot ✅ Discord Bot 结构化日志系统建设 + MCP 工具调用完整修复 01:35:00.000 | claude_code 通过 ccplan 规划后实现 structlog 结构化日志（dev 彩色/prod JSON + 10MB rotation）、JSONL 操作审计日志（Discord/API/CLI 三入口）和完整对话记录，420 个测试通过。同步修复 MCP 工具调用两阶段叠加问题：先补全 –mcp-config 参数加载 19 个项目 MCP 工具，再通过直接运行 claude -p 发现 permission_denials 根因，用 –permission-mode bypassPermissions 彻底解决非交互模式权限拒绝，验证 Google Calendar 日程查询在 Discord 中正常返回结果。\nToken Usage Total: $12.54 — 16.8M tokens\n",
-  "wordCount" : "740",
+  "articleBody": "每日报告 — 2026-04-05 日常概述 已完成工作： 实施了跨领域基础设施加固措施，包括特定平台窗口几何稳定性控制、机器人自动化可靠性保障、模拟数据完整性维护、大规模政策基准部署以及学术指标验证。消除了 CLI 路由、物理环境匹配和 I/O 缓冲区管理中的静默执行故障，同时建立了可复现的验证基准用于比较研究。 实施方式： 采用固定大小架构并使用 GDK 输入掩码来避免桌面管理器竞争；部署带有明确权限绕过和上下文处理器的 structlog 审计机制；在模拟流程中实施严格的指纹匹配和动态物理成功验证；通过直接文件重定向和 JIT 感知的套接字超时解决 VLA 服务器死锁问题；通过假设驱动的场景测试将出版异常与架构缺陷区分开。 影响： 在 Linux 上实现了几何稳定的渲染和可靠的自动化路由，通过强制性的验证保护防止了灾难性的训练数据集不匹配，使得六项任务中的多 GPU 政策量化能够独立处理故障，并通过识别文档和标准化不一致问题加速了比较分析，无需进行昂贵的重新训练过程。 DesktopLinux 已完成工作： 保持被动运行状态，没有进行主动开发会话或核心工作流程分配。 实施方式： 系统进程保留基础配置；基础设施监控处于静默状态，计算资源则集中在其他指定工作站上。 影响： 对主要交付成果无影响；保留了环境稳定性以便未来调度，无需消耗活跃计算资源。 MacBook 已完成工作： 执行了深度模拟环境匹配、物理稳定性验证以及围绕 Error Recovery 项目的基准数据集准备及学术指标诊断。 实施方式： 实施了基于重力的成功验证机制，降低运行时依赖项以匹配服务器规格，通过状态文件分析诊断跨架构 MuJoCo 浮点累积差异，并构建假设驱动的脚本以测试 Crossformer/LiPM 基准中的标准化缩放问题。 影响： 确保收集的远程操作演示反映真实的物理稳定性，同时识别硬件依赖的漂移作为轨迹重放的基本边界；为比较学术分析建立了数学上严格的验证标准。 tianhe 已完成工作： 协调了结构化可观测性基础设施的生产部署，解决了机器人自动化路由故障，配置了多 GPU 政策评估集群，并进行了跨论文指标一致性分析。 实施方式： 修补 CLI 适配器以实现明确的配置解析和权限绕过，将 structlog 与自定义上下文处理器集成，部署了带有自动监控脚本的批处理感知 GPU 调度，扩大套接字超时以容纳 JIT 预热阶段，模拟了替代计算假设以验证评估框架中的数学不等式保持情况。 影响： 恢复了自动化流程中的确定性工具发现，消除了日志记录场景中的静默数据丢失，确保了大规模基准测试的稳健并行计算执行，并通过系统化的场景映射将程序化出版不一致与模型架构分离开。 实现了关键基础设施改进，包括稳定的 Linux 浮点 UI、增强的结构化日志以及解决 MCP 路由问题，同时稳定了模拟到模拟的轨迹数据管道，调试了多 GPU 评估框架，并验证了比较学术基准中的数学一致性。\n任务 架构与策略 ✅ Linux FloatBall 固定大小架构实现 — 用固定大小策略替换不稳定的动态调整逻辑，使用 GDK 输入掩码控制点击区域，更新 Rust 后端和 Svelte 组件以在 Linux 上实现几何稳定的渲染。 ✅ Life-Copilot 可观测性与自动化路由基础设施 — 部署了生产级 structlog 审计系统，支持 JSONL 旋转，通过明确的配置标志和权限绕过解决 Claude CLI -p 模式 MCP 配置漂移问题，验证工具发现恢复以实现可靠的机器人自动化。 ✅ 错误恢复模拟数据完整性和验证加固 — 实施动态夹持器释放成功验证，强制执行严格的 HDF5 环境指纹匹配以消除静默数据集回退，诊断跨架构 MuJoCo 浮点差异以建立准确的轨迹重放前提。 🔄 Pi0.5 多 GPU 政策评估框架部署 — 配置并调试了六种错误场景下的并行多 GPU 基准测试管道，解决 VLA 服务器子进程死锁和套接字超时问题，同时实施批处理感知调度以实现稳定的政策量化。 ✅ 电池时间序列回归指标一致性分析 — 通过结构化的学术调查模板、数学不等式验证和假设驱动的标准化测试，研究从已发布基准中复现的 Crossformer/LiPM 指标差异，以隔离程序化不一致问题。 问题与解决方案 关键问题 1. 桌面管理器几何竞争导致 Linux 浮点 UI 出现持续的跳跃/闪烁现象，加之 GDK 输入掩码在主动拖拽过程中拦截指针事件。 解决方案： 设计固定窗口基准，仅在拖拽状态下通过 RPC 动态扩展点击区域，完全绕过 WM 调整大小功能，而不是修复症状循环。\n关键洞察： 平台几何不匹配属于架构故障；动态交互边界应由状态驱动，而非静态绑定于组件尺寸。\n2. 远程操作成功阈值接受物理不稳定的状态，数据管道则静默回退到不匹配的数据集路径，状态文件 (.npz) 在 macOS ARM 和 Linux x86_64 环境之间显著不同。 解决方案： 用连续帧稳定性计数器以及强制的物理释放验证替代静态坐标检查；彻底改造环境注册表加载器以对指纹不匹配实施严格失败机制；将 MuJoCo 约束求解器差异视为硬件级别的浮点累积问题。**关键洞察：**浮点物理模拟需要动态物理状态验证，而非位置阈值检测；无论流程是否完成，静默配置默认设置都会破坏数据完整性。\n3. 复制的 Crossformer 和 LiPM 指标与已发表论文存在显著差异，尽管架构实现正确，表明存在程序性异常而非代码缺陷。 **解决方案：**生成诊断脚本以模拟单位缩放、损失函数变化及聚合方法；验证样本平均流程下的 MAE ≤ RMSE 关系；制定结构化的技术询问模板以直接由作者验证。\n**关键洞察：**已发表的学术指标常常违反基本数学不等式或包含未记录的预处理步骤；系统化的场景映射比盲目计算重新训练更能有效识别方法学缺陷。\n4. Claude CLI -p 模式静默拒绝授权 MCP 工具并忽略项目本地配置，而 structlog 的默认 JSON 序列化会丢弃 stdlib extra 上下文字段，导致关键机器人对话日志被截断。 **解决方案：**在 CLI 适配器中注入明确的配置标志和 bypassPermissions 模式，并集成自定义 structlog 处理器将不透明的上下文桶显式转换为最终 JSON 数据。\n**关键洞察：**无头 AI 代理强制严格的交互边界，需要明确的绕过标志；序列化框架会丢弃非原生字典，除非在流程执行期间明确指示合并它们。\n5. 大型模型初始化导致并行 VLA 服务器启动时子进程管道死锁和套接字超时，使得预热完成前推理请求被丢弃。 **解决方案：**将重重的 stdout/stderr 重定向到直接文件流，扩大连接超时时间以容纳 JIT 编译阶段，在批处理循环前注入明确的预热调用，并实施故障隔离的 GPU 调度。\n**关键洞察：**ML 基础设施 I/O 管道必须将连接建立与计算预热分离；标准缓冲区限制无法安全处理千字节级的模型加载输出。\n人类与 AI 方法 战略层面 系统调试与实证验证策略 角色 方法 人类 反复要求直接检查生成的输出（日志文件、物理状态、渲染视频），而非依赖理论完成；在尝试算法补丁之前，识别基础基础设施不匹配（WM几何结构、MuJoCo 版本、CLI 授权边界）。 AI 采用基于约束的规划方法，生成排序后的替代方案，并执行迭代调试流程，但最初低估了平台限制、无头授权特性、物理求解器硬件依赖及子进程缓冲区限制。 **差异分析：**人类通过直接观察和拒绝抽象确认来推动需求精确性和系统级故障隔离，而 AI 则优化执行路径并自动化验证循环，需要实际运行经验才能收敛。\n仿真成功模式与数学验证 角色 方法 人类 提出物理测试模式（释放夹持器以进行基于重力的稳定性检查）和统计直觉（识别文献中的单位/指标标签异常及不等式违反）。 AI 最初关注代码级阈值（连续帧数、坐标距离）和数学不等式验证脚本；通过将物理假设转化为计算验证框架来适应人类需求。 **差异分析：**人类意识到浮点模拟器需要动态物理状态验证，而非静态位置检查，而 AI 成功将这些物理概念自动转化为可靠的流程保护和学术基准验证逻辑。\nAI 限制 关键限制 未能预见到平台特定的事件路由限制（GDK 掩蔽拦截拖拽行为）、无头 CLI 授权边界以及 structlog 序列化对不透明上下文桶的处理方式，需要人类修正以识别明确的绕过和处理器配置。 一般限制 默认使用 subprocess.PIPE 处理重模型加载，使用通用学术表格提取方法，导致静默 I/O 死锁，并因内置解析限制而在复杂格式下依赖手动数据输入。 最初将仿真轨迹差异仅归因于数值漂移或控制器限制，未验证环境版本；需要多次强制调整以突出模拟器差异，才认识到跨架构浮点累积是根本原因。 经验教训 关键经验 平台几何结构不匹配和无头 CLI 授权需要架构级绕过和明确标志，而非对称补丁或默认假设；X11/GDK 架构中的动态交互边界必须由状态驱动。 浮点物理模拟器表现出硬件依赖的漂移；成功标准必须使用动态物理验证，且序列化状态文件在不同 OS/CPU 架构下无法信任，需原生重新计算。 ML 基础设施中的重 I/O 操作（模型加载、上下文传递）需要明确的缓冲区管理、带外日志机制及考虑 JIT 的套接字超时配置，以防止初始化死锁和连接状态损坏。 学术指标差异通常源于未记录的预处理、单位归一化错误或结构符号违规，而非架构缺陷；假设驱动的场景映射比盲目计算重新训练更能有效隔离故障。 对话总结 Life-Copilot 与 TokenMonitor 基础设施 ✅ 固定大小窗口架构、MCP 路由解决和结构化可观测性部署 00:33:40 | claude_code 整合会话重点是用固定的 GDK 掩蔽架构替代动态 Linux 窗口调整，以实现几何稳定性，同时审计 Discord 机器人流程。AI 诊断了 CLI 模式下的项目级 MCP 配置漂移，修复了明确的授权绕过和 structlog 处理器，恢复确定性的工具路由，并消除自动化流程中的盲目上下文丢失。编译一致性和运行时验证确认了稳定的渲染和可靠的命令执行。\n错误恢复基准与仿真流程**✅ 远程操作成功率稳定化、环境特征 enforcement 以及物理差异诊断** 00:30:02 | claude_code 通过实施基于重力的成功验证并消除静态坐标阈值，解决了多阶段工作流中的演示不稳定问题。该流程通过严格的环境注册表匹配来防止静默数据集 fallback，而轨迹重放失败则源于跨架构 MuJoCo 浮点累积问题。验证表明，需要动态物理测试才能实现可靠的模拟收集。\nPi0.5 VLA 评估部署 • 并行多 GPU 基准测试调度与基础设施调试 01:53:11.952 | claude_code 对六个任务进行大规模策略评估的协调部署，通过直接文件重定向和延长 JIT 预热阶段的 socket 超时时间来逐步解决复杂的模型初始化阻塞问题。实施了基于批次的 GPU 调度及自动监控机制，以确保持续的数据收集与稳定的集群利用率。\n电池时间序列回归 ✅ Cross-LiPM 指标差异诊断与数学基准验证 09:10:01.360 | claude_code 针对已发布的 Crossformer 基准测试中出现的指标差异进行诊断研究。人工智能利用结构化的学术调研模板，在聚合过程中验证数学不等式的保持性，并模拟不同的归一化假设。结果揭示了程序文档中的缺陷而非架构问题，从而加速比较分析并消除不必要的重新训练需求。\n令牌使用 AI Usage · 2026-04-05\rClaude Code + Codex\rTotal cost$32.03\rTotal tokens49M\rOutput tokens214K\rCache read92.3%\rCost split\rClaude Code $31 ·\rCodex $1\rToken character\rCache reads 92.3% ·\rActive 7.7%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "380",
   "inLanguage": "zh",
   "datePublished": "2026-04-05T00:00:00-05:00",
   "dateModified": "2026-04-05T00:00:00-05:00",
@@ -252,208 +252,237 @@
     </h1>
     <div class="post-meta">
 
-<span title='2026-04-05 00:00:00 -0500 -0500'>2026年4月5日</span>&nbsp;·&nbsp;<span>4 分钟</span>
+<span title='2026-04-05 00:00:00 -0500 -0500'>2026年4月5日</span>&nbsp;·&nbsp;<span>2 分钟</span>
 
 </div>
   </header> 
-  <div class="post-content md-content"><h1 id="daily-report--2026-04-05">Daily Report — 2026-04-05<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-04-05">#</a></h1>
-<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+  <div class="post-content md-content"><h1 id="每日报告--2026-04-05">每日报告 — 2026-04-05<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-04-05">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
 <ul>
-<li><strong>What was done:</strong> 将 Linux FloatBall 从动态 resize 架构重构为固定尺寸窗口 + GDK Input Shape 方案，并为 Life-Copilot Discord Bot 新增 structlog 结构化日志/操作审计系统，同时完整修复 Claude CLI -p 模式下 MCP 工具配置缺失与权限拒绝两个叠加问题</li>
-<li><strong>How it was done:</strong> FloatBall 通过 ccplan 规划六方案后实施 cairo::Region + GTK geometry_hints 固定窗口方案，拖拽期间临时扩展 input shape 到全窗口；Life-Copilot 通过逐层排查嵌套进程调用链，依次补全 &ndash;mcp-config 参数和 &ndash;permission-mode bypassPermissions 解决非交互模式权限拒绝</li>
-<li><strong>Impact:</strong> 根治 Linux WM +305px/+113px 系统性位置偏移并删除约 150 行 probe/corrective 补丁代码；Discord Bot 完整对话记录已落盘，Google Calendar MCP 工具在生产环境完全可用</li>
+<li><strong>已完成工作：</strong> 实施了跨领域基础设施加固措施，包括特定平台窗口几何稳定性控制、机器人自动化可靠性保障、模拟数据完整性维护、大规模政策基准部署以及学术指标验证。消除了 CLI 路由、物理环境匹配和 I/O 缓冲区管理中的静默执行故障，同时建立了可复现的验证基准用于比较研究。</li>
+<li><strong>实施方式：</strong> 采用固定大小架构并使用 GDK 输入掩码来避免桌面管理器竞争；部署带有明确权限绕过和上下文处理器的 structlog 审计机制；在模拟流程中实施严格的指纹匹配和动态物理成功验证；通过直接文件重定向和 JIT 感知的套接字超时解决 VLA 服务器死锁问题；通过假设驱动的场景测试将出版异常与架构缺陷区分开。</li>
+<li><strong>影响：</strong> 在 Linux 上实现了几何稳定的渲染和可靠的自动化路由，通过强制性的验证保护防止了灾难性的训练数据集不匹配，使得六项任务中的多 GPU 政策量化能够独立处理故障，并通过识别文档和标准化不一致问题加速了比较分析，无需进行昂贵的重新训练过程。</li>
+</ul>
+<h3 id="desktoplinux">DesktopLinux<a hidden class="anchor" aria-hidden="true" href="#desktoplinux">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 保持被动运行状态，没有进行主动开发会话或核心工作流程分配。</li>
+<li><strong>实施方式：</strong> 系统进程保留基础配置；基础设施监控处于静默状态，计算资源则集中在其他指定工作站上。</li>
+<li><strong>影响：</strong> 对主要交付成果无影响；保留了环境稳定性以便未来调度，无需消耗活跃计算资源。</li>
+</ul>
+<h3 id="macbook">MacBook<a hidden class="anchor" aria-hidden="true" href="#macbook">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 执行了深度模拟环境匹配、物理稳定性验证以及围绕 Error Recovery 项目的基准数据集准备及学术指标诊断。</li>
+<li><strong>实施方式：</strong> 实施了基于重力的成功验证机制，降低运行时依赖项以匹配服务器规格，通过状态文件分析诊断跨架构 MuJoCo 浮点累积差异，并构建假设驱动的脚本以测试 Crossformer/LiPM 基准中的标准化缩放问题。</li>
+<li><strong>影响：</strong> 确保收集的远程操作演示反映真实的物理稳定性，同时识别硬件依赖的漂移作为轨迹重放的基本边界；为比较学术分析建立了数学上严格的验证标准。</li>
+</ul>
+<h3 id="tianhe">tianhe<a hidden class="anchor" aria-hidden="true" href="#tianhe">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 协调了结构化可观测性基础设施的生产部署，解决了机器人自动化路由故障，配置了多 GPU 政策评估集群，并进行了跨论文指标一致性分析。</li>
+<li><strong>实施方式：</strong> 修补 CLI 适配器以实现明确的配置解析和权限绕过，将 structlog 与自定义上下文处理器集成，部署了带有自动监控脚本的批处理感知 GPU 调度，扩大套接字超时以容纳 JIT 预热阶段，模拟了替代计算假设以验证评估框架中的数学不等式保持情况。</li>
+<li><strong>影响：</strong> 恢复了自动化流程中的确定性工具发现，消除了日志记录场景中的静默数据丢失，确保了大规模基准测试的稳健并行计算执行，并通过系统化的场景映射将程序化出版不一致与模型架构分离开。</li>
 </ul>
 <blockquote>
-<p>完成 Linux FloatBall 固定窗口 + GDK Input Shape 架构性重构以根治平台级几何偏移，并系统性解决 Life-Copilot Discord Bot 的结构化日志缺失与 MCP 工具权限拒绝两大根因问题</p>
+<p>实现了关键基础设施改进，包括稳定的 Linux 浮点 UI、增强的结构化日志以及解决 MCP 路由问题，同时稳定了模拟到模拟的轨迹数据管道，调试了多 GPU 评估框架，并验证了比较学术基准中的数学一致性。</p>
 </blockquote>
-<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
-<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
 <ul>
-<li>🔄 <strong>TokenMonitor FloatBall Linux 架构性重构（固定窗口 + GDK Input Shape）</strong> — 通过 ccplan 规划 6 个备选方案后实施固定窗口方案：窗口永久使用 expanded 尺寸（152×56）不再 resize，用 GDK input_shape_combine_region 控制点击穿透区域（collapsed 时仅球区域，expanded 时全窗口，拖拽时临时全窗口）。新增 cairo-rs 依赖，删除 probe/corrective reapply 机制约 150 行代码，追加修复球压扁（GTK geometry_hints）、无法展开（CSS direction 定位）、无法拖拽（set_float_ball_dragging 命令）三类问题，并去除 snap 功能优先保证移动稳定。284 Rust + 205 前端测试通过，等待最终运行时验证。</li>
-<li>✅ <strong>Life-Copilot Discord Bot MCP 工具调用完整修复</strong> — 两阶段修复：第一阶段发现 claude -p 不自动加载项目级 .claude/mcp_servers.json，在 claude_adapter.py 命令中添加 &ndash;mcp-config 参数（加载 19 个 MCP 工具）；第二阶段通过直接运行 claude -p 命令发现 permission_denials 根因（非交互模式无法完成权限确认），&ndash;allowedTools 通配符因时序问题不可靠，最终用 &ndash;permission-mode bypassPermissions 彻底解决，验证日程查询正常返回结果。</li>
-<li>✅ <strong>Life-Copilot 结构化日志系统（structlog + 文件 rotation + 操作审计）</strong> — 用 structlog 替换 stdlib logging，实现 dev 彩色输出 + prod JSON 格式 + 10MB rotation；新建 audit_log.py 在 Discord on_message、FastAPI 中间件、CLISelector.send 三处写入 JSONL 审计记录，覆盖完整对话（用户输入 + bot 回复）；修复 ExtraAdder processor 遗漏导致 extra 字段静默丢失的 bug；清理 4 处 print() 语句。420 个测试通过。</li>
+<li>✅ <strong>Linux FloatBall 固定大小架构实现</strong> — 用固定大小策略替换不稳定的动态调整逻辑，使用 GDK 输入掩码控制点击区域，更新 Rust 后端和 Svelte 组件以在 Linux 上实现几何稳定的渲染。</li>
+<li>✅ <strong>Life-Copilot 可观测性与自动化路由基础设施</strong> — 部署了生产级 structlog 审计系统，支持 JSONL 旋转，通过明确的配置标志和权限绕过解决 Claude CLI <code>-p</code> 模式 MCP 配置漂移问题，验证工具发现恢复以实现可靠的机器人自动化。</li>
+<li>✅ <strong>错误恢复模拟数据完整性和验证加固</strong> — 实施动态夹持器释放成功验证，强制执行严格的 HDF5 环境指纹匹配以消除静默数据集回退，诊断跨架构 MuJoCo 浮点差异以建立准确的轨迹重放前提。</li>
+<li>🔄 <strong>Pi0.5 多 GPU 政策评估框架部署</strong> — 配置并调试了六种错误场景下的并行多 GPU 基准测试管道，解决 VLA 服务器子进程死锁和套接字超时问题，同时实施批处理感知调度以实现稳定的政策量化。</li>
+<li>✅ <strong>电池时间序列回归指标一致性分析</strong> — 通过结构化的学术调查模板、数学不等式验证和假设驱动的标准化测试，研究从已发布基准中复现的 Crossformer/LiPM 指标差异，以隔离程序化不一致问题。</li>
 </ul>
-<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
-<ul>
-<li>✅ <strong>FloatBall 会话改动回退</strong> — 因某 AI 会话的 CSS min() 修改和 collapse 流程重构导致更多问题，用户要求回退。AI 误用 git stash 回退了所有未提交改动，git stash pop 恢复后手动精确撤销了本会话的三处具体改动。</li>
-</ul>
-<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
-<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
-<h4 id="1-linux-wm-无法原子处理透明无边框窗口的动态-resize导致系统性-305px113px-位置偏移probecorrective-机制闪烁webview-与-native-window-尺寸不一致裁切">1. Linux WM 无法原子处理透明无边框窗口的动态 resize，导致系统性 +305px/+113px 位置偏移、probe/corrective 机制闪烁、WebView 与 native window 尺寸不一致裁切<a hidden class="anchor" aria-hidden="true" href="#1-linux-wm-无法原子处理透明无边框窗口的动态-resize导致系统性-305px113px-位置偏移probecorrective-机制闪烁webview-与-native-window-尺寸不一致裁切">#</a></h4>
-<p><strong>Solution:</strong> 固定窗口尺寸为 expanded（152×56）永不 resize；用 GDK input_shape_combine_region 控制点击穿透：collapsed 时仅球区域（56×56），expanded 及拖拽时全窗口接受事件</p>
-<p><strong>Key Insight:</strong> 这是平台架构问题而非计算 bug：Linux WM 用不同语义解释同一 rect 请求；消除 resize 才是根治，局部补丁只会在症状间转移</p>
-<h4 id="2-life-copilot-discord-bot-对日程查询持续回复需要-oauth-认证根本原因为两个叠加问题1-claude--p-不加载项目级-mcp-配置2-非交互模式下-mcp-tool-调用权限被静默拒绝">2. Life-Copilot Discord Bot 对日程查询持续回复&quot;需要 OAuth 认证&quot;，根本原因为两个叠加问题：(1) claude -p 不加载项目级 MCP 配置；(2) 非交互模式下 MCP tool 调用权限被静默拒绝<a hidden class="anchor" aria-hidden="true" href="#2-life-copilot-discord-bot-对日程查询持续回复需要-oauth-认证根本原因为两个叠加问题1-claude--p-不加载项目级-mcp-配置2-非交互模式下-mcp-tool-调用权限被静默拒绝">#</a></h4>
-<p><strong>Solution:</strong> 在 claude_adapter.py 命令中依次添加 &ndash;mcp-config .claude/mcp_servers.json 和 &ndash;permission-mode bypassPermissions；通过直接运行 claude -p 命令复现 permission_denials 字段定位根因</p>
-<p><strong>Key Insight:</strong> Claude CLI session-less 模式与 interactive 模式 MCP 加载行为不同；&ndash;allowedTools 通配符在非交互模式下因与 MCP server 初始化存在竞争条件而不可靠；bypassPermissions 是后端服务调用的正确模式</p>
-<h4 id="3-固定窗口方案首次实现后出现三类平台细节问题球显示压扁window-builder-仍用-5656-创建无法展开css-未按-data-direction-应用拖拽失效input-shape-阻断鼠标移出球区域后的-x11-事件">3. 固定窗口方案首次实现后出现三类平台细节问题：球显示压扁（window builder 仍用 56×56 创建）、无法展开（CSS 未按 data-direction 应用）、拖拽失效（input shape 阻断鼠标移出球区域后的 X11 事件）<a hidden class="anchor" aria-hidden="true" href="#3-固定窗口方案首次实现后出现三类平台细节问题球显示压扁window-builder-仍用-5656-创建无法展开css-未按-data-direction-应用拖拽失效input-shape-阻断鼠标移出球区域后的-x11-事件">#</a></h4>
-<p><strong>Solution:</strong> (1) window builder 改用 expanded 尺寸并用 GTK geometry_hints 锁定 min=max；(2) CSS justify-content 根据 data-direction 始终生效；(3) 新增 set_float_ball_dragging 命令，拖拽期间将 input shape 扩展到全窗口，结束后恢复</p>
-<p><strong>Key Insight:</strong> WebKitGTK 有默认最小自然尺寸约束；X11 层 input shape 事件拦截早于 setPointerCapture，需在 Rust 侧同步扩大区域</p>
-<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
-<h4 id="4-structlog-包装-stdlib-logging-时extra-字段在-json-输出中静默丢失">4. structlog 包装 stdlib logging 时，extra={} 字段在 JSON 输出中静默丢失<a hidden class="anchor" aria-hidden="true" href="#4-structlog-包装-stdlib-logging-时extra-字段在-json-输出中静默丢失">#</a></h4>
-<p><strong>Solution:</strong> 在 shared_processors 中加入 structlog.stdlib.ExtraAdder()，使 extra 字段合并到结构化输出</p>
-<p><strong>Key Insight:</strong> structlog 包装 stdlib 时 extra 参数不会自动传递，需显式添加 ExtraAdder，无报错但字段静默丢失</p>
-<h4 id="5-用户要求回退本会话改动时-ai-误用-git-stash险些造成历史工作丢失">5. 用户要求回退&quot;本会话改动&quot;时 AI 误用 git stash，险些造成历史工作丢失<a hidden class="anchor" aria-hidden="true" href="#5-用户要求回退本会话改动时-ai-误用-git-stash险些造成历史工作丢失">#</a></h4>
-<p><strong>Solution:</strong> git stash pop 恢复后，手动识别本会话三处具体改动并精确撤销</p>
-<p><strong>Key Insight:</strong> git stash 影响所有未提交改动，不适合&quot;只撤销当前会话改动&quot;的场景；应先 git diff 理清改动范围再逐一撤销</p>
-<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
-<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
-<h4 id="linux-floatball-根本原因诊断与方案选择">Linux FloatBall 根本原因诊断与方案选择<a hidden class="anchor" aria-hidden="true" href="#linux-floatball-根本原因诊断与方案选择">#</a></h4>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-桌面管理器几何竞争导致-linux-浮点-ui-出现持续的跳跃闪烁现象加之-gdk-输入掩码在主动拖拽过程中拦截指针事件">1. 桌面管理器几何竞争导致 Linux 浮点 UI 出现持续的跳跃/闪烁现象，加之 GDK 输入掩码在主动拖拽过程中拦截指针事件。<a hidden class="anchor" aria-hidden="true" href="#1-桌面管理器几何竞争导致-linux-浮点-ui-出现持续的跳跃闪烁现象加之-gdk-输入掩码在主动拖拽过程中拦截指针事件">#</a></h4>
+<p><strong>解决方案：</strong> 设计固定窗口基准，仅在拖拽状态下通过 RPC 动态扩展点击区域，完全绕过 WM 调整大小功能，而不是修复症状循环。</p>
+<p><strong>关键洞察：</strong> 平台几何不匹配属于架构故障；动态交互边界应由状态驱动，而非静态绑定于组件尺寸。</p>
+<h4 id="2-远程操作成功阈值接受物理不稳定的状态数据管道则静默回退到不匹配的数据集路径状态文件-npz-在-macos-arm-和-linux-x86_64-环境之间显著不同">2. 远程操作成功阈值接受物理不稳定的状态，数据管道则静默回退到不匹配的数据集路径，状态文件 (.npz) 在 macOS ARM 和 Linux x86_64 环境之间显著不同。<a hidden class="anchor" aria-hidden="true" href="#2-远程操作成功阈值接受物理不稳定的状态数据管道则静默回退到不匹配的数据集路径状态文件-npz-在-macos-arm-和-linux-x86_64-环境之间显著不同">#</a></h4>
+<p><strong>解决方案：</strong> 用连续帧稳定性计数器以及强制的物理释放验证替代静态坐标检查；彻底改造环境注册表加载器以对指纹不匹配实施严格失败机制；将 MuJoCo 约束求解器差异视为硬件级别的浮点累积问题。**关键洞察：**浮点物理模拟需要动态物理状态验证，而非位置阈值检测；无论流程是否完成，静默配置默认设置都会破坏数据完整性。</p>
+<h4 id="3-复制的-crossformer-和-lipm-指标与已发表论文存在显著差异尽管架构实现正确表明存在程序性异常而非代码缺陷">3. 复制的 Crossformer 和 LiPM 指标与已发表论文存在显著差异，尽管架构实现正确，表明存在程序性异常而非代码缺陷。<a hidden class="anchor" aria-hidden="true" href="#3-复制的-crossformer-和-lipm-指标与已发表论文存在显著差异尽管架构实现正确表明存在程序性异常而非代码缺陷">#</a></h4>
+<p>**解决方案：**生成诊断脚本以模拟单位缩放、损失函数变化及聚合方法；验证样本平均流程下的 MAE ≤ RMSE 关系；制定结构化的技术询问模板以直接由作者验证。</p>
+<p>**关键洞察：**已发表的学术指标常常违反基本数学不等式或包含未记录的预处理步骤；系统化的场景映射比盲目计算重新训练更能有效识别方法学缺陷。</p>
+<h4 id="4-claude-cli--p-模式静默拒绝授权-mcp-工具并忽略项目本地配置而-structlog-的默认-json-序列化会丢弃-stdlib-extra-上下文字段导致关键机器人对话日志被截断">4. Claude CLI <code>-p</code> 模式静默拒绝授权 MCP 工具并忽略项目本地配置，而 structlog 的默认 JSON 序列化会丢弃 stdlib <code>extra</code> 上下文字段，导致关键机器人对话日志被截断。<a hidden class="anchor" aria-hidden="true" href="#4-claude-cli--p-模式静默拒绝授权-mcp-工具并忽略项目本地配置而-structlog-的默认-json-序列化会丢弃-stdlib-extra-上下文字段导致关键机器人对话日志被截断">#</a></h4>
+<p>**解决方案：**在 CLI 适配器中注入明确的配置标志和 <code>bypassPermissions</code> 模式，并集成自定义 structlog 处理器将不透明的上下文桶显式转换为最终 JSON 数据。</p>
+<p>**关键洞察：**无头 AI 代理强制严格的交互边界，需要明确的绕过标志；序列化框架会丢弃非原生字典，除非在流程执行期间明确指示合并它们。</p>
+<h4 id="5-大型模型初始化导致并行-vla-服务器启动时子进程管道死锁和套接字超时使得预热完成前推理请求被丢弃">5. 大型模型初始化导致并行 VLA 服务器启动时子进程管道死锁和套接字超时，使得预热完成前推理请求被丢弃。<a hidden class="anchor" aria-hidden="true" href="#5-大型模型初始化导致并行-vla-服务器启动时子进程管道死锁和套接字超时使得预热完成前推理请求被丢弃">#</a></h4>
+<p>**解决方案：**将重重的 stdout/stderr 重定向到直接文件流，扩大连接超时时间以容纳 JIT 编译阶段，在批处理循环前注入明确的预热调用，并实施故障隔离的 GPU 调度。</p>
+<p>**关键洞察：**ML 基础设施 I/O 管道必须将连接建立与计算预热分离；标准缓冲区限制无法安全处理千字节级的模型加载输出。</p>
+<h2 id="人类与-ai-方法">人类与 AI 方法<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="系统调试与实证验证策略">系统调试与实证验证策略<a hidden class="anchor" aria-hidden="true" href="#系统调试与实证验证策略">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
-          <td>会话开始前已完成完整诊断：4 层几何系统失配、11 次先前尝试及失败原因、日志证据（+305px = expanded 宽度、+113px = collapsed 宽度的系统性规律）</td>
+          <td>人类</td>
+          <td>反复要求直接检查生成的输出（日志文件、物理状态、渲染视频），而非依赖理论完成；在尝试算法补丁之前，识别基础基础设施不匹配（WM几何结构、MuJoCo 版本、CLI 授权边界）。</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>通过 Explore agent 确认诊断后，将其结构化为 6 个备选方案并驱动对抗审查和可行性验证，推荐固定窗口方案后完整实施</td>
+          <td>采用基于约束的规划方法，生成排序后的替代方案，并执行迭代调试流程，但最初低估了平台限制、无头授权特性、物理求解器硬件依赖及子进程缓冲区限制。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> 人类的诊断深度和证据质量远超 AI；AI 的价值在于方案设计结构化和执行，而非问题发现</p>
-<h4 id="mcp-问题排查策略">MCP 问题排查策略<a hidden class="anchor" aria-hidden="true" href="#mcp-问题排查策略">#</a></h4>
+<p>**差异分析：**人类通过直接观察和拒绝抽象确认来推动需求精确性和系统级故障隔离，而 AI 则优化执行路径并自动化验证循环，需要实际运行经验才能收敛。</p>
+<h4 id="仿真成功模式与数学验证">仿真成功模式与数学验证<a hidden class="anchor" aria-hidden="true" href="#仿真成功模式与数学验证">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
-          <td>持续施压推动 AI 深入排查，而非接受表面解释</td>
+          <td>人类</td>
+          <td>提出物理测试模式（释放夹持器以进行基于重力的稳定性检查）和统计直觉（识别文献中的单位/指标标签异常及不等式违反）。</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>从 token → MCP server 启动 → CLI 调用链逐层系统性排查，最终通过直接测试 claude -p 命令复现 permission_denials 定位根因</td>
+          <td>最初关注代码级阈值（连续帧数、坐标距离）和数学不等式验证脚本；通过将物理假设转化为计算验证框架来适应人类需求。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> 人类通过持续施压确保问题得到彻底解决而非草草修复；AI 提供了系统性多层排查方法</p>
-<h4 id="发现-bot-回复内容未被记录">发现 Bot 回复内容未被记录<a hidden class="anchor" aria-hidden="true" href="#发现-bot-回复内容未被记录">#</a></h4>
-<table>
-  <thead>
-      <tr>
-          <th>Role</th>
-          <th>Approach</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Human</td>
-          <td>直觉性追问「discord bot 如何回复我的？」，发现日志只记录了用户输入而遗漏了 AI 回复</td>
-      </tr>
-      <tr>
-          <td>AI</td>
-          <td>实现时只关注用户输入侧的审计入口点，未主动考虑对话完整性</td>
-      </tr>
-  </tbody>
-</table>
-<p><strong>Difference Analysis:</strong> 人类从使用者视角发现了关键遗漏（对话完整性），AI 只考虑了系统架构层面的审计入口</p>
-<h4 id="日志系统需求范围界定">日志系统需求范围界定<a hidden class="anchor" aria-hidden="true" href="#日志系统需求范围界定">#</a></h4>
-<table>
-  <thead>
-      <tr>
-          <th>Role</th>
-          <th>Approach</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Human</td>
-          <td>简单说「写一个 log 记录的代码」，被反问后明确选择文件持久化 + 结构化日志 + 全量操作审计</td>
-      </tr>
-      <tr>
-          <td>AI</td>
-          <td>扫描现有代码发现 73/114 文件已有 logging，主动识别需求模糊性并提出三类方向让用户选择</td>
-      </tr>
-  </tbody>
-</table>
-<p><strong>Difference Analysis:</strong> 人类提出模糊需求，AI 通过代码探索将其具体化为可选方案；最终方向由人类选择，AI 执行</p>
-<h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
-<h4 id="git-回退操作范围判断">git 回退操作范围判断<a hidden class="anchor" aria-hidden="true" href="#git-回退操作范围判断">#</a></h4>
-<table>
-  <thead>
-      <tr>
-          <th>Role</th>
-          <th>Approach</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Human</td>
-          <td>意图只撤销当前 AI 会话的改动，保留之前的历史工作</td>
-      </tr>
-      <tr>
-          <td>AI</td>
-          <td>使用了 git stash，影响范围远超用户意图（回退所有未提交改动）</td>
-      </tr>
-  </tbody>
-</table>
-<p><strong>Difference Analysis:</strong> AI 未能准确理解&quot;本会话改动&quot;与&quot;所有未提交改动&quot;的边界，选择了影响过大的操作</p>
-<h4 id="floatball-功能优先级取舍去除-snap">FloatBall 功能优先级取舍（去除 snap）<a hidden class="anchor" aria-hidden="true" href="#floatball-功能优先级取舍去除-snap">#</a></h4>
-<table>
-  <thead>
-      <tr>
-          <th>Role</th>
-          <th>Approach</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Human</td>
-          <td>测试发现移动仍不稳定后，明确要求暂时去掉 snap，优先解决核心移动问题</td>
-      </tr>
-      <tr>
-          <td>AI</td>
-          <td>方案设计阶段将 snap 列为 REQ-005 需保留功能并已实施，未主动提出分阶段优先级</td>
-      </tr>
-  </tbody>
-</table>
-<p><strong>Difference Analysis:</strong> AI 倾向一次性完整实现所有功能，用户在实测中做了更务实的优先级取舍</p>
-<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
-<h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
+<p>**差异分析：**人类意识到浮点模拟器需要动态物理状态验证，而非静态位置检查，而 AI 成功将这些物理概念自动转化为可靠的流程保护和学术基准验证逻辑。</p>
+<h2 id="ai-限制">AI 限制<a hidden class="anchor" aria-hidden="true" href="#ai-限制">#</a></h2>
+<h3 id="关键限制">关键限制<a hidden class="anchor" aria-hidden="true" href="#关键限制">#</a></h3>
 <ul>
-<li>单元测试通过无法预测平台特定运行时行为：FloatBall 284 Rust + 205 前端测试全部通过，但球压扁、无法展开、拖拽失效三个问题均未被捕获；Claude CLI &ndash;allowedTools 在非交互模式下的时序问题同样未能通过测试提前发现</li>
-<li>首次实现频繁遗漏平台特定细节，需用户实测或日志反馈才能发现：window builder 必须用 expanded 尺寸创建、WebKitGTK 需要 GTK geometry_hints 约束、structlog 包装时需显式 ExtraAdder()</li>
+<li>未能预见到平台特定的事件路由限制（GDK 掩蔽拦截拖拽行为）、无头 CLI 授权边界以及 structlog 序列化对不透明上下文桶的处理方式，需要人类修正以识别明确的绕过和处理器配置。</li>
 </ul>
-<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<h3 id="一般限制">一般限制<a hidden class="anchor" aria-hidden="true" href="#一般限制">#</a></h3>
 <ul>
-<li>git 操作范围判断失误：在用户要求&quot;回退本会话改动&quot;时误用 git stash，险些造成历史工作丢失</li>
+<li>默认使用 <code>subprocess.PIPE</code> 处理重模型加载，使用通用学术表格提取方法，导致静默 I/O 死锁，并因内置解析限制而在复杂格式下依赖手动数据输入。</li>
+<li>最初将仿真轨迹差异仅归因于数值漂移或控制器限制，未验证环境版本；需要多次强制调整以突出模拟器差异，才认识到跨架构浮点累积是根本原因。</li>
 </ul>
-<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
-<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="关键经验">关键经验<a hidden class="anchor" aria-hidden="true" href="#关键经验">#</a></h3>
 <ul>
-<li>Linux X11 WM 对透明无边框窗口 resize 请求无原子性保证，不同 WM 用不同语义解释同一坐标，导致系统性偏移；彻底消除 resize（固定窗口 + GDK input shape）是唯一可靠解法，局部补丁只会在症状间转移</li>
-<li>Claude CLI -p 模式的 MCP 完整配置需两步：(1) 显式传 &ndash;mcp-config 加载项目级工具；(2) 添加 &ndash;permission-mode bypassPermissions 绕过非交互模式下无法完成的权限确认；&ndash;allowedTools 通配符在此模式下因与 MCP server 初始化存在竞争条件而不可靠，bypassPermissions 是后端服务调用的正确模式</li>
-<li>GDK input shape 在 X11 层拦截事件，setPointerCapture 不能越过它；拖拽场景需在 Rust 侧用 set_float_ball_dragging 命令临时扩展 input shape 到全窗口；cairo-rs 0.18 + gdk 0.18 下可在 Tauri with_webview 回调中直接使用 input_shape_combine_region，无需新增复杂依赖</li>
-<li>调试嵌套进程 CLI 工具（主进程 → Claude CLI → MCP server）时，先记录实际传递的命令行参数再逐一隔离验证参数效果，比直接猜测参数行为更高效</li>
-<li>ccplan 技能的发散探索（6 方案）+ 对抗审查 + 可行性探测流程能有效将复杂平台架构问题转化为可执行计划，ECL 文档提供跨会话上下文持久化，减少重复分析成本</li>
+<li>平台几何结构不匹配和无头 CLI 授权需要架构级绕过和明确标志，而非对称补丁或默认假设；X11/GDK 架构中的动态交互边界必须由状态驱动。</li>
+<li>浮点物理模拟器表现出硬件依赖的漂移；成功标准必须使用动态物理验证，且序列化状态文件在不同 OS/CPU 架构下无法信任，需原生重新计算。</li>
+<li>ML 基础设施中的重 I/O 操作（模型加载、上下文传递）需要明确的缓冲区管理、带外日志机制及考虑 JIT 的套接字超时配置，以防止初始化死锁和连接状态损坏。</li>
+<li>学术指标差异通常源于未记录的预处理、单位归一化错误或结构符号违规，而非架构缺陷；假设驱动的场景映射比盲目计算重新训练更能有效隔离故障。</li>
 </ul>
-<h3 id="practical-learnings">Practical Learnings<a hidden class="anchor" aria-hidden="true" href="#practical-learnings">#</a></h3>
-<ul>
-<li>structlog 包装 stdlib logging 时，stdlib extra={} 参数需显式添加 ExtraAdder() processor 才能出现在输出字段中；否则字段静默丢失且无报错</li>
-</ul>
-<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
-<h3 id="tokenmonitor">TokenMonitor<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor">#</a></h3>
-<p><strong>🔄 Linux FloatBall 架构性重构：ccplan 规划 + 固定窗口方案实施与多轮调试</strong>
-<em>02:52:43.137 | claude_code</em>
-用户携带完整根因分析（4 层几何失配、11 次先前尝试、日志证据）启动 ccplan 流程，AI 生成 6 个备选方案并推荐固定窗口 + GDK Input Shape，批准后完整实施。运行时出现三个问题（球压扁、无法展开、无法拖拽），依次通过 GTK geometry_hints、CSS direction 定位、set_float_ball_dragging 命令修复并去除 snap 后，284 Rust + 205 前端测试通过，等待最终运行时验证。期间一次 git stash 误操作被及时识别并 stash pop 恢复，随后手动精确撤销本会话相关改动。</p>
-<h3 id="life-copilot">Life-Copilot<a hidden class="anchor" aria-hidden="true" href="#life-copilot">#</a></h3>
-<p><strong>✅ Discord Bot 结构化日志系统建设 + MCP 工具调用完整修复</strong>
-<em>01:35:00.000 | claude_code</em>
-通过 ccplan 规划后实现 structlog 结构化日志（dev 彩色/prod JSON + 10MB rotation）、JSONL 操作审计日志（Discord/API/CLI 三入口）和完整对话记录，420 个测试通过。同步修复 MCP 工具调用两阶段叠加问题：先补全 &ndash;mcp-config 参数加载 19 个项目 MCP 工具，再通过直接运行 claude -p 发现 permission_denials 根因，用 &ndash;permission-mode bypassPermissions 彻底解决非交互模式权限拒绝，验证 Google Calendar 日程查询在 Discord 中正常返回结果。</p>
-<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
-<p><img alt="Token Usage" loading="lazy" src="2026-04-05-usage.png"></p>
-<p><strong>Total: $12.54</strong> — 16.8M tokens</p>
-<!-- gadget:src-hash:527e646f9d36e662 -->
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<h3 id="life-copilot-与-tokenmonitor-基础设施">Life-Copilot 与 TokenMonitor 基础设施<a hidden class="anchor" aria-hidden="true" href="#life-copilot-与-tokenmonitor-基础设施">#</a></h3>
+<p><strong>✅ 固定大小窗口架构、MCP 路由解决和结构化可观测性部署</strong>
+<em>00:33:40 | claude_code</em>
+整合会话重点是用固定的 GDK 掩蔽架构替代动态 Linux 窗口调整，以实现几何稳定性，同时审计 Discord 机器人流程。AI 诊断了 CLI 模式下的项目级 MCP 配置漂移，修复了明确的授权绕过和 structlog 处理器，恢复确定性的工具路由，并消除自动化流程中的盲目上下文丢失。编译一致性和运行时验证确认了稳定的渲染和可靠的命令执行。</p>
+<h3 id="错误恢复基准与仿真流程-远程操作成功率稳定化环境特征-enforcement-以及物理差异诊断">错误恢复基准与仿真流程**✅ 远程操作成功率稳定化、环境特征 enforcement 以及物理差异诊断**<a hidden class="anchor" aria-hidden="true" href="#错误恢复基准与仿真流程-远程操作成功率稳定化环境特征-enforcement-以及物理差异诊断">#</a></h3>
+<p><em>00:30:02 | claude_code</em>
+通过实施基于重力的成功验证并消除静态坐标阈值，解决了多阶段工作流中的演示不稳定问题。该流程通过严格的环境注册表匹配来防止静默数据集 fallback，而轨迹重放失败则源于跨架构 MuJoCo 浮点累积问题。验证表明，需要动态物理测试才能实现可靠的模拟收集。</p>
+<h3 id="pi05-vla-评估部署">Pi0.5 VLA 评估部署<a hidden class="anchor" aria-hidden="true" href="#pi05-vla-评估部署">#</a></h3>
+<p><strong>• 并行多 GPU 基准测试调度与基础设施调试</strong>
+<em>01:53:11.952 | claude_code</em>
+对六个任务进行大规模策略评估的协调部署，通过直接文件重定向和延长 JIT 预热阶段的 socket 超时时间来逐步解决复杂的模型初始化阻塞问题。实施了基于批次的 GPU 调度及自动监控机制，以确保持续的数据收集与稳定的集群利用率。</p>
+<h3 id="电池时间序列回归">电池时间序列回归<a hidden class="anchor" aria-hidden="true" href="#电池时间序列回归">#</a></h3>
+<p><strong>✅ Cross-LiPM 指标差异诊断与数学基准验证</strong>
+<em>09:10:01.360 | claude_code</em>
+针对已发布的 Crossformer 基准测试中出现的指标差异进行诊断研究。人工智能利用结构化的学术调研模板，在聚合过程中验证数学不等式的保持性，并模拟不同的归一化假设。结果揭示了程序文档中的缺陷而非架构问题，从而加速比较分析并消除不必要的重新训练需求。</p>
+<h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-04-05</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$32.03</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>49M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>214K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>92.3%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $31</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $1</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (96.5%), Codex (3.5%)">
+          <span style="width:96.5%; background:var(--usage-cost-main)"></span>
+          <span style="width:3.5%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 92.3%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 7.7%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (92.3%), active tokens (7.7%)">
+          <span style="width:92.3%; background:var(--usage-cache)"></span>
+          <span style="width:7.7%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:32afa571ec9d096b -->
 
 
   </div>

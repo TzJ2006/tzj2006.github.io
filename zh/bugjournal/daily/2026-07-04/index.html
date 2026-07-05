@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-07-04 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="修复了令牌使用摘要卡片中的CSS优先级错误，梳理了成本数据流与每日报告生成流程，并对跨设备数据同步进行了深入架构分析，从而解决了历史数据恢复问题及别名冲突风险。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-04/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-07-04/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-04/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-04/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-07-04">
+  <meta property="og:description" content="修复了令牌使用摘要卡片中的CSS优先级错误，梳理了成本数据流与每日报告生成流程，并对跨设备数据同步进行了深入架构分析，从而解决了历史数据恢复问题及别名冲突风险。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-07-04T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-07-04T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-07-04">
+  <meta name="twitter:description" content="修复了令牌使用摘要卡片中的CSS优先级错误，梳理了成本数据流与每日报告生成流程，并对跨设备数据同步进行了深入架构分析，从而解决了历史数据恢复问题及别名冲突风险。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-07-04",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-07-04/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-07-04",
+  "name": "Bug Journal 2026-07-04",
+  "description": "修复了令牌使用摘要卡片中的CSS优先级错误，梳理了成本数据流与每日报告生成流程，并对跨设备数据同步进行了深入架构分析，从而解决了历史数据恢复问题及别名冲突风险。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-07-04 日常概述 已完成工作： 修复了使用指标的布局渲染问题，追踪了成本归一化流程，并评估了分布式归档格式在去重方面的潜在漏洞。 实现方式： 覆盖了冲突的CMS主题CSS选择器以恢复网格布局，对Python和Rust代码库中的导出与合并函数进行了静态分析，并通过对比外部JSONL备份与本地快照来验证数据完整性。 影响： 恢复了准确的每日报告可视化功能，明确了成本注入流程，发现了基于SSH的设备别名问题，同时保留了源端滚动删除的历史令牌成本。 修复了令牌使用摘要卡片中的CSS优先级错误，映射了成本数据流和每日报告生成流程，并对跨设备数据同步进行了深度架构分析，以解决历史数据恢复问题和别名冲突风险。\n任务 架构与策略 ✅ 审计跨设备JSONL导出模式与去重风险 — 解码了source_key与device的语义，验证了OneDrive TokenMonitor备份的历史缺失情况，并发现了同行导入中的别名冲突风险。 实施与修复 ✅ 修复令牌使用卡片布局溢出问题 — 通过提高.usage-card__stats的CSS选择器特异性来解决显示障碍，重置了定义列表宽度，并通过格式化测试进行了验证。 ✅ 追踪成本定价注入与报告生成流程 — 映射了totalCost通过usage.py的流动，确认了嵌入在usage_card.py中，并使用合并/部署命令执行了本地预览流程。 问题与解决方案 关键问题 1. 跨设备JSONL导出文件中的歧义：不同机器上的相同SSH别名在导入时会错误地将不同的主机合并，导致成本失真。 解决方案： 通过remap_peer_source定义了严格的重映射规则，确认了架构在接收时重写了同行local:*键，并发现保留用户选择的远程主机别名仍然是一个漏洞，需要稳定的主机指纹来解决。\n关键洞察： 分布式同步协议不能依赖可变的用户配置作为唯一标识符；机器身份必须与显示标签分离，从不变的硬件或网络指纹中得出，以防止隐秘数据融合攻击。\n2. 由于源生成器采用滚动窗口在完整归档捕获前删除过去的会话JSONL文件，存在历史令牌成本永久丢失的风险。 解决方案： 确认save_usage_file在现有快照上采用幂等合并策略，保留超出源导出窗口的数据；同时将外部备份文件映射以重建缺失时期。\n关键洞察： 聚合流程必须实施本地历史合并作为对抗不稳定源导出器的防御层；没有这一点，滚动清理将造成长期分析中的不可逾越的空白。\n一般问题 3. 由于PaperMod主题覆盖网格样式并强制.usage-card的dl/dt/dd元素采用固定列宽，令牌使用卡片被折叠成难以阅读的垂直文本。 解决方案： 将CSS重置范围限定在width: auto后代上，增加级联优先级，并明确应用daily merge到定义项和数据列表；通过自检查脚本进行了验证。\n关键洞察： 第三方CMS主题应用了广泛的结构样式（如定义列表），可能会默默破坏自定义组件布局，需要严格定向的选择器，而不是依赖标准HTML标签行为。\n人类与AI方法 战略层面 跨设备归档的分发模式与中央合并文件 角色 方法 人类 主张由所有设备共同编写统一的“目标”合并文件作为单一来源真相，指出大小差异和数据收敛问题。 AI 解释了多写者竞争条件在云同步文件夹中的风险，验证了当前每台设备写入模型，并展示了本地增量导入如何作为强大的合并引擎工作，无需中央协调。 差异分析： 人类关注逻辑数据统一和模式一致性；AI则针对基于文件的同步固有的操作并发约束提出反驳，成功引导方法远离脆弱的集中式写入。\nAI局限性 一般局限性 最初对source_key命令的本地与远程日志路径感到困惑，需要用户修正以指定确切的文件路径或同步标志，然后才能继续报告流程。 在初始导出分析中，延迟了对JSONL模式字段的详细解释，错过了主动澄清device和记录结构的机会。 学习成果 关键学习点 Hugo的Markdown渲染使用不安全HTML可以启用自定义组件，但要求严格的CSS隔离；标准主题重置和通用标签样式将不可避免地冲突，因此范围有限的包装器和高特异性选择器对于可靠的UI嵌入至关重要。 以本地优先的数据同步架构从单写者每文件保证与同行增量导入相结合，能极大受益；试图集中写入会引入灾难性的并发风险，这些风险超过了物理合并文件的优势。 对话总结 工具 ✅ 修复令牌使用卡片CSS溢出和主题冲突 18:59:26.574 | claude_code 解决了令牌使用页脚卡片因宽度限制而不可读的显示问题。诊断了网站PaperMod主题定义列表样式与卡片网格布局之间的级联冲突。补丁增加了选择器特异性，应用了列重置，并通过自动化格式化测试验证了功能。\n✅ 追踪成本定价注入和每日报告生成流程 21:30:58.810 | claude_code 调查了从导出归一化usage.py到HTML可视化usage_card.py的令牌成本数据完整生命周期。生成了7月3日报告的本地测试流程，修正了合并命令用法以解决同步标志问题，并解决了生成的Markdown无法进入Hugo内容树의部署漏洞。\nTokenMonitor**🔄 对历史数据恢复与去重架构进行别名冲突验证** 03:47:17.321 | claude_code 确保滚动窗口删除操作不会因快照合并逻辑导致令牌历史永久丢失，并针对缺失日期映射了外部 TokenMonitor JSONL 备份。对导出格式进行了结构审查，解析了记录语义，在评估分布式与集中式同步模型时发现了 SSH 主机去重中的关键别名冲突漏洞。\n令牌使用 AI Usage · 2026-07-04\rClaude Code\rTotal cost$7.61\rTotal tokens2M\rOutput tokens21K\rCache read80.0%\rToken character\rCache reads 80.0% ·\rActive 20.0%\rMost token volume came from cache reads.\r",
+  "wordCount" : "124",
+  "inLanguage": "zh",
+  "datePublished": "2026-07-04T00:00:00-05:00",
+  "dateModified": "2026-07-04T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-07-04/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="zh"
+                        data-translation-url="https://tzj2006.github.io/bugjournal/daily/2026-07-04/">EN
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-07-04
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-07-04 00:00:00 -0500 -0500'>2026年7月4日</span>&nbsp;·&nbsp;<span>1 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-07-04">每日报告 — 2026-07-04<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-07-04">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>已完成工作：</strong> 修复了使用指标的布局渲染问题，追踪了成本归一化流程，并评估了分布式归档格式在去重方面的潜在漏洞。</li>
+<li><strong>实现方式：</strong> 覆盖了冲突的CMS主题CSS选择器以恢复网格布局，对Python和Rust代码库中的导出与合并函数进行了静态分析，并通过对比外部JSONL备份与本地快照来验证数据完整性。</li>
+<li><strong>影响：</strong> 恢复了准确的每日报告可视化功能，明确了成本注入流程，发现了基于SSH的设备别名问题，同时保留了源端滚动删除的历史令牌成本。</li>
+</ul>
+<blockquote>
+<p>修复了令牌使用摘要卡片中的CSS优先级错误，映射了成本数据流和每日报告生成流程，并对跨设备数据同步进行了深度架构分析，以解决历史数据恢复问题和别名冲突风险。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>✅ <strong>审计跨设备JSONL导出模式与去重风险</strong> — 解码了<code>source_key</code>与<code>device</code>的语义，验证了OneDrive TokenMonitor备份的历史缺失情况，并发现了同行导入中的别名冲突风险。</li>
+</ul>
+<h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
+<ul>
+<li>✅ <strong>修复令牌使用卡片布局溢出问题</strong> — 通过提高<code>.usage-card__stats</code>的CSS选择器特异性来解决显示障碍，重置了定义列表宽度，并通过格式化测试进行了验证。</li>
+<li>✅ <strong>追踪成本定价注入与报告生成流程</strong> — 映射了<code>totalCost</code>通过<code>usage.py</code>的流动，确认了嵌入在<code>usage_card.py</code>中，并使用合并/部署命令执行了本地预览流程。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-跨设备jsonl导出文件中的歧义不同机器上的相同ssh别名在导入时会错误地将不同的主机合并导致成本失真">1. 跨设备JSONL导出文件中的歧义：不同机器上的相同SSH别名在导入时会错误地将不同的主机合并，导致成本失真。<a hidden class="anchor" aria-hidden="true" href="#1-跨设备jsonl导出文件中的歧义不同机器上的相同ssh别名在导入时会错误地将不同的主机合并导致成本失真">#</a></h4>
+<p><strong>解决方案：</strong> 通过<code>remap_peer_source</code>定义了严格的重映射规则，确认了架构在接收时重写了同行<code>local:*</code>键，并发现保留用户选择的远程主机别名仍然是一个漏洞，需要稳定的主机指纹来解决。</p>
+<p><strong>关键洞察：</strong> 分布式同步协议不能依赖可变的用户配置作为唯一标识符；机器身份必须与显示标签分离，从不变的硬件或网络指纹中得出，以防止隐秘数据融合攻击。</p>
+<h4 id="2-由于源生成器采用滚动窗口在完整归档捕获前删除过去的会话jsonl文件存在历史令牌成本永久丢失的风险">2. 由于源生成器采用滚动窗口在完整归档捕获前删除过去的会话JSONL文件，存在历史令牌成本永久丢失的风险。<a hidden class="anchor" aria-hidden="true" href="#2-由于源生成器采用滚动窗口在完整归档捕获前删除过去的会话jsonl文件存在历史令牌成本永久丢失的风险">#</a></h4>
+<p><strong>解决方案：</strong> 确认<code>save_usage_file</code>在现有快照上采用幂等合并策略，保留超出源导出窗口的数据；同时将外部备份文件映射以重建缺失时期。</p>
+<p><strong>关键洞察：</strong> 聚合流程必须实施本地历史合并作为对抗不稳定源导出器的防御层；没有这一点，滚动清理将造成长期分析中的不可逾越的空白。</p>
+<h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
+<h4 id="3-由于papermod主题覆盖网格样式并强制usage-card的dldtdd元素采用固定列宽令牌使用卡片被折叠成难以阅读的垂直文本">3. 由于PaperMod主题覆盖网格样式并强制<code>.usage-card</code>的dl/dt/dd元素采用固定列宽，令牌使用卡片被折叠成难以阅读的垂直文本。<a hidden class="anchor" aria-hidden="true" href="#3-由于papermod主题覆盖网格样式并强制usage-card的dldtdd元素采用固定列宽令牌使用卡片被折叠成难以阅读的垂直文本">#</a></h4>
+<p><strong>解决方案：</strong> 将CSS重置范围限定在<code>width: auto</code>后代上，增加级联优先级，并明确应用<code>daily merge</code>到定义项和数据列表；通过自检查脚本进行了验证。</p>
+<p><strong>关键洞察：</strong> 第三方CMS主题应用了广泛的结构样式（如定义列表），可能会默默破坏自定义组件布局，需要严格定向的选择器，而不是依赖标准HTML标签行为。</p>
+<h2 id="人类与ai方法">人类与AI方法<a hidden class="anchor" aria-hidden="true" href="#人类与ai方法">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="跨设备归档的分发模式与中央合并文件">跨设备归档的分发模式与中央合并文件<a hidden class="anchor" aria-hidden="true" href="#跨设备归档的分发模式与中央合并文件">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>主张由所有设备共同编写统一的“目标”合并文件作为单一来源真相，指出大小差异和数据收敛问题。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>解释了多写者竞争条件在云同步文件夹中的风险，验证了当前每台设备写入模型，并展示了本地增量导入如何作为强大的合并引擎工作，无需中央协调。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类关注逻辑数据统一和模式一致性；AI则针对基于文件的同步固有的操作并发约束提出反驳，成功引导方法远离脆弱的集中式写入。</p>
+<h2 id="ai局限性">AI局限性<a hidden class="anchor" aria-hidden="true" href="#ai局限性">#</a></h2>
+<h3 id="一般局限性">一般局限性<a hidden class="anchor" aria-hidden="true" href="#一般局限性">#</a></h3>
+<ul>
+<li>最初对<code>source_key</code>命令的本地与远程日志路径感到困惑，需要用户修正以指定确切的文件路径或同步标志，然后才能继续报告流程。</li>
+<li>在初始导出分析中，延迟了对JSONL模式字段的详细解释，错过了主动澄清<code>device</code>和记录结构的机会。</li>
+</ul>
+<h2 id="学习成果">学习成果<a hidden class="anchor" aria-hidden="true" href="#学习成果">#</a></h2>
+<h3 id="关键学习点">关键学习点<a hidden class="anchor" aria-hidden="true" href="#关键学习点">#</a></h3>
+<ul>
+<li>Hugo的Markdown渲染使用不安全HTML可以启用自定义组件，但要求严格的CSS隔离；标准主题重置和通用标签样式将不可避免地冲突，因此范围有限的包装器和高特异性选择器对于可靠的UI嵌入至关重要。</li>
+<li>以本地优先的数据同步架构从单写者每文件保证与同行增量导入相结合，能极大受益；试图集中写入会引入灾难性的并发风险，这些风险超过了物理合并文件的优势。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<h3 id="工具">工具<a hidden class="anchor" aria-hidden="true" href="#工具">#</a></h3>
+<p><strong>✅ 修复令牌使用卡片CSS溢出和主题冲突</strong>
+<em>18:59:26.574 | claude_code</em>
+解决了令牌使用页脚卡片因宽度限制而不可读的显示问题。诊断了网站PaperMod主题定义列表样式与卡片网格布局之间的级联冲突。补丁增加了选择器特异性，应用了列重置，并通过自动化格式化测试验证了功能。</p>
+<p><strong>✅ 追踪成本定价注入和每日报告生成流程</strong>
+<em>21:30:58.810 | claude_code</em>
+调查了从导出归一化<code>usage.py</code>到HTML可视化<code>usage_card.py</code>的令牌成本数据完整生命周期。生成了7月3日报告的本地测试流程，修正了合并命令用法以解决同步标志问题，并解决了生成的Markdown无法进入Hugo内容树의部署漏洞。</p>
+<h3 id="tokenmonitor-对历史数据恢复与去重架构进行别名冲突验证">TokenMonitor**🔄 对历史数据恢复与去重架构进行别名冲突验证**<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor-对历史数据恢复与去重架构进行别名冲突验证">#</a></h3>
+<p><em>03:47:17.321 | claude_code</em>
+确保滚动窗口删除操作不会因快照合并逻辑导致令牌历史永久丢失，并针对缺失日期映射了外部 TokenMonitor JSONL 备份。对导出格式进行了结构审查，解析了记录语义，在评估分布式与集中式同步模型时发现了 SSH 主机去重中的关键别名冲突漏洞。</p>
+<h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-07-04</span>
+        <span class="usage-card__source">Claude Code</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$7.61</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>2M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>21K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>80.0%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 80.0%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 20.0%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (80.0%), active tokens (20.0%)">
+          <span style="width:80.0%; background:var(--usage-cache)"></span>
+          <span style="width:20.0%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:8484b6b39bd51d52 -->
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

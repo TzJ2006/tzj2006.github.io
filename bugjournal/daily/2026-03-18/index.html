@@ -7,7 +7,7 @@
 <meta name="robots" content="index, follow">
 <title>Bug Journal 2026-03-18 | TzJ&#39;s Net</title>
 <meta name="keywords" content="Bug Journal">
-<meta name="description" content="Added batch update intent to CalendarPro for handling multi-task status reports, with full test coverage and documentation updates">
+<meta name="description" content="Advanced spatial omics workflow validation and batch effect metric analysis, while constructing a dialogue assistant hybrid intent routing mechanism, refactoring desktop applications, and establishing a distributed machine learning infrastructure.">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/bugjournal/daily/2026-03-18/">
 <link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
@@ -79,7 +79,7 @@
 <meta property="og:url" content="https://tzj2006.github.io/bugjournal/daily/2026-03-18/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="Bug Journal 2026-03-18">
-  <meta property="og:description" content="Added batch update intent to CalendarPro for handling multi-task status reports, with full test coverage and documentation updates">
+  <meta property="og:description" content="Advanced spatial omics workflow validation and batch effect metric analysis, while constructing a dialogue assistant hybrid intent routing mechanism, refactoring desktop applications, and establishing a distributed machine learning infrastructure.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="bugjournal">
@@ -88,7 +88,7 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Bug Journal 2026-03-18">
-  <meta name="twitter:description" content="Added batch update intent to CalendarPro for handling multi-task status reports, with full test coverage and documentation updates">
+  <meta name="twitter:description" content="Advanced spatial omics workflow validation and batch effect metric analysis, while constructing a dialogue assistant hybrid intent routing mechanism, refactoring desktop applications, and establishing a distributed machine learning infrastructure.">
 
 
 <script type="application/ld+json">
@@ -123,12 +123,12 @@
   "@type": "BlogPosting",
   "headline": "Bug Journal 2026-03-18",
   "name": "Bug Journal 2026-03-18",
-  "description": "Added batch update intent to CalendarPro for handling multi-task status reports, with full test coverage and documentation updates",
+  "description": "Advanced spatial omics workflow validation and batch effect metric analysis, while constructing a dialogue assistant hybrid intent routing mechanism, refactoring desktop applications, and establishing a distributed machine learning infrastructure.",
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-03-18 Daily Overview What was done: Extended CalendarPro’s intent classification system with a new BATCH_UPDATE intent to handle multi-task status reports from users How it was done: Implemented semantic routing with 21 utterances, keyword scoring with completion verb detection, LLM prompt fragments, and a calendar-integrated handler across 8 files Impact: Resolved a critical UX gap where users couldn’t efficiently report status on multiple tasks at once, eliminating ‘I don’t understand’ fallback responses for batch updates Added batch update intent to CalendarPro for handling multi-task status reports, with full test coverage and documentation updates\nTasks Architecture \u0026 Strategy ✅ Implement BATCH_UPDATE intent feature — Added new intent type across 8 files: enum definition, semantic routes (21 utterances), keyword scorer with 2+ completion verb boost, LLM prompt fragment with updates array schema, context assembler mapping, dual verify default reply, discord_bot handler with per-task calendar operations, and improved GENERAL fallback ✅ Diagnose batch update classification failure — Launched 3 parallel exploration agents to understand intent routing system (24 types), task completion handling, and general intent protection. Identified root cause: no BATCH_UPDATE intent exists, semantic router scores ~0.20 vs 0.50 threshold, LLM classifier defaults to GENERAL with clarification type that triggers hardcoded ‘I don’t understand’ template ✅ Create implementation plan for batch update feature — Designed comprehensive 8-step implementation plan covering IntentType enum, semantic routes, keyword patterns, LLM prompts, context assembly, dual verify defaults, discord_bot handler with calendar integration, GENERAL fallback improvements, route JSON regeneration, and test suite Implementation \u0026 Fixes ✅ Write comprehensive test suite for BATCH_UPDATE — Created 21 tests covering keyword scoring, enum, handler (complete/cancel/reschedule/note/multi/empty/permission), route registration, context map, prompt fragment, and dual verify default reply. All tests passed with no regressions in 72-test suite ✅ Update CLAUDE.md documentation — Rewrote CLAUDE.md to focus on non-obvious architecture: removed redundant file listings, added ‘Common Multi-File Changes’ section with step-by-step guides for adding AI providers/intents/services/events, documented singleton test isolation, consolidated architecture patterns Problems \u0026 Solutions Critical Issues 1. Bot fails to classify multi-task status updates (e.g., ‘A完成了，B也解决了，C需要改时间’), falling back to ‘I don’t understand’ despite substantive user input Solution: Added BATCH_UPDATE intent with semantic route (21 utterances), keyword scorer boost for 2+ completion verbs, LLM prompt teaching updates array schema, and handler that searches calendar, deletes completed tasks, reschedules/notes others, logs completions, and emits EventBus events. Also fixed GENERAL fallback to use substantive LLM replies instead of discarding them\nKey Insight: Intent classification failures often stem from three-layer gaps: (1) no enum member, (2) no semantic route examples, (3) no LLM prompt fragment. Fixing all three layers plus keyword scoring creates robust classification. GENERAL fallback should preserve useful LLM responses rather than blindly templating.\n2. Semantic router scores batch updates at ~0.20 vs 0.50 threshold, causing LOW_CONFIDENCE classification Solution: Created BATCH_UPDATE_ROUTE with diverse Chinese/English utterances (‘A完成了，B也搞定了’, ’tasks A and B completed, C needs rescheduling’) and added keyword scorer rule: 2+ distinct completion keywords → +0.30 boost, capturing the defining characteristic of batch updates\nKey Insight: Embedding-based semantic routing misses multi-entity status patterns. Explicit keyword counting (2+ completion verbs) is a simple but effective heuristic for batch detection that complements embedding similarity.\n3. LLM classifier has no batch_update in allowed intent list, defaults to GENERAL with clarification type, which triggers hardcoded ‘I don’t understand’ template that discards useful AI-generated replies Solution: Added batch_update to INTENT_PROMPT_FRAGMENTS with updates array schema (task_name, action, note, new_time) and to allowed intent list in build_prompt(). Improved GENERAL handler to check if clarification-type replies have substantive LLM content (\u003e20 chars, not template phrase) and use it instead of hardcoded template\nKey Insight: Fallback templates should be last resort, not default. When LLM generates substantive replies, preserve them even if confidence is low. Template overrides waste the LLM’s reasoning and create worse UX.\nHuman vs AI Approaches Strategic Level Diagnostic strategy for batch update failure Role Approach Human User showed real Discord conversation failure (‘你好 → bot replies with task summary → user gives batch status → bot says I don’t understand’) and asked ‘how should we solve this?’, providing the concrete symptom without prescribing the diagnostic method AI Claude launched 3 parallel exploration agents to systematically understand: (1) all 24 intent types and routing, (2) task completion handling, (3) general intent protection feature. Then read critical files to verify details, used Plan agent to synthesize findings into implementation plan Difference Analysis: Human provided the ‘what’ (symptom) and ‘why we care’ (UX problem), but not the ‘how to investigate’. AI chose parallel agent-based exploration rather than sequential file reading, showing strategic use of subagents for broad discovery. Human likely would have done more linear ‘read this file, then that file’ approach.\nImplementation approach for BATCH_UPDATE feature Role Approach Human User provided a fully structured 8-step implementation plan with exact file paths, line numbers, code snippets, data schemas, and test requirements before asking Claude to execute AI Claude followed the plan precisely, reading files in parallel, making edits sequentially where dependencies existed, regenerating derived data (route JSON), and writing comprehensive tests Difference Analysis: Human did upfront architectural design and specified exact changes; AI executed the plan as a reliable implementer. This shows human taking ‘architect’ role while AI takes ‘builder’ role, which is efficient for complex multi-file changes where the human has already done the systems thinking.\nAI Limitations General Limitations In test_batch_update.py, Claude initially tried to import DiscordBot class which caused import errors, then pivoted to testing the handler function in isolation. Could have checked import structure first or used better mocking patterns When first attempting to run full test suite, Claude used pytest tests/ -v --timeout=30 -x which failed because pytest-timeout plugin wasn’t installed. Fell back to running subset of tests instead of installing the plugin or removing the flag initially Learnings Key Learnings Multi-layered intent classification requires coordinated updates across 8+ files: enum (models.py), semantic routes (intent_routes.py), keyword scorer (keyword_scorer.py), LLM prompts (prompts.py), context assembly (context_assembler.py), dual verify defaults (dual_verify.py), handler + routing (discord_bot.py), plus derived data (route JSON). Missing any layer causes classification failure Parallel agent exploration (3 agents for intent routing, task handling, general protection) is more efficient than sequential file reading for complex diagnostics. Each agent provides focused perspective that synthesizes into complete understanding Fallback templates in AI systems should preserve useful LLM-generated content rather than blindly overwriting it. Check if LLM reply is substantive (\u003e20 chars, not template phrase) before replacing with hardcoded fallback Keyword scoring can capture patterns that embedding similarity misses: 2+ distinct completion verbs is a simple heuristic for batch updates that complements semantic routing. Explicit pattern detection is still valuable in neural systems Practical Learnings When implementing features from user-provided plans, reading all affected files in parallel first (rather than one-by-one) enables better understanding of dependencies and allows Claude to batch edits more efficiently Conversation Summaries ✅ Implement BATCH_UPDATE intent for multi-task status reports 23:05:55.704 | claude_code User provided an 8-step implementation plan to add BATCH_UPDATE intent across CalendarPro’s classification system. Claude executed the plan: added enum member, semantic route with 21 utterances, keyword scorer with 2+ completion verb boost, LLM prompt fragment, context assembly map, dual verify default, discord_bot handler with calendar operations, and improved GENERAL fallback to preserve useful LLM replies. Wrote 21 tests covering all components; all passed with no regressions in 72-test suite. Regenerated route JSON with 25 total routes.\n✅ Diagnose why bot fails on batch status updates 22:35:46.066 | claude_code User showed real Discord failure: bot couldn’t understand multi-task status update (‘A查看好了，B和C已经解决’), responded with ‘I don’t understand’. Claude set effort to max, launched 3 parallel exploration agents to map intent system (24 types), task handling, and general protection. Read critical files to verify details. Used Plan agent to synthesize findings into root cause: no BATCH_UPDATE intent exists, semantic router scores low (~0.20), LLM defaults to GENERAL clarification that triggers hardcoded template. Created comprehensive 8-step implementation plan saved to .claude/plans/. This plan was later executed in first session.\n✅ Update CLAUDE.md documentation for better onboarding 21:55:02.204 | claude_code User ran /init command asking Claude to improve CLAUDE.md. Claude analyzed existing docs, read codebase structure, and rewrote CLAUDE.md to focus on non-obvious architecture: removed redundant file listings, added ‘Common Multi-File Changes’ section with step-by-step guides for adding AI providers/intents/services/events, documented singleton test isolation patterns, and consolidated architecture explanations around multi-file relationships. Final version emphasizes patterns requiring multiple file reads to understand.\nToken Usage Total: $4.16 — 5.3M tokens\n",
-  "wordCount" : "1393",
+  "articleBody": "Daily Report — 2026-03-18 Overview of Daily Work Completed work: Provided cross-sectional embedding alignment and quantifiable batch effect metrics for the spatial omics workflow, fixed critical parameter propagation vulnerabilities; completed comprehensive architecture documentation updates, automated multi-agent code refactoring, and implemented hybrid semantic–word intention routing for conversational AI systems. Remote computing infrastructure was prepared for model deployment. Implementation methods: Expanded the evaluation module to integrate a unified metric分配器, directly injected CLI alignment flags into experiment configurations; used parallel sub-agent review processes, word keyword enhancement logic, and backend SCP/SSH scheduling to manage large-scale code library cleanup, intention pattern expansion, and cross-network checkpoint synchronization. Impact: Resolved the issue of non-comparable embedding spaces between multi-organizational slices, established verifiable analysis benchmarks, eliminated dead ends in conversations and classification fallback errors; standardized architecture documentation patterns, fixed critical UI state processing vulnerabilities, and achieved reliable distributed model resource allocation under high-dimensional workloads. DCC Completed work: Completed the full-cycle process verification, metric integration, and backend intention routing logic development for spatial omics analysis and the Discord-based Life Assistant system. Implementation methods: Managed conda environment dependency isolation, implemented dynamic configuration routing coverage, coordinated parallel agent review cycles, and used background task polling to verify cross-domain computing load. Impact: Verified multi-stage model alignment on real DLPFC sequencing data, stabilized production robot workflows, and ensured the persistence of stage evaluation loader states. MacBook Completed work: Led the deep architecture audit and Swift-based cleanup of the macOS desktop video wallpaper application, and arranged secure cross-network computing paths for QCVLA workflow deployment. Implementation methods: Used automated multi-agent code review to identify样板 code duplication, applied targeted screen observer state refactoring, and executed backend SCP transmission combined with remote TAR extraction verification to handle a 14GB model archive. Impact: Resolved persistent state processing vulnerabilities in wallpaper management, standardized cross-file UI patterns, established secure institutional cluster checkpoint distribution paths, and avoided network topology disruptions. TzJsDesktop Completed work: Designed and deployed BATCH_UPDATE intention routing architecture for CalendarPro to address failure issues in multi-task state reporting. Implementation methods: Expanded core enumeration patterns, implemented hybrid word keyword enhancement for multi-verb detection, rewritten processor routing logic to preserve user session states, and verified changes through comprehensive unit tests covering edge cases. Impact: Converted unhandled conversation dead ends into operable batch updates, directly improved assistant reliability, and reduced token waste in high-frequency tracking workflows. tianhe Completed work: Initiated baseline certification and network topology verification for the sysu_gbli2xy_1 computing project. Implementation methods: Performed standard identity checks and shell session handshakes, confirming safe remote access prerequisites. Impact: Established the critical connection foundation required for subsequent distributed training deployment and cluster resource allocation. Advanced spatial omics workflow verification and batch effect metric calculation were performed, hybrid intention routing was designed for conversational assistants, desktop applications were refactored, and distributed ML infrastructure was provided.\nTasks Architecture and Strategy ✅ Fixing pipeline parameter propagation vulnerabilities and E2E verification — Directly configuration mapping resolved critical evaluator routing interruptions caused by lost alignment flags at different stages; end-to-end execution was verified on DLPFC data, establishing quantifiable cross-sectional benchmarks. ✅ Implementation of batch effect metrics and cross-sectional alignment — Developed and integrated the Harmony post-processing aligner, Joint STAIG multi-stage trainer, and four unified batch effect metrics into the workflow runner and benchmark testing tools. ✅ Implementation of CalendarPro BATCH_UPDATE intention routing — Expanded intention classification in routing, scoring, and prompt layers to handle multi-task state updates, eliminated GENERAL fallback leaks, and passed 21 targeted unit tests. ✅ Architecture and code library refactoring for desktop video wallpaper — Conducted architecture audit, regenerated CLAUDE.md documentation, executed automated cleanup cycles to integrate样板 code, fixed bookmark fallback chains, and modernized screen observer state patterns. Implementation and Fixes ✅ QCVLA cross-network checkpoint transmission and SSH infrastructure setup — Configured backend SCP scheduling for a 14GB model archive, verified remote extraction, and established direct host alias routing with authentication for institutional cluster deployment. Issues and Solutions Key Issues 1. Jobs generated in the pipeline evaluation stage were lost alignment parameters due to inconsistent planning logic, leading to unaligned cache fallback and disruption of multi-stage alignment results. Solution: Before EvaluationPlanner calls, insert the direct configuration mapping CLI --alignment flag into experiment extra_config to ensure parameters are propagated between stages of the pipeline.\nKey insight: CLI parameters must be routed explicitly through different planning modules, rather than relying on implicit global states or default YAML configurations that may fail at function boundaries.\n2. The conversation router cannot classify multi-task state updates, defaults to GENERAL intention incorrectly, and discards substantive user replies behind hard-coded clarification templates. Solution: Introduced word enhancement rules (+0.30 points for 2+ completed verbs), introduced a dedicated BATCH_UPDATE intention, and redesigned processor logic to preserve structured task arrays, avoiding template interference.\nKey insight: Composite conversation inputs require mixed scoring thresholds; simple embedding similarity cannot fully reflect parallel semantic structures, requiring clear keyword multipliers.\nGeneral Issues 3. Excessive git diff output exceeded token limits, causing interruptions during automated sub-agent code review in parallel execution processes. Solution: For large configuration files, use target file extension filtering and offset/limit pagination mechanisms to enable continuous incremental review without truncating valid payload. Key insight: Automated review agents must dynamically adjust extraction strategies based on output size limits, rather than assuming fixed token capacity for all file types.\n4. When attempting continuous large-scale visual encoding of multiple organizational parts, GPU background processes crashed due to CUDA memory overflow. Solution: Pause heavy GPU extraction, temporarily use CPU-based NumPy fusion as an alternative for verification, and stagger resource allocation to prevent memory exhaustion.\nKey insight: Multi-part visual processing should either be divided into independent resource pools or dynamically offloaded to secure CPU paths under CI/HPC constraints.\nHuman and AI Approaches Strategic Level Conversation backup state retention architecture Role Method Human Discovering generic backup loops actively destroys valuable user states; implement structural coverage by bypassing template injection when substantive replies exceed content thresholds. AI Generate detailed pattern extensions and routing infrastructure; initially treat the issue as a missing intention key rather than a deeper control flow data loss vulnerability. Analysis of differences: Humans focus on conversation continuity, state persistence, and architecture integrity, while AI initially focused on surface-level classification extension and later shifted to data retention logic.\nImplementation Level Conceptualization of AI alignment and metric interpretation in spatial omics Role Method Human Interrupt technical metric recording; require clear explanation of the semantic utility and mathematical interpretation of Harmony cross-slice biological mitigation before accepting verification results. AI Initially focused on lengthy numerical reports and isolated pipeline execution steps; only turn to interpreting embedding space connections and cluster behavior retention after user intervention. Analysis of differences: Humans prioritize concept clarity and decision usefulness, correcting AI’s tendency to maintain detailed technical records without context integration.\nAI Limitations General Limitations Over-reliance on unfiltered large payload intake during parallel agent startup leads to manual file redirection and extension-based filtering to bypass token/processing limits. No proactive anticipation of routing vulnerabilities during initial code generation; only discovered through full sequential pipeline execution and evaluation outputs. Insufficient real-time awareness of shared GPU pool states and concurrent resource contention, resulting in reactive memory overflow mitigation rather than active scheduling or memory analysis. Local environment variable expansion occasionally masks remote host name resolution during SSH verification, requiring explicit secondary execution commands to confirm correct network topology access. Learning Outcomes Key Learning Outcomes End-to-end pipeline verification must strictly test data routing and loader state persistence across all stages, not just verify whether individual alignment or metric calculation is successful. Mixed intention scoring combining semantic embedding and explicit word multipliers significantly improves classification accuracy for composite user inputs, eliminating reliance on overly broad backup states. Practical Learning Outcomes Strict patching of global configuration cache is required for single-instance testing isolation in Python async frameworks to prevent cross-test routing leaks during initialization. Background network transmission must combine explicit remote verification cycles and task polling, rather than relying solely on local exit codes, especially in restricted terminals or HPC environments. Conversation Summary MIHD (High-resolution spatial omics multi-modal integration) ✅ Cross-sectional alignment implementation, vulnerability fix, and end-to-end verification 21:49:02.102 | claude_code User guided the implementation of cross-sectional embedding alignment and batch effect metrics. Agent successfully developed batch_metrics.py and alignment.py, then identified critical parameter propagation vulnerabilities in the pipeline evaluation. The problem was solved by directly injecting CLI flags into experiment configurations. End-to-end execution on real DLPFC data confirmed successful embedding space connections, establishment of quantifiable benchmarks, and verification of cross-organizational analysis capabilities.\nCalendarPro Life Copilot ✅ Hybrid intention routing architecture and state retention refactoring 23:05:55.704 | claude_code User provided an architecture solution to address multi-task state classification failures caused by generic backup template leaks. Agent systematically implemented BATCH_UPDATE intention in routing, scoring, and prompt layers, rewritten processing logic to preserve conversation states, regenerated semantic routing JSON, and verified changes through comprehensive unit tests covering edge cases.\nDesktop Video Wallpaper ✅ Architecture audit, documentation generation, and automated code library cleanup 16:00:36.549 | claude_code User requested a deep repository audit and reconstruction of CLAUDE.md for macOS desktop video wallpaper application. Agent identified outdated documents, integrated automated multi-agent review to consolidate样板 code, fixed secure bookmark fallback chains, and modernized screen observer state management, ultimately confirming successful build.\nQCVLA Bridge Pipeline and SSH Infrastructure ✅ Cross-network checkpoint deployment and secure connection provisioning 21:06:05.439 | claude_code User guided the transfer of a 14GB QCVLA model checkpoint to institutional cluster. Agent configured backend SCP orchestration, synchronized remote extraction verification, and established direct host alias routing with authentication for subsequent distributed training workflows.\nToken Usage AI Usage · 2026-03-18\rClaude Code\rTotal cost$14.61\rTotal tokens19M\rOutput tokens60K\rCache read91.1%\rToken character\rCache reads 91.1% ·\rActive 8.9%\rMost token volume came from cache reads.\r",
+  "wordCount" : "1598",
   "inLanguage": "en",
   "datePublished": "2026-03-18T00:00:00-05:00",
   "dateModified": "2026-03-18T00:00:00-05:00",
@@ -252,118 +252,234 @@
     </h1>
     <div class="post-meta">
 
-<span title='2026-03-18 00:00:00 -0500 -0500'>March 18, 2026</span>&nbsp;·&nbsp;<span>7 min</span>
+<span title='2026-03-18 00:00:00 -0500 -0500'>March 18, 2026</span>&nbsp;·&nbsp;<span>8 min</span>
 
 </div>
   </header> 
   <div class="post-content md-content"><h1 id="daily-report--2026-03-18">Daily Report — 2026-03-18<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-03-18">#</a></h1>
-<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<h2 id="overview-of-daily-work">Overview of Daily Work<a hidden class="anchor" aria-hidden="true" href="#overview-of-daily-work">#</a></h2>
 <ul>
-<li><strong>What was done:</strong> Extended CalendarPro&rsquo;s intent classification system with a new BATCH_UPDATE intent to handle multi-task status reports from users</li>
-<li><strong>How it was done:</strong> Implemented semantic routing with 21 utterances, keyword scoring with completion verb detection, LLM prompt fragments, and a calendar-integrated handler across 8 files</li>
-<li><strong>Impact:</strong> Resolved a critical UX gap where users couldn&rsquo;t efficiently report status on multiple tasks at once, eliminating &lsquo;I don&rsquo;t understand&rsquo; fallback responses for batch updates</li>
+<li><strong>Completed work:</strong> Provided cross-sectional embedding alignment and quantifiable batch effect metrics for the spatial omics workflow, fixed critical parameter propagation vulnerabilities; completed comprehensive architecture documentation updates, automated multi-agent code refactoring, and implemented hybrid semantic–word intention routing for conversational AI systems. Remote computing infrastructure was prepared for model deployment.</li>
+<li><strong>Implementation methods:</strong> Expanded the evaluation module to integrate a unified metric分配器, directly injected CLI alignment flags into experiment configurations; used parallel sub-agent review processes, word keyword enhancement logic, and backend SCP/SSH scheduling to manage large-scale code library cleanup, intention pattern expansion, and cross-network checkpoint synchronization.</li>
+<li><strong>Impact:</strong> Resolved the issue of non-comparable embedding spaces between multi-organizational slices, established verifiable analysis benchmarks, eliminated dead ends in conversations and classification fallback errors; standardized architecture documentation patterns, fixed critical UI state processing vulnerabilities, and achieved reliable distributed model resource allocation under high-dimensional workloads.</li>
+</ul>
+<h3 id="dcc">DCC<a hidden class="anchor" aria-hidden="true" href="#dcc">#</a></h3>
+<ul>
+<li><strong>Completed work:</strong> Completed the full-cycle process verification, metric integration, and backend intention routing logic development for spatial omics analysis and the Discord-based Life Assistant system.</li>
+<li><strong>Implementation methods:</strong> Managed conda environment dependency isolation, implemented dynamic configuration routing coverage, coordinated parallel agent review cycles, and used background task polling to verify cross-domain computing load.</li>
+<li><strong>Impact:</strong> Verified multi-stage model alignment on real DLPFC sequencing data, stabilized production robot workflows, and ensured the persistence of stage evaluation loader states.</li>
+</ul>
+<h3 id="macbook">MacBook<a hidden class="anchor" aria-hidden="true" href="#macbook">#</a></h3>
+<ul>
+<li><strong>Completed work:</strong> Led the deep architecture audit and Swift-based cleanup of the macOS desktop video wallpaper application, and arranged secure cross-network computing paths for QCVLA workflow deployment.</li>
+<li><strong>Implementation methods:</strong> Used automated multi-agent code review to identify样板 code duplication, applied targeted screen observer state refactoring, and executed backend SCP transmission combined with remote TAR extraction verification to handle a 14GB model archive.</li>
+<li><strong>Impact:</strong> Resolved persistent state processing vulnerabilities in wallpaper management, standardized cross-file UI patterns, established secure institutional cluster checkpoint distribution paths, and avoided network topology disruptions.</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>Completed work:</strong> Designed and deployed BATCH_UPDATE intention routing architecture for CalendarPro to address failure issues in multi-task state reporting.</li>
+<li><strong>Implementation methods:</strong> Expanded core enumeration patterns, implemented hybrid word keyword enhancement for multi-verb detection, rewritten processor routing logic to preserve user session states, and verified changes through comprehensive unit tests covering edge cases.</li>
+<li><strong>Impact:</strong> Converted unhandled conversation dead ends into operable batch updates, directly improved assistant reliability, and reduced token waste in high-frequency tracking workflows.</li>
+</ul>
+<h3 id="tianhe">tianhe<a hidden class="anchor" aria-hidden="true" href="#tianhe">#</a></h3>
+<ul>
+<li><strong>Completed work:</strong> Initiated baseline certification and network topology verification for the sysu_gbli2xy_1 computing project.</li>
+<li><strong>Implementation methods:</strong> Performed standard identity checks and shell session handshakes, confirming safe remote access prerequisites.</li>
+<li><strong>Impact:</strong> Established the critical connection foundation required for subsequent distributed training deployment and cluster resource allocation.</li>
 </ul>
 <blockquote>
-<p>Added batch update intent to CalendarPro for handling multi-task status reports, with full test coverage and documentation updates</p>
+<p>Advanced spatial omics workflow verification and batch effect metric calculation were performed, hybrid intention routing was designed for conversational assistants, desktop applications were refactored, and distributed ML infrastructure was provided.</p>
 </blockquote>
 <h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
-<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<h3 id="architecture-and-strategy">Architecture and Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture-and-strategy">#</a></h3>
 <ul>
-<li>✅ <strong>Implement BATCH_UPDATE intent feature</strong> — Added new intent type across 8 files: enum definition, semantic routes (21 utterances), keyword scorer with 2+ completion verb boost, LLM prompt fragment with updates array schema, context assembler mapping, dual verify default reply, discord_bot handler with per-task calendar operations, and improved GENERAL fallback</li>
-<li>✅ <strong>Diagnose batch update classification failure</strong> — Launched 3 parallel exploration agents to understand intent routing system (24 types), task completion handling, and general intent protection. Identified root cause: no BATCH_UPDATE intent exists, semantic router scores ~0.20 vs 0.50 threshold, LLM classifier defaults to GENERAL with clarification type that triggers hardcoded &lsquo;I don&rsquo;t understand&rsquo; template</li>
-<li>✅ <strong>Create implementation plan for batch update feature</strong> — Designed comprehensive 8-step implementation plan covering IntentType enum, semantic routes, keyword patterns, LLM prompts, context assembly, dual verify defaults, discord_bot handler with calendar integration, GENERAL fallback improvements, route JSON regeneration, and test suite</li>
+<li>✅ <strong>Fixing pipeline parameter propagation vulnerabilities and E2E verification</strong> — Directly configuration mapping resolved critical evaluator routing interruptions caused by lost alignment flags at different stages; end-to-end execution was verified on DLPFC data, establishing quantifiable cross-sectional benchmarks.</li>
+<li>✅ <strong>Implementation of batch effect metrics and cross-sectional alignment</strong> — Developed and integrated the Harmony post-processing aligner, Joint STAIG multi-stage trainer, and four unified batch effect metrics into the workflow runner and benchmark testing tools.</li>
+<li>✅ <strong>Implementation of CalendarPro BATCH_UPDATE intention routing</strong> — Expanded intention classification in routing, scoring, and prompt layers to handle multi-task state updates, eliminated GENERAL fallback leaks, and passed 21 targeted unit tests.</li>
+<li>✅ <strong>Architecture and code library refactoring for desktop video wallpaper</strong> — Conducted architecture audit, regenerated CLAUDE.md documentation, executed automated cleanup cycles to integrate样板 code, fixed bookmark fallback chains, and modernized screen observer state patterns.</li>
 </ul>
-<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<h3 id="implementation-and-fixes">Implementation and Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation-and-fixes">#</a></h3>
 <ul>
-<li>✅ <strong>Write comprehensive test suite for BATCH_UPDATE</strong> — Created 21 tests covering keyword scoring, enum, handler (complete/cancel/reschedule/note/multi/empty/permission), route registration, context map, prompt fragment, and dual verify default reply. All tests passed with no regressions in 72-test suite</li>
-<li>✅ <strong>Update CLAUDE.md documentation</strong> — Rewrote CLAUDE.md to focus on non-obvious architecture: removed redundant file listings, added &lsquo;Common Multi-File Changes&rsquo; section with step-by-step guides for adding AI providers/intents/services/events, documented singleton test isolation, consolidated architecture patterns</li>
+<li>✅ <strong>QCVLA cross-network checkpoint transmission and SSH infrastructure setup</strong> — Configured backend SCP scheduling for a 14GB model archive, verified remote extraction, and established direct host alias routing with authentication for institutional cluster deployment.</li>
 </ul>
-<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
-<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
-<h4 id="1-bot-fails-to-classify-multi-task-status-updates-eg-a完成了b也解决了c需要改时间-falling-back-to-i-dont-understand-despite-substantive-user-input">1. Bot fails to classify multi-task status updates (e.g., &lsquo;A完成了，B也解决了，C需要改时间&rsquo;), falling back to &lsquo;I don&rsquo;t understand&rsquo; despite substantive user input<a hidden class="anchor" aria-hidden="true" href="#1-bot-fails-to-classify-multi-task-status-updates-eg-a完成了b也解决了c需要改时间-falling-back-to-i-dont-understand-despite-substantive-user-input">#</a></h4>
-<p><strong>Solution:</strong> Added BATCH_UPDATE intent with semantic route (21 utterances), keyword scorer boost for 2+ completion verbs, LLM prompt teaching updates array schema, and handler that searches calendar, deletes completed tasks, reschedules/notes others, logs completions, and emits EventBus events. Also fixed GENERAL fallback to use substantive LLM replies instead of discarding them</p>
-<p><strong>Key Insight:</strong> Intent classification failures often stem from three-layer gaps: (1) no enum member, (2) no semantic route examples, (3) no LLM prompt fragment. Fixing all three layers plus keyword scoring creates robust classification. GENERAL fallback should preserve useful LLM responses rather than blindly templating.</p>
-<h4 id="2-semantic-router-scores-batch-updates-at-020-vs-050-threshold-causing-low_confidence-classification">2. Semantic router scores batch updates at ~0.20 vs 0.50 threshold, causing LOW_CONFIDENCE classification<a hidden class="anchor" aria-hidden="true" href="#2-semantic-router-scores-batch-updates-at-020-vs-050-threshold-causing-low_confidence-classification">#</a></h4>
-<p><strong>Solution:</strong> Created BATCH_UPDATE_ROUTE with diverse Chinese/English utterances (&lsquo;A完成了，B也搞定了&rsquo;, &rsquo;tasks A and B completed, C needs rescheduling&rsquo;) and added keyword scorer rule: 2+ distinct completion keywords → +0.30 boost, capturing the defining characteristic of batch updates</p>
-<p><strong>Key Insight:</strong> Embedding-based semantic routing misses multi-entity status patterns. Explicit keyword counting (2+ completion verbs) is a simple but effective heuristic for batch detection that complements embedding similarity.</p>
-<h4 id="3-llm-classifier-has-no-batch_update-in-allowed-intent-list-defaults-to-general-with-clarification-type-which-triggers-hardcoded-i-dont-understand-template-that-discards-useful-ai-generated-replies">3. LLM classifier has no batch_update in allowed intent list, defaults to GENERAL with clarification type, which triggers hardcoded &lsquo;I don&rsquo;t understand&rsquo; template that discards useful AI-generated replies<a hidden class="anchor" aria-hidden="true" href="#3-llm-classifier-has-no-batch_update-in-allowed-intent-list-defaults-to-general-with-clarification-type-which-triggers-hardcoded-i-dont-understand-template-that-discards-useful-ai-generated-replies">#</a></h4>
-<p><strong>Solution:</strong> Added batch_update to INTENT_PROMPT_FRAGMENTS with updates array schema (task_name, action, note, new_time) and to allowed intent list in build_prompt(). Improved GENERAL handler to check if clarification-type replies have substantive LLM content (&gt;20 chars, not template phrase) and use it instead of hardcoded template</p>
-<p><strong>Key Insight:</strong> Fallback templates should be last resort, not default. When LLM generates substantive replies, preserve them even if confidence is low. Template overrides waste the LLM&rsquo;s reasoning and create worse UX.</p>
-<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h2 id="issues-and-solutions">Issues and Solutions<a hidden class="anchor" aria-hidden="true" href="#issues-and-solutions">#</a></h2>
+<h3 id="key-issues">Key Issues<a hidden class="anchor" aria-hidden="true" href="#key-issues">#</a></h3>
+<h4 id="1-jobs-generated-in-the-pipeline-evaluation-stage-were-lost-alignment-parameters-due-to-inconsistent-planning-logic-leading-to-unaligned-cache-fallback-and-disruption-of-multi-stage-alignment-results">1. Jobs generated in the pipeline evaluation stage were lost alignment parameters due to inconsistent planning logic, leading to unaligned cache fallback and disruption of multi-stage alignment results.<a hidden class="anchor" aria-hidden="true" href="#1-jobs-generated-in-the-pipeline-evaluation-stage-were-lost-alignment-parameters-due-to-inconsistent-planning-logic-leading-to-unaligned-cache-fallback-and-disruption-of-multi-stage-alignment-results">#</a></h4>
+<p><strong>Solution:</strong> Before EvaluationPlanner calls, insert the direct configuration mapping CLI <code>--alignment</code> flag into experiment <code>extra_config</code> to ensure parameters are propagated between stages of the pipeline.</p>
+<p><strong>Key insight:</strong> CLI parameters must be routed explicitly through different planning modules, rather than relying on implicit global states or default YAML configurations that may fail at function boundaries.</p>
+<h4 id="2-the-conversation-router-cannot-classify-multi-task-state-updates-defaults-to-general-intention-incorrectly-and-discards-substantive-user-replies-behind-hard-coded-clarification-templates">2. The conversation router cannot classify multi-task state updates, defaults to GENERAL intention incorrectly, and discards substantive user replies behind hard-coded clarification templates.<a hidden class="anchor" aria-hidden="true" href="#2-the-conversation-router-cannot-classify-multi-task-state-updates-defaults-to-general-intention-incorrectly-and-discards-substantive-user-replies-behind-hard-coded-clarification-templates">#</a></h4>
+<p><strong>Solution:</strong> Introduced word enhancement rules (+0.30 points for 2+ completed verbs), introduced a dedicated BATCH_UPDATE intention, and redesigned processor logic to preserve structured task arrays, avoiding template interference.</p>
+<p><strong>Key insight:</strong> Composite conversation inputs require mixed scoring thresholds; simple embedding similarity cannot fully reflect parallel semantic structures, requiring clear keyword multipliers.</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="3-excessive-git-diff-output-exceeded-token-limits-causing-interruptions-during-automated-sub-agent-code-review-in-parallel-execution-processes-solution-for-large-configuration-files-use-target-file-extension-filtering-and-offsetlimit-pagination-mechanisms-to-enable-continuous-incremental-review-without-truncating-valid-payload">3. Excessive git diff output exceeded token limits, causing interruptions during automated sub-agent code review in parallel execution processes. <strong>Solution:</strong> For large configuration files, use target file extension filtering and offset/limit pagination mechanisms to enable continuous incremental review without truncating valid payload.<a hidden class="anchor" aria-hidden="true" href="#3-excessive-git-diff-output-exceeded-token-limits-causing-interruptions-during-automated-sub-agent-code-review-in-parallel-execution-processes-solution-for-large-configuration-files-use-target-file-extension-filtering-and-offsetlimit-pagination-mechanisms-to-enable-continuous-incremental-review-without-truncating-valid-payload">#</a></h4>
+<p><strong>Key insight:</strong> Automated review agents must dynamically adjust extraction strategies based on output size limits, rather than assuming fixed token capacity for all file types.</p>
+<h4 id="4-when-attempting-continuous-large-scale-visual-encoding-of-multiple-organizational-parts-gpu-background-processes-crashed-due-to-cuda-memory-overflow">4. When attempting continuous large-scale visual encoding of multiple organizational parts, GPU background processes crashed due to CUDA memory overflow.<a hidden class="anchor" aria-hidden="true" href="#4-when-attempting-continuous-large-scale-visual-encoding-of-multiple-organizational-parts-gpu-background-processes-crashed-due-to-cuda-memory-overflow">#</a></h4>
+<p><strong>Solution:</strong> Pause heavy GPU extraction, temporarily use CPU-based NumPy fusion as an alternative for verification, and stagger resource allocation to prevent memory exhaustion.</p>
+<p><strong>Key insight:</strong> Multi-part visual processing should either be divided into independent resource pools or dynamically offloaded to secure CPU paths under CI/HPC constraints.</p>
+<h2 id="human-and-ai-approaches">Human and AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-and-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
-<h4 id="diagnostic-strategy-for-batch-update-failure">Diagnostic strategy for batch update failure<a hidden class="anchor" aria-hidden="true" href="#diagnostic-strategy-for-batch-update-failure">#</a></h4>
+<h4 id="conversation-backup-state-retention-architecture">Conversation backup state retention architecture<a hidden class="anchor" aria-hidden="true" href="#conversation-backup-state-retention-architecture">#</a></h4>
 <table>
   <thead>
       <tr>
           <th>Role</th>
-          <th>Approach</th>
+          <th>Method</th>
       </tr>
   </thead>
   <tbody>
       <tr>
           <td>Human</td>
-          <td>User showed real Discord conversation failure (&lsquo;你好 → bot replies with task summary → user gives batch status → bot says I don&rsquo;t understand&rsquo;) and asked &lsquo;how should we solve this?&rsquo;, providing the concrete symptom without prescribing the diagnostic method</td>
+          <td>Discovering generic backup loops actively destroys valuable user states; implement structural coverage by bypassing template injection when substantive replies exceed content thresholds.</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>Claude launched 3 parallel exploration agents to systematically understand: (1) all 24 intent types and routing, (2) task completion handling, (3) general intent protection feature. Then read critical files to verify details, used Plan agent to synthesize findings into implementation plan</td>
+          <td>Generate detailed pattern extensions and routing infrastructure; initially treat the issue as a missing intention key rather than a deeper control flow data loss vulnerability.</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human provided the &lsquo;what&rsquo; (symptom) and &lsquo;why we care&rsquo; (UX problem), but not the &lsquo;how to investigate&rsquo;. AI chose parallel agent-based exploration rather than sequential file reading, showing strategic use of subagents for broad discovery. Human likely would have done more linear &lsquo;read this file, then that file&rsquo; approach.</p>
-<h4 id="implementation-approach-for-batch_update-feature">Implementation approach for BATCH_UPDATE feature<a hidden class="anchor" aria-hidden="true" href="#implementation-approach-for-batch_update-feature">#</a></h4>
+<p><strong>Analysis of differences:</strong> Humans focus on conversation continuity, state persistence, and architecture integrity, while AI initially focused on surface-level classification extension and later shifted to data retention logic.</p>
+<h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
+<h4 id="conceptualization-of-ai-alignment-and-metric-interpretation-in-spatial-omics">Conceptualization of AI alignment and metric interpretation in spatial omics<a hidden class="anchor" aria-hidden="true" href="#conceptualization-of-ai-alignment-and-metric-interpretation-in-spatial-omics">#</a></h4>
 <table>
   <thead>
       <tr>
           <th>Role</th>
-          <th>Approach</th>
+          <th>Method</th>
       </tr>
   </thead>
   <tbody>
       <tr>
           <td>Human</td>
-          <td>User provided a fully structured 8-step implementation plan with exact file paths, line numbers, code snippets, data schemas, and test requirements before asking Claude to execute</td>
+          <td>Interrupt technical metric recording; require clear explanation of the semantic utility and mathematical interpretation of Harmony cross-slice biological mitigation before accepting verification results.</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>Claude followed the plan precisely, reading files in parallel, making edits sequentially where dependencies existed, regenerating derived data (route JSON), and writing comprehensive tests</td>
+          <td>Initially focused on lengthy numerical reports and isolated pipeline execution steps; only turn to interpreting embedding space connections and cluster behavior retention after user intervention.</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human did upfront architectural design and specified exact changes; AI executed the plan as a reliable implementer. This shows human taking &lsquo;architect&rsquo; role while AI takes &lsquo;builder&rsquo; role, which is efficient for complex multi-file changes where the human has already done the systems thinking.</p>
+<p><strong>Analysis of differences:</strong> Humans prioritize concept clarity and decision usefulness, correcting AI’s tendency to maintain detailed technical records without context integration.</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
 <ul>
-<li>In test_batch_update.py, Claude initially tried to import DiscordBot class which caused import errors, then pivoted to testing the handler function in isolation. Could have checked import structure first or used better mocking patterns</li>
-<li>When first attempting to run full test suite, Claude used <code>pytest tests/ -v --timeout=30 -x</code> which failed because pytest-timeout plugin wasn&rsquo;t installed. Fell back to running subset of tests instead of installing the plugin or removing the flag initially</li>
+<li>Over-reliance on unfiltered large payload intake during parallel agent startup leads to manual file redirection and extension-based filtering to bypass token/processing limits.</li>
+<li>No proactive anticipation of routing vulnerabilities during initial code generation; only discovered through full sequential pipeline execution and evaluation outputs.</li>
+<li>Insufficient real-time awareness of shared GPU pool states and concurrent resource contention, resulting in reactive memory overflow mitigation rather than active scheduling or memory analysis.</li>
+<li>Local environment variable expansion occasionally masks remote host name resolution during SSH verification, requiring explicit secondary execution commands to confirm correct network topology access.</li>
 </ul>
-<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
-<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<h2 id="learning-outcomes">Learning Outcomes<a hidden class="anchor" aria-hidden="true" href="#learning-outcomes">#</a></h2>
+<h3 id="key-learning-outcomes">Key Learning Outcomes<a hidden class="anchor" aria-hidden="true" href="#key-learning-outcomes">#</a></h3>
 <ul>
-<li>Multi-layered intent classification requires coordinated updates across 8+ files: enum (models.py), semantic routes (intent_routes.py), keyword scorer (keyword_scorer.py), LLM prompts (prompts.py), context assembly (context_assembler.py), dual verify defaults (dual_verify.py), handler + routing (discord_bot.py), plus derived data (route JSON). Missing any layer causes classification failure</li>
-<li>Parallel agent exploration (3 agents for intent routing, task handling, general protection) is more efficient than sequential file reading for complex diagnostics. Each agent provides focused perspective that synthesizes into complete understanding</li>
-<li>Fallback templates in AI systems should preserve useful LLM-generated content rather than blindly overwriting it. Check if LLM reply is substantive (&gt;20 chars, not template phrase) before replacing with hardcoded fallback</li>
-<li>Keyword scoring can capture patterns that embedding similarity misses: 2+ distinct completion verbs is a simple heuristic for batch updates that complements semantic routing. Explicit pattern detection is still valuable in neural systems</li>
+<li>End-to-end pipeline verification must strictly test data routing and loader state persistence across all stages, not just verify whether individual alignment or metric calculation is successful.</li>
+<li>Mixed intention scoring combining semantic embedding and explicit word multipliers significantly improves classification accuracy for composite user inputs, eliminating reliance on overly broad backup states.</li>
 </ul>
-<h3 id="practical-learnings">Practical Learnings<a hidden class="anchor" aria-hidden="true" href="#practical-learnings">#</a></h3>
+<h3 id="practical-learning-outcomes">Practical Learning Outcomes<a hidden class="anchor" aria-hidden="true" href="#practical-learning-outcomes">#</a></h3>
 <ul>
-<li>When implementing features from user-provided plans, reading all affected files in parallel first (rather than one-by-one) enables better understanding of dependencies and allows Claude to batch edits more efficiently</li>
+<li>Strict patching of global configuration cache is required for single-instance testing isolation in Python async frameworks to prevent cross-test routing leaks during initialization.</li>
+<li>Background network transmission must combine explicit remote verification cycles and task polling, rather than relying solely on local exit codes, especially in restricted terminals or HPC environments.</li>
 </ul>
-<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
-<p><strong>✅ Implement BATCH_UPDATE intent for multi-task status reports</strong>
+<h2 id="conversation-summary">Conversation Summary<a hidden class="anchor" aria-hidden="true" href="#conversation-summary">#</a></h2>
+<h3 id="mihd-high-resolution-spatial-omics-multi-modal-integration">MIHD (High-resolution spatial omics multi-modal integration)<a hidden class="anchor" aria-hidden="true" href="#mihd-high-resolution-spatial-omics-multi-modal-integration">#</a></h3>
+<p><strong>✅ Cross-sectional alignment implementation, vulnerability fix, and end-to-end verification</strong>
+<em>21:49:02.102 | claude_code</em>
+User guided the implementation of cross-sectional embedding alignment and batch effect metrics. Agent successfully developed <code>batch_metrics.py</code> and <code>alignment.py</code>, then identified critical parameter propagation vulnerabilities in the pipeline evaluation. The problem was solved by directly injecting CLI flags into experiment configurations. End-to-end execution on real DLPFC data confirmed successful embedding space connections, establishment of quantifiable benchmarks, and verification of cross-organizational analysis capabilities.</p>
+<h3 id="calendarpro-life-copilot">CalendarPro Life Copilot<a hidden class="anchor" aria-hidden="true" href="#calendarpro-life-copilot">#</a></h3>
+<p><strong>✅ Hybrid intention routing architecture and state retention refactoring</strong>
 <em>23:05:55.704 | claude_code</em>
-User provided an 8-step implementation plan to add BATCH_UPDATE intent across CalendarPro&rsquo;s classification system. Claude executed the plan: added enum member, semantic route with 21 utterances, keyword scorer with 2+ completion verb boost, LLM prompt fragment, context assembly map, dual verify default, discord_bot handler with calendar operations, and improved GENERAL fallback to preserve useful LLM replies. Wrote 21 tests covering all components; all passed with no regressions in 72-test suite. Regenerated route JSON with 25 total routes.</p>
-<p><strong>✅ Diagnose why bot fails on batch status updates</strong>
-<em>22:35:46.066 | claude_code</em>
-User showed real Discord failure: bot couldn&rsquo;t understand multi-task status update (&lsquo;A查看好了，B和C已经解决&rsquo;), responded with &lsquo;I don&rsquo;t understand&rsquo;. Claude set effort to max, launched 3 parallel exploration agents to map intent system (24 types), task handling, and general protection. Read critical files to verify details. Used Plan agent to synthesize findings into root cause: no BATCH_UPDATE intent exists, semantic router scores low (~0.20), LLM defaults to GENERAL clarification that triggers hardcoded template. Created comprehensive 8-step implementation plan saved to .claude/plans/. This plan was later executed in first session.</p>
-<p><strong>✅ Update CLAUDE.md documentation for better onboarding</strong>
-<em>21:55:02.204 | claude_code</em>
-User ran /init command asking Claude to improve CLAUDE.md. Claude analyzed existing docs, read codebase structure, and rewrote CLAUDE.md to focus on non-obvious architecture: removed redundant file listings, added &lsquo;Common Multi-File Changes&rsquo; section with step-by-step guides for adding AI providers/intents/services/events, documented singleton test isolation patterns, and consolidated architecture explanations around multi-file relationships. Final version emphasizes patterns requiring multiple file reads to understand.</p>
+User provided an architecture solution to address multi-task state classification failures caused by generic backup template leaks. Agent systematically implemented BATCH_UPDATE intention in routing, scoring, and prompt layers, rewritten processing logic to preserve conversation states, regenerated semantic routing JSON, and verified changes through comprehensive unit tests covering edge cases.</p>
+<h3 id="desktop-video-wallpaper">Desktop Video Wallpaper<a hidden class="anchor" aria-hidden="true" href="#desktop-video-wallpaper">#</a></h3>
+<p><strong>✅ Architecture audit, documentation generation, and automated code library cleanup</strong>
+<em>16:00:36.549 | claude_code</em>
+User requested a deep repository audit and reconstruction of CLAUDE.md for macOS desktop video wallpaper application. Agent identified outdated documents, integrated automated multi-agent review to consolidate样板 code, fixed secure bookmark fallback chains, and modernized screen observer state management, ultimately confirming successful build.</p>
+<h3 id="qcvla-bridge-pipeline-and-ssh-infrastructure">QCVLA Bridge Pipeline and SSH Infrastructure<a hidden class="anchor" aria-hidden="true" href="#qcvla-bridge-pipeline-and-ssh-infrastructure">#</a></h3>
+<p><strong>✅ Cross-network checkpoint deployment and secure connection provisioning</strong>
+<em>21:06:05.439 | claude_code</em>
+User guided the transfer of a 14GB QCVLA model checkpoint to institutional cluster. Agent configured backend SCP orchestration, synchronized remote extraction verification, and established direct host alias routing with authentication for subsequent distributed training workflows.</p>
 <h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
-<p><img alt="Token Usage" loading="lazy" src="2026-03-18-usage.png"></p>
-<p><strong>Total: $4.16</strong> — 5.3M tokens</p>
-<!-- gadget:src-hash:dcd2082d8eb76eb6 -->
-
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-03-18</span>
+        <span class="usage-card__source">Claude Code</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$14.61</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>19M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>60K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>91.1%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 91.1%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 8.9%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (91.1%), active tokens (8.9%)">
+          <span style="width:91.1%; background:var(--usage-cache)"></span>
+          <span style="width:8.9%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:fa40d7264cd3fd8f -->
 
   </div>
 

@@ -7,7 +7,7 @@
 <meta name="robots" content="index, follow">
 <title>Bug Journal 2026-02-20 | TzJ&#39;s Net</title>
 <meta name="keywords" content="Bug Journal">
-<meta name="description" content="两个项目正在进行深层基础设施相关工作：空间转录组缓存系统与机器人错误恢复数据生成流程">
+<meta name="description" content="添加了嵌入缓存功能的加速 MIHD基准测试框架，解决了“错误恢复基准测试”中关键观测流程的缺陷，从而能够在两个项目中实现大规模并行GPU评估。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-02-20/">
 <link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
@@ -79,7 +79,7 @@
 <meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-02-20/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="Bug Journal 2026-02-20">
-  <meta property="og:description" content="两个项目正在进行深层基础设施相关工作：空间转录组缓存系统与机器人错误恢复数据生成流程">
+  <meta property="og:description" content="添加了嵌入缓存功能的加速 MIHD基准测试框架，解决了“错误恢复基准测试”中关键观测流程的缺陷，从而能够在两个项目中实现大规模并行GPU评估。">
   <meta property="og:locale" content="zh_cn">
   <meta property="og:type" content="article">
     <meta property="article:section" content="bugjournal">
@@ -88,7 +88,7 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Bug Journal 2026-02-20">
-  <meta name="twitter:description" content="两个项目正在进行深层基础设施相关工作：空间转录组缓存系统与机器人错误恢复数据生成流程">
+  <meta name="twitter:description" content="添加了嵌入缓存功能的加速 MIHD基准测试框架，解决了“错误恢复基准测试”中关键观测流程的缺陷，从而能够在两个项目中实现大规模并行GPU评估。">
 
 
 <script type="application/ld+json">
@@ -123,12 +123,12 @@
   "@type": "BlogPosting",
   "headline": "Bug Journal 2026-02-20",
   "name": "Bug Journal 2026-02-20",
-  "description": "两个项目正在进行深层基础设施相关工作：空间转录组缓存系统与机器人错误恢复数据生成流程",
+  "description": "添加了嵌入缓存功能的加速 MIHD基准测试框架，解决了“错误恢复基准测试”中关键观测流程的缺陷，从而能够在两个项目中实现大规模并行GPU评估。",
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "每日报告 — 2026-02-20 日常概述 已完成工作： 构建了 MIHD 空间转录组流程的嵌入缓存体系，并启动了大规模机器人错误场景生成，以扩展基准数据集 实现方式： 将 CacheManager 集成到 run_benchmark.py 中，实现嵌入的即时复用；解决了多策略部署观察结果不匹配问题；通过 GPU 并行处理 5 个数据生成任务 影响： MIHD 评估现在无需通过缓存重新编码数小时；错误恢复基准从 454 个场景扩展到 2000+ 个场景，同时并行运行 4 种策略 DCC 已完成工作： 架构化并实现了 MIHD 空间转录组基准流程的嵌入缓存系统 实现方式： 在 run_benchmark.py 中添加了 CacheManager 集成，支持基因/视觉嵌入缓存的读写，提供变异类型支持（标准/频率/staig_strict），并将覆盖标志传播到两个调用点 影响： 消除了重复的 UNI2/SCAN 编码器实例化问题——现在可以立即加载缓存中的 1536 维嵌入，无需从图像中重新提取；允许快速尝试 9 种融合方法 tianhe 已完成工作： 修复了观察流程错误，并启动并行 GPU 任务以扩展 M12 数据集的错误恢复基准（从 454 个场景到 2000+ 个场景） 实现方式： 通过修复 _to_robosuite_obs() 映射解决了 BC-RNN 65 维与 37 维不匹配问题；修补了注入和自然捕获路径；在 5 台 GPU 上启动 3 个 BC-RNN + 2 个 VLA 服务器任务 影响： 实现了大规模数据生成——BC-RNN 注入（200 次部署）、自然捕获（200 次部署）、基于演示的生成，以及 Pi0/Pi0.5 VLA 捕获现在并行运行 两个项目进行了深入的基础架构工作：空间转录组缓存系统和机器人错误恢复数据生成流程\n任务 架构与策略 ✅ 在 run_benchmark.py 中添加嵌入缓存支持 — 将 CacheManager 集成到 MIHD 的 run_benchmark.py 中，在编码器实例化前检查/加载/保存基因和视觉嵌入，支持变异类型和覆盖标志 🔄 启动并行 M12 数据生成任务 — 开始 BC-RNN 注入（GPU0）、BC-RNN 自然捕获（GPU1）、基于演示的生成（GPU2）、Pi0 服务器（GPU4）、Pi0.5 服务器（GPU5），以扩展错误场景数据集从 454 个场景到 2000+ 个场景 ✅ 修复 BC-RNN 观察维度不匹配问题 — 通过 _to_robosuite_obs() 中的对象状态→对象映射，并在注入和自然捕获路径中使用环境原始观测数据，解决了 65 维与 37 维的错误 实现与修复 ✅ 为 M15 训练数据实现 save_images 功能 — 在 RecoveryDataCollector 中添加 save_images=True 选项，以保存相机帧及成功的恢复轨迹 ❌ 修复 MimicGen 机器人模拟兼容性问题 — 更新 robomimic_utils.py 以过滤 kwargs 以适应 robomimic 0.3.0 API，但受 mujoco_py 依赖冲突限制——决定跳过并通过更多 BC-RNN 部署来弥补 问题与解决方案 关键问题 1. run_benchmark.py 每次运行都重新实例化编码器和提取嵌入，浪费了已计算好的 UNI2/SCAN 特征的时间 解决方案： 将 CacheManager 集成到 has/load/save_*_embedding() 方法中；在编码器实例化前添加缓存检查，支持变异类型（标准/频率/staig_strict）；将覆盖标志传播到两个调用点\n关键洞察： 用户期望正确——run_benchmark.py 本应像流程一样使用缓存。AI 最初提出了替代方案（独立评估脚本、手动缓存），而不是修复根本原因\n2. BC-RNN 策略预期输入尺寸为 65，但环境提供 37 维，导致 RuntimeError 解决方案： 根本原因是对象数量不匹配（训练时使用 8 个对象=56 维，评估环境使用 4 个对象=28 维）。修复 _to_robosuite_obs() 以将‘对象状态’映射为‘对象’键，并在注入和自然捕获路径中使用环境原始观测数据，而非使用 StateExtractor\n关键洞察： 初始修复仅覆盖注入路径（_generate_from_single_rollout）；自然捕获路径（_capture_single_rollout）也有同样问题。修复观察流程时需要检查所有代码路径\n3. eval_scan_fusion.py 的 staig_fusion ARI 约为 0.39，低于预期 解决方案： 调查发现存在双重归一化错误——未传递 staig_alignment_config，因此 STAIGTrainer 在上游预处理后已使用 StandardScaler，同时未找到之前的 151673 staig_fusion 基线可供比较\n关键洞察： “低于预期”没有基线数据属于推测。在假设回归之前必须确认存在基线。此外：独立的评估脚本容易忽略规范流程正确处理的配置细节\n一般问题 4. MimicGen 数据集增强失败，出现‘env_class unexpected keyword argument’ 错误 解决方案： 修复 robomimic_utils.py 以使用 inspect.signature() 根据 robomimic 0.3.0 API 签名过滤 kwargs，但仍受 pip 安装的 robomimic 中 mujoco_py 依赖的限制。决定跳过 MimicGen，通过更多 BC-RNN/VLA 部署来扩展\n关键洞察： 环境隔离问题需要深入依赖分析。当受阻时，应转向替代方法，而非强制使用不兼容的依赖\n人类与 AI 的方法 战略层面 嵌入缓存架构决策 角色 方法 人类 质疑为什么 run_benchmark.py 会在嵌入已存在时重新实例化编码器；期望流程式缓存已存在；倾向于直接修复 run_benchmark.py，而非构建替代方案 AI 最初提出独立 eval_scan_fusion.py 脚本，随后建议使用流程模式，再建议手动缓存 SCAN 嵌入——在接受修复 run_benchmark.py 之前尝试了多种替代方案 差异分析： 人类识别出真正问题（规范工具中缺少缓存支持）并坚持修复根本原因。AI 则倾向于创建新脚本和替代方案，而非修改现有基础设施\n实现层面 观察流程调试策略 角色 方法 人类 本次会议未明确展示，但人类要求详细解释 STAIG 融合流程和观察流 AI 首先修复注入路径，然后发现自然捕获路径也有同样问题——不完整修复需要第二次迭代 差异分析： AI 的逐步调试忽略了两个代码路径存在相同问题。更彻底的代码分析能提前发现问题\n长运行实验中的优先级排序| 角色 | 方法 | |——|——| | 人类 | 在 2 小时内 run_benchmark.py 运行过慢时，被要求优先处理 STAIG 融合；希望得到增量结果而非等待完整测试套件 | | AI | 继续等待完整测试套件运行，每 10-15 分钟检查一次进度，使用 TaskOutput 超时机制 |\n**差异分析：**人类意识到收益递减，转而进行针对性实验。AI表现出耐心/坚持，而灵活性本应更优。\nAI 局限性 关键局限性 在接受修复 run_benchmark.py 缺失缓存支持之前，提出了多种替代方案（独立评估脚本、管道模式切换、手动 SCAN 缓存）——对修改现有标准工具持抵抗态度 解决了注入路径中的 BC-RNN 观测值不匹配问题，但忽略了自然捕获路径中的相同问题，需要第二次修复迭代——调试时代码分析不完整 一般局限性 声称 staig_fusion 结果“低于预期”，但未验证是否存在基线——无证据仅凭推测 继续长时间等待 TaskOutput 结果，等待 2 小时评估，而不意识到何时应转向增量测试方法 最初的 MimicGen 修复仅解决了 API 签名不匹配问题，忽略了需要重建环境的更深层 mujoco_py 依赖冲突 学习成果 关键学习点 当用户质疑冗余工作（“既然已有嵌入，为何重新实例化？”）时，他们通常是在识别本应存在的缺失基础设施——在提出替代方案前，先调查用户的期望 多路径代码库中的观察管道错误（注入与自然捕获）需要全面分析——仅修复某一路径不能保证所有路径都正确；查找该模式的全部使用场景 缓存变体（标准/频率/staig_strict）可避免相同编码器基于预处理标志生成不同嵌入时产生冲突——变体系统比独立编码器名称更稳健 实用学习点 大规模 GPU 任务从跨设备并行启动中受益，使用不同的日志文件（m12_bc_rnn_injection.log、m12_bc_rnn_natural.log）进行独立监控 环境依赖问题（robomimic 0.3.0 中的 mujoco_py）可能是阻碍因素——遇到障碍时，应转向替代数据源，而非强制使用不兼容的依赖 对话总结 MIHD 空间转录组学 ✅ 在 run_benchmark.py 中实现嵌入缓存支持 21:22:59.238 | claude_code 执行了在 run_benchmark.py 中添加 CacheManager 的计划。为基因和视觉嵌入添加了带变体支持的缓存检查/加载/保存功能（标准/频率/staig_strict）。放宽了 vision_encoder argparse，允许自定义缓存名称。在 run_evaluation() 中添加了覆盖参数，并传播到两个调用点。验证了 Python 语法。\n🔍 SCAN 与 UNI2 融合比较调查及缓存错误发现 18:06:33.022 | claude_code 开始运行 eval_scan_fusion.py，在 section 151673 上比较 9 种融合方法与 SCAN 增强与原始 UNI2 嵌入。用户优先处理 STAIG 融合。调查显示之前没有 151673 staig_fusion 基线，且评估脚本存在双重归一化错误（缺少 staig_alignment_config）。讨论是否使用 run_benchmark.py 还是管道进行正确缓存。\n错误恢复基准测试 🔄 M12 大规模数据生成：BC-RNN 管道修复 02:39:21.482 | claude_code 尝试了 MimicGen 增强（10→200 示例）和 BC-RNN 部署，但遇到错误。通过修正 _to_robosuite_obs() 中的对象状态→对象映射以及使用原始 robosuite 观测值，解决了 BC-RNN 观测维度不匹配问题（65 与 37）。修复了 MimicGen robomimic 0.3.0 的兼容性问题，但被 mujoco_py 阻碍——转向更多 BC-RNN 来扩展规模。启动了 3 个并行任务：BC-RNN 注入（GPU0）、自然捕获（GPU1）、基于示例的（GPU2）。启动 Pi0（GPU4）和 Pi0.5（GPU5） VLA 服务器。解决了自然捕获观测问题并重新启动。\n✅ M12-M14 准备：save_images 功能及文档检查 19:00:40.046 | claude_code 阅读项目总结文档（v4.10）以了解 M12-M14 范围。为 M15 训练数据在 RecoveryDataCollector 中添加了 save_images 选项。验证 MimicGen 增强配置和分类学理由文档已存在。为 M14 评估运行准备任务。\n❌ Pi0.5 和 MimicGen 基线的脚本请求（中断） 21:01:10.311 | claude_code 用户请求一个脚本以运行 pi0.5 和 mimicgen 基线模型的所有操作，但在回复前被中断。\n令牌使用 总计：$35.78 — 48.7M 个令牌\n",
-  "wordCount" : "469",
+  "articleBody": "每日报告 — 2026-02-20 日常概述 已完成工作： 实现了特征提取基准测试的缓存架构，并调试了多环境策略评估流程，取得了重要进展。 实现方式： 将 CacheManager 直接集成到现有基准测试脚本中，修正了展开生成器中的观测张量映射问题，修复了第三方 API 兼容性故障。 影响： 消除了冗余的模型推理循环，恢复了关键阶段的端到端评估能力，成功调度了高吞吐量的 GPU 工作负载。 DCC 已完成工作： 在 MIHD 基准测试框架中增加了缓存读写支持，发现了融合评估指标中的预处理漂移问题。 实现方式： 修改了参数解析逻辑，在编码器实例化前加入了考虑变体的缓存检查，并记录了 STAIG 流程中的双归一化错误。 影响： 实现了预计算嵌入的即时加载，大幅降低了仅针对图像的聚类比较的基准测试完成时间。 tianhe 已完成工作： 调试了 BC-RNN 策略评估中的观测维度不匹配问题，为 M12-M14 里程碑验证准备了基础设施。 实现方式： 修正了状态与观测之间的键映射，更新了 RoboMimic 工具以兼容 v0.3.0，并协调了并行 GPU 后台进程。 影响： 解决了阻碍基线评估的关键阻塞错误，成功启动了 6 个并发 GPU 任务用于场景生成和 VLA 服务器设置。 通过嵌入缓存支持加速了 MIHD 基准测试基础设施，解决了 Error Recovery Benchmark 中关键观测流程不匹配问题，使得两个项目都能进行大规模并行 GPU 评估。\n任务 架构与策略 ✅ 在 run_benchmark.py 中实现嵌入缓存 I/O — 集成 CacheManager 以绕过冗余的编码器实例化，增加了标准/频率/staig_strict 模式下的变体跟踪功能，放宽了自定义编码器名称的 argparse 限制。 ✅ 修复 BC-RNN 观测维度不匹配及展开流程 — 修正了 _to_robosuite_obs() 键映射，修复了注入和捕获方法，将原始 robosuite 观测值直接传递而非使用扁平化的 state_info，解决了张量形状错误问题。 🔄 协调 M14 基线评估与并行 GPU 工作负载 — 同时启动 BC-RNN 注入/自然捕获、演示生成以及 Pi0/Pi0.5 VLA 服务器的并发后台任务，并持续监控后台任务及日志分析。 实现与修复 ✅ 修复 RoboMimic v0.3.0 API 兼容性问题 — 检查了 create_env_for_data_processing 签名，更新了包装器以仅传递支持参数，避免了数据集生成过程中的运行时 EOF 崩溃。 ✅ 修复 RoboMimic v0.3.0 中的 MimicGen 工具 API 兼容性 — 检查了 create_env_for_data_processing 的签名，更新了包装器以仅传递支持参数，防止了数据集生成过程中的运行时崩溃。 问题与解决方案 关键问题 1. run_benchmark.py 缺乏缓存加载功能，导致冗余编码迭代；AI 最初建议编写独立评估脚本来解决比较不一致问题。 解决方案： 用户修正了架构方向：将 CacheManager 直接集成到现有基准测试脚本中并添加变体跟踪，而不是创建可能引入预处理漂移的并行工具。\n关键洞察： 利用现有的流程基础设施比构建孤立的评估包装器更稳健、更易于维护，尤其是在必须严格保持特征归一化一致性的情况下。\n2. eval_scan_fusion.py 产生的 STAIG 融合 ARI 分数较低，是由于缺少对齐配置导致外部预处理和内部 StandardScaler 双重归一化所致。 解决方案： 确定了根本原因，并记录了向 apply_fusion() 传递正确的 staig_alignment_config 会触发 align_staig=True，自动跳过训练器中的冗余缩放。\n关键洞察： 当使用内置特征对齐或归一化层的模型进行评估时，外部预处理流程必须传递明确的覆盖标志或完全跳过归一化，以避免信号失真。\n3. BC-RNN 策略评估在展开过程中崩溃，是由于输入尺寸不匹配（检查点期望 65 维，环境提供 37 维）以及 state_info 错误替换了原始观测值。 解决方案： 修复了 _to_robosuite_obs() 中的键映射，以匹配训练模式，并更新了 _generate_from_single_rollout 和 _capture_single_rollout 方法，在初始化时传递原始 robosuite 字典。\n关键洞察： 策略推理流程在展开过程中必须严格保持原始的观测模式，因为内部状态提取器通常会丢失或压缩预训练适配器所需的键。\n一般问题 4. RoboMimic 0.3.0 中 MimicGen 数据集生成失败，是由于向 create_env_for_data_processing 传递过时的 kwargs 导致环境实例化崩溃。 解决方案： 动态检查了实时 API 签名，更新了包装器以仅条件传递支持参数，当环境元数据缺少预期字段时自动回退。\n关键洞察： 第三方 ML 环境的版本锁定至关重要；动态签名检查或严格的版本限制可以防止数据流程执行过程中隐藏的 API 损坏。\n人类与 AI 方法 战略层面 MIHD 嵌入缓存的基准测试架构策略 角色 方法 人类 用户明确指示直接修改 run_benchmark.py，使用流程缓存而非独立脚本，确保预处理一致性并避免特征漂移。 AI AI 最初建议编写临时评估脚本 (_test_staig_scan.py)，后来提出重构架构以复制现有流程逻辑，错过了系统凝聚的机会。 差异分析： 人类通过利用现有的流程实现基础设施一致性与长期可维护性，而 AI 则追求即时隔离性，这引入了不必要的复杂性和归一化风险。\nError Recovery Benchmark 中 BC-RNN 观测流程调试 角色 方法 人类 用户明确了维度不匹配的情境，指出 state_info 在策略预测初始化过程中错误替换了原始 robosuite 观测值。 AI AI 追踪了展开流程，修正了适配器中的张量键映射，并修复了两种评估方法，但最初没有通过明确的形状追踪指导来理解崩溃原因。 差异分析： 人类提供了关于训练与推理张量形状的精确诊断信息，可以直接进行代码修复而无需不必要的重构，而 AI 则首先依赖更广泛的结构调试。\nAI 限制 一般限制 1. run_benchmark.py 缺乏缓存加载功能，导致冗余编码迭代；AI 最初建议编写独立评估脚本来解决比较不一致问题。- AI最初误读了 UNI2VisionEncoder 的缓存机制，难以在会话中断时跟踪多上下文状态，导致在修正前多次调用工具。 在并行任务调度过程中，AI缺乏针对 VLA 服务器的自动端口冲突检测功能，需要手动清理和重启来解决绑定失败问题。 经验教训 关键经验 修改基准测试基础设施时，务必确认现有流程是否已处理缓存或归一化操作；强制并行实现往往会导致微妙的预处理偏差问题，影响比较指标的准确性。 策略评估流程在初始化时必须严格保持原始观测模式，因为内部状态提取器经常会丢失或压缩预训练模型所需的键，导致张量不匹配问题。 对话总结 MIHD 基准测试缓存集成 ✅ 实现嵌入缓存并修复 STAIG 融合评估 18:06:33 | claude_code 会议重点在于通过将 CacheManager 直接集成到 run_benchmark.py 中来改进 MIHD 基准测试流程，避免重复创建编码器。用户将 AI 从独立脚本创建中解放出来，确保预处理的一致性。发现了一个关键错误：eval_scan_fusion.py 对 STAIG 基因特征进行了双重归一化处理，人为降低了 ARI 分数。计划调整为使用官方基准脚本进行准确的 SCAN 与 UNI2 对比分析。\nM14 基础设施与调试错误恢复 ✅ 调试 BC-RNN 观测流并启动并行 GPU 评估 19:00:40 | claude_code 根据 M12-M14 里程碑检查表检查进度。AI 在数据收集器中添加了 save_images 日志，验证了 MimicGen 配置，并修正了分类文档。当 BC-RNN 策略评估因观测维度不匹配而失败时，出现了一个重大阻塞问题。AI 修复了状态到观测的映射，修补了 Robomimic v0.3.0 API 兼容性，并成功启动了场景生成和 VLA 服务器设置的并行 GPU 工作负载。\n错误恢复基础编排 • 大规模 GPU 任务管理与环境修复 02:39:21 | claude_code 在初步诊断运行后，AI 继续调试因 API 不匹配和状态流问题而失败的后台任务。对策略适配器和鲁棒性工具进行了修正。会议最后聚焦于跨 CUDA 设备编排多个 GPU 进程以进行 BC-RNN 注入/自然捕获、演示生成以及 Pi0/Pi0.5 VLA 服务器操作，将重点从损坏的 MimicGen 路径转移到稳定的策略部署上。\n令牌使用 AI Usage · 2026-02-20\rClaude Code\rTotal cost$2.70\rTotal tokens13M\rOutput tokens940\rCache read90.6%\rToken character\rCache reads 90.6% ·\rActive 9.4%\rMost token volume came from cache reads.\r",
+  "wordCount" : "362",
   "inLanguage": "zh",
   "datePublished": "2026-02-20T00:00:00-05:00",
   "dateModified": "2026-02-20T00:00:00-05:00",
@@ -252,62 +252,62 @@
     </h1>
     <div class="post-meta">
 
-<span title='2026-02-20 00:00:00 -0500 EST'>2026年2月20日</span>&nbsp;·&nbsp;<span>3 分钟</span>
+<span title='2026-02-20 00:00:00 -0500 EST'>2026年2月20日</span>&nbsp;·&nbsp;<span>2 分钟</span>
 
 </div>
   </header> 
   <div class="post-content md-content"><h1 id="每日报告--2026-02-20">每日报告 — 2026-02-20<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-02-20">#</a></h1>
 <h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
 <ul>
-<li><strong>已完成工作：</strong> 构建了 MIHD 空间转录组流程的嵌入缓存体系，并启动了大规模机器人错误场景生成，以扩展基准数据集</li>
-<li><strong>实现方式：</strong> 将 CacheManager 集成到 run_benchmark.py 中，实现嵌入的即时复用；解决了多策略部署观察结果不匹配问题；通过 GPU 并行处理 5 个数据生成任务</li>
-<li><strong>影响：</strong> MIHD 评估现在无需通过缓存重新编码数小时；错误恢复基准从 454 个场景扩展到 2000+ 个场景，同时并行运行 4 种策略</li>
+<li><strong>已完成工作：</strong> 实现了特征提取基准测试的缓存架构，并调试了多环境策略评估流程，取得了重要进展。</li>
+<li><strong>实现方式：</strong> 将 CacheManager 直接集成到现有基准测试脚本中，修正了展开生成器中的观测张量映射问题，修复了第三方 API 兼容性故障。</li>
+<li><strong>影响：</strong> 消除了冗余的模型推理循环，恢复了关键阶段的端到端评估能力，成功调度了高吞吐量的 GPU 工作负载。</li>
 </ul>
 <h3 id="dcc">DCC<a hidden class="anchor" aria-hidden="true" href="#dcc">#</a></h3>
 <ul>
-<li><strong>已完成工作：</strong> 架构化并实现了 MIHD 空间转录组基准流程的嵌入缓存系统</li>
-<li><strong>实现方式：</strong> 在 run_benchmark.py 中添加了 CacheManager 集成，支持基因/视觉嵌入缓存的读写，提供变异类型支持（标准/频率/staig_strict），并将覆盖标志传播到两个调用点</li>
-<li><strong>影响：</strong> 消除了重复的 UNI2/SCAN 编码器实例化问题——现在可以立即加载缓存中的 1536 维嵌入，无需从图像中重新提取；允许快速尝试 9 种融合方法</li>
+<li><strong>已完成工作：</strong> 在 MIHD 基准测试框架中增加了缓存读写支持，发现了融合评估指标中的预处理漂移问题。</li>
+<li><strong>实现方式：</strong> 修改了参数解析逻辑，在编码器实例化前加入了考虑变体的缓存检查，并记录了 STAIG 流程中的双归一化错误。</li>
+<li><strong>影响：</strong> 实现了预计算嵌入的即时加载，大幅降低了仅针对图像的聚类比较的基准测试完成时间。</li>
 </ul>
 <h3 id="tianhe">tianhe<a hidden class="anchor" aria-hidden="true" href="#tianhe">#</a></h3>
 <ul>
-<li><strong>已完成工作：</strong> 修复了观察流程错误，并启动并行 GPU 任务以扩展 M12 数据集的错误恢复基准（从 454 个场景到 2000+ 个场景）</li>
-<li><strong>实现方式：</strong> 通过修复 _to_robosuite_obs() 映射解决了 BC-RNN 65 维与 37 维不匹配问题；修补了注入和自然捕获路径；在 5 台 GPU 上启动 3 个 BC-RNN + 2 个 VLA 服务器任务</li>
-<li><strong>影响：</strong> 实现了大规模数据生成——BC-RNN 注入（200 次部署）、自然捕获（200 次部署）、基于演示的生成，以及 Pi0/Pi0.5 VLA 捕获现在并行运行</li>
+<li><strong>已完成工作：</strong> 调试了 BC-RNN 策略评估中的观测维度不匹配问题，为 M12-M14 里程碑验证准备了基础设施。</li>
+<li><strong>实现方式：</strong> 修正了状态与观测之间的键映射，更新了 RoboMimic 工具以兼容 v0.3.0，并协调了并行 GPU 后台进程。</li>
+<li><strong>影响：</strong> 解决了阻碍基线评估的关键阻塞错误，成功启动了 6 个并发 GPU 任务用于场景生成和 VLA 服务器设置。</li>
 </ul>
 <blockquote>
-<p>两个项目进行了深入的基础架构工作：空间转录组缓存系统和机器人错误恢复数据生成流程</p>
+<p>通过嵌入缓存支持加速了 MIHD 基准测试基础设施，解决了 Error Recovery Benchmark 中关键观测流程不匹配问题，使得两个项目都能进行大规模并行 GPU 评估。</p>
 </blockquote>
 <h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
 <h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
 <ul>
-<li>✅ <strong>在 run_benchmark.py 中添加嵌入缓存支持</strong> — 将 CacheManager 集成到 MIHD 的 run_benchmark.py 中，在编码器实例化前检查/加载/保存基因和视觉嵌入，支持变异类型和覆盖标志</li>
-<li>🔄 <strong>启动并行 M12 数据生成任务</strong> — 开始 BC-RNN 注入（GPU0）、BC-RNN 自然捕获（GPU1）、基于演示的生成（GPU2）、Pi0 服务器（GPU4）、Pi0.5 服务器（GPU5），以扩展错误场景数据集从 454 个场景到 2000+ 个场景</li>
-<li>✅ <strong>修复 BC-RNN 观察维度不匹配问题</strong> — 通过 _to_robosuite_obs() 中的对象状态→对象映射，并在注入和自然捕获路径中使用环境原始观测数据，解决了 65 维与 37 维的错误</li>
+<li>✅ <strong>在 run_benchmark.py 中实现嵌入缓存 I/O</strong> — 集成 CacheManager 以绕过冗余的编码器实例化，增加了标准/频率/staig_strict 模式下的变体跟踪功能，放宽了自定义编码器名称的 argparse 限制。</li>
+<li>✅ <strong>修复 BC-RNN 观测维度不匹配及展开流程</strong> — 修正了 _to_robosuite_obs() 键映射，修复了注入和捕获方法，将原始 robosuite 观测值直接传递而非使用扁平化的 state_info，解决了张量形状错误问题。</li>
+<li>🔄 <strong>协调 M14 基线评估与并行 GPU 工作负载</strong> — 同时启动 BC-RNN 注入/自然捕获、演示生成以及 Pi0/Pi0.5 VLA 服务器的并发后台任务，并持续监控后台任务及日志分析。</li>
 </ul>
 <h3 id="实现与修复">实现与修复<a hidden class="anchor" aria-hidden="true" href="#实现与修复">#</a></h3>
 <ul>
-<li>✅ <strong>为 M15 训练数据实现 save_images 功能</strong> — 在 RecoveryDataCollector 中添加 save_images=True 选项，以保存相机帧及成功的恢复轨迹</li>
-<li>❌ <strong>修复 MimicGen 机器人模拟兼容性问题</strong> — 更新 robomimic_utils.py 以过滤 kwargs 以适应 robomimic 0.3.0 API，但受 mujoco_py 依赖冲突限制——决定跳过并通过更多 BC-RNN 部署来弥补</li>
+<li>✅ <strong>修复 RoboMimic v0.3.0 API 兼容性问题</strong> — 检查了 create_env_for_data_processing 签名，更新了包装器以仅传递支持参数，避免了数据集生成过程中的运行时 EOF 崩溃。</li>
+<li>✅ <strong>修复 RoboMimic v0.3.0 中的 MimicGen 工具 API 兼容性</strong> — 检查了 create_env_for_data_processing 的签名，更新了包装器以仅传递支持参数，防止了数据集生成过程中的运行时崩溃。</li>
 </ul>
 <h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
 <h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
-<h4 id="1-run_benchmarkpy-每次运行都重新实例化编码器和提取嵌入浪费了已计算好的-uni2scan-特征的时间">1. run_benchmark.py 每次运行都重新实例化编码器和提取嵌入，浪费了已计算好的 UNI2/SCAN 特征的时间<a hidden class="anchor" aria-hidden="true" href="#1-run_benchmarkpy-每次运行都重新实例化编码器和提取嵌入浪费了已计算好的-uni2scan-特征的时间">#</a></h4>
-<p><strong>解决方案：</strong> 将 CacheManager 集成到 has/load/save_*_embedding() 方法中；在编码器实例化前添加缓存检查，支持变异类型（标准/频率/staig_strict）；将覆盖标志传播到两个调用点</p>
-<p><strong>关键洞察：</strong> 用户期望正确——run_benchmark.py 本应像流程一样使用缓存。AI 最初提出了替代方案（独立评估脚本、手动缓存），而不是修复根本原因</p>
-<h4 id="2-bc-rnn-策略预期输入尺寸为-65但环境提供-37-维导致-runtimeerror">2. BC-RNN 策略预期输入尺寸为 65，但环境提供 37 维，导致 RuntimeError<a hidden class="anchor" aria-hidden="true" href="#2-bc-rnn-策略预期输入尺寸为-65但环境提供-37-维导致-runtimeerror">#</a></h4>
-<p><strong>解决方案：</strong> 根本原因是对象数量不匹配（训练时使用 8 个对象=56 维，评估环境使用 4 个对象=28 维）。修复 _to_robosuite_obs() 以将‘对象状态’映射为‘对象’键，并在注入和自然捕获路径中使用环境原始观测数据，而非使用 StateExtractor</p>
-<p><strong>关键洞察：</strong> 初始修复仅覆盖注入路径（_generate_from_single_rollout）；自然捕获路径（_capture_single_rollout）也有同样问题。修复观察流程时需要检查所有代码路径</p>
-<h4 id="3-eval_scan_fusionpy-的-staig_fusion-ari-约为-039低于预期">3. eval_scan_fusion.py 的 staig_fusion ARI 约为 0.39，低于预期<a hidden class="anchor" aria-hidden="true" href="#3-eval_scan_fusionpy-的-staig_fusion-ari-约为-039低于预期">#</a></h4>
-<p><strong>解决方案：</strong> 调查发现存在双重归一化错误——未传递 staig_alignment_config，因此 STAIGTrainer 在上游预处理后已使用 StandardScaler，同时未找到之前的 151673 staig_fusion 基线可供比较</p>
-<p><strong>关键洞察：</strong> “低于预期”没有基线数据属于推测。在假设回归之前必须确认存在基线。此外：独立的评估脚本容易忽略规范流程正确处理的配置细节</p>
+<h4 id="1-run_benchmarkpy-缺乏缓存加载功能导致冗余编码迭代ai-最初建议编写独立评估脚本来解决比较不一致问题">1. run_benchmark.py 缺乏缓存加载功能，导致冗余编码迭代；AI 最初建议编写独立评估脚本来解决比较不一致问题。<a hidden class="anchor" aria-hidden="true" href="#1-run_benchmarkpy-缺乏缓存加载功能导致冗余编码迭代ai-最初建议编写独立评估脚本来解决比较不一致问题">#</a></h4>
+<p><strong>解决方案：</strong> 用户修正了架构方向：将 CacheManager 直接集成到现有基准测试脚本中并添加变体跟踪，而不是创建可能引入预处理漂移的并行工具。</p>
+<p><strong>关键洞察：</strong> 利用现有的流程基础设施比构建孤立的评估包装器更稳健、更易于维护，尤其是在必须严格保持特征归一化一致性的情况下。</p>
+<h4 id="2-eval_scan_fusionpy-产生的-staig-融合-ari-分数较低是由于缺少对齐配置导致外部预处理和内部-standardscaler-双重归一化所致">2. eval_scan_fusion.py 产生的 STAIG 融合 ARI 分数较低，是由于缺少对齐配置导致外部预处理和内部 StandardScaler 双重归一化所致。<a hidden class="anchor" aria-hidden="true" href="#2-eval_scan_fusionpy-产生的-staig-融合-ari-分数较低是由于缺少对齐配置导致外部预处理和内部-standardscaler-双重归一化所致">#</a></h4>
+<p><strong>解决方案：</strong> 确定了根本原因，并记录了向 apply_fusion() 传递正确的 staig_alignment_config 会触发 align_staig=True，自动跳过训练器中的冗余缩放。</p>
+<p><strong>关键洞察：</strong> 当使用内置特征对齐或归一化层的模型进行评估时，外部预处理流程必须传递明确的覆盖标志或完全跳过归一化，以避免信号失真。</p>
+<h4 id="3-bc-rnn-策略评估在展开过程中崩溃是由于输入尺寸不匹配检查点期望-65-维环境提供-37-维以及-state_info-错误替换了原始观测值">3. BC-RNN 策略评估在展开过程中崩溃，是由于输入尺寸不匹配（检查点期望 65 维，环境提供 37 维）以及 state_info 错误替换了原始观测值。<a hidden class="anchor" aria-hidden="true" href="#3-bc-rnn-策略评估在展开过程中崩溃是由于输入尺寸不匹配检查点期望-65-维环境提供-37-维以及-state_info-错误替换了原始观测值">#</a></h4>
+<p><strong>解决方案：</strong> 修复了 _to_robosuite_obs() 中的键映射，以匹配训练模式，并更新了 _generate_from_single_rollout 和 _capture_single_rollout 方法，在初始化时传递原始 robosuite 字典。</p>
+<p><strong>关键洞察：</strong> 策略推理流程在展开过程中必须严格保持原始的观测模式，因为内部状态提取器通常会丢失或压缩预训练适配器所需的键。</p>
 <h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
-<h4 id="4-mimicgen-数据集增强失败出现env_class-unexpected-keyword-argument-错误">4. MimicGen 数据集增强失败，出现‘env_class unexpected keyword argument’ 错误<a hidden class="anchor" aria-hidden="true" href="#4-mimicgen-数据集增强失败出现env_class-unexpected-keyword-argument-错误">#</a></h4>
-<p><strong>解决方案：</strong> 修复 robomimic_utils.py 以使用 inspect.signature() 根据 robomimic 0.3.0 API 签名过滤 kwargs，但仍受 pip 安装的 robomimic 中 mujoco_py 依赖的限制。决定跳过 MimicGen，通过更多 BC-RNN/VLA 部署来扩展</p>
-<p><strong>关键洞察：</strong> 环境隔离问题需要深入依赖分析。当受阻时，应转向替代方法，而非强制使用不兼容的依赖</p>
-<h2 id="人类与-ai-的方法">人类与 AI 的方法<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-的方法">#</a></h2>
+<h4 id="4-robomimic-030-中-mimicgen-数据集生成失败是由于向-create_env_for_data_processing-传递过时的-kwargs-导致环境实例化崩溃">4. RoboMimic 0.3.0 中 MimicGen 数据集生成失败，是由于向 create_env_for_data_processing 传递过时的 kwargs 导致环境实例化崩溃。<a hidden class="anchor" aria-hidden="true" href="#4-robomimic-030-中-mimicgen-数据集生成失败是由于向-create_env_for_data_processing-传递过时的-kwargs-导致环境实例化崩溃">#</a></h4>
+<p><strong>解决方案：</strong> 动态检查了实时 API 签名，更新了包装器以仅条件传递支持参数，当环境元数据缺少预期字段时自动回退。</p>
+<p><strong>关键洞察：</strong> 第三方 ML 环境的版本锁定至关重要；动态签名检查或严格的版本限制可以防止数据流程执行过程中隐藏的 API 损坏。</p>
+<h2 id="人类与-ai-方法">人类与 AI 方法<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法">#</a></h2>
 <h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
-<h4 id="嵌入缓存架构决策">嵌入缓存架构决策<a hidden class="anchor" aria-hidden="true" href="#嵌入缓存架构决策">#</a></h4>
+<h4 id="mihd-嵌入缓存的基准测试架构策略">MIHD 嵌入缓存的基准测试架构策略<a hidden class="anchor" aria-hidden="true" href="#mihd-嵌入缓存的基准测试架构策略">#</a></h4>
 <table>
   <thead>
       <tr>
@@ -318,17 +318,16 @@
   <tbody>
       <tr>
           <td>人类</td>
-          <td>质疑为什么 run_benchmark.py 会在嵌入已存在时重新实例化编码器；期望流程式缓存已存在；倾向于直接修复 run_benchmark.py，而非构建替代方案</td>
+          <td>用户明确指示直接修改 run_benchmark.py，使用流程缓存而非独立脚本，确保预处理一致性并避免特征漂移。</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>最初提出独立 eval_scan_fusion.py 脚本，随后建议使用流程模式，再建议手动缓存 SCAN 嵌入——在接受修复 run_benchmark.py 之前尝试了多种替代方案</td>
+          <td>AI 最初建议编写临时评估脚本 (_test_staig_scan.py)，后来提出重构架构以复制现有流程逻辑，错过了系统凝聚的机会。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>差异分析：</strong> 人类识别出真正问题（规范工具中缺少缓存支持）并坚持修复根本原因。AI 则倾向于创建新脚本和替代方案，而非修改现有基础设施</p>
-<h3 id="实现层面">实现层面<a hidden class="anchor" aria-hidden="true" href="#实现层面">#</a></h3>
-<h4 id="观察流程调试策略">观察流程调试策略<a hidden class="anchor" aria-hidden="true" href="#观察流程调试策略">#</a></h4>
+<p><strong>差异分析：</strong> 人类通过利用现有的流程实现基础设施一致性与长期可维护性，而 AI 则追求即时隔离性，这引入了不必要的复杂性和归一化风险。</p>
+<h4 id="error-recovery-benchmark-中-bc-rnn-观测流程调试">Error Recovery Benchmark 中 BC-RNN 观测流程调试<a hidden class="anchor" aria-hidden="true" href="#error-recovery-benchmark-中-bc-rnn-观测流程调试">#</a></h4>
 <table>
   <thead>
       <tr>
@@ -339,66 +338,125 @@
   <tbody>
       <tr>
           <td>人类</td>
-          <td>本次会议未明确展示，但人类要求详细解释 STAIG 融合流程和观察流</td>
+          <td>用户明确了维度不匹配的情境，指出 state_info 在策略预测初始化过程中错误替换了原始 robosuite 观测值。</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>首先修复注入路径，然后发现自然捕获路径也有同样问题——不完整修复需要第二次迭代</td>
+          <td>AI 追踪了展开流程，修正了适配器中的张量键映射，并修复了两种评估方法，但最初没有通过明确的形状追踪指导来理解崩溃原因。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>差异分析：</strong> AI 的逐步调试忽略了两个代码路径存在相同问题。更彻底的代码分析能提前发现问题</p>
-<h4 id="长运行实验中的优先级排序-角色--方法-">长运行实验中的优先级排序| 角色 | 方法 |<a hidden class="anchor" aria-hidden="true" href="#长运行实验中的优先级排序-角色--方法-">#</a></h4>
-<p>|&mdash;&mdash;|&mdash;&mdash;|
-| 人类 | 在 2 小时内 run_benchmark.py 运行过慢时，被要求优先处理 STAIG 融合；希望得到增量结果而非等待完整测试套件 |
-| AI   | 继续等待完整测试套件运行，每 10-15 分钟检查一次进度，使用 TaskOutput 超时机制 |</p>
-<p>**差异分析：**人类意识到收益递减，转而进行针对性实验。AI表现出耐心/坚持，而灵活性本应更优。</p>
-<h2 id="ai-局限性">AI 局限性<a hidden class="anchor" aria-hidden="true" href="#ai-局限性">#</a></h2>
-<h3 id="关键局限性">关键局限性<a hidden class="anchor" aria-hidden="true" href="#关键局限性">#</a></h3>
+<p><strong>差异分析：</strong> 人类提供了关于训练与推理张量形状的精确诊断信息，可以直接进行代码修复而无需不必要的重构，而 AI 则首先依赖更广泛的结构调试。</p>
+<h2 id="ai-限制">AI 限制<a hidden class="anchor" aria-hidden="true" href="#ai-限制">#</a></h2>
+<h3 id="一般限制">一般限制<a hidden class="anchor" aria-hidden="true" href="#一般限制">#</a></h3>
+<h4 id="1-run_benchmarkpy-缺乏缓存加载功能导致冗余编码迭代ai-最初建议编写独立评估脚本来解决比较不一致问题--ai最初误读了-uni2visionencoder-的缓存机制难以在会话中断时跟踪多上下文状态导致在修正前多次调用工具">1. run_benchmark.py 缺乏缓存加载功能，导致冗余编码迭代；AI 最初建议编写独立评估脚本来解决比较不一致问题。- AI最初误读了 UNI2VisionEncoder 的缓存机制，难以在会话中断时跟踪多上下文状态，导致在修正前多次调用工具。<a hidden class="anchor" aria-hidden="true" href="#1-run_benchmarkpy-缺乏缓存加载功能导致冗余编码迭代ai-最初建议编写独立评估脚本来解决比较不一致问题--ai最初误读了-uni2visionencoder-的缓存机制难以在会话中断时跟踪多上下文状态导致在修正前多次调用工具">#</a></h4>
 <ul>
-<li>在接受修复 run_benchmark.py 缺失缓存支持之前，提出了多种替代方案（独立评估脚本、管道模式切换、手动 SCAN 缓存）——对修改现有标准工具持抵抗态度</li>
-<li>解决了注入路径中的 BC-RNN 观测值不匹配问题，但忽略了自然捕获路径中的相同问题，需要第二次修复迭代——调试时代码分析不完整</li>
+<li>在并行任务调度过程中，AI缺乏针对 VLA 服务器的自动端口冲突检测功能，需要手动清理和重启来解决绑定失败问题。</li>
 </ul>
-<h3 id="一般局限性">一般局限性<a hidden class="anchor" aria-hidden="true" href="#一般局限性">#</a></h3>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="关键经验">关键经验<a hidden class="anchor" aria-hidden="true" href="#关键经验">#</a></h3>
 <ul>
-<li>声称 staig_fusion 结果“低于预期”，但未验证是否存在基线——无证据仅凭推测</li>
-<li>继续长时间等待 TaskOutput 结果，等待 2 小时评估，而不意识到何时应转向增量测试方法</li>
-<li>最初的 MimicGen 修复仅解决了 API 签名不匹配问题，忽略了需要重建环境的更深层 mujoco_py 依赖冲突</li>
-</ul>
-<h2 id="学习成果">学习成果<a hidden class="anchor" aria-hidden="true" href="#学习成果">#</a></h2>
-<h3 id="关键学习点">关键学习点<a hidden class="anchor" aria-hidden="true" href="#关键学习点">#</a></h3>
-<ul>
-<li>当用户质疑冗余工作（“既然已有嵌入，为何重新实例化？”）时，他们通常是在识别本应存在的缺失基础设施——在提出替代方案前，先调查用户的期望</li>
-<li>多路径代码库中的观察管道错误（注入与自然捕获）需要全面分析——仅修复某一路径不能保证所有路径都正确；查找该模式的全部使用场景</li>
-<li>缓存变体（标准/频率/staig_strict）可避免相同编码器基于预处理标志生成不同嵌入时产生冲突——变体系统比独立编码器名称更稳健</li>
-</ul>
-<h3 id="实用学习点">实用学习点<a hidden class="anchor" aria-hidden="true" href="#实用学习点">#</a></h3>
-<ul>
-<li>大规模 GPU 任务从跨设备并行启动中受益，使用不同的日志文件（m12_bc_rnn_injection.log、m12_bc_rnn_natural.log）进行独立监控</li>
-<li>环境依赖问题（robomimic 0.3.0 中的 mujoco_py）可能是阻碍因素——遇到障碍时，应转向替代数据源，而非强制使用不兼容的依赖</li>
+<li>修改基准测试基础设施时，务必确认现有流程是否已处理缓存或归一化操作；强制并行实现往往会导致微妙的预处理偏差问题，影响比较指标的准确性。</li>
+<li>策略评估流程在初始化时必须严格保持原始观测模式，因为内部状态提取器经常会丢失或压缩预训练模型所需的键，导致张量不匹配问题。</li>
 </ul>
 <h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
-<h3 id="mihd-空间转录组学">MIHD 空间转录组学<a hidden class="anchor" aria-hidden="true" href="#mihd-空间转录组学">#</a></h3>
-<p><strong>✅ 在 run_benchmark.py 中实现嵌入缓存支持</strong>
-<em>21:22:59.238 | claude_code</em>
-执行了在 run_benchmark.py 中添加 CacheManager 的计划。为基因和视觉嵌入添加了带变体支持的缓存检查/加载/保存功能（标准/频率/staig_strict）。放宽了 vision_encoder argparse，允许自定义缓存名称。在 run_evaluation() 中添加了覆盖参数，并传播到两个调用点。验证了 Python 语法。</p>
-<p><strong>🔍 SCAN 与 UNI2 融合比较调查及缓存错误发现</strong>
-<em>18:06:33.022 | claude_code</em>
-开始运行 eval_scan_fusion.py，在 section 151673 上比较 9 种融合方法与 SCAN 增强与原始 UNI2 嵌入。用户优先处理 STAIG 融合。调查显示之前没有 151673 staig_fusion 基线，且评估脚本存在双重归一化错误（缺少 staig_alignment_config）。讨论是否使用 run_benchmark.py 还是管道进行正确缓存。</p>
-<h3 id="错误恢复基准测试">错误恢复基准测试<a hidden class="anchor" aria-hidden="true" href="#错误恢复基准测试">#</a></h3>
-<p><strong>🔄 M12 大规模数据生成：BC-RNN 管道修复</strong>
-<em>02:39:21.482 | claude_code</em>
-尝试了 MimicGen 增强（10→200 示例）和 BC-RNN 部署，但遇到错误。通过修正 _to_robosuite_obs() 中的对象状态→对象映射以及使用原始 robosuite 观测值，解决了 BC-RNN 观测维度不匹配问题（65 与 37）。修复了 MimicGen robomimic 0.3.0 的兼容性问题，但被 mujoco_py 阻碍——转向更多 BC-RNN 来扩展规模。启动了 3 个并行任务：BC-RNN 注入（GPU0）、自然捕获（GPU1）、基于示例的（GPU2）。启动 Pi0（GPU4）和 Pi0.5（GPU5） VLA 服务器。解决了自然捕获观测问题并重新启动。</p>
-<p><strong>✅ M12-M14 准备：save_images 功能及文档检查</strong>
-<em>19:00:40.046 | claude_code</em>
-阅读项目总结文档（v4.10）以了解 M12-M14 范围。为 M15 训练数据在 RecoveryDataCollector 中添加了 save_images 选项。验证 MimicGen 增强配置和分类学理由文档已存在。为 M14 评估运行准备任务。</p>
-<p><strong>❌ Pi0.5 和 MimicGen 基线的脚本请求（中断）</strong>
-<em>21:01:10.311 | claude_code</em>
-用户请求一个脚本以运行 pi0.5 和 mimicgen 基线模型的所有操作，但在回复前被中断。</p>
+<h3 id="mihd-基准测试缓存集成">MIHD 基准测试缓存集成<a hidden class="anchor" aria-hidden="true" href="#mihd-基准测试缓存集成">#</a></h3>
+<p><strong>✅ 实现嵌入缓存并修复 STAIG 融合评估</strong>
+<em>18:06:33 | claude_code</em>
+会议重点在于通过将 CacheManager 直接集成到 run_benchmark.py 中来改进 MIHD 基准测试流程，避免重复创建编码器。用户将 AI 从独立脚本创建中解放出来，确保预处理的一致性。发现了一个关键错误：eval_scan_fusion.py 对 STAIG 基因特征进行了双重归一化处理，人为降低了 ARI 分数。计划调整为使用官方基准脚本进行准确的 SCAN 与 UNI2 对比分析。</p>
+<h3 id="m14-基础设施与调试错误恢复">M14 基础设施与调试错误恢复<a hidden class="anchor" aria-hidden="true" href="#m14-基础设施与调试错误恢复">#</a></h3>
+<p><strong>✅ 调试 BC-RNN 观测流并启动并行 GPU 评估</strong>
+<em>19:00:40 | claude_code</em>
+根据 M12-M14 里程碑检查表检查进度。AI 在数据收集器中添加了 save_images 日志，验证了 MimicGen 配置，并修正了分类文档。当 BC-RNN 策略评估因观测维度不匹配而失败时，出现了一个重大阻塞问题。AI 修复了状态到观测的映射，修补了 Robomimic v0.3.0 API 兼容性，并成功启动了场景生成和 VLA 服务器设置的并行 GPU 工作负载。</p>
+<h3 id="错误恢复基础编排">错误恢复基础编排<a hidden class="anchor" aria-hidden="true" href="#错误恢复基础编排">#</a></h3>
+<p><strong>• 大规模 GPU 任务管理与环境修复</strong>
+<em>02:39:21 | claude_code</em>
+在初步诊断运行后，AI 继续调试因 API 不匹配和状态流问题而失败的后台任务。对策略适配器和鲁棒性工具进行了修正。会议最后聚焦于跨 CUDA 设备编排多个 GPU 进程以进行 BC-RNN 注入/自然捕获、演示生成以及 Pi0/Pi0.5 VLA 服务器操作，将重点从损坏的 MimicGen 路径转移到稳定的策略部署上。</p>
 <h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
-<p><img alt="Token Usage" loading="lazy" src="2026-02-20-usage.png"></p>
-<p><strong>总计：$35.78</strong> — 48.7M 个令牌</p>
-<!-- gadget:src-hash:0709086a6b04af88 -->
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-02-20</span>
+        <span class="usage-card__source">Claude Code</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$2.70</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>13M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>940</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>90.6%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 90.6%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 9.4%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (90.6%), active tokens (9.4%)">
+          <span style="width:90.6%; background:var(--usage-cache)"></span>
+          <span style="width:9.4%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:fb0452549473ce72 -->
 
 
   </div>
