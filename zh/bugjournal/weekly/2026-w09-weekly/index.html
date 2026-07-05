@@ -7,7 +7,7 @@
 <meta name="robots" content="index, follow">
 <title>Weekly Summary 2026-W09 | TzJ&#39;s Net</title>
 <meta name="keywords" content="Bug Journal, Weekly Summary">
-<meta name="description" content="本周在DCC和天河两台集群上并行推进空间转录组学（MIHD）与机器人错误恢复基准（Error Recovery Benchmark）两条主线。DCC端修复了scGPT致命权重加载Bug（ARI平均提升44.4%），将MIHD benchmark扩展至Visium HD数据集，并完成约250K行代码的大规模仓库重构；天河端从头建立BC-RNN Phoenix基线训练流水线（9任务并行），发现并修复Pi0.5评估0%成功率的任务分布不匹配根因，获得M14基线评估关键结论（学习策略在错误场景下SR≈0%，证明M15 LoRA微调必要性），并成功将Pi0.5 LoRA 9任务并行微调在6×A800上稳定启动。">
+<meta name="description" content="本周重点在于构建和稳定大规模空间转录组融合流程及机器人评估框架，解决关键的隐性故障、硬件瓶颈以及跨框架对齐问题。关键里程碑包括恢复scGPT检查点的完整性，通过向量化技术实现100-500倍的流程加速，将BC-RNN迁移到官方图像模式基准测试中，以及建立可复现的多GPU LoRA训练工作流。基础设施方面包括HPC集群配置、安全的GPU调度以及跨设备日志聚合同步，为长期策略训练和领域特定自适应学习提供了坚实基础。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w09-weekly/">
 <link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
@@ -79,7 +79,7 @@
 <meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w09-weekly/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="Weekly Summary 2026-W09">
-  <meta property="og:description" content="本周在DCC和天河两台集群上并行推进空间转录组学（MIHD）与机器人错误恢复基准（Error Recovery Benchmark）两条主线。DCC端修复了scGPT致命权重加载Bug（ARI平均提升44.4%），将MIHD benchmark扩展至Visium HD数据集，并完成约250K行代码的大规模仓库重构；天河端从头建立BC-RNN Phoenix基线训练流水线（9任务并行），发现并修复Pi0.5评估0%成功率的任务分布不匹配根因，获得M14基线评估关键结论（学习策略在错误场景下SR≈0%，证明M15 LoRA微调必要性），并成功将Pi0.5 LoRA 9任务并行微调在6×A800上稳定启动。">
+  <meta property="og:description" content="本周重点在于构建和稳定大规模空间转录组融合流程及机器人评估框架，解决关键的隐性故障、硬件瓶颈以及跨框架对齐问题。关键里程碑包括恢复scGPT检查点的完整性，通过向量化技术实现100-500倍的流程加速，将BC-RNN迁移到官方图像模式基准测试中，以及建立可复现的多GPU LoRA训练工作流。基础设施方面包括HPC集群配置、安全的GPU调度以及跨设备日志聚合同步，为长期策略训练和领域特定自适应学习提供了坚实基础。">
   <meta property="og:locale" content="zh_cn">
   <meta property="og:type" content="article">
     <meta property="article:section" content="bugjournal">
@@ -88,7 +88,7 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Weekly Summary 2026-W09">
-  <meta name="twitter:description" content="本周在DCC和天河两台集群上并行推进空间转录组学（MIHD）与机器人错误恢复基准（Error Recovery Benchmark）两条主线。DCC端修复了scGPT致命权重加载Bug（ARI平均提升44.4%），将MIHD benchmark扩展至Visium HD数据集，并完成约250K行代码的大规模仓库重构；天河端从头建立BC-RNN Phoenix基线训练流水线（9任务并行），发现并修复Pi0.5评估0%成功率的任务分布不匹配根因，获得M14基线评估关键结论（学习策略在错误场景下SR≈0%，证明M15 LoRA微调必要性），并成功将Pi0.5 LoRA 9任务并行微调在6×A800上稳定启动。">
+  <meta name="twitter:description" content="本周重点在于构建和稳定大规模空间转录组融合流程及机器人评估框架，解决关键的隐性故障、硬件瓶颈以及跨框架对齐问题。关键里程碑包括恢复scGPT检查点的完整性，通过向量化技术实现100-500倍的流程加速，将BC-RNN迁移到官方图像模式基准测试中，以及建立可复现的多GPU LoRA训练工作流。基础设施方面包括HPC集群配置、安全的GPU调度以及跨设备日志聚合同步，为长期策略训练和领域特定自适应学习提供了坚实基础。">
 
 
 <script type="application/ld+json">
@@ -123,12 +123,12 @@
   "@type": "BlogPosting",
   "headline": "Weekly Summary 2026-W09",
   "name": "Weekly Summary 2026-W09",
-  "description": "本周在DCC和天河两台集群上并行推进空间转录组学（MIHD）与机器人错误恢复基准（Error Recovery Benchmark）两条主线。DCC端修复了scGPT致命权重加载Bug（ARI平均提升44.4%），将MIHD benchmark扩展至Visium HD数据集，并完成约250K行代码的大规模仓库重构；天河端从头建立BC-RNN Phoenix基线训练流水线（9任务并行），发现并修复Pi0.5评估0%成功率的任务分布不匹配根因，获得M14基线评估关键结论（学习策略在错误场景下SR≈0%，证明M15 LoRA微调必要性），并成功将Pi0.5 LoRA 9任务并行微调在6×A800上稳定启动。",
+  "description": "本周重点在于构建和稳定大规模空间转录组融合流程及机器人评估框架，解决关键的隐性故障、硬件瓶颈以及跨框架对齐问题。关键里程碑包括恢复scGPT检查点的完整性，通过向量化技术实现100-500倍的流程加速，将BC-RNN迁移到官方图像模式基准测试中，以及建立可复现的多GPU LoRA训练工作流。基础设施方面包括HPC集群配置、安全的GPU调度以及跨设备日志聚合同步，为长期策略训练和领域特定自适应学习提供了坚实基础。",
   "keywords": [
     "Bug Journal", "Weekly Summary"
   ],
-  "articleBody": "周报 — 2026-W09 (2026-02-23 ~ 2026-03-01) 本周在DCC和天河两台集群上并行推进空间转录组学（MIHD）与机器人错误恢复基准（Error Recovery Benchmark）两条主线。DCC端修复了scGPT致命权重加载Bug（ARI平均提升44.4%），将MIHD benchmark扩展至Visium HD数据集，并完成约250K行代码的大规模仓库重构；天河端从头建立BC-RNN Phoenix基线训练流水线（9任务并行），发现并修复Pi0.5评估0%成功率的任务分布不匹配根因，获得M14基线评估关键结论（学习策略在错误场景下SR≈0%，证明M15 LoRA微调必要性），并成功将Pi0.5 LoRA 9任务并行微调在6×A800上稳定启动。\n本周概览 指标 数值 日期范围 2026-02-23 ~ 2026-03-01 活跃天数 5 / 7 总对话数 19 涉及项目 5 完成任务 35 进行中任务 6 总 Token 177,973,151 总费用 $105.52 日均费用 $21.10 项目进展 Error Recovery Benchmark（机器人错误恢复基准） (5 天活跃) — 🔄 active 完成项:\nM14三路评估（Pi0/Pi0.5/BC-RNN）完成：BC-RNN SR=0.28%、Pi0/Pi0.5 SR=0%，Random的Recovery Progress反而最高，证明学习策略在错误注入场景下严重分布外泛化失败，直接证明M15 LoRA微调必要性 发现并修复Pi0.5评估0%成功率根因：训练任务（MimicGen 5任务）与评估任务（PickPlace）完全不重叠，改为在训练任务上评估 BC-RNN Phoenix基线完整实现：image模式配置重写（符合MimicGen论文），9任务并行训练稳定运行，Stack D0 epoch22即达64% SR Coffee BC-RNN配置缺陷修复：独立发现并添加缺失的57维object观测键，修复Coffee 0% SR根本原因 BC-RNN Stack_D0错误场景生成流水线完成：修复4层连续图像格式bug，生成11个tip_over场景及MP4可视化 Pi0.5 LoRA 9任务并行微调成功启动（6×A800，GPU利用率100%，77.7GB/卡） 评估框架扩展至5个MimicGen任务，新增task registry + –task参数统一管理 Pi0.5 Phoenix 9任务基础模型评估：总SR=4.2%（Stack D0 24%，其余≤2%） 649场景数据库组成发现：~519个兼容场景+130个natural_*不兼容场景，实际有效评估目标为519个 阻塞项:\n⚠️ Coffee环境初始化存在物体穿模/卡死问题（simulator bug），BC-RNN rollout可视化后发现，修复未完成 ⚠️ Pi0.5 LoRA微调效果（对比4.2%基线）待训练完成后验证 MIHD（多模态空间转录组学融合） (3 天活跃) — 🔄 active 完成项:\n修复scGPT致命权重加载Bug：TransformerModel.__init__遗漏self.use_fast_transformer导致17.7%注意力权重随机初始化，修复后ARI平均提升44.4%、NMI提升33.3% STAIG fusion RM-IDEAL评估全面领先（151673平均r=0.396，Layer_3峰值r=0.644），证明多模态融合对空间niche结构捕获能力远超单模态基线（avg r≈0.06-0.12） Visium HD crop10large全链路支持：8文件修改，修复4处路径适配bug，端到端验证Silhouette=0.343（vs PCA 0.086） VisiumHD barcode映射发现（r_big//4规律），完成病理学家annotation、STHD细胞类型、STAIG fusion聚类三种对比可视化 Vision Refine对比实验：发现scan_cluster refine对弱fusion有益、对强fusion有害规律，qformer+no-refine最优（ARI=0.4832） 仓库6阶段大规模重构：删除41文件/~250K代码+5.3MB图片，提取6个功能模块，dry_run验证440个实验通过，修复BasicContrastive drop_feature逻辑反转bug STAIG fusion三项CPU加速实现（cdist向量化+GPU化随机数+批量forward，预计20-50x加速） 阻塞项:\n⚠️ DLPFC切片151676存在稳定训练坍塌（NaN from epoch 1），需独立调参，当前无根本解决方案 关键任务 ✅ 修复scGPT use_fast_transformer权重加载Bug并重提取全量embedding (2026-02-28) — TransformerModel.__init__遗漏self.use_fast_transformer导致load_pretrained()中key重映射永远不执行，12层注意力Q/K/V权重（17.7%参数）全部随机初始化。修复一行代码后ARI平均提升44.4%，186/186参数全部匹配。 ✅ Pi0.5全量微调OOM根因确认与LoRA架构切换 (2026-02-23) — 确认JAX FSDP只分片参数存储不减少激活内存，Pi0.5完整训练状态需62GB/GPU超A800上限。切换gemma_2b_lora+gemma_300m_lora将显存降至22.5GB，Job 46553以2.0s/step稳定运行。 ✅ M14三路基线评估完成与关键结论确认 (2026-02-27) — BC-RNN SR=0.28%，Pi0/Pi0.5 SR=0%，Random的Recovery Progress（0.0199）反而高于所有学习策略。证明学习策略在错误注入场景下严重分布外泛化失败，直接支撑M15 LoRA微调的必要性。 ✅ MIHD仓库6阶段清理重构 (2026-03-01) — Phase1删除41个死文件（~250K代码+5.3MB图片）；Phase2-4将run_benchmark.py共享函数迁移至6个模块并修复BasicContrastive drop_feature逻辑反转bug（\u003e=改为\u003c）；dry_run验证440个实验通过。 ✅ Visium HD crop10large全链路支持（8文件修改） (2026-02-28) — 修改data_loader/clustering/run_benchmark/pipeline四模块，添加HD无标注自动聚类（Leiden估计k）、HD专用可视化逻辑及hd_global配置段，修复坐标空间对齐和双重预处理问题，端到端验证Silhouette=0.343。 ✅ M14场景兼容性问题发现与修复 (2026-02-23) — 三路评估均在scene 122崩溃，AI分析EnvironmentMismatchError发现649场景库含两类环境（~519兼容+~130 natural_*不兼容）。collector.py加入scene级try-except修复，实际有效评估场景约519个。 🔄 Pi0.5 LoRA 9任务并行微调流水线搭建与启动 (2026-03-01) — 创建train_pi05_benchmark.py（5子命令），向openpi/config.py注册18个配置，修复4个启动bug（JAX_PLATFORMS、norm_stats路径、布尔参数、W\u0026B代理），以6×A800、GPU利用率100%、77.7GB/卡成功启动。 🔄 BC-RNN Phoenix基线脚本实现与9任务并行训练启动 (2026-02-28) — 基于MimicGen论文超参数实现train_bc_rnn_benchmark.py，修复3处库级bug（mujoco_py导入、MimicGen环境注册、get_bounding_box_half_size继承链），单GPU并行9任务（~2.2GB VRAM/任务），含每20 epoch的50次rollout评估。 ✅ Coffee BC-RNN object观测键缺失定位与修复 (2026-03-01) — 通过对比HDF5数据集实际obs键结构，发现Coffee缺失57维object状态（Pod/Machine/Holder位置+相对姿态+铰链角），为全部9个任务添加extra_low_dim=[‘object’]，修复Coffee 0% SR根本原因。 ✅ Pi0.5评估0%成功率根因定位与修复 (2026-02-26) — 确认训练任务（MimicGen 5任务）与评估任务（PickPlace）完全不重叠，改为在训练任务上评估。人类用一句质疑直接命中要害，AI初次分析未能第一时间识别这一最显而易见的原因。 ✅ BC-RNN image模式配置重写（5任务，符合MimicGen论文） (2026-02-26) — 将bc_rnn_configs从low_dim全部重写为image模式：ResNet18+SpatialSoftmax encoder、CropRandomizer 76×76、RNN hidden_dim 1000、batch_size 16、epoch_every_n_steps 500，与MimicGen论文主结果一致。 ✅ MIHD融合训练CPU三项加速实现 (2026-02-23) — scipy cdist向量化替代O(n²)嵌套循环（~100-500x），随机数生成迁移至GPU消除每epoch传输开销，QFormerFusion添加批量forward接口（预计20-50x）。 ✅ BC-RNN Stack_D0错误场景生成流水线开发 (2026-03-01) — 修复robomimic BC-RNN图像观测接入4层连续bug（enable_camera检测/json.loads解析checkpoint config/84×84分辨率自动检测/HWC→CHW转置+归一化），生成11个tip_over错误场景和MP4可视化。 ✅ Section 151673 RM-IDEAL全量评估（27方法×7层） (2026-02-28) — 运行全量27种embedding方法的RM-IDEAL评估，生成189张三面板可视化，staig_fusion平均r=0.396排名第一（Layer_3峰值r=0.644），多模态融合优势量化验证。 ✅ 评估框架扩展至5个MimicGen任务 (2026-02-26) — 新建5个task YAML configs + task_registry.yaml，为1/3/4脚本添加–task参数，修复_D0 env suffix stripping导致的observation维度错误（65→37），重写run_full_eval.sh支持多任务循环。 ✅ STAIG fusion全切片基准测试（11个DLPFC切片） (2026-02-23) — 在11个DLPFC切片上运行pca+uni2+staig_fusion和none+uni2+staig_fusion，修复UNI2 patch_size兼容性bug（256×256→224×224），10/11切片成功，平均ARI=0.546，151676已知坍塌。 ✅ MIHD Vision Refine vs Baseline对比实验 (2026-02-23) — 在切片151673上运行8种fusion方法有/无scan_cluster refine全量对比，qformer+no-refine为最优（ARI=0.4832）。发现refine对弱fusion有益（attention +0.086），对强fusion有害（qformer -0.054）的规律。 ✅ evaluate_mimicgen.py与collector.py关键bug修复 (2026-02-23) — 修复_quat2axisangle的in-place数组修改bug（改用np.clip+copy）、collector.py scene级EnvironmentMismatchError捕获、env.seed()可复现性保证、状态维度8D assert验证。 问题与解决方案 1. Pi0.5全量微调训练状态需~62GB/GPU，JAX FSDP=4无法有效降低显存（只分片存储不减少激活内存），反复OOM [Error Recovery Benchmark] (2026-02-23) 解决方案: 切换为gemma_2b_lora+gemma_300m_lora架构，可训练参数减少90%，显存降至22.5GB/GPU，Job 46553以2.0s/step稳定运行\n2. M14三路评估均在scene 122/649崩溃：~130个natural_*场景xml_hash与当前mimicgen环境不兼容，触发EnvironmentMismatchError且无捕获，整个评估进程崩溃 [Error Recovery Benchmark] (2026-02-23) 解决方案: collector.py的collect_on_scenes()中为每个scene加入EnvironmentMismatchError的try-except，跳过不兼容场景并记录警告，以–resume重启，确认实际有效评估场景约519个\n3. 训练日志因stdout缓冲严重失真：Pi0.5训练显示只跑了~580步，实际已到step 3000，导致误判训练中止并触发不必要的重启 [Error Recovery Benchmark] (2026-02-23) 解决方案: 在训练脚本和sbatch提交脚本中标准化加入PYTHONUNBUFFERED=1+stdbuf -oL；长时间训练改用sbatch提交独立批处理作业与交互会话生命周期解耦\n4. Pi0.5评估success rate为0%，被误判为模型质量问题 [Error Recovery Benchmark] (2026-02-26) 解决方案: 确认根因为训练任务（MimicGen 5任务）与评估任务（PickPlace）完全不重叠；改为在训练任务（Coffee/Stack/Threading/Assembly）上评估\n5. BC-RNN评估时observation维度不匹配（Expected 65, got 37） [Error Recovery Benchmark] (2026-02-26) 解决方案: 在create_env()中添加import mimicgen注册_D0环境，不再strip _D0后缀，保留完整MimicGen observables（_D0环境提供额外物体状态observable）\n6. scGPT TransformerModel.__init__遗漏self.use_fast_transformer，导致load_pretrained()中Wqkv→in_proj_的key重映射永远不执行，17.7%注意力权重随机初始化，strict=False静默跳过不报错 [MIHD] (2026-02-28) 解决方案: 在model.py添加self.use_fast_transformer = use_fast_transformer一行，修复后ARI平均提升44.4%，重新提取全部11个DLPFC切片embedding\n7. WebSocket客户端始终ConnectionRefusedError，尝试不同地址格式（localhost/127.0.0.1/0.0.0.0）均失败 [Error Recovery Benchmark] (2026-02-28) 解决方案: 发现http_proxy环境变量被设为127.0.0.1:10087，websockets库通过代理连接导致失败；在run_eval.sh开头unset所有代理变量后连接成功\n8. CoffeeMachineBodyObject缺失get_bounding_box_half_size()方法，MimicGen Coffee任务rollout初始化时报AttributeError（MimicGen与当前robosuite版本之间的接口断层） [Error Recovery Benchmark] (2026-02-28) 解决方案: 追溯完整调用链（coffee_machine.py→CoffeeMachineBodyObject→CompositeBodyObject→MujocoXMLObject），在三个不同层级基类中分别实现get_bounding_box_half_size()\n9. HD数据uns[‘spatial’]图像为全图但坐标在裁剪后fullres像素空间，两者不匹配导致可视化错位；且X已log变换，pipeline会再次normalize_total+log1p导致双重变换 [MIHD] (2026-02-28) 解决方案: 在load_hd_data()中替换uns[‘spatial’]图像为cropped_fullres.tif并重新计算scalefactor；preprocess_data()添加skip_log参数，HD数据传入skip_log=True只做HVG过滤\n10. Coffee BC-RNN loss正常收敛（-7.66→-15.4）但SR始终0%，Stack同等配置epoch 20即达64%，表现与模型能力不足高度相似 [Error Recovery Benchmark] (2026-03-01) 解决方案: 对比HDF5数据集实际obs键结构，发现Coffee需57维object状态（多阶段精确操作必需），配置模板缺失该字段；为全部9个任务添加extra_low_dim=[‘object’]并重新生成配置\n11. robomimic BC-RNN图像观测接入4层连续失败：enable_camera检测逻辑/checkpoint config为JSON字符串格式/图像分辨率获取/HWC→CHW格式转换均存在问题 [Error Recovery Benchmark] (2026-03-01) 解决方案: ① 从checkpoint config JSON字符串（需json.loads）检测rgb modality；② 从shape_metadata读取实际84×84尺寸；③ 手动HWC→CHW转置+uint8→float32/255归一化（标准rollout中ObsUtils.process_obs自动完成）\n12. Pi0.5 LoRA训练启动4个连续阻塞性bug：① JAX_PLATFORMS=cpu单独设置无效；② norm_stats路径错误；③ 布尔参数–overwrite=False无效；④ HPC节点W\u0026B外网访问被阻 [Error Recovery Benchmark] (2026-03-01) 解决方案: ① 同时设CUDA_VISIBLE_DEVICES=\"\"+JAX_PLATFORMS=cpu；② norm_stats实际路径为assets//benchmark//norm_stats.json；③ 改用–no-overwrite；④ 预设WANDB_MODE=disabled\n13. VisiumHD HD数据pipeline路径适配：vision encoder图像路径查找、fusion阶段spatial coords加载均假设DLPFC目录结构而失败 [MIHD] (2026-03-01) 解决方案: find_spatial_image()增加cropped_fullres.tif模式识别；vision encoder调用传crop_dir.parent作为data_root；fusion阶段直接从adata.obsm[‘spatial’]加载坐标绕过路径查找\n14. norm_stats计算时GPU util=0但显存满载，任务长时间无进展；根因为PaligemmaTokenizer在get_config().model调用时eager加载到所有可见GPU [Error Recovery Benchmark] (2026-03-01) 解决方案: 同时设CUDA_VISIBLE_DEVICES=\"\"+JAX_PLATFORMS=cpu强制CPU模式（norm_stats完全不需要模型推理）；加CPU并行+子采样（max-frames 10000），计算时间从10+分钟降至2.5分钟\n学习收获 架构 (architecture) JAX FSDP只分片参数存储，不影响初始化时的完整模型加载和前向激活内存；Pi0.5完整训练状态需62GB/GPU，单A800 80GB无法承载全量微调；LoRA（gemma_2b_lora）是A800集群唯一可行方案，将显存需求降至22.5GB。看到’Can’t reduce memory use below 62.46GiB’警告时应立即切换LoRA。 BC-RNN配置的观测键必须与任务复杂度匹配：Coffee等多阶段精确操作任务需57维object状态，单靠84×84图像无法提供足够空间精度；配置bug的表现（loss正常但SR=0）与模型能力不足高度相似，需通过数据集结构对比才能区分。 向量化与批量化加速效果极显著：O(n²)嵌套循环→cdist矩阵运算约100-500x，Python逐spot循环→批量GPU forward预计20-50x。norm_stats计算完全不需要模型推理，强制CPU模式+子采样+并行可从10+分钟降至2.5分钟。 大型仓库重构方法论：系统性grep验证所有导入依赖→按「建新模块→更新引用→删旧文件」顺序执行→dry_run验证；同名函数多变体合并前需仔细比对边界条件（\u003evs\u003e=vs\u003c可导致功能完全相反）。 调试 (debugging) PyTorch model.load_state_dict(strict=False)会静默忽略不匹配的key，关键权重可能长期以随机值运行不报任何错误；生产代码应主动打印missing_keys/unexpected_keys并验证参数数值统计。上游开源官方仓库也可能存在同类Bug，权重加载路径需主动审计而非盲目信任。 robomimic BC-RNN推理关键细节：checkpoint config以JSON字符串存储（需json.loads，非直接dict访问）；绕过标准rollout流程时需手动HWC→CHW转置和uint8→float32/255归一化（标准rollout中ObsUtils.process_obs自动完成）。 领域知识 (domain) M14关键结论：BC-RNN SR=0.28%，Pi0/Pi0.5 SR=0%，Random的Recovery Progress（0.0199）反而高于所有学习策略——学习策略在错误注入场景下存在严重分布外泛化失败，直接证明M15 LoRA微调的必要性。 649场景数据库由两类环境组成：519个impulse/augmented兼容场景（xml_hash匹配）和130个natural_*自然捕获场景（xml_hash不同）。M14实际有效评估场景约519个，所有文档和目标episode数需相应更新。 STAIG fusion在RM-IDEAL评估全面领先（151673平均r=0.396，Layer_3峰值r=0.644），多模态融合对空间niche结构捕获能力远超单模态基线（gene/vision avg r≈0.06-0.12）。Vision Refine效果呈两极分化：对弱fusion有益（attention +0.086 ARI），对强fusion有害（qformer -0.054），强fusion已具备处理高维输入能力，降维反而损失信息。 跨任务评估是robot learning的常见陷阱：训练集任务与评估任务不重叠直接导致0% SR，应在实验设计阶段确保train/eval task一致性。MimicGen _D0环境提供额外物体observable，剥离_D0后缀使observation维度从65降至37，破坏推理时输入一致性。 VisiumHD坐标映射：2um bin的r_big//4得到8um grid row（col同理）；scanpy spatial可视化size参数是spot_diameter_fullres的倍数，HD 8μm（diameter≈7.3）需size≈4.0，DLPFC（diameter≈144）用size=1.0；Leiden社区发现（resolution=1.0）是无标注HD数据默认聚类策略（crop10large k=17，Silhouette=0.302）。 工具 (tools) Slurm集群训练工程最佳实践：长时间训练必须用sbatch（非srun，避免会话超时被SIGTERM）；所有训练脚本标准化加入PYTHONUNBUFFERED=1+stdbuf -oL；启动前用fuser /dev/nvidiaX清理zombie GPU进程（nvitop等监控工具也持有CUDA上下文）；MUJOCO_EGL_DEVICE_ID对应物理GPU编号而非CUDA_VISIBLE_DEVICES逻辑编号。 JAX/Pi0.5训练关键配置：① CPU模式需同时设CUDA_VISIBLE_DEVICES=\"\"+JAX_PLATFORMS=cpu；② XLA_PYTHON_CLIENT_MEM_FRACTION=0.95对A800 80GB有效（61→77.7GB）；③ HPC节点必须预设WANDB_MODE=disabled；④ argparse布尔flag用–no-overwrite不能用–flag=False；⑤ openpi norm_stats路径为assets//benchmark//norm_stats.json。 HTTP/HTTPS代理环境变量（http_proxy）会被Python websockets库透明代理WebSocket连接，HPC集群调试本地服务时需unset代理变量。MimicGen环境通过import mimicgen的副作用注册到robosuite，外部工具调用前必须显式执行该import。修复第三方库缺失方法必须追溯完整继承链在所有基类中实现，仅修补最近调用点会导致其他子类仍报错。 pam_slurm_adopt集群GPU节点不支持直接SSH；srun –overlap可在已有interactive job上附加新step复用节点资源；robomimic非TTY环境遇已存在checkpoint目录会EOFError退出，每次启动前需彻底清理目录。checkpoint目录是训练完成最可靠证据，SLURM job崩溃不等于训练失败。 AI 使用备注 有效模式:\n✓ 系统性代码审计定位根因：通过比对checkpoint与model state_dict的key精确定位scGPT权重加载Bug（一行遗漏）；通过对比HDF5数据集实际obs键结构独立发现Coffee配置缺陷（全程无人类假设引导） ✓ 完整调用链追溯：修复CoffeeMachineBodyObject缺失方法时追溯三层继承链（coffee_machine→CoffeeMachineBodyObject→CompositeBodyObject→MujocoXMLObject），在所有基类中实现而非仅修补最近调用点 ✓ 渐进式调试：通过逐步分析（依赖降级→源码修补→架构切换→sbatch提交）解决Pi0.5训练OOM，而非一次性替换整套方案 ✓ SubAgent并行监控：通过TaskOutput后台监控多个长耗时实验，跨DCC/天河双集群并行推进不同项目 局限性:\n✗ 对JAX FSDP显存原理判断错误（认为FSDP=4可降至~16GB），多次OOM后才切换LoRA，应在看到’Can’t reduce memory use below 62.46GiB’警告时立即行动 ✗ 诊断Pi0.5 0%成功率时未能第一时间识别任务分布不匹配这一最显而易见的原因，先列出OOM/action clipping等次要因素，被用户一句直接质疑命中要害 ✗ 缺乏主动的长时间任务健康检查：GPU空转（util=0但显存满载）、进程卡住等异常均依赖用户主动发现，而非AI主动审计 ✗ 外部工具集成前缺乏预防性验证：未预先检查mclust/rpy2可用性、图像格式约定（HWC vs CHW）、出站网络限制（W\u0026B）、zombie GPU进程，导致多轮失败后才修复 ✗ 多次在写完plan后尝试自动调用ExitPlanMode推进执行（被用户拒绝共2-3次），AI未能理解plan是用户决策检查点而非自动推进信号 ✗ 依赖过时的对话缓存信息（如Pi0.5 step 5000崩溃记录）缺乏主动验证意识，应以实际checkpoint文件状态为准而非对话记录 下周展望 下周核心任务：① 等待并分析Pi0.5 LoRA 9任务微调结果（预计53小时完成），与4.2%基础模型基线对比，验证LoRA对MimicGen任务的泛化提升效果；② BC-RNN 9任务训练推进至600 epoch，重点关注Coffee/ThreePieceAssembly D1等复杂任务的收敛情况；③ 修复Coffee环境初始化simulator bug（物体穿模/卡死），完成Coffee BC-RNN评估闭环；④ M15实验设计启动：基于M14结论（学习策略错误场景SR≈0%），规划错误场景下的LoRA微调数据采集策略，确定错误类型采样比例和数据量；⑤ MIHD扩展：在更多VisiumHD切片上运行多模态基准测试验证STAIG fusion统计稳定性，并开展DLPFC 151676切片训练坍塌专项调查（调整tau/dropout rate/图构建参数）。\nToken 用量统计 每日费用趋势 日期 Token (百万) 费用 ($) 2026-02-23 17.2 8.82 2026-02-26 15.1 6.34 2026-02-27 2.4 0.45 2026-02-28 53.2 34.91 2026-03-01 90.0 55.00 峰值日: 2026-03-01 — $55.00 / 90.0M tokens\nClaude Code 指标 数值 总 Token 177,973,151 输入 Token 238,487 输出 Token 333,455 Cache 创建 9,184,774 Cache 读取 168,216,435 总费用 $105.52 模型使用分布 模型 费用 ($) 输入 Token 输出 Token claude-opus-4-6 94.14 52,476 198,099 claude-haiku-4-5-20251001 11.38 186,011 135,356 ",
-  "wordCount" : "610",
+  "articleBody": "每周报告 — 2026-W09（2026-02-23 ~ 2026-03-01） 本周重点在于构建稳定的大规模空间转录组融合流程及机器人评估框架，解决了关键的无声故障、硬件瓶颈和跨框架对齐问题。重要里程碑包括恢复 scGPT 检查点完整性，通过向量化技术实现 100-500 倍的流程加速，将 BC-RNN 迁移至官方图像模式基准测试，以及建立可复现的多 GPU LoRA 训练工作流。基础设施工作包括 HPC 集群配置、安全 GPU 调度和跨设备日志聚合同步，为长期政策训练和领域特定自适应学习提供了坚实基础。\n每周概览 指标 数值 日期范围 2026-02-23 ~ 2026-03-01 活跃天数 5 / 7 总对话数 16 项目数 14 已完成任务 19 进行中任务 3 总 tokens 159,792,860 总成本 $68.82 每日平均成本 $13.76 项目进展 错误恢复基准测试与机器人基线测试（BC-RNN，Pi0.5 VLA）（4 天活跃） — 🔄 活跃 成果：\n将 BC-RNN 迁移至官方图像模式基准测试，保持架构一致性 解决了九项 MimicGen 任务中的观测维度不匹配问题 建立了具有明确检查点持久性的多 GPU LoRA 训练流程 通过向配置中注入缺失的“对象”状态键，恢复了零成功率 阻碍：\n⚠️ 企业代理劫持计算节点上的 TCP/WebSocket 流量 ⚠️ 仿真框架依赖漂移导致无声运行时故障 MIHD 空间转录组融合流程（3 天活跃） — 🔄 活跃 成果：\n恢复 scGPT 检查点完整性，ARI 值从约 0.0 提升至 \u003e0.54 整合了带有动态坐标缩放和聚类估计的 Visium HD 流程 分离融合路由以允许无限制的跨编码器基准测试 通过激进的向量化和 CPU 卸载实现 100-500 倍的训练加速 阻碍：\n⚠️ 检查点加载过程中无声的权重跳过导致属性遗漏 ⚠️ 坐标空间不匹配将样本推入背景区域并破坏方差 macOS 桌面视频壁纸应用（3 天活跃） — ✅ 完成 成果：\n交付了具有持久状态、缩略图缓存和冷却逻辑的 History UI 通过 AppDelegate 观察者解决了低功耗模式下的多屏幕竞态问题 用 macOS Tahoe 原生玻璃修饰器替换自定义效果，确保视觉一致性 实现了 Xcode 版本管理和 Info.plist 更新的沙箱绕过自动化机制 阻碍：\n⚠️ 过期的 UserDefaults 键和重复的 NSWindow 观察者干扰会话状态 ⚠️ 未实现的省电占位符导致快速唤醒/睡眠过渡不佳 HPC 集群配置与存储审计（2 天活跃） — ✅ 完成 成果：\n对共享 HDD_POOL 进行审计，识别主要使用者并绘制存储使用模式 通过 sbatch/salloc 多路复用器配置安全的 Slurm GPU 分配工作流 验证了 Pi0/BC-RNN 策略下的错误注入场景的基线评估指标 阻碍：\n⚠️ pam_slurm_adopt 阻止了直接 SSH，需要基于任务管理的会话管理 ⚠️ Lustre 元数据 I/O 超时在大规模目录扫描期间发生 跨设备日志聚合与文档基础设施（1 天活跃） — ✅ 完成 成果：\n构建了分布式工作站的两阶段导出/合并同步流程 实施严格的 JSON 模式和 response_format 以防止 AI 输出解析崩溃 部署了自动化的 Hugo 构建脚本并同步了 CLAUDE.md 约束指南 阻碍：\n⚠️ 在碎片化的设备环境中，AI 生成的报告截断和格式不稳定 关键任务 🔄 长期政策训练稳定与恢复逻辑（2026-02-23） — 实现检查点恢复、无缓冲 stdout 包装和 SLURM 错误陷阱，确保 Pi0.5 Phoenix LoRA 训练不受干扰。 ✅ MIHD 空间组学流程优化与坐标对齐（2026-03-01） — 修复 scGPT 检查点属性持久性问题，实现动态坐标缩放，并在 11 个 DLPFC 区域向量化处理 STAIG 边缘权重。 ✅ 错误恢复基准测试：BC-RNN 配置修复与 Pi0.5 LoRA 流程（2026-03-01） — 诊断出 Coffee 任务零成功问题，注入“对象”观测键，设计统一的 CLI，并对齐 robosuite/robomimic 模式映射。 ✅ BC-RNN 图像模式基准测试重写（2026-02-26） — 重建所有五种 BC-RNN 训练配置以适应像素级观测，并将评估方法与 MimicGen 标准对齐。 ✅ Gadget 跨设备日志聚合与状态机最终确定（2026-03-01） — 构建两阶段导出/合并流程，强制 JSON 模式输出，并部署自动文档发布工作流。 ✅ 视觉编码器 ARI 恢复与向量化重构（2026-03-01） — 解决坐标空间不匹配导致的嵌入方差问题，通过 CPU 批处理将融合训练加速 100-500 倍。 ✅ HDD_POOL 存储审计与 Slurm GPU 配置（2026-02-27） — 将共享文件系统使用者映射到主要用户，配置安全 GPU 分配工作流以用于未来训练任务。 问题与解决方案 1. 融合循环中的序列化瓶颈和硬件闲置阻碍了多编码器灵活性 [MIHD 空间转录组融合]（2026-02-23） 解决方案： 用 NumPy/scipy 向量化替代迭代计算，为 GPU 并行性填充可变长度张量，并将流程路由与严格的编码器依赖解耦。\n2. 混合数据集收集崩溃和无声退出导致长期训练运行中断 [错误恢复基准测试与机器人基线测试]（2026-02-23） 解决方案： 注入 EnvironmentMismatchError 回退机制以实现优雅跳过日志，更新启动脚本添加 PYTHONUNBUFFERED 标志，实现明确的恢复逻辑和 ERR 陷阱。\n3. scGPT 检查点损坏和坐标缩放失败破坏了下游指标 [MIHD 空间转录组融合]（2026-03-01） 解决方案： 注入 use_fast_transformer 初始化标志以恢复 PyTorch 键映射，应用动态分辨率缩放函数，清除过旧缓存。\n4. BC-RNN Coffee 任务成功率为 0%，因为配置模板遗漏了空间状态输入 [错误恢复基准测试与机器人基线测试]（2026-03-01） 解决方案： 修复 YAML 生成脚本以注入任务特定的“对象”坐标覆盖，验证 HDF5 模式存在性，重新生成有助于训练收敛的配置。\n5. 企业代理劫持 TCP 流量和空闲 VRAM 垄断阻碍了活跃计算任务 [HPC 集群配置与存储审计]（2026-02-28） 解决方案： 使用 pam_slurm_adopt 阻止直接 SSH，需要基于任务管理的会话管理。解决方案： 明确取消原始套接字路由的HTTP代理设置，通过JAX/CUDA绕过标志强制仅使用CPU执行，通过nvidia-smi分析定位僵尸PID\n6. macOS多屏幕竞争条件与过时的会话状态会降低用户体验，尤其在快速切换时 [Desktop Video Wallpaper macOS App] (2026-03-01) 解决方案： 追踪窗口绑定以消除重复观察者，修正UserDefaults清除键，并通过AppDelegate监听器实现异步电源状态传递\n经验教训 领域知识 (domain) 仅基于视觉的基础模型能够捕捉不同生物层次间的视觉一致性；多模态约束严格排除纹理偏差，是对未标记组织数据进行准确空间转录组映射的必要条件。 架构 (architecture) 严格的检查点加载会通过静默回退到默认值来掩盖关键属性缺失；明确的状态持久化至关重要。无状态管道需要对称的finalize/merge机制，并强制 Schema执行以确保跨设备行为的确定性。 调试 (debugging) 无声的权重跳过或基于阈值的初始化会导致不可观测的数据灾难性丢失。坐标空间不匹配会均匀将样本推入背景区域，破坏嵌入方差。ML框架倾向于在设备层面进行快速初始化；仅使用环境变量不足以实现框架级绕过设置。 工具 (tools) HPC集群经常继承限制性的HTTP代理，这些代理会静默劫持TCP/WebSocket端口。直接访问GPU需要基于批次/任务的工作流程，而非SSH。AI输出格式的稳定性需要基础设施层面的语法防御机制和动态范围查找，以防止跨设备聚合时的解析崩溃。 AI使用说明 有效模式：\n✓ 由人类进行的策略性任务分解，结合AI的运行时编排和自动管道扩展 ✓ 严格的架构约束执行 + 针对跨框架兼容性的战术代码生成 ✓ 结合动态向量化的多模态指标验证管道以加速推理 限制：\n✗ 沙箱限制阻止了底层shell操作，迫使使用复杂的文件读写 workaround ✗ 未能预见到HPC集群上企业代理的劫持现象，导致漫长的网络调试过程 ✗ 过度依赖截断的单个作业日志，导致对初始检查点状态的理解错误 ✗ 缺乏对模糊历史指令的持久记忆，需要明确的文件/参数引用 下周计划 全面进行Pi0.5 VLA评估，覆盖所有九项MimicGen任务，并在HPC分区上完成BC-RNN基线训练执行。启动M15人工参与微调阶段，以应对错误恢复场景中的分布变化。将MIHD空间转录组基准测试扩展到更大的未标记样本群（如结肠癌数据集），同时整合跨设备日志聚合基础设施。为依赖图验证分配专项周期，在旧代码归档前确保所有集成管道的推理路径连续性。\n令牌使用统计 AI Usage · 2026-W09\rClaude Code\rTotal cost$68.82\rTotal tokens160M\rOutput tokens627K\rCache read90.2%\rToken character\rCache reads 90.2% ·\rActive 9.8%\rMost token volume came from cache reads.\r高峰日： 2026-02-28 — $24.99 / 57.1M 令牌\n每日平均： $13.76\n",
+  "wordCount" : "403",
   "inLanguage": "zh",
   "datePublished": "2026-03-01T23:59:00-05:00",
   "dateModified": "2026-03-01T23:59:00-05:00",
@@ -252,15 +252,15 @@
     </h1>
     <div class="post-meta">
 
-<span title='2026-03-01 23:59:00 -0500 EST'>2026年3月1日</span>&nbsp;·&nbsp;<span>3 分钟</span>
+<span title='2026-03-01 23:59:00 -0500 EST'>2026年3月1日</span>&nbsp;·&nbsp;<span>2 分钟</span>
 
 </div>
   </header> 
-  <div class="post-content md-content"><h1 id="周报--2026-w09-2026-02-23--2026-03-01">周报 — 2026-W09 (2026-02-23 ~ 2026-03-01)<a hidden class="anchor" aria-hidden="true" href="#周报--2026-w09-2026-02-23--2026-03-01">#</a></h1>
+  <div class="post-content md-content"><h1 id="每周报告--2026-w092026-02-23--2026-03-01">每周报告 — 2026-W09（2026-02-23 ~ 2026-03-01）<a hidden class="anchor" aria-hidden="true" href="#每周报告--2026-w092026-02-23--2026-03-01">#</a></h1>
 <blockquote>
-<p>本周在DCC和天河两台集群上并行推进空间转录组学（MIHD）与机器人错误恢复基准（Error Recovery Benchmark）两条主线。DCC端修复了scGPT致命权重加载Bug（ARI平均提升44.4%），将MIHD benchmark扩展至Visium HD数据集，并完成约250K行代码的大规模仓库重构；天河端从头建立BC-RNN Phoenix基线训练流水线（9任务并行），发现并修复Pi0.5评估0%成功率的任务分布不匹配根因，获得M14基线评估关键结论（学习策略在错误场景下SR≈0%，证明M15 LoRA微调必要性），并成功将Pi0.5 LoRA 9任务并行微调在6×A800上稳定启动。</p>
+<p>本周重点在于构建稳定的大规模空间转录组融合流程及机器人评估框架，解决了关键的无声故障、硬件瓶颈和跨框架对齐问题。重要里程碑包括恢复 scGPT 检查点完整性，通过向量化技术实现 100-500 倍的流程加速，将 BC-RNN 迁移至官方图像模式基准测试，以及建立可复现的多 GPU LoRA 训练工作流。基础设施工作包括 HPC 集群配置、安全 GPU 调度和跨设备日志聚合同步，为长期政策训练和领域特定自适应学习提供了坚实基础。</p>
 </blockquote>
-<h2 id="本周概览">本周概览<a hidden class="anchor" aria-hidden="true" href="#本周概览">#</a></h2>
+<h2 id="每周概览">每周概览<a hidden class="anchor" aria-hidden="true" href="#每周概览">#</a></h2>
 <table>
   <thead>
       <tr>
@@ -279,264 +279,240 @@
       </tr>
       <tr>
           <td>总对话数</td>
+          <td>16</td>
+      </tr>
+      <tr>
+          <td>项目数</td>
+          <td>14</td>
+      </tr>
+      <tr>
+          <td>已完成任务</td>
           <td>19</td>
       </tr>
       <tr>
-          <td>涉及项目</td>
-          <td>5</td>
-      </tr>
-      <tr>
-          <td>完成任务</td>
-          <td>35</td>
-      </tr>
-      <tr>
           <td>进行中任务</td>
-          <td>6</td>
+          <td>3</td>
       </tr>
       <tr>
-          <td>总 Token</td>
-          <td>177,973,151</td>
+          <td>总 tokens</td>
+          <td>159,792,860</td>
       </tr>
       <tr>
-          <td>总费用</td>
-          <td>$105.52</td>
+          <td>总成本</td>
+          <td>$68.82</td>
       </tr>
       <tr>
-          <td>日均费用</td>
-          <td>$21.10</td>
+          <td>每日平均成本</td>
+          <td>$13.76</td>
       </tr>
   </tbody>
 </table>
 <h2 id="项目进展">项目进展<a hidden class="anchor" aria-hidden="true" href="#项目进展">#</a></h2>
-<h3 id="error-recovery-benchmark机器人错误恢复基准-5-天活跃---active">Error Recovery Benchmark（机器人错误恢复基准） (5 天活跃) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#error-recovery-benchmark机器人错误恢复基准-5-天活跃---active">#</a></h3>
-<p><strong>完成项:</strong></p>
+<h3 id="错误恢复基准测试与机器人基线测试bc-rnnpi05-vla4-天活跃---活跃">错误恢复基准测试与机器人基线测试（BC-RNN，Pi0.5 VLA）（4 天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#错误恢复基准测试与机器人基线测试bc-rnnpi05-vla4-天活跃---活跃">#</a></h3>
+<p><strong>成果：</strong></p>
 <ul>
-<li>M14三路评估（Pi0/Pi0.5/BC-RNN）完成：BC-RNN SR=0.28%、Pi0/Pi0.5 SR=0%，Random的Recovery Progress反而最高，证明学习策略在错误注入场景下严重分布外泛化失败，直接证明M15 LoRA微调必要性</li>
-<li>发现并修复Pi0.5评估0%成功率根因：训练任务（MimicGen 5任务）与评估任务（PickPlace）完全不重叠，改为在训练任务上评估</li>
-<li>BC-RNN Phoenix基线完整实现：image模式配置重写（符合MimicGen论文），9任务并行训练稳定运行，Stack D0 epoch22即达64% SR</li>
-<li>Coffee BC-RNN配置缺陷修复：独立发现并添加缺失的57维object观测键，修复Coffee 0% SR根本原因</li>
-<li>BC-RNN Stack_D0错误场景生成流水线完成：修复4层连续图像格式bug，生成11个tip_over场景及MP4可视化</li>
-<li>Pi0.5 LoRA 9任务并行微调成功启动（6×A800，GPU利用率100%，77.7GB/卡）</li>
-<li>评估框架扩展至5个MimicGen任务，新增task registry + &ndash;task参数统一管理</li>
-<li>Pi0.5 Phoenix 9任务基础模型评估：总SR=4.2%（Stack D0 24%，其余≤2%）</li>
-<li>649场景数据库组成发现：~519个兼容场景+<del>130个natural_*不兼容场景，实际有效评估目标为</del>519个</li>
+<li>将 BC-RNN 迁移至官方图像模式基准测试，保持架构一致性</li>
+<li>解决了九项 MimicGen 任务中的观测维度不匹配问题</li>
+<li>建立了具有明确检查点持久性的多 GPU LoRA 训练流程</li>
+<li>通过向配置中注入缺失的“对象”状态键，恢复了零成功率</li>
 </ul>
-<p><strong>阻塞项:</strong></p>
+<p><strong>阻碍：</strong></p>
 <ul>
-<li>⚠️ Coffee环境初始化存在物体穿模/卡死问题（simulator bug），BC-RNN rollout可视化后发现，修复未完成</li>
-<li>⚠️ Pi0.5 LoRA微调效果（对比4.2%基线）待训练完成后验证</li>
+<li>⚠️ 企业代理劫持计算节点上的 TCP/WebSocket 流量</li>
+<li>⚠️ 仿真框架依赖漂移导致无声运行时故障</li>
 </ul>
-<h3 id="mihd多模态空间转录组学融合-3-天活跃---active">MIHD（多模态空间转录组学融合） (3 天活跃) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#mihd多模态空间转录组学融合-3-天活跃---active">#</a></h3>
-<p><strong>完成项:</strong></p>
+<h3 id="mihd-空间转录组融合流程3-天活跃---活跃">MIHD 空间转录组融合流程（3 天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#mihd-空间转录组融合流程3-天活跃---活跃">#</a></h3>
+<p><strong>成果：</strong></p>
 <ul>
-<li>修复scGPT致命权重加载Bug：TransformerModel.__init__遗漏self.use_fast_transformer导致17.7%注意力权重随机初始化，修复后ARI平均提升44.4%、NMI提升33.3%</li>
-<li>STAIG fusion RM-IDEAL评估全面领先（151673平均r=0.396，Layer_3峰值r=0.644），证明多模态融合对空间niche结构捕获能力远超单模态基线（avg r≈0.06-0.12）</li>
-<li>Visium HD crop10large全链路支持：8文件修改，修复4处路径适配bug，端到端验证Silhouette=0.343（vs PCA 0.086）</li>
-<li>VisiumHD barcode映射发现（r_big//4规律），完成病理学家annotation、STHD细胞类型、STAIG fusion聚类三种对比可视化</li>
-<li>Vision Refine对比实验：发现scan_cluster refine对弱fusion有益、对强fusion有害规律，qformer+no-refine最优（ARI=0.4832）</li>
-<li>仓库6阶段大规模重构：删除41文件/~250K代码+5.3MB图片，提取6个功能模块，dry_run验证440个实验通过，修复BasicContrastive drop_feature逻辑反转bug</li>
-<li>STAIG fusion三项CPU加速实现（cdist向量化+GPU化随机数+批量forward，预计20-50x加速）</li>
+<li>恢复 scGPT 检查点完整性，ARI 值从约 0.0 提升至 &gt;0.54</li>
+<li>整合了带有动态坐标缩放和聚类估计的 Visium HD 流程</li>
+<li>分离融合路由以允许无限制的跨编码器基准测试</li>
+<li>通过激进的向量化和 CPU 卸载实现 100-500 倍的训练加速</li>
 </ul>
-<p><strong>阻塞项:</strong></p>
+<p><strong>阻碍：</strong></p>
 <ul>
-<li>⚠️ DLPFC切片151676存在稳定训练坍塌（NaN from epoch 1），需独立调参，当前无根本解决方案</li>
+<li>⚠️ 检查点加载过程中无声的权重跳过导致属性遗漏</li>
+<li>⚠️ 坐标空间不匹配将样本推入背景区域并破坏方差</li>
+</ul>
+<h3 id="macos-桌面视频壁纸应用3-天活跃---完成">macOS 桌面视频壁纸应用（3 天活跃） — ✅ 完成<a hidden class="anchor" aria-hidden="true" href="#macos-桌面视频壁纸应用3-天活跃---完成">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>交付了具有持久状态、缩略图缓存和冷却逻辑的 History UI</li>
+<li>通过 AppDelegate 观察者解决了低功耗模式下的多屏幕竞态问题</li>
+<li>用 macOS Tahoe 原生玻璃修饰器替换自定义效果，确保视觉一致性</li>
+<li>实现了 Xcode 版本管理和 Info.plist 更新的沙箱绕过自动化机制</li>
+</ul>
+<p><strong>阻碍：</strong></p>
+<ul>
+<li>⚠️ 过期的 UserDefaults 键和重复的 NSWindow 观察者干扰会话状态</li>
+<li>⚠️ 未实现的省电占位符导致快速唤醒/睡眠过渡不佳</li>
+</ul>
+<h3 id="hpc-集群配置与存储审计2-天活跃---完成">HPC 集群配置与存储审计（2 天活跃） — ✅ 完成<a hidden class="anchor" aria-hidden="true" href="#hpc-集群配置与存储审计2-天活跃---完成">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>对共享 HDD_POOL 进行审计，识别主要使用者并绘制存储使用模式</li>
+<li>通过 sbatch/salloc 多路复用器配置安全的 Slurm GPU 分配工作流</li>
+<li>验证了 Pi0/BC-RNN 策略下的错误注入场景的基线评估指标</li>
+</ul>
+<p><strong>阻碍：</strong></p>
+<ul>
+<li>⚠️ pam_slurm_adopt 阻止了直接 SSH，需要基于任务管理的会话管理</li>
+<li>⚠️ Lustre 元数据 I/O 超时在大规模目录扫描期间发生</li>
+</ul>
+<h3 id="跨设备日志聚合与文档基础设施1-天活跃---完成">跨设备日志聚合与文档基础设施（1 天活跃） — ✅ 完成<a hidden class="anchor" aria-hidden="true" href="#跨设备日志聚合与文档基础设施1-天活跃---完成">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>构建了分布式工作站的两阶段导出/合并同步流程</li>
+<li>实施严格的 JSON 模式和 response_format 以防止 AI 输出解析崩溃</li>
+<li>部署了自动化的 Hugo 构建脚本并同步了 CLAUDE.md 约束指南</li>
+</ul>
+<p><strong>阻碍：</strong></p>
+<ul>
+<li>⚠️ 在碎片化的设备环境中，AI 生成的报告截断和格式不稳定</li>
 </ul>
 <h2 id="关键任务">关键任务<a hidden class="anchor" aria-hidden="true" href="#关键任务">#</a></h2>
 <ul>
-<li>✅ <strong>修复scGPT use_fast_transformer权重加载Bug并重提取全量embedding</strong> (2026-02-28) — TransformerModel.__init__遗漏self.use_fast_transformer导致load_pretrained()中key重映射永远不执行，12层注意力Q/K/V权重（17.7%参数）全部随机初始化。修复一行代码后ARI平均提升44.4%，186/186参数全部匹配。</li>
-<li>✅ <strong>Pi0.5全量微调OOM根因确认与LoRA架构切换</strong> (2026-02-23) — 确认JAX FSDP只分片参数存储不减少激活内存，Pi0.5完整训练状态需<del>62GB/GPU超A800上限。切换gemma_2b_lora+gemma_300m_lora将显存降至</del>22.5GB，Job 46553以2.0s/step稳定运行。</li>
-<li>✅ <strong>M14三路基线评估完成与关键结论确认</strong> (2026-02-27) — BC-RNN SR=0.28%，Pi0/Pi0.5 SR=0%，Random的Recovery Progress（0.0199）反而高于所有学习策略。证明学习策略在错误注入场景下严重分布外泛化失败，直接支撑M15 LoRA微调的必要性。</li>
-<li>✅ <strong>MIHD仓库6阶段清理重构</strong> (2026-03-01) — Phase1删除41个死文件（~250K代码+5.3MB图片）；Phase2-4将run_benchmark.py共享函数迁移至6个模块并修复BasicContrastive drop_feature逻辑反转bug（&gt;=改为&lt;）；dry_run验证440个实验通过。</li>
-<li>✅ <strong>Visium HD crop10large全链路支持（8文件修改）</strong> (2026-02-28) — 修改data_loader/clustering/run_benchmark/pipeline四模块，添加HD无标注自动聚类（Leiden估计k）、HD专用可视化逻辑及hd_global配置段，修复坐标空间对齐和双重预处理问题，端到端验证Silhouette=0.343。</li>
-<li>✅ <strong>M14场景兼容性问题发现与修复</strong> (2026-02-23) — 三路评估均在scene 122崩溃，AI分析EnvironmentMismatchError发现649场景库含两类环境（~519兼容+~130 natural_*不兼容）。collector.py加入scene级try-except修复，实际有效评估场景约519个。</li>
-<li>🔄 <strong>Pi0.5 LoRA 9任务并行微调流水线搭建与启动</strong> (2026-03-01) — 创建train_pi05_benchmark.py（5子命令），向openpi/config.py注册18个配置，修复4个启动bug（JAX_PLATFORMS、norm_stats路径、布尔参数、W&amp;B代理），以6×A800、GPU利用率100%、77.7GB/卡成功启动。</li>
-<li>🔄 <strong>BC-RNN Phoenix基线脚本实现与9任务并行训练启动</strong> (2026-02-28) — 基于MimicGen论文超参数实现train_bc_rnn_benchmark.py，修复3处库级bug（mujoco_py导入、MimicGen环境注册、get_bounding_box_half_size继承链），单GPU并行9任务（~2.2GB VRAM/任务），含每20 epoch的50次rollout评估。</li>
-<li>✅ <strong>Coffee BC-RNN object观测键缺失定位与修复</strong> (2026-03-01) — 通过对比HDF5数据集实际obs键结构，发现Coffee缺失57维object状态（Pod/Machine/Holder位置+相对姿态+铰链角），为全部9个任务添加extra_low_dim=[&lsquo;object&rsquo;]，修复Coffee 0% SR根本原因。</li>
-<li>✅ <strong>Pi0.5评估0%成功率根因定位与修复</strong> (2026-02-26) — 确认训练任务（MimicGen 5任务）与评估任务（PickPlace）完全不重叠，改为在训练任务上评估。人类用一句质疑直接命中要害，AI初次分析未能第一时间识别这一最显而易见的原因。</li>
-<li>✅ <strong>BC-RNN image模式配置重写（5任务，符合MimicGen论文）</strong> (2026-02-26) — 将bc_rnn_configs从low_dim全部重写为image模式：ResNet18+SpatialSoftmax encoder、CropRandomizer 76×76、RNN hidden_dim 1000、batch_size 16、epoch_every_n_steps 500，与MimicGen论文主结果一致。</li>
-<li>✅ <strong>MIHD融合训练CPU三项加速实现</strong> (2026-02-23) — scipy cdist向量化替代O(n²)嵌套循环（~100-500x），随机数生成迁移至GPU消除每epoch传输开销，QFormerFusion添加批量forward接口（预计20-50x）。</li>
-<li>✅ <strong>BC-RNN Stack_D0错误场景生成流水线开发</strong> (2026-03-01) — 修复robomimic BC-RNN图像观测接入4层连续bug（enable_camera检测/json.loads解析checkpoint config/84×84分辨率自动检测/HWC→CHW转置+归一化），生成11个tip_over错误场景和MP4可视化。</li>
-<li>✅ <strong>Section 151673 RM-IDEAL全量评估（27方法×7层）</strong> (2026-02-28) — 运行全量27种embedding方法的RM-IDEAL评估，生成189张三面板可视化，staig_fusion平均r=0.396排名第一（Layer_3峰值r=0.644），多模态融合优势量化验证。</li>
-<li>✅ <strong>评估框架扩展至5个MimicGen任务</strong> (2026-02-26) — 新建5个task YAML configs + task_registry.yaml，为1/3/4脚本添加&ndash;task参数，修复_D0 env suffix stripping导致的observation维度错误（65→37），重写run_full_eval.sh支持多任务循环。</li>
-<li>✅ <strong>STAIG fusion全切片基准测试（11个DLPFC切片）</strong> (2026-02-23) — 在11个DLPFC切片上运行pca+uni2+staig_fusion和none+uni2+staig_fusion，修复UNI2 patch_size兼容性bug（256×256→224×224），10/11切片成功，平均ARI=0.546，151676已知坍塌。</li>
-<li>✅ <strong>MIHD Vision Refine vs Baseline对比实验</strong> (2026-02-23) — 在切片151673上运行8种fusion方法有/无scan_cluster refine全量对比，qformer+no-refine为最优（ARI=0.4832）。发现refine对弱fusion有益（attention +0.086），对强fusion有害（qformer -0.054）的规律。</li>
-<li>✅ <strong>evaluate_mimicgen.py与collector.py关键bug修复</strong> (2026-02-23) — 修复_quat2axisangle的in-place数组修改bug（改用np.clip+copy）、collector.py scene级EnvironmentMismatchError捕获、env.seed()可复现性保证、状态维度8D assert验证。</li>
+<li>🔄 <strong>长期政策训练稳定与恢复逻辑</strong>（2026-02-23） — 实现检查点恢复、无缓冲 stdout 包装和 SLURM 错误陷阱，确保 Pi0.5 Phoenix LoRA 训练不受干扰。</li>
+<li>✅ <strong>MIHD 空间组学流程优化与坐标对齐</strong>（2026-03-01） — 修复 scGPT 检查点属性持久性问题，实现动态坐标缩放，并在 11 个 DLPFC 区域向量化处理 STAIG 边缘权重。</li>
+<li>✅ <strong>错误恢复基准测试：BC-RNN 配置修复与 Pi0.5 LoRA 流程</strong>（2026-03-01） — 诊断出 Coffee 任务零成功问题，注入“对象”观测键，设计统一的 CLI，并对齐 robosuite/robomimic 模式映射。</li>
+<li>✅ <strong>BC-RNN 图像模式基准测试重写</strong>（2026-02-26） — 重建所有五种 BC-RNN 训练配置以适应像素级观测，并将评估方法与 MimicGen 标准对齐。</li>
+<li>✅ <strong>Gadget 跨设备日志聚合与状态机最终确定</strong>（2026-03-01） — 构建两阶段导出/合并流程，强制 JSON 模式输出，并部署自动文档发布工作流。</li>
+<li>✅ <strong>视觉编码器 ARI 恢复与向量化重构</strong>（2026-03-01） — 解决坐标空间不匹配导致的嵌入方差问题，通过 CPU 批处理将融合训练加速 100-500 倍。</li>
+<li>✅ <strong>HDD_POOL 存储审计与 Slurm GPU 配置</strong>（2026-02-27） — 将共享文件系统使用者映射到主要用户，配置安全 GPU 分配工作流以用于未来训练任务。</li>
 </ul>
 <h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
-<h3 id="1-pi05全量微调训练状态需62gbgpujax-fsdp4无法有效降低显存只分片存储不减少激活内存反复oom-error-recovery-benchmark-2026-02-23">1. Pi0.5全量微调训练状态需~62GB/GPU，JAX FSDP=4无法有效降低显存（只分片存储不减少激活内存），反复OOM [Error Recovery Benchmark] (2026-02-23)<a hidden class="anchor" aria-hidden="true" href="#1-pi05全量微调训练状态需62gbgpujax-fsdp4无法有效降低显存只分片存储不减少激活内存反复oom-error-recovery-benchmark-2026-02-23">#</a></h3>
-<p><strong>解决方案:</strong> 切换为gemma_2b_lora+gemma_300m_lora架构，可训练参数减少<del>90%，显存降至</del>22.5GB/GPU，Job 46553以2.0s/step稳定运行</p>
-<h3 id="2-m14三路评估均在scene-122649崩溃130个natural_场景xml_hash与当前mimicgen环境不兼容触发environmentmismatcherror且无捕获整个评估进程崩溃-error-recovery-benchmark-2026-02-23">2. M14三路评估均在scene 122/649崩溃：~130个natural_*场景xml_hash与当前mimicgen环境不兼容，触发EnvironmentMismatchError且无捕获，整个评估进程崩溃 [Error Recovery Benchmark] (2026-02-23)<a hidden class="anchor" aria-hidden="true" href="#2-m14三路评估均在scene-122649崩溃130个natural_场景xml_hash与当前mimicgen环境不兼容触发environmentmismatcherror且无捕获整个评估进程崩溃-error-recovery-benchmark-2026-02-23">#</a></h3>
-<p><strong>解决方案:</strong> collector.py的collect_on_scenes()中为每个scene加入EnvironmentMismatchError的try-except，跳过不兼容场景并记录警告，以&ndash;resume重启，确认实际有效评估场景约519个</p>
-<h3 id="3-训练日志因stdout缓冲严重失真pi05训练显示只跑了580步实际已到step-3000导致误判训练中止并触发不必要的重启-error-recovery-benchmark-2026-02-23">3. 训练日志因stdout缓冲严重失真：Pi0.5训练显示只跑了~580步，实际已到step 3000，导致误判训练中止并触发不必要的重启 [Error Recovery Benchmark] (2026-02-23)<a hidden class="anchor" aria-hidden="true" href="#3-训练日志因stdout缓冲严重失真pi05训练显示只跑了580步实际已到step-3000导致误判训练中止并触发不必要的重启-error-recovery-benchmark-2026-02-23">#</a></h3>
-<p><strong>解决方案:</strong> 在训练脚本和sbatch提交脚本中标准化加入PYTHONUNBUFFERED=1+stdbuf -oL；长时间训练改用sbatch提交独立批处理作业与交互会话生命周期解耦</p>
-<h3 id="4-pi05评估success-rate为0被误判为模型质量问题-error-recovery-benchmark-2026-02-26">4. Pi0.5评估success rate为0%，被误判为模型质量问题 [Error Recovery Benchmark] (2026-02-26)<a hidden class="anchor" aria-hidden="true" href="#4-pi05评估success-rate为0被误判为模型质量问题-error-recovery-benchmark-2026-02-26">#</a></h3>
-<p><strong>解决方案:</strong> 确认根因为训练任务（MimicGen 5任务）与评估任务（PickPlace）完全不重叠；改为在训练任务（Coffee/Stack/Threading/Assembly）上评估</p>
-<h3 id="5-bc-rnn评估时observation维度不匹配expected-65-got-37-error-recovery-benchmark-2026-02-26">5. BC-RNN评估时observation维度不匹配（Expected 65, got 37） [Error Recovery Benchmark] (2026-02-26)<a hidden class="anchor" aria-hidden="true" href="#5-bc-rnn评估时observation维度不匹配expected-65-got-37-error-recovery-benchmark-2026-02-26">#</a></h3>
-<p><strong>解决方案:</strong> 在create_env()中添加import mimicgen注册_D0环境，不再strip _D0后缀，保留完整MimicGen observables（_D0环境提供额外物体状态observable）</p>
-<h3 id="6-scgpt-transformermodel__init__遗漏selfuse_fast_transformer导致load_pretrained中wqkvin_proj_的key重映射永远不执行177注意力权重随机初始化strictfalse静默跳过不报错-mihd-2026-02-28">6. scGPT TransformerModel.__init__遗漏self.use_fast_transformer，导致load_pretrained()中Wqkv→in_proj_的key重映射永远不执行，17.7%注意力权重随机初始化，strict=False静默跳过不报错 [MIHD] (2026-02-28)<a hidden class="anchor" aria-hidden="true" href="#6-scgpt-transformermodel__init__遗漏selfuse_fast_transformer导致load_pretrained中wqkvin_proj_的key重映射永远不执行177注意力权重随机初始化strictfalse静默跳过不报错-mihd-2026-02-28">#</a></h3>
-<p><strong>解决方案:</strong> 在model.py添加self.use_fast_transformer = use_fast_transformer一行，修复后ARI平均提升44.4%，重新提取全部11个DLPFC切片embedding</p>
-<h3 id="7-websocket客户端始终connectionrefusederror尝试不同地址格式localhost1270010000均失败-error-recovery-benchmark-2026-02-28">7. WebSocket客户端始终ConnectionRefusedError，尝试不同地址格式（localhost/127.0.0.1/0.0.0.0）均失败 [Error Recovery Benchmark] (2026-02-28)<a hidden class="anchor" aria-hidden="true" href="#7-websocket客户端始终connectionrefusederror尝试不同地址格式localhost1270010000均失败-error-recovery-benchmark-2026-02-28">#</a></h3>
-<p><strong>解决方案:</strong> 发现http_proxy环境变量被设为127.0.0.1:10087，websockets库通过代理连接导致失败；在run_eval.sh开头unset所有代理变量后连接成功</p>
-<h3 id="8-coffeemachinebodyobject缺失get_bounding_box_half_size方法mimicgen-coffee任务rollout初始化时报attributeerrormimicgen与当前robosuite版本之间的接口断层-error-recovery-benchmark-2026-02-28">8. CoffeeMachineBodyObject缺失get_bounding_box_half_size()方法，MimicGen Coffee任务rollout初始化时报AttributeError（MimicGen与当前robosuite版本之间的接口断层） [Error Recovery Benchmark] (2026-02-28)<a hidden class="anchor" aria-hidden="true" href="#8-coffeemachinebodyobject缺失get_bounding_box_half_size方法mimicgen-coffee任务rollout初始化时报attributeerrormimicgen与当前robosuite版本之间的接口断层-error-recovery-benchmark-2026-02-28">#</a></h3>
-<p><strong>解决方案:</strong> 追溯完整调用链（coffee_machine.py→CoffeeMachineBodyObject→CompositeBodyObject→MujocoXMLObject），在三个不同层级基类中分别实现get_bounding_box_half_size()</p>
-<h3 id="9-hd数据unsspatial图像为全图但坐标在裁剪后fullres像素空间两者不匹配导致可视化错位且x已log变换pipeline会再次normalize_totallog1p导致双重变换-mihd-2026-02-28">9. HD数据uns[&lsquo;spatial&rsquo;]图像为全图但坐标在裁剪后fullres像素空间，两者不匹配导致可视化错位；且X已log变换，pipeline会再次normalize_total+log1p导致双重变换 [MIHD] (2026-02-28)<a hidden class="anchor" aria-hidden="true" href="#9-hd数据unsspatial图像为全图但坐标在裁剪后fullres像素空间两者不匹配导致可视化错位且x已log变换pipeline会再次normalize_totallog1p导致双重变换-mihd-2026-02-28">#</a></h3>
-<p><strong>解决方案:</strong> 在load_hd_data()中替换uns[&lsquo;spatial&rsquo;]图像为cropped_fullres.tif并重新计算scalefactor；preprocess_data()添加skip_log参数，HD数据传入skip_log=True只做HVG过滤</p>
-<h3 id="10-coffee-bc-rnn-loss正常收敛-766-154但sr始终0stack同等配置epoch-20即达64表现与模型能力不足高度相似-error-recovery-benchmark-2026-03-01">10. Coffee BC-RNN loss正常收敛（-7.66→-15.4）但SR始终0%，Stack同等配置epoch 20即达64%，表现与模型能力不足高度相似 [Error Recovery Benchmark] (2026-03-01)<a hidden class="anchor" aria-hidden="true" href="#10-coffee-bc-rnn-loss正常收敛-766-154但sr始终0stack同等配置epoch-20即达64表现与模型能力不足高度相似-error-recovery-benchmark-2026-03-01">#</a></h3>
-<p><strong>解决方案:</strong> 对比HDF5数据集实际obs键结构，发现Coffee需57维object状态（多阶段精确操作必需），配置模板缺失该字段；为全部9个任务添加extra_low_dim=[&lsquo;object&rsquo;]并重新生成配置</p>
-<h3 id="11-robomimic-bc-rnn图像观测接入4层连续失败enable_camera检测逻辑checkpoint-config为json字符串格式图像分辨率获取hwcchw格式转换均存在问题-error-recovery-benchmark-2026-03-01">11. robomimic BC-RNN图像观测接入4层连续失败：enable_camera检测逻辑/checkpoint config为JSON字符串格式/图像分辨率获取/HWC→CHW格式转换均存在问题 [Error Recovery Benchmark] (2026-03-01)<a hidden class="anchor" aria-hidden="true" href="#11-robomimic-bc-rnn图像观测接入4层连续失败enable_camera检测逻辑checkpoint-config为json字符串格式图像分辨率获取hwcchw格式转换均存在问题-error-recovery-benchmark-2026-03-01">#</a></h3>
-<p><strong>解决方案:</strong> ① 从checkpoint config JSON字符串（需json.loads）检测rgb modality；② 从shape_metadata读取实际84×84尺寸；③ 手动HWC→CHW转置+uint8→float32/255归一化（标准rollout中ObsUtils.process_obs自动完成）</p>
-<h3 id="12-pi05-lora训练启动4个连续阻塞性bug-jax_platformscpu单独设置无效-norm_stats路径错误-布尔参数overwritefalse无效-hpc节点wb外网访问被阻-error-recovery-benchmark-2026-03-01">12. Pi0.5 LoRA训练启动4个连续阻塞性bug：① JAX_PLATFORMS=cpu单独设置无效；② norm_stats路径错误；③ 布尔参数&ndash;overwrite=False无效；④ HPC节点W&amp;B外网访问被阻 [Error Recovery Benchmark] (2026-03-01)<a hidden class="anchor" aria-hidden="true" href="#12-pi05-lora训练启动4个连续阻塞性bug-jax_platformscpu单独设置无效-norm_stats路径错误-布尔参数overwritefalse无效-hpc节点wb外网访问被阻-error-recovery-benchmark-2026-03-01">#</a></h3>
-<p><strong>解决方案:</strong> ① 同时设CUDA_VISIBLE_DEVICES=&quot;&quot;+JAX_PLATFORMS=cpu；② norm_stats实际路径为assets/<config>/benchmark/<dataset>/norm_stats.json；③ 改用&ndash;no-overwrite；④ 预设WANDB_MODE=disabled</p>
-<h3 id="13-visiumhd-hd数据pipeline路径适配vision-encoder图像路径查找fusion阶段spatial-coords加载均假设dlpfc目录结构而失败-mihd-2026-03-01">13. VisiumHD HD数据pipeline路径适配：vision encoder图像路径查找、fusion阶段spatial coords加载均假设DLPFC目录结构而失败 [MIHD] (2026-03-01)<a hidden class="anchor" aria-hidden="true" href="#13-visiumhd-hd数据pipeline路径适配vision-encoder图像路径查找fusion阶段spatial-coords加载均假设dlpfc目录结构而失败-mihd-2026-03-01">#</a></h3>
-<p><strong>解决方案:</strong> find_spatial_image()增加cropped_fullres.tif模式识别；vision encoder调用传crop_dir.parent作为data_root；fusion阶段直接从adata.obsm[&lsquo;spatial&rsquo;]加载坐标绕过路径查找</p>
-<h3 id="14-norm_stats计算时gpu-util0但显存满载任务长时间无进展根因为paligemmatokenizer在get_configmodel调用时eager加载到所有可见gpu-error-recovery-benchmark-2026-03-01">14. norm_stats计算时GPU util=0但显存满载，任务长时间无进展；根因为PaligemmaTokenizer在get_config().model调用时eager加载到所有可见GPU [Error Recovery Benchmark] (2026-03-01)<a hidden class="anchor" aria-hidden="true" href="#14-norm_stats计算时gpu-util0但显存满载任务长时间无进展根因为paligemmatokenizer在get_configmodel调用时eager加载到所有可见gpu-error-recovery-benchmark-2026-03-01">#</a></h3>
-<p><strong>解决方案:</strong> 同时设CUDA_VISIBLE_DEVICES=&quot;&quot;+JAX_PLATFORMS=cpu强制CPU模式（norm_stats完全不需要模型推理）；加CPU并行+子采样（max-frames 10000），计算时间从10+分钟降至2.5分钟</p>
-<h2 id="学习收获">学习收获<a hidden class="anchor" aria-hidden="true" href="#学习收获">#</a></h2>
+<h3 id="1-融合循环中的序列化瓶颈和硬件闲置阻碍了多编码器灵活性-mihd-空间转录组融合2026-02-23">1. 融合循环中的序列化瓶颈和硬件闲置阻碍了多编码器灵活性 [MIHD 空间转录组融合]（2026-02-23）<a hidden class="anchor" aria-hidden="true" href="#1-融合循环中的序列化瓶颈和硬件闲置阻碍了多编码器灵活性-mihd-空间转录组融合2026-02-23">#</a></h3>
+<p><strong>解决方案：</strong> 用 NumPy/scipy 向量化替代迭代计算，为 GPU 并行性填充可变长度张量，并将流程路由与严格的编码器依赖解耦。</p>
+<h3 id="2-混合数据集收集崩溃和无声退出导致长期训练运行中断-错误恢复基准测试与机器人基线测试2026-02-23">2. 混合数据集收集崩溃和无声退出导致长期训练运行中断 [错误恢复基准测试与机器人基线测试]（2026-02-23）<a hidden class="anchor" aria-hidden="true" href="#2-混合数据集收集崩溃和无声退出导致长期训练运行中断-错误恢复基准测试与机器人基线测试2026-02-23">#</a></h3>
+<p><strong>解决方案：</strong> 注入 EnvironmentMismatchError 回退机制以实现优雅跳过日志，更新启动脚本添加 PYTHONUNBUFFERED 标志，实现明确的恢复逻辑和 ERR 陷阱。</p>
+<h3 id="3-scgpt-检查点损坏和坐标缩放失败破坏了下游指标-mihd-空间转录组融合2026-03-01">3. scGPT 检查点损坏和坐标缩放失败破坏了下游指标 [MIHD 空间转录组融合]（2026-03-01）<a hidden class="anchor" aria-hidden="true" href="#3-scgpt-检查点损坏和坐标缩放失败破坏了下游指标-mihd-空间转录组融合2026-03-01">#</a></h3>
+<p><strong>解决方案：</strong> 注入 <code>use_fast_transformer</code> 初始化标志以恢复 PyTorch 键映射，应用动态分辨率缩放函数，清除过旧缓存。</p>
+<h3 id="4-bc-rnn-coffee-任务成功率为-0因为配置模板遗漏了空间状态输入-错误恢复基准测试与机器人基线测试2026-03-01">4. BC-RNN Coffee 任务成功率为 0%，因为配置模板遗漏了空间状态输入 [错误恢复基准测试与机器人基线测试]（2026-03-01）<a hidden class="anchor" aria-hidden="true" href="#4-bc-rnn-coffee-任务成功率为-0因为配置模板遗漏了空间状态输入-错误恢复基准测试与机器人基线测试2026-03-01">#</a></h3>
+<p><strong>解决方案：</strong> 修复 YAML 生成脚本以注入任务特定的“对象”坐标覆盖，验证 HDF5 模式存在性，重新生成有助于训练收敛的配置。</p>
+<h3 id="5-企业代理劫持-tcp-流量和空闲-vram-垄断阻碍了活跃计算任务-hpc-集群配置与存储审计2026-02-28">5. 企业代理劫持 TCP 流量和空闲 VRAM 垄断阻碍了活跃计算任务 [HPC 集群配置与存储审计]（2026-02-28）<a hidden class="anchor" aria-hidden="true" href="#5-企业代理劫持-tcp-流量和空闲-vram-垄断阻碍了活跃计算任务-hpc-集群配置与存储审计2026-02-28">#</a></h3>
+<p><strong>解决方案：</strong> 使用 pam_slurm_adopt 阻止直接 SSH，需要基于任务管理的会话管理。<strong>解决方案：</strong> 明确取消原始套接字路由的HTTP代理设置，通过JAX/CUDA绕过标志强制仅使用CPU执行，通过nvidia-smi分析定位僵尸PID</p>
+<h3 id="6-macos多屏幕竞争条件与过时的会话状态会降低用户体验尤其在快速切换时-desktop-video-wallpaper-macos-app-2026-03-01">6. macOS多屏幕竞争条件与过时的会话状态会降低用户体验，尤其在快速切换时 [Desktop Video Wallpaper macOS App] (2026-03-01)<a hidden class="anchor" aria-hidden="true" href="#6-macos多屏幕竞争条件与过时的会话状态会降低用户体验尤其在快速切换时-desktop-video-wallpaper-macos-app-2026-03-01">#</a></h3>
+<p><strong>解决方案：</strong> 追踪窗口绑定以消除重复观察者，修正UserDefaults清除键，并通过AppDelegate监听器实现异步电源状态传递</p>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="领域知识-domain">领域知识 (domain)<a hidden class="anchor" aria-hidden="true" href="#领域知识-domain">#</a></h3>
+<ul>
+<li>仅基于视觉的基础模型能够捕捉不同生物层次间的视觉一致性；多模态约束严格排除纹理偏差，是对未标记组织数据进行准确空间转录组映射的必要条件。</li>
+</ul>
 <h3 id="架构-architecture">架构 (architecture)<a hidden class="anchor" aria-hidden="true" href="#架构-architecture">#</a></h3>
 <ul>
-<li>JAX FSDP只分片参数存储，不影响初始化时的完整模型加载和前向激活内存；Pi0.5完整训练状态需<del>62GB/GPU，单A800 80GB无法承载全量微调；LoRA（gemma_2b_lora）是A800集群唯一可行方案，将显存需求降至</del>22.5GB。看到&rsquo;Can&rsquo;t reduce memory use below 62.46GiB&rsquo;警告时应立即切换LoRA。</li>
-<li>BC-RNN配置的观测键必须与任务复杂度匹配：Coffee等多阶段精确操作任务需57维object状态，单靠84×84图像无法提供足够空间精度；配置bug的表现（loss正常但SR=0）与模型能力不足高度相似，需通过数据集结构对比才能区分。</li>
-<li>向量化与批量化加速效果极显著：O(n²)嵌套循环→cdist矩阵运算约100-500x，Python逐spot循环→批量GPU forward预计20-50x。norm_stats计算完全不需要模型推理，强制CPU模式+子采样+并行可从10+分钟降至2.5分钟。</li>
-<li>大型仓库重构方法论：系统性grep验证所有导入依赖→按「建新模块→更新引用→删旧文件」顺序执行→dry_run验证；同名函数多变体合并前需仔细比对边界条件（&gt;vs&gt;=vs&lt;可导致功能完全相反）。</li>
+<li>严格的检查点加载会通过静默回退到默认值来掩盖关键属性缺失；明确的状态持久化至关重要。无状态管道需要对称的finalize/merge机制，并强制 Schema执行以确保跨设备行为的确定性。</li>
 </ul>
 <h3 id="调试-debugging">调试 (debugging)<a hidden class="anchor" aria-hidden="true" href="#调试-debugging">#</a></h3>
 <ul>
-<li>PyTorch model.load_state_dict(strict=False)会静默忽略不匹配的key，关键权重可能长期以随机值运行不报任何错误；生产代码应主动打印missing_keys/unexpected_keys并验证参数数值统计。上游开源官方仓库也可能存在同类Bug，权重加载路径需主动审计而非盲目信任。</li>
-<li>robomimic BC-RNN推理关键细节：checkpoint config以JSON字符串存储（需json.loads，非直接dict访问）；绕过标准rollout流程时需手动HWC→CHW转置和uint8→float32/255归一化（标准rollout中ObsUtils.process_obs自动完成）。</li>
-</ul>
-<h3 id="领域知识-domain">领域知识 (domain)<a hidden class="anchor" aria-hidden="true" href="#领域知识-domain">#</a></h3>
-<ul>
-<li>M14关键结论：BC-RNN SR=0.28%，Pi0/Pi0.5 SR=0%，Random的Recovery Progress（0.0199）反而高于所有学习策略——学习策略在错误注入场景下存在严重分布外泛化失败，直接证明M15 LoRA微调的必要性。</li>
-<li>649场景数据库由两类环境组成：<del>519个impulse/augmented兼容场景（xml_hash匹配）和</del>130个natural_*自然捕获场景（xml_hash不同）。M14实际有效评估场景约519个，所有文档和目标episode数需相应更新。</li>
-<li>STAIG fusion在RM-IDEAL评估全面领先（151673平均r=0.396，Layer_3峰值r=0.644），多模态融合对空间niche结构捕获能力远超单模态基线（gene/vision avg r≈0.06-0.12）。Vision Refine效果呈两极分化：对弱fusion有益（attention +0.086 ARI），对强fusion有害（qformer -0.054），强fusion已具备处理高维输入能力，降维反而损失信息。</li>
-<li>跨任务评估是robot learning的常见陷阱：训练集任务与评估任务不重叠直接导致0% SR，应在实验设计阶段确保train/eval task一致性。MimicGen _D0环境提供额外物体observable，剥离_D0后缀使observation维度从65降至37，破坏推理时输入一致性。</li>
-<li>VisiumHD坐标映射：2um bin的r_big//4得到8um grid row（col同理）；scanpy spatial可视化size参数是spot_diameter_fullres的倍数，HD 8μm（diameter≈7.3）需size≈4.0，DLPFC（diameter≈144）用size=1.0；Leiden社区发现（resolution=1.0）是无标注HD数据默认聚类策略（crop10large k=17，Silhouette=0.302）。</li>
+<li>无声的权重跳过或基于阈值的初始化会导致不可观测的数据灾难性丢失。坐标空间不匹配会均匀将样本推入背景区域，破坏嵌入方差。ML框架倾向于在设备层面进行快速初始化；仅使用环境变量不足以实现框架级绕过设置。</li>
 </ul>
 <h3 id="工具-tools">工具 (tools)<a hidden class="anchor" aria-hidden="true" href="#工具-tools">#</a></h3>
 <ul>
-<li>Slurm集群训练工程最佳实践：长时间训练必须用sbatch（非srun，避免会话超时被SIGTERM）；所有训练脚本标准化加入PYTHONUNBUFFERED=1+stdbuf -oL；启动前用fuser /dev/nvidiaX清理zombie GPU进程（nvitop等监控工具也持有CUDA上下文）；MUJOCO_EGL_DEVICE_ID对应物理GPU编号而非CUDA_VISIBLE_DEVICES逻辑编号。</li>
-<li>JAX/Pi0.5训练关键配置：① CPU模式需同时设CUDA_VISIBLE_DEVICES=&quot;&quot;+JAX_PLATFORMS=cpu；② XLA_PYTHON_CLIENT_MEM_FRACTION=0.95对A800 80GB有效（61→77.7GB）；③ HPC节点必须预设WANDB_MODE=disabled；④ argparse布尔flag用&ndash;no-overwrite不能用&ndash;flag=False；⑤ openpi norm_stats路径为assets/<config>/benchmark/<dataset>/norm_stats.json。</li>
-<li>HTTP/HTTPS代理环境变量（http_proxy）会被Python websockets库透明代理WebSocket连接，HPC集群调试本地服务时需unset代理变量。MimicGen环境通过import mimicgen的副作用注册到robosuite，外部工具调用前必须显式执行该import。修复第三方库缺失方法必须追溯完整继承链在所有基类中实现，仅修补最近调用点会导致其他子类仍报错。</li>
-<li>pam_slurm_adopt集群GPU节点不支持直接SSH；srun &ndash;overlap可在已有interactive job上附加新step复用节点资源；robomimic非TTY环境遇已存在checkpoint目录会EOFError退出，每次启动前需彻底清理目录。checkpoint目录是训练完成最可靠证据，SLURM job崩溃不等于训练失败。</li>
+<li>HPC集群经常继承限制性的HTTP代理，这些代理会静默劫持TCP/WebSocket端口。直接访问GPU需要基于批次/任务的工作流程，而非SSH。AI输出格式的稳定性需要基础设施层面的语法防御机制和动态范围查找，以防止跨设备聚合时的解析崩溃。</li>
 </ul>
-<h2 id="ai-使用备注">AI 使用备注<a hidden class="anchor" aria-hidden="true" href="#ai-使用备注">#</a></h2>
-<p><strong>有效模式:</strong></p>
+<h2 id="ai使用说明">AI使用说明<a hidden class="anchor" aria-hidden="true" href="#ai使用说明">#</a></h2>
+<p><strong>有效模式：</strong></p>
 <ul>
-<li>✓ 系统性代码审计定位根因：通过比对checkpoint与model state_dict的key精确定位scGPT权重加载Bug（一行遗漏）；通过对比HDF5数据集实际obs键结构独立发现Coffee配置缺陷（全程无人类假设引导）</li>
-<li>✓ 完整调用链追溯：修复CoffeeMachineBodyObject缺失方法时追溯三层继承链（coffee_machine→CoffeeMachineBodyObject→CompositeBodyObject→MujocoXMLObject），在所有基类中实现而非仅修补最近调用点</li>
-<li>✓ 渐进式调试：通过逐步分析（依赖降级→源码修补→架构切换→sbatch提交）解决Pi0.5训练OOM，而非一次性替换整套方案</li>
-<li>✓ SubAgent并行监控：通过TaskOutput后台监控多个长耗时实验，跨DCC/天河双集群并行推进不同项目</li>
+<li>✓ 由人类进行的策略性任务分解，结合AI的运行时编排和自动管道扩展</li>
+<li>✓ 严格的架构约束执行 + 针对跨框架兼容性的战术代码生成</li>
+<li>✓ 结合动态向量化的多模态指标验证管道以加速推理</li>
 </ul>
-<p><strong>局限性:</strong></p>
+<p><strong>限制：</strong></p>
 <ul>
-<li>✗ 对JAX FSDP显存原理判断错误（认为FSDP=4可降至~16GB），多次OOM后才切换LoRA，应在看到&rsquo;Can&rsquo;t reduce memory use below 62.46GiB&rsquo;警告时立即行动</li>
-<li>✗ 诊断Pi0.5 0%成功率时未能第一时间识别任务分布不匹配这一最显而易见的原因，先列出OOM/action clipping等次要因素，被用户一句直接质疑命中要害</li>
-<li>✗ 缺乏主动的长时间任务健康检查：GPU空转（util=0但显存满载）、进程卡住等异常均依赖用户主动发现，而非AI主动审计</li>
-<li>✗ 外部工具集成前缺乏预防性验证：未预先检查mclust/rpy2可用性、图像格式约定（HWC vs CHW）、出站网络限制（W&amp;B）、zombie GPU进程，导致多轮失败后才修复</li>
-<li>✗ 多次在写完plan后尝试自动调用ExitPlanMode推进执行（被用户拒绝共2-3次），AI未能理解plan是用户决策检查点而非自动推进信号</li>
-<li>✗ 依赖过时的对话缓存信息（如Pi0.5 step 5000崩溃记录）缺乏主动验证意识，应以实际checkpoint文件状态为准而非对话记录</li>
+<li>✗ 沙箱限制阻止了底层shell操作，迫使使用复杂的文件读写 workaround</li>
+<li>✗ 未能预见到HPC集群上企业代理的劫持现象，导致漫长的网络调试过程</li>
+<li>✗ 过度依赖截断的单个作业日志，导致对初始检查点状态的理解错误</li>
+<li>✗ 缺乏对模糊历史指令的持久记忆，需要明确的文件/参数引用</li>
 </ul>
-<h2 id="下周展望">下周展望<a hidden class="anchor" aria-hidden="true" href="#下周展望">#</a></h2>
-<p>下周核心任务：① 等待并分析Pi0.5 LoRA 9任务微调结果（预计53小时完成），与4.2%基础模型基线对比，验证LoRA对MimicGen任务的泛化提升效果；② BC-RNN 9任务训练推进至600 epoch，重点关注Coffee/ThreePieceAssembly D1等复杂任务的收敛情况；③ 修复Coffee环境初始化simulator bug（物体穿模/卡死），完成Coffee BC-RNN评估闭环；④ M15实验设计启动：基于M14结论（学习策略错误场景SR≈0%），规划错误场景下的LoRA微调数据采集策略，确定错误类型采样比例和数据量；⑤ MIHD扩展：在更多VisiumHD切片上运行多模态基准测试验证STAIG fusion统计稳定性，并开展DLPFC 151676切片训练坍塌专项调查（调整tau/dropout rate/图构建参数）。</p>
-<h2 id="token-用量统计">Token 用量统计<a hidden class="anchor" aria-hidden="true" href="#token-用量统计">#</a></h2>
-<h3 id="每日费用趋势">每日费用趋势<a hidden class="anchor" aria-hidden="true" href="#每日费用趋势">#</a></h3>
-<table>
-  <thead>
-      <tr>
-          <th>日期</th>
-          <th>Token (百万)</th>
-          <th>费用 ($)</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>2026-02-23</td>
-          <td>17.2</td>
-          <td>8.82</td>
-      </tr>
-      <tr>
-          <td>2026-02-26</td>
-          <td>15.1</td>
-          <td>6.34</td>
-      </tr>
-      <tr>
-          <td>2026-02-27</td>
-          <td>2.4</td>
-          <td>0.45</td>
-      </tr>
-      <tr>
-          <td>2026-02-28</td>
-          <td>53.2</td>
-          <td>34.91</td>
-      </tr>
-      <tr>
-          <td>2026-03-01</td>
-          <td>90.0</td>
-          <td>55.00</td>
-      </tr>
-  </tbody>
-</table>
-<p><strong>峰值日:</strong> 2026-03-01 — $55.00 / 90.0M tokens</p>
-<h3 id="claude-code">Claude Code<a hidden class="anchor" aria-hidden="true" href="#claude-code">#</a></h3>
-<table>
-  <thead>
-      <tr>
-          <th>指标</th>
-          <th>数值</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>总 Token</td>
-          <td>177,973,151</td>
-      </tr>
-      <tr>
-          <td>输入 Token</td>
-          <td>238,487</td>
-      </tr>
-      <tr>
-          <td>输出 Token</td>
-          <td>333,455</td>
-      </tr>
-      <tr>
-          <td>Cache 创建</td>
-          <td>9,184,774</td>
-      </tr>
-      <tr>
-          <td>Cache 读取</td>
-          <td>168,216,435</td>
-      </tr>
-      <tr>
-          <td>总费用</td>
-          <td>$105.52</td>
-      </tr>
-  </tbody>
-</table>
-<h4 id="模型使用分布">模型使用分布<a hidden class="anchor" aria-hidden="true" href="#模型使用分布">#</a></h4>
-<table>
-  <thead>
-      <tr>
-          <th>模型</th>
-          <th>费用 ($)</th>
-          <th>输入 Token</th>
-          <th>输出 Token</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>claude-opus-4-6</td>
-          <td>94.14</td>
-          <td>52,476</td>
-          <td>198,099</td>
-      </tr>
-      <tr>
-          <td>claude-haiku-4-5-20251001</td>
-          <td>11.38</td>
-          <td>186,011</td>
-          <td>135,356</td>
-      </tr>
-  </tbody>
-</table>
+<h2 id="下周计划">下周计划<a hidden class="anchor" aria-hidden="true" href="#下周计划">#</a></h2>
+<p>全面进行Pi0.5 VLA评估，覆盖所有九项MimicGen任务，并在HPC分区上完成BC-RNN基线训练执行。启动M15人工参与微调阶段，以应对错误恢复场景中的分布变化。将MIHD空间转录组基准测试扩展到更大的未标记样本群（如结肠癌数据集），同时整合跨设备日志聚合基础设施。为依赖图验证分配专项周期，在旧代码归档前确保所有集成管道的推理路径连续性。</p>
+<h2 id="令牌使用统计">令牌使用统计<a hidden class="anchor" aria-hidden="true" href="#令牌使用统计">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-W09</span>
+        <span class="usage-card__source">Claude Code</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$68.82</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>160M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>627K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>90.2%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 90.2%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 9.8%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (90.2%), active tokens (9.8%)">
+          <span style="width:90.2%; background:var(--usage-cache)"></span>
+          <span style="width:9.8%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<p><strong>高峰日：</strong> 2026-02-28 — $24.99 / 57.1M 令牌</p>
+<p><strong>每日平均：</strong> $13.76</p>
+<!-- gadget:src-hash:1a3211e54c238810 -->
 
 
   </div>
