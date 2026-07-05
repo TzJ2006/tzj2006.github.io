@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Weekly Summary 2026-W19 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal, Weekly Summary">
+<meta name="description" content="本周的重点是TokenMonitor v0.13.1的最终发布与架构稳定化，同时进行了针对2026年NeurIPS上的ErrorRecoveryBench/RecoverBench论文提交的全面准备工作，包括全面的代码匿名处理、数据集验证、指标修正以及Croissant元数据的生成。平行的计算工作解决了持续的硬件稳定性问题——通过诊断并修复RTX 5090 PCIe驱动器的崩溃循环；同时修复了损坏的LeRobot数据集管道，采用可靠的JAX兼容错误处理方式，并对AdaptVision PPO训练架构进行了审计。本周的结束意味着代码库成功合并、学术提交材料得到验证、工作站可靠性恢复，以及本地开发基础设施得到优化。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w19-weekly/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/weekly/2026-w19-weekly/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w19-weekly/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w19-weekly/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Weekly Summary 2026-W19">
+  <meta property="og:description" content="本周的重点是TokenMonitor v0.13.1的最终发布与架构稳定化，同时进行了针对2026年NeurIPS上的ErrorRecoveryBench/RecoverBench论文提交的全面准备工作，包括全面的代码匿名处理、数据集验证、指标修正以及Croissant元数据的生成。平行的计算工作解决了持续的硬件稳定性问题——通过诊断并修复RTX 5090 PCIe驱动器的崩溃循环；同时修复了损坏的LeRobot数据集管道，采用可靠的JAX兼容错误处理方式，并对AdaptVision PPO训练架构进行了审计。本周的结束意味着代码库成功合并、学术提交材料得到验证、工作站可靠性恢复，以及本地开发基础设施得到优化。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-05-10T23:59:00-05:00">
+    <meta property="article:modified_time" content="2026-05-10T23:59:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Weekly Summary 2026-W19">
+  <meta name="twitter:description" content="本周的重点是TokenMonitor v0.13.1的最终发布与架构稳定化，同时进行了针对2026年NeurIPS上的ErrorRecoveryBench/RecoverBench论文提交的全面准备工作，包括全面的代码匿名处理、数据集验证、指标修正以及Croissant元数据的生成。平行的计算工作解决了持续的硬件稳定性问题——通过诊断并修复RTX 5090 PCIe驱动器的崩溃循环；同时修复了损坏的LeRobot数据集管道，采用可靠的JAX兼容错误处理方式，并对AdaptVision PPO训练架构进行了审计。本周的结束意味着代码库成功合并、学术提交材料得到验证、工作站可靠性恢复，以及本地开发基础设施得到优化。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Weekly Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/weekly/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Weekly Summary 2026-W19",
+      "item": "https://tzj2006.github.io/zh/bugjournal/weekly/2026-w19-weekly/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Weekly Summary 2026-W19",
+  "name": "Weekly Summary 2026-W19",
+  "description": "本周的重点是TokenMonitor v0.13.1的最终发布与架构稳定化，同时进行了针对2026年NeurIPS上的ErrorRecoveryBench/RecoverBench论文提交的全面准备工作，包括全面的代码匿名处理、数据集验证、指标修正以及Croissant元数据的生成。平行的计算工作解决了持续的硬件稳定性问题——通过诊断并修复RTX 5090 PCIe驱动器的崩溃循环；同时修复了损坏的LeRobot数据集管道，采用可靠的JAX兼容错误处理方式，并对AdaptVision PPO训练架构进行了审计。本周的结束意味着代码库成功合并、学术提交材料得到验证、工作站可靠性恢复，以及本地开发基础设施得到优化。",
+  "keywords": [
+    "Bug Journal", "Weekly Summary"
+  ],
+  "articleBody": "每周报告 — 2026-W19（2026-05-04 ~ 2026-05-10） 本周重点在于 TokenMonitor v0.13.1 的最终发布与架构稳定化，同时全力准备提交给 ErrorRecoveryBench/RecoverBench NeurIPS 2026 会议，包括全面的代码匿名处理、数据集验证、指标修正以及 Croissant 元数据生成。并行计算工作解决了持续存在的硬件稳定性问题，通过诊断并修复 RTX 5090 PCIe 驱动崩溃循环；同时利用可靠的 JAX 兼容错误处理修复了损坏的 LeRobot 数据集管道，并对 AdaptVision PPO 训练架构进行了审计。本周最后实现了代码库的成功合并、学术提交材料的验证、工作站可靠性的恢复以及本地开发基础设施的优化。\n每周概览 指标 数值 日期范围 2026-05-04 ~ 2026-05-10 活跃天数 7 / 7 总对话数 19 项目数 12 完成任务数 49 进行中任务数 2 总令牌数 1,929,559,195 总成本 $1,794.96 Claude 代码令牌数 1,481,708,943 Claude 代码成本 $1,367.30 Codex 令牌数 447,850,252 Codex 成本 $427.66 日平均成本 $256.42 项目进展 TokenMonitor（3天活跃） — 🔄 活跃 成果：\n执行了混合合并，同时保留本地 OAuth/Cursor 功能与上游状态栏架构 重构了多供应商芯片选择设置界面和统一的状态栏优先 fallback 链 修复了阻止 Codex 速率限制显示的关键 Windows 路径解析问题 同步了浮动球与主窗口的利用逻辑，消除数据不一致现象 成功发布 v0.13.0 及补丁 v0.13.1，测试无失败且自动同步了 Tauri 版本 阻碍：\n⚠️ 初始上游合并需要手动恢复已回退的功能，因分支历史不同 ⚠️ CSS Grid 塌陷动画导致盒子模型泄露，需 fallback 至最大高度模式 ⚠️ FloatBall 中的过期窗口过滤问题，在策略调整前隐藏了活跃的空闲会话 ErrorRecoveryBench / RecoverBench（NeurIPS 2026 E\u0026D）（5天活跃） — 🔄 活跃 成果：\n为双盲提交进行了代码库同步和匿名处理，去除了所有身份标识 使用并行代理将21个文件从中文翻译为英文，验证无残留非英文文本 将论文参考文献整理为包含23个结构化条目且支持 natbib 的 BibTeX格式 通过事实核查和策略行拆分纠正了关键 BC-RNN 指标差异 生成 Croissant JSON-LD 元数据并下载完整发布数据集以满足提交要求 按照科学颜色标准完成出版级图表、热图及验证可视化效果 整合了1,360个评估场景的数据集统计信息，验证了分类法/图表的一致性 阻碍：\n⚠️ MimicGen RPG 跨步转移成功率仍低于5%，需要统一检查点策略说明 ⚠️ 评估基准的匿名托管基础设施尚未部署 ⚠️ 作者在起草阶段更偏好手动引用管理，导致格式不一致 硬件系统 / 工作站诊断（2天活跃） — ✅ 完成 成果：\n诊断出 RTX 5090 间歇性的 BSOD 和 WHEA PCIe AER 不支持请求错误 确定空闲期间 NVIDIA Gen5↔Gen1 链接状态电源转换是根本原因 应用驱动级修复（优先最大性能）使运行时的 WHEA 错误降至零 阻碍：\n⚠️ 由于硬件/固件切换时机问题，启动时的初始化 UR 错误无法避免 LeRobot 数据管道与 PairedDataset（2天活跃） — 🔄 活跃 成果：\n诊断并修复了多个 OSS 数据集中的60个损坏的MP4片段 实施预检查黑名单、静默损坏掩蔽和动态JAX兼容损失掩蔽 整体解决干净数据集的潜在损坏问题，避免 DataLoader 运行时无效 阻碍：\n⚠️ 修复后的干净数据集（boss44_lerobot）仍需持续验证 AdaptVision 与 MIHD 开发（1天活跃） — 🔄 活跃 成果：\n映射了完整的PPO训练流程和多轮裁剪奖励机制 审计了 CLAUDE.md 文档的完整性及架构一致性 阻碍：\n⚠️ AdaptVision README中存在的硬编码API密钥需立即修复 本地开发环境（1天活跃） — 进行中 成果：\n将所有conda环境导出为YML文件，并安全部署Miniconda安装程序以便迁移 通过规划新的D盘安装解决C盘空间不足问题，避免路径损坏 关键任务 ✅ 上游TokenMonitor仓库的混合合并（2026-05-04）— 使用混合策略解决了20个冲突文件，同时保留本地OAuth/Cursor/Codex实现，并整合了上游状态栏模块和设置界面重新设计。 ✅ 修正论文表6中的关键BC-RNN数据错误（2026-05-07）— 将BC-RNN Normal SR从21%改为56%/42%（V1/V2），将单行拆分为两行策略行，并根据事实核查修正了Pi 0.5 Recovery Normal SR。 ✅ 同步UI面板的利用提取逻辑（2026-05-04）— 修复了窗口选择和过期宽限期，与前端逻辑一致，消除了浮动球与主应用数据不一致问题。 ✅ 诊断并解决RTX 5090 PCIe ASPM崩溃循环（2026-05-05）— 分析WHEA日志并测试GPU，确定NVIDIA驱动链接状态电源管理是间歇性的DPC看门狗BSOD的原因，应用了永久策略修复。 ✅ 生成Croissant元数据及NeurIPS提交图表（2026-05-07）— 创建包含数据集描述、FileObjects和RecordSets的必填croissant.json文件；迭代优化科学可视化效果，消除重叠并确保排版一致性。 ✅ 诊断LeRobot损坏的数据管道并实施PairedDataset错误处理（2026-05-08/09）— 创建诊断脚本识别并重新编码HDF5中的损坏片段；重构paired_dataset.py，加入预检查黑名单和JIT兼容损失掩蔽。 ✅ 解决Rust CI环境变量保护竞态问题（2026-05-05）— 将测试模块中的环境变量保护统一为单个全局锁，并重构测试以直接调用读取逻辑，避免复杂的macOS钥匙链 fallback链。 ✅ 映射AdaptVision PPO训练流程并审计MIHD文档（2026-05-08）— 在大型代码库中追踪执行路径，明确复杂的奖励机制。对 CLAUDE.md 进行了审计，以在重新生成前确保结构完整性。 问题与解决方案 1. 上游合并冲突导致不同分支产生差异，需实现架构对齐，同时不丢失本地实现 [TokenMonitor]（2026-05-04）解决方案： 采用混合合并策略隔离冲突模块，通过合并集成点保留两个分支的价值，并手动恢复已撤销的文件。 2. 学术论文中的关键 BC-RNN 指标差异（21% 对比实际 56%）及专业图表格式问题 [ErrorRecoveryBench / RecoverBench (NeurIPS 2026 E\u0026D)] (2026-05-07) 解决方案： 将所有表格数值与原始实验 JSON 进行交叉验证，修正策略行，并将 matplotlib 输出调整为科学配色方案，采用统一的排版方式。\n3. FloatBall 因激进的窗口过滤导致关键约束被隐藏而无法显示速率限制 [TokenMonitor] (2026-05-06) 解决方案： 将所有窗口的选择改为最大利用率策略，确保无论会话状态如何，最关键约束始终能够被呈现。\n4. RTX 5090 在空闲/启动过程中出现间歇性 BSOD 和 WHEA PCIe AER 不支持请求错误 [Hardware Systems / Workstation Diagnostics] (2026-05-05) 解决方案： 确定 NVIDIA 驱动程序链接状态下降为根本原因；通过调整驱动程序强制电源管理模式为“优先最大性能”来解决问题。\n5. LeRobot DataLoader 中损坏的 MP4 文件导致的运行时失效与 JAX JIT 约束冲突 [LeRobot Data Pipeline \u0026 PairedDataset] (2026-05-09) 解决方案： 创建诊断脚本从 HDF5 重新编码；实施动态 try-except 黑名单和损失掩码，以绕过静态图控制流限制。\n6. CSS Grid 折叠动画导致填充/边框在多个 UI 部分间出现视觉泄漏 [TokenMonitor] (2026-05-04) 解决方案： 将 grid-template-rows: 0fr 改为基于最大高度的动画，并在父容器上设置 overflow hidden，从而恢复跨浏览器的一致性行为。\n经验教训 system_architecture (system_architecture) 速率限制备用链应优先使用服务器权威/免费来源，而非付费/客户端侧估计。AI 在系统级架构评审和算法迭代兼容性方面存在困难，因此人工监督对于早期识别基本设计风险至关重要。 debugging_diagnostics (debugging_diagnostics) npm 全局安装产生双执行路径，需要在 Rust 进程启动时明确路径优先级。NVIDIA GPU 上的 PCIe AER 不支持请求标志通常源于驱动程序级别的 ASPM 链接状态转换，而非物理故障。与原始实验 JSON 进行事实核对至关重要；损坏的 MP4 文件在 PyAV 解码过程中失败，而非头信息检查问题，而 JAX JIT 需要独立于张量值的静态图控制流。 devops_tooling (devops_tooling) Tauri v2 强制 Rust 库和 npm 包之间严格符合 major.minor 规范；通过生命周期钩子自动化同步可防止构建碎片化。并行测试操纵环境变量需要单一全局互斥锁，以防止竞争条件。在受限 HPC 环境中，当现代工具失败时需要 POSIX fallback，而通过导出/重建迁移到 Conda 更简洁，无需文件夹复制。 academia_research_workflow (academia_research_workflow) NeurIPS 双盲投稿要求超出作者姓名范围的严格匿名化（路径、输出、硬编码基础设施标签），且出版图表需要零重叠布局的科学配色方案。学术声明必须严格反映实施实际情况；手动参考文献工作流在提交前通常提供协作灵活性，但按任务选择性检查点需要明确的评审者文档。 AI 使用注意事项 有效模式：\n✓ 在明确指导下采用混合 git 合并策略以保留不同的功能集 ✓ 并行代理部署用于大规模代码库转换和批处理文件处理 ✓ 跨 IPC 边界和大型代码库的系统化管道追踪比仅读取配置更有效地明确复杂数据/奖励流动 ✓ 交叉验证原始实验输出可防止学术写作中的关键事实错误 ✓ 对现有文档的结构化审计可在重新生成前验证稳定性，节省大量时间 限制：\n✗ 倾向于过度设计解决方案或在不验证用户工作流约束的情况下提出不必要的架构变更 ✗ 在执行批处理编辑或撰写声明之前未确认目标文件路径和外部 API 单元 ✗ 在学术草稿中初期不愿挑战未实现的功能，或在没有明确范围指导的情况下预期整个分布的数据损坏 ✗ 在等待实证压力测试验证之前就对硬件日志进行过早诊断 ✗ 缺乏机器人操作管道调试和架构风险评估的领域直觉；默认工具在需要手动备用策略的受限 HPC 环境中失效 下周计划 优先完成 NeurIPS ErrorRecoveryBench 投稿，实施强制的 Croissant 元数据扩展，解决 MimicGen RPG 跨步转移失败率低于 5% 的问题，并提供匿名评估托管服务。通过整合用户反馈、解决剩余的 CI/Clippy 警告并标准化多提供方速率限制备用链，对 TokenMonitor v0.13.1 进行发布后稳定化。完成 Conda 环境迁移到 D 盘以防止路径损坏，修复 AdaptVision 中硬编码的 API 密钥，并对按任务检查点策略进行整体验证，同时优化多轮作物奖励机制。在持续工作负载下监控工作站稳定性，并在 AI 辅助批处理操作期间执行明确的目标验证协议，以防止推测性重构。\n令牌使用统计 AI Usage · 2026-W19\rClaude Code + Codex\rTotal cost$1,794.96\rTotal tokens1.93B\rOutput tokens12M\rCache read89.9%\rCost split\rClaude Code $1,367 ·\rCodex $428\rToken character\rCache reads 89.9% ·\rActive 10.1%\rMost token volume came from cache reads.\r高峰日： 2026-05-06 — $695.86 / 692.4M 令牌\n每日平均： $256.42\n",
+  "wordCount" : "482",
+  "inLanguage": "zh",
+  "datePublished": "2026-05-10T23:59:00-05:00",
+  "dateModified": "2026-05-10T23:59:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/weekly/2026-w19-weekly/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="zh"
+                        data-translation-url="https://tzj2006.github.io/bugjournal/weekly/2026-w19-weekly/">EN
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span>bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">Weekly Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Weekly Summary 2026-W19
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-05-10 23:59:00 -0500 -0500'>2026年5月10日</span>&nbsp;·&nbsp;<span>3 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每周报告--2026-w192026-05-04--2026-05-10">每周报告 — 2026-W19（2026-05-04 ~ 2026-05-10）<a hidden class="anchor" aria-hidden="true" href="#每周报告--2026-w192026-05-04--2026-05-10">#</a></h1>
+<blockquote>
+<p>本周重点在于 TokenMonitor v0.13.1 的最终发布与架构稳定化，同时全力准备提交给 ErrorRecoveryBench/RecoverBench NeurIPS 2026 会议，包括全面的代码匿名处理、数据集验证、指标修正以及 Croissant 元数据生成。并行计算工作解决了持续存在的硬件稳定性问题，通过诊断并修复 RTX 5090 PCIe 驱动崩溃循环；同时利用可靠的 JAX 兼容错误处理修复了损坏的 LeRobot 数据集管道，并对 AdaptVision PPO 训练架构进行了审计。本周最后实现了代码库的成功合并、学术提交材料的验证、工作站可靠性的恢复以及本地开发基础设施的优化。</p>
+</blockquote>
+<h2 id="每周概览">每周概览<a hidden class="anchor" aria-hidden="true" href="#每周概览">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>指标</th>
+          <th>数值</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>日期范围</td>
+          <td>2026-05-04 ~ 2026-05-10</td>
+      </tr>
+      <tr>
+          <td>活跃天数</td>
+          <td>7 / 7</td>
+      </tr>
+      <tr>
+          <td>总对话数</td>
+          <td>19</td>
+      </tr>
+      <tr>
+          <td>项目数</td>
+          <td>12</td>
+      </tr>
+      <tr>
+          <td>完成任务数</td>
+          <td>49</td>
+      </tr>
+      <tr>
+          <td>进行中任务数</td>
+          <td>2</td>
+      </tr>
+      <tr>
+          <td>总令牌数</td>
+          <td>1,929,559,195</td>
+      </tr>
+      <tr>
+          <td>总成本</td>
+          <td>$1,794.96</td>
+      </tr>
+      <tr>
+          <td>Claude 代码令牌数</td>
+          <td>1,481,708,943</td>
+      </tr>
+      <tr>
+          <td>Claude 代码成本</td>
+          <td>$1,367.30</td>
+      </tr>
+      <tr>
+          <td>Codex 令牌数</td>
+          <td>447,850,252</td>
+      </tr>
+      <tr>
+          <td>Codex 成本</td>
+          <td>$427.66</td>
+      </tr>
+      <tr>
+          <td>日平均成本</td>
+          <td>$256.42</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="项目进展">项目进展<a hidden class="anchor" aria-hidden="true" href="#项目进展">#</a></h2>
+<h3 id="tokenmonitor3天活跃---活跃">TokenMonitor（3天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor3天活跃---活跃">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>执行了混合合并，同时保留本地 OAuth/Cursor 功能与上游状态栏架构</li>
+<li>重构了多供应商芯片选择设置界面和统一的状态栏优先 fallback 链</li>
+<li>修复了阻止 Codex 速率限制显示的关键 Windows 路径解析问题</li>
+<li>同步了浮动球与主窗口的利用逻辑，消除数据不一致现象</li>
+<li>成功发布 v0.13.0 及补丁 v0.13.1，测试无失败且自动同步了 Tauri 版本</li>
+</ul>
+<p><strong>阻碍：</strong></p>
+<ul>
+<li>⚠️ 初始上游合并需要手动恢复已回退的功能，因分支历史不同</li>
+<li>⚠️ CSS Grid 塌陷动画导致盒子模型泄露，需 fallback 至最大高度模式</li>
+<li>⚠️ FloatBall 中的过期窗口过滤问题，在策略调整前隐藏了活跃的空闲会话</li>
+</ul>
+<h3 id="errorrecoverybench--recoverbenchneurips-2026-ed5天活跃---活跃">ErrorRecoveryBench / RecoverBench（NeurIPS 2026 E&amp;D）（5天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#errorrecoverybench--recoverbenchneurips-2026-ed5天活跃---活跃">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>为双盲提交进行了代码库同步和匿名处理，去除了所有身份标识</li>
+<li>使用并行代理将21个文件从中文翻译为英文，验证无残留非英文文本</li>
+<li>将论文参考文献整理为包含23个结构化条目且支持 natbib 的 BibTeX格式</li>
+<li>通过事实核查和策略行拆分纠正了关键 BC-RNN 指标差异</li>
+<li>生成 Croissant JSON-LD 元数据并下载完整发布数据集以满足提交要求</li>
+<li>按照科学颜色标准完成出版级图表、热图及验证可视化效果</li>
+<li>整合了1,360个评估场景的数据集统计信息，验证了分类法/图表的一致性</li>
+</ul>
+<p><strong>阻碍：</strong></p>
+<ul>
+<li>⚠️ MimicGen RPG 跨步转移成功率仍低于5%，需要统一检查点策略说明</li>
+<li>⚠️ 评估基准的匿名托管基础设施尚未部署</li>
+<li>⚠️ 作者在起草阶段更偏好手动引用管理，导致格式不一致</li>
+</ul>
+<h3 id="硬件系统--工作站诊断2天活跃---完成">硬件系统 / 工作站诊断（2天活跃） — ✅ 完成<a hidden class="anchor" aria-hidden="true" href="#硬件系统--工作站诊断2天活跃---完成">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>诊断出 RTX 5090 间歇性的 BSOD 和 WHEA PCIe AER 不支持请求错误</li>
+<li>确定空闲期间 NVIDIA Gen5↔Gen1 链接状态电源转换是根本原因</li>
+<li>应用驱动级修复（优先最大性能）使运行时的 WHEA 错误降至零</li>
+</ul>
+<p><strong>阻碍：</strong></p>
+<ul>
+<li>⚠️ 由于硬件/固件切换时机问题，启动时的初始化 UR 错误无法避免</li>
+</ul>
+<h3 id="lerobot-数据管道与-paireddataset2天活跃---活跃">LeRobot 数据管道与 PairedDataset（2天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#lerobot-数据管道与-paireddataset2天活跃---活跃">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>诊断并修复了多个 OSS 数据集中的60个损坏的MP4片段</li>
+<li>实施预检查黑名单、静默损坏掩蔽和动态JAX兼容损失掩蔽</li>
+<li>整体解决干净数据集的潜在损坏问题，避免 DataLoader 运行时无效</li>
+</ul>
+<p><strong>阻碍：</strong></p>
+<ul>
+<li>⚠️ 修复后的干净数据集（boss44_lerobot）仍需持续验证</li>
+</ul>
+<h3 id="adaptvision-与-mihd-开发1天活跃---活跃">AdaptVision 与 MIHD 开发（1天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#adaptvision-与-mihd-开发1天活跃---活跃">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>映射了完整的PPO训练流程和多轮裁剪奖励机制</li>
+<li>审计了 CLAUDE.md 文档的完整性及架构一致性</li>
+</ul>
+<p><strong>阻碍：</strong></p>
+<ul>
+<li>⚠️ AdaptVision README中存在的硬编码API密钥需立即修复</li>
+</ul>
+<h3 id="本地开发环境1天活跃--进行中">本地开发环境（1天活跃） — 进行中<a hidden class="anchor" aria-hidden="true" href="#本地开发环境1天活跃--进行中">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>将所有conda环境导出为YML文件，并安全部署Miniconda安装程序以便迁移</li>
+<li>通过规划新的D盘安装解决C盘空间不足问题，避免路径损坏</li>
+</ul>
+<h2 id="关键任务">关键任务<a hidden class="anchor" aria-hidden="true" href="#关键任务">#</a></h2>
+<ul>
+<li>✅ <strong>上游TokenMonitor仓库的混合合并</strong>（2026-05-04）— 使用混合策略解决了20个冲突文件，同时保留本地OAuth/Cursor/Codex实现，并整合了上游状态栏模块和设置界面重新设计。</li>
+<li>✅ <strong>修正论文表6中的关键BC-RNN数据错误</strong>（2026-05-07）— 将BC-RNN Normal SR从21%改为56%/42%（V1/V2），将单行拆分为两行策略行，并根据事实核查修正了Pi 0.5 Recovery Normal SR。</li>
+<li>✅ <strong>同步UI面板的利用提取逻辑</strong>（2026-05-04）— 修复了窗口选择和过期宽限期，与前端逻辑一致，消除了浮动球与主应用数据不一致问题。</li>
+<li>✅ <strong>诊断并解决RTX 5090 PCIe ASPM崩溃循环</strong>（2026-05-05）— 分析WHEA日志并测试GPU，确定NVIDIA驱动链接状态电源管理是间歇性的DPC看门狗BSOD的原因，应用了永久策略修复。</li>
+<li>✅ <strong>生成Croissant元数据及NeurIPS提交图表</strong>（2026-05-07）— 创建包含数据集描述、FileObjects和RecordSets的必填croissant.json文件；迭代优化科学可视化效果，消除重叠并确保排版一致性。</li>
+<li>✅ <strong>诊断LeRobot损坏的数据管道并实施PairedDataset错误处理</strong>（2026-05-08/09）— 创建诊断脚本识别并重新编码HDF5中的损坏片段；重构paired_dataset.py，加入预检查黑名单和JIT兼容损失掩蔽。</li>
+<li>✅ <strong>解决Rust CI环境变量保护竞态问题</strong>（2026-05-05）— 将测试模块中的环境变量保护统一为单个全局锁，并重构测试以直接调用读取逻辑，避免复杂的macOS钥匙链 fallback链。</li>
+<li>✅ <strong>映射AdaptVision PPO训练流程并审计MIHD文档</strong>（2026-05-08）— 在大型代码库中追踪执行路径，明确复杂的奖励机制。对 CLAUDE.md 进行了审计，以在重新生成前确保结构完整性。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="1-上游合并冲突导致不同分支产生差异需实现架构对齐同时不丢失本地实现-tokenmonitor2026-05-04解决方案-采用混合合并策略隔离冲突模块通过合并集成点保留两个分支的价值并手动恢复已撤销的文件">1. 上游合并冲突导致不同分支产生差异，需实现架构对齐，同时不丢失本地实现 [TokenMonitor]（2026-05-04）<strong>解决方案：</strong> 采用混合合并策略隔离冲突模块，通过合并集成点保留两个分支的价值，并手动恢复已撤销的文件。<a hidden class="anchor" aria-hidden="true" href="#1-上游合并冲突导致不同分支产生差异需实现架构对齐同时不丢失本地实现-tokenmonitor2026-05-04解决方案-采用混合合并策略隔离冲突模块通过合并集成点保留两个分支的价值并手动恢复已撤销的文件">#</a></h3>
+<h3 id="2-学术论文中的关键-bc-rnn-指标差异21-对比实际-56及专业图表格式问题-errorrecoverybench--recoverbench-neurips-2026-ed-2026-05-07">2. 学术论文中的关键 BC-RNN 指标差异（21% 对比实际 56%）及专业图表格式问题 [ErrorRecoveryBench / RecoverBench (NeurIPS 2026 E&amp;D)] (2026-05-07)<a hidden class="anchor" aria-hidden="true" href="#2-学术论文中的关键-bc-rnn-指标差异21-对比实际-56及专业图表格式问题-errorrecoverybench--recoverbench-neurips-2026-ed-2026-05-07">#</a></h3>
+<p><strong>解决方案：</strong> 将所有表格数值与原始实验 JSON 进行交叉验证，修正策略行，并将 matplotlib 输出调整为科学配色方案，采用统一的排版方式。</p>
+<h3 id="3-floatball-因激进的窗口过滤导致关键约束被隐藏而无法显示速率限制-tokenmonitor-2026-05-06">3. FloatBall 因激进的窗口过滤导致关键约束被隐藏而无法显示速率限制 [TokenMonitor] (2026-05-06)<a hidden class="anchor" aria-hidden="true" href="#3-floatball-因激进的窗口过滤导致关键约束被隐藏而无法显示速率限制-tokenmonitor-2026-05-06">#</a></h3>
+<p><strong>解决方案：</strong> 将所有窗口的选择改为最大利用率策略，确保无论会话状态如何，最关键约束始终能够被呈现。</p>
+<h3 id="4-rtx-5090-在空闲启动过程中出现间歇性-bsod-和-whea-pcie-aer-不支持请求错误-hardware-systems--workstation-diagnostics-2026-05-05">4. RTX 5090 在空闲/启动过程中出现间歇性 BSOD 和 WHEA PCIe AER 不支持请求错误 [Hardware Systems / Workstation Diagnostics] (2026-05-05)<a hidden class="anchor" aria-hidden="true" href="#4-rtx-5090-在空闲启动过程中出现间歇性-bsod-和-whea-pcie-aer-不支持请求错误-hardware-systems--workstation-diagnostics-2026-05-05">#</a></h3>
+<p><strong>解决方案：</strong> 确定 NVIDIA 驱动程序链接状态下降为根本原因；通过调整驱动程序强制电源管理模式为“优先最大性能”来解决问题。</p>
+<h3 id="5-lerobot-dataloader-中损坏的-mp4-文件导致的运行时失效与-jax-jit-约束冲突-lerobot-data-pipeline--paireddataset-2026-05-09">5. LeRobot DataLoader 中损坏的 MP4 文件导致的运行时失效与 JAX JIT 约束冲突 [LeRobot Data Pipeline &amp; PairedDataset] (2026-05-09)<a hidden class="anchor" aria-hidden="true" href="#5-lerobot-dataloader-中损坏的-mp4-文件导致的运行时失效与-jax-jit-约束冲突-lerobot-data-pipeline--paireddataset-2026-05-09">#</a></h3>
+<p><strong>解决方案：</strong> 创建诊断脚本从 HDF5 重新编码；实施动态 try-except 黑名单和损失掩码，以绕过静态图控制流限制。</p>
+<h3 id="6-css-grid-折叠动画导致填充边框在多个-ui-部分间出现视觉泄漏-tokenmonitor-2026-05-04">6. CSS Grid 折叠动画导致填充/边框在多个 UI 部分间出现视觉泄漏 [TokenMonitor] (2026-05-04)<a hidden class="anchor" aria-hidden="true" href="#6-css-grid-折叠动画导致填充边框在多个-ui-部分间出现视觉泄漏-tokenmonitor-2026-05-04">#</a></h3>
+<p><strong>解决方案：</strong> 将 grid-template-rows: 0fr 改为基于最大高度的动画，并在父容器上设置 overflow hidden，从而恢复跨浏览器的一致性行为。</p>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="system_architecture-system_architecture">system_architecture (system_architecture)<a hidden class="anchor" aria-hidden="true" href="#system_architecture-system_architecture">#</a></h3>
+<ul>
+<li>速率限制备用链应优先使用服务器权威/免费来源，而非付费/客户端侧估计。AI 在系统级架构评审和算法迭代兼容性方面存在困难，因此人工监督对于早期识别基本设计风险至关重要。</li>
+</ul>
+<h3 id="debugging_diagnostics-debugging_diagnostics">debugging_diagnostics (debugging_diagnostics)<a hidden class="anchor" aria-hidden="true" href="#debugging_diagnostics-debugging_diagnostics">#</a></h3>
+<ul>
+<li>npm 全局安装产生双执行路径，需要在 Rust 进程启动时明确路径优先级。NVIDIA GPU 上的 PCIe AER 不支持请求标志通常源于驱动程序级别的 ASPM 链接状态转换，而非物理故障。与原始实验 JSON 进行事实核对至关重要；损坏的 MP4 文件在 PyAV 解码过程中失败，而非头信息检查问题，而 JAX JIT 需要独立于张量值的静态图控制流。</li>
+</ul>
+<h3 id="devops_tooling-devops_tooling">devops_tooling (devops_tooling)<a hidden class="anchor" aria-hidden="true" href="#devops_tooling-devops_tooling">#</a></h3>
+<ul>
+<li>Tauri v2 强制 Rust 库和 npm 包之间严格符合 major.minor 规范；通过生命周期钩子自动化同步可防止构建碎片化。并行测试操纵环境变量需要单一全局互斥锁，以防止竞争条件。在受限 HPC 环境中，当现代工具失败时需要 POSIX  fallback，而通过导出/重建迁移到 Conda 更简洁，无需文件夹复制。</li>
+</ul>
+<h3 id="academia_research_workflow-academia_research_workflow">academia_research_workflow (academia_research_workflow)<a hidden class="anchor" aria-hidden="true" href="#academia_research_workflow-academia_research_workflow">#</a></h3>
+<ul>
+<li>NeurIPS 双盲投稿要求超出作者姓名范围的严格匿名化（路径、输出、硬编码基础设施标签），且出版图表需要零重叠布局的科学配色方案。学术声明必须严格反映实施实际情况；手动参考文献工作流在提交前通常提供协作灵活性，但按任务选择性检查点需要明确的评审者文档。</li>
+</ul>
+<h2 id="ai-使用注意事项">AI 使用注意事项<a hidden class="anchor" aria-hidden="true" href="#ai-使用注意事项">#</a></h2>
+<p><strong>有效模式：</strong></p>
+<ul>
+<li>✓ 在明确指导下采用混合 git 合并策略以保留不同的功能集</li>
+<li>✓ 并行代理部署用于大规模代码库转换和批处理文件处理</li>
+<li>✓ 跨 IPC 边界和大型代码库的系统化管道追踪比仅读取配置更有效地明确复杂数据/奖励流动</li>
+<li>✓ 交叉验证原始实验输出可防止学术写作中的关键事实错误</li>
+<li>✓ 对现有文档的结构化审计可在重新生成前验证稳定性，节省大量时间</li>
+</ul>
+<p><strong>限制：</strong></p>
+<ul>
+<li>✗ 倾向于过度设计解决方案或在不验证用户工作流约束的情况下提出不必要的架构变更</li>
+<li>✗ 在执行批处理编辑或撰写声明之前未确认目标文件路径和外部 API 单元</li>
+<li>✗ 在学术草稿中初期不愿挑战未实现的功能，或在没有明确范围指导的情况下预期整个分布的数据损坏</li>
+<li>✗ 在等待实证压力测试验证之前就对硬件日志进行过早诊断</li>
+<li>✗ 缺乏机器人操作管道调试和架构风险评估的领域直觉；默认工具在需要手动备用策略的受限 HPC 环境中失效</li>
+</ul>
+<h2 id="下周计划">下周计划<a hidden class="anchor" aria-hidden="true" href="#下周计划">#</a></h2>
+<p>优先完成 NeurIPS ErrorRecoveryBench 投稿，实施强制的 Croissant 元数据扩展，解决 MimicGen RPG 跨步转移失败率低于 5% 的问题，并提供匿名评估托管服务。通过整合用户反馈、解决剩余的 CI/Clippy 警告并标准化多提供方速率限制备用链，对 TokenMonitor v0.13.1 进行发布后稳定化。完成 Conda 环境迁移到 D 盘以防止路径损坏，修复 AdaptVision 中硬编码的 API 密钥，并对按任务检查点策略进行整体验证，同时优化多轮作物奖励机制。在持续工作负载下监控工作站稳定性，并在 AI 辅助批处理操作期间执行明确的目标验证协议，以防止推测性重构。</p>
+<h2 id="令牌使用统计">令牌使用统计<a hidden class="anchor" aria-hidden="true" href="#令牌使用统计">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-W19</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$1,794.96</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>1.93B</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>12M</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>89.9%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $1,367</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $428</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (76.2%), Codex (23.8%)">
+          <span style="width:76.2%; background:var(--usage-cost-main)"></span>
+          <span style="width:23.8%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 89.9%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 10.1%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (89.9%), active tokens (10.1%)">
+          <span style="width:89.9%; background:var(--usage-cache)"></span>
+          <span style="width:10.1%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<p><strong>高峰日：</strong> 2026-05-06 — $695.86 / 692.4M 令牌</p>
+<p><strong>每日平均：</strong> $256.42</p>
+<!-- gadget:src-hash:f07de93902ba64c8 -->
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
