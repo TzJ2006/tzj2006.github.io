@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-07-12 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="Completed the TokenMonitor v0.14.1 release by merging upstream changes, reorganizing the codebase, and fixing critical UI and state synchronization bugs; resolved a major ASR latency issue in MeetingHelper via smart audio gating; and conducted infrastructure setup including SSH audits and CLI plugin installations.">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/bugjournal/daily/2026-07-12/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-07-12/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-12/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/bugjournal/daily/2026-07-12/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-07-12">
+  <meta property="og:description" content="Completed the TokenMonitor v0.14.1 release by merging upstream changes, reorganizing the codebase, and fixing critical UI and state synchronization bugs; resolved a major ASR latency issue in MeetingHelper via smart audio gating; and conducted infrastructure setup including SSH audits and CLI plugin installations.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-07-12T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-07-12T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-07-12">
+  <meta name="twitter:description" content="Completed the TokenMonitor v0.14.1 release by merging upstream changes, reorganizing the codebase, and fixing critical UI and state synchronization bugs; resolved a major ASR latency issue in MeetingHelper via smart audio gating; and conducted infrastructure setup including SSH audits and CLI plugin installations.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-07-12",
+      "item": "https://tzj2006.github.io/bugjournal/daily/2026-07-12/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-07-12",
+  "name": "Bug Journal 2026-07-12",
+  "description": "Completed the TokenMonitor v0.14.1 release by merging upstream changes, reorganizing the codebase, and fixing critical UI and state synchronization bugs; resolved a major ASR latency issue in MeetingHelper via smart audio gating; and conducted infrastructure setup including SSH audits and CLI plugin installations.",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-07-12 Daily Overview What was done: Executed a comprehensive cleanup and upstream integration of the TokenMonitor repository, resolving complex git history divergence and fixing multiple UI/state bugs; resolved critical real-time transcription latency in MeetingHelper by implementing smart audio gating and task rotation; and performed infrastructure maintenance including SSH config audits, Claude Code timeout diagnosis, and Ponytail plugin installation. How it was done: Utilized git merge-tree for conflict resolution, applied AI-assisted code auditing to remove dead code, patched Rust/Svelte logic for UI fixes, implemented hardware-specific ASR constraints in Swift/Python, and used cross-platform tooling (PowerShell/Sed/Claude Code) for environment configuration. Impact: Delivered a cleaner, maintainable TokenMonitor codebase ready for release v0.14.1; restored real-time reliability for MeetingHelper users; and established stable baseline environments for AI coding tools and remote infrastructure. MacBook What was done: Primary device for TokenMonitor development (git ops, UI fixes, testing), MeetingHelper ASR implementation, and academic research analysis. How it was done: Used Codex and Claude Code for code auditing, patch application, and git history manipulation; ran native Tauri dev instances for UI verification; executed Apple Speech API diagnostics. Impact: Successfully merged upstream branches, fixed critical display logic bugs, and resolved ASR backlog issues. MacOS What was done: Secondary development environment used for specific AI agent tasks, RoboCASA research analysis, and CLI plugin installation on Windows (my-pc session). How it was done: Monitored application states via tauri dev; utilized web search tools for literature review; configured ~/.claude/settings.json; installed Ponytail plugin via Cmd. Impact: Validated release workflows, confirmed research novelty gaps, and enabled new code reduction capabilities in Codex. my-pc What was done: Used for SSH infrastructure audit on Windows and testing the newly installed Ponytail plugin. How it was done: Executed PowerShell connectivity probes for SSH hosts; verified Python script execution readiness for future dataset audits. Impact: Cleaned up dead SSH entries preventing connection conflicts and ensured AI agent stability. Completed the TokenMonitor v0.14.1 release by merging upstream changes, reorganizing the codebase, and fixing critical UI and state synchronization bugs; resolved a major ASR latency issue in MeetingHelper via smart audio gating; and conducted infrastructure setup including SSH audits and CLI plugin installations.\nTasks Architecture \u0026 Strategy ✅ TokenMonitor Repository Reorganization and Upstream Integration — Audited and cleaned the TokenMonitor repository, removing ~3500 lines of dead code (profiler, IPC handlers). Resolved complex git history divergence caused by upstream force-pushes using git merge-tree, integrating Michael-OvO/TokenMonitor changes into a unified local branch. ✅ MeetingHelper ASR Latency Resolution — Diagnosed and fixed \u003e20-minute transcription lag in --source both mode. Implemented a smart-gating strategy to merge mic/system audio into a single stream and added 50-second task rotation logic to comply with Apple’s SFSpeechRecognizer API limits. ✅ TokenMonitor UI and State Synchronization Fixes — Fixed critical bugs: (1) Default state overriding user settings on startup by subscribing directly to active stores; (2) Multi-select status bar display errors in Rust backend; (3) CSS styling for sticky headers/footers and dynamic currency dropdowns. ✅ TokenMonitor Release Preparation (v0.14.1) — Bumped version numbers across package.json, Cargo.toml, and docs (translated to English); created local tag v0.14.1; and identified the need for remote push to trigger CI/CD workflows. • Academic Research Analysis (RoboCASA/World Models) — Analyzed academic transcripts regarding 3D world models and visual prompting. Validated that proposed ’non-pixel space’ ideas had significant prior art collisions (RoboFlow4D, Dream2Flow), advising against redundant research effort. Implementation \u0026 Fixes ✅ Infrastructure: SSH Audit and Claude Code Configuration — Audited Windows SSH config, removing dead aliases (yby, athena) and fixing fingerprint conflicts. Configured high-timeout environment variables for Claude Code to prevent persistent 1h+ timeouts caused by credential expiry. ✅ Infrastructure: Ponytail Plugin Installation — Installed the Ponytail CLI plugin for OpenAI Codex on Windows, resolving PowerShell execution policy blocks by switching to Cmd. Problems \u0026 Solutions Critical Issues 1. Git history divergence between origin/main and upstream/main showed massive false conflicts due to force-push rewrites, threatening merge integrity. Solution: Used git merge-tree with explicit merge-base anchoring to simulate merges accurately, revealing only 2 true content conflicts in App.svelte and Settings.svelte, despite GitHub showing 44+ or 200+ fake conflicts.\nKey Insight: Force-pushed history breaks standard diff tools; anchor comparisons to the original common ancestor to distinguish structural noise from actual code divergences.\n2. MeetingHelper ASR backlog (\u003e20 min lag) when using both microphone and system audio simultaneously. Solution: Identified that long-running Apple ASR tasks exceeded API limits. Implemented a smart-gating strategy to prioritize system or mic audio in a single stream, with explicit 50-second task rotation to prevent latency buildup.\nKey Insight: Apple’s SFSpeechRecognizer has implicit ~1-minute lifetime limits for stable performance; simplifying input architecture and enforcing rotation is more effective than optimizing individual workers.\n3. TokenMonitor App launched with hardcoded ‘claude + day’ settings, ignoring user preferences, and multi-select status bars displayed incorrect colors/proportions. Solution: Fixed race condition in App.svelte by subscribing directly to active provider/period stores rather than using delayed local state. Patched Rust render.rs to correctly handle the ‘Custom’ enum value for multi-selection providers.\nKey Insight: In Tauri apps, UI state bugs often stem from backend enum handling gaps or async initialization races; direct store subscription ensures reactive correctness.\nGeneral Issues 4. Claude Code persistent 1h+ timeouts despite high timeout configuration, and Windows SSH dead references. Solution: Diagnosed timeouts as credential expiry/network issues (fixed duration across retries) rather than API slowness; audited SSH config to remove dead aliases (yby, athena) and fix X11 path compatibility.\nKey Insight: Persistent fixed-duration rejections indicate authentication or network middlebox failures; cross-platform SSH requires careful handling of native device paths (/dev/null vs NUL).\nHuman vs AI Approaches Code Refactoring Strategy (TokenMonitor) Role Approach Human User defined a ‘First Principles’ strategy: list all functions, question necessity, and prioritize simplicity over aesthetic organization. Directed AI to audit for dead code. AI AI performed deep import analysis and usage tracing to identify redundant profiler code and unused IPC handlers, verifying removal safety without breaking dependencies. Difference Analysis: Human provided the strategic heuristic (YAGNI), while AI executed the evidence-based tactical verification of code paths, ensuring no functional regression during cleanup.\nRoboCASA Research Novelty Check Role Approach Human User proposed ’non-pixel space’ 3D visual prompting for VLAs, assuming it was a novel niche. Asked AI to review literature. AI AI actively searched arXiv and found direct collisions with existing works like RoboFlow4D and Dream2Flow, deconstructing the proposal as a repackaging of known hierarchical planning templates. Difference Analysis: Human focused on the novelty of the interface/model type; AI mapped it to broader published categories (flow models), providing concrete references that invalidated the ‘first-mover’ assumption.\nASR Architectural Pivot Role Approach Human User proposed ignoring mic/system distinction and merging them into one stream to simplify processing complexity. AI AI evaluated the feasibility, discovered hardware constraints (no local zh-CN), and implemented a ‘smart gating’ logic to prioritize audio sources intelligently while staying within API limits. Difference Analysis: Human provided the high-level architectural simplification; AI handled the complex edge-case logic (gating thresholds, rotation timing) to make it viable without introducing echo or API violations.\nAI Limitations Critical Limitations AI initially generated false-positive conflict reports when analyzing git diffs between force-pushed branches; required explicit merge-base tools to prove true content alignment. General Limitations Claude Code safety safeguards blocked web searches for specific ‘3D flow world model’ terms, limiting the breadth of prior art discovery during the research analysis. AI initially suggested standard audio mixing which risked echo; required human correction to implement smart gating. Also failed to automatically push local git tags for CI triggers. Learnings Key Learnings When merging branches with force-push history divergences, rely on git merge-tree --merge-base=SHA rather than standard diff stats or GitHub’s initial conflict UI to find true common ancestors. Apple’s SFSpeechRecognizer requires short-lived tasks (~60s); for long sessions, explicit rotation logic and stream simplification are mandatory to avoid severe latency. In Tauri apps, ensure Svelte stores are directly subscribed to for reactive state initialization to prevent stale defaults caused by async config loading delays. Practical Learnings In restricted Windows environments, wrapping CLI commands with cmd /c is an effective way to bypass PowerShell execution policies without changing system-wide security settings. When diagnosing AI agent timeouts, check credential freshness and network middleboxes before adjusting timeout values; fixed-duration failure patterns indicate auth/network issues, not API slowness. Conversation Summaries TokenMonitor • Repository Cleanup, Upstream Merge, and v0.14.1 Release Prep 05:52:50 The user directed a comprehensive audit of the TokenMonitor repository to remove dead code (profiler, IPC handlers) and reorganize structure. Complex git divergence from upstream force-pushes was resolved using git merge-tree, revealing only 2 real conflicts. UI bugs were fixed (sticky headers, status bars, default state sync). Documentation was translated to English, and the project was tagged as v0.14.1.\nMeetingHelper • ASR Latency Diagnosis and Smart Gating Implementation 04:44:12 Diagnosed critical \u003e20-minute lag in MeetingHelper’s Apple ASR (--source both) caused by violating ~1-minute task limits. Implemented a smart-gating strategy to merge mic/system audio into one stream with 50-second rotation. Confirmed local zh-CN ASR limitations and transcribed sample audio.\nAcademic Research (RoboCASA) • Novelty Check for 3D Visual Prompting in VLAs 05:46:30 Analyzed transcripts regarding ‘World Models’ and 3D spatial reasoning. AI validated that the user’s proposed non-pixel space approach had significant prior art collisions (RoboFlow4D, Dream2Flow), concluding it was a repackaging of existing concepts rather than a novel contribution.\nInfrastructure \u0026 Tools • SSH Audit, Claude Code Config, and Ponytail Install 16:42:13 Audited Windows SSH config (removed dead aliases), fixed Claude Code timeout issues (identified as credential expiry), and installed the Ponytail CLI plugin for Codex on Windows, bypassing PowerShell restrictions.\nToken Usage AI Usage · 2026-07-12\rClaude Code + Codex\rTotal cost$79.83\rTotal tokens95M\rOutput tokens353K\rCache read94.6%\rCost split\rClaude Code $4 ·\rCodex $76\rToken character\rCache reads 94.6% ·\rActive 5.4%\rMost token volume came from cache reads; Codex drove nearly all cost.\r",
+  "wordCount" : "1622",
+  "inLanguage": "en",
+  "datePublished": "2026-07-12T00:00:00-05:00",
+  "dateModified": "2026-07-12T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/bugjournal/daily/2026-07-12/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="en"
+                        data-translation-url="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-12/">中文
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-07-12
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-07-12 00:00:00 -0500 -0500'>July 12, 2026</span>&nbsp;·&nbsp;<span>8 min</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-07-12">Daily Report — 2026-07-12<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-07-12">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>What was done:</strong> Executed a comprehensive cleanup and upstream integration of the TokenMonitor repository, resolving complex git history divergence and fixing multiple UI/state bugs; resolved critical real-time transcription latency in MeetingHelper by implementing smart audio gating and task rotation; and performed infrastructure maintenance including SSH config audits, Claude Code timeout diagnosis, and Ponytail plugin installation.</li>
+<li><strong>How it was done:</strong> Utilized git merge-tree for conflict resolution, applied AI-assisted code auditing to remove dead code, patched Rust/Svelte logic for UI fixes, implemented hardware-specific ASR constraints in Swift/Python, and used cross-platform tooling (PowerShell/Sed/Claude Code) for environment configuration.</li>
+<li><strong>Impact:</strong> Delivered a cleaner, maintainable TokenMonitor codebase ready for release v0.14.1; restored real-time reliability for MeetingHelper users; and established stable baseline environments for AI coding tools and remote infrastructure.</li>
+</ul>
+<h3 id="macbook">MacBook<a hidden class="anchor" aria-hidden="true" href="#macbook">#</a></h3>
+<ul>
+<li><strong>What was done:</strong> Primary device for TokenMonitor development (git ops, UI fixes, testing), MeetingHelper ASR implementation, and academic research analysis.</li>
+<li><strong>How it was done:</strong> Used Codex and Claude Code for code auditing, patch application, and git history manipulation; ran native Tauri dev instances for UI verification; executed Apple Speech API diagnostics.</li>
+<li><strong>Impact:</strong> Successfully merged upstream branches, fixed critical display logic bugs, and resolved ASR backlog issues.</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>What was done:</strong> Secondary development environment used for specific AI agent tasks, RoboCASA research analysis, and CLI plugin installation on Windows (my-pc session).</li>
+<li><strong>How it was done:</strong> Monitored application states via tauri dev; utilized web search tools for literature review; configured <code>~/.claude/settings.json</code>; installed Ponytail plugin via Cmd.</li>
+<li><strong>Impact:</strong> Validated release workflows, confirmed research novelty gaps, and enabled new code reduction capabilities in Codex.</li>
+</ul>
+<h3 id="my-pc">my-pc<a hidden class="anchor" aria-hidden="true" href="#my-pc">#</a></h3>
+<ul>
+<li><strong>What was done:</strong> Used for SSH infrastructure audit on Windows and testing the newly installed Ponytail plugin.</li>
+<li><strong>How it was done:</strong> Executed PowerShell connectivity probes for SSH hosts; verified Python script execution readiness for future dataset audits.</li>
+<li><strong>Impact:</strong> Cleaned up dead SSH entries preventing connection conflicts and ensured AI agent stability.</li>
+</ul>
+<blockquote>
+<p>Completed the TokenMonitor v0.14.1 release by merging upstream changes, reorganizing the codebase, and fixing critical UI and state synchronization bugs; resolved a major ASR latency issue in MeetingHelper via smart audio gating; and conducted infrastructure setup including SSH audits and CLI plugin installations.</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<ul>
+<li>✅ <strong>TokenMonitor Repository Reorganization and Upstream Integration</strong> — Audited and cleaned the TokenMonitor repository, removing ~3500 lines of dead code (profiler, IPC handlers). Resolved complex git history divergence caused by upstream force-pushes using <code>git merge-tree</code>, integrating Michael-OvO/TokenMonitor changes into a unified local branch.</li>
+<li>✅ <strong>MeetingHelper ASR Latency Resolution</strong> — Diagnosed and fixed &gt;20-minute transcription lag in <code>--source both</code> mode. Implemented a smart-gating strategy to merge mic/system audio into a single stream and added 50-second task rotation logic to comply with Apple&rsquo;s SFSpeechRecognizer API limits.</li>
+<li>✅ <strong>TokenMonitor UI and State Synchronization Fixes</strong> — Fixed critical bugs: (1) Default state overriding user settings on startup by subscribing directly to active stores; (2) Multi-select status bar display errors in Rust backend; (3) CSS styling for sticky headers/footers and dynamic currency dropdowns.</li>
+<li>✅ <strong>TokenMonitor Release Preparation (v0.14.1)</strong> — Bumped version numbers across package.json, Cargo.toml, and docs (translated to English); created local tag v0.14.1; and identified the need for remote push to trigger CI/CD workflows.</li>
+<li>• <strong>Academic Research Analysis (RoboCASA/World Models)</strong> — Analyzed academic transcripts regarding 3D world models and visual prompting. Validated that proposed &rsquo;non-pixel space&rsquo; ideas had significant prior art collisions (RoboFlow4D, Dream2Flow), advising against redundant research effort.</li>
+</ul>
+<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<ul>
+<li>✅ <strong>Infrastructure: SSH Audit and Claude Code Configuration</strong> — Audited Windows SSH config, removing dead aliases (yby, athena) and fixing fingerprint conflicts. Configured high-timeout environment variables for Claude Code to prevent persistent 1h+ timeouts caused by credential expiry.</li>
+<li>✅ <strong>Infrastructure: Ponytail Plugin Installation</strong> — Installed the Ponytail CLI plugin for OpenAI Codex on Windows, resolving PowerShell execution policy blocks by switching to Cmd.</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-git-history-divergence-between-originmain-and-upstreammain-showed-massive-false-conflicts-due-to-force-push-rewrites-threatening-merge-integrity">1. Git history divergence between origin/main and upstream/main showed massive false conflicts due to force-push rewrites, threatening merge integrity.<a hidden class="anchor" aria-hidden="true" href="#1-git-history-divergence-between-originmain-and-upstreammain-showed-massive-false-conflicts-due-to-force-push-rewrites-threatening-merge-integrity">#</a></h4>
+<p><strong>Solution:</strong> Used <code>git merge-tree</code> with explicit merge-base anchoring to simulate merges accurately, revealing only 2 true content conflicts in App.svelte and Settings.svelte, despite GitHub showing 44+ or 200+ fake conflicts.</p>
+<p><strong>Key Insight:</strong> Force-pushed history breaks standard diff tools; anchor comparisons to the original common ancestor to distinguish structural noise from actual code divergences.</p>
+<h4 id="2-meetinghelper-asr-backlog-20-min-lag-when-using-both-microphone-and-system-audio-simultaneously">2. MeetingHelper ASR backlog (&gt;20 min lag) when using both microphone and system audio simultaneously.<a hidden class="anchor" aria-hidden="true" href="#2-meetinghelper-asr-backlog-20-min-lag-when-using-both-microphone-and-system-audio-simultaneously">#</a></h4>
+<p><strong>Solution:</strong> Identified that long-running Apple ASR tasks exceeded API limits. Implemented a smart-gating strategy to prioritize system or mic audio in a single stream, with explicit 50-second task rotation to prevent latency buildup.</p>
+<p><strong>Key Insight:</strong> Apple&rsquo;s SFSpeechRecognizer has implicit ~1-minute lifetime limits for stable performance; simplifying input architecture and enforcing rotation is more effective than optimizing individual workers.</p>
+<h4 id="3-tokenmonitor-app-launched-with-hardcoded-claude--day-settings-ignoring-user-preferences-and-multi-select-status-bars-displayed-incorrect-colorsproportions">3. TokenMonitor App launched with hardcoded &lsquo;claude + day&rsquo; settings, ignoring user preferences, and multi-select status bars displayed incorrect colors/proportions.<a hidden class="anchor" aria-hidden="true" href="#3-tokenmonitor-app-launched-with-hardcoded-claude--day-settings-ignoring-user-preferences-and-multi-select-status-bars-displayed-incorrect-colorsproportions">#</a></h4>
+<p><strong>Solution:</strong> Fixed race condition in App.svelte by subscribing directly to active provider/period stores rather than using delayed local state. Patched Rust <code>render.rs</code> to correctly handle the &lsquo;Custom&rsquo; enum value for multi-selection providers.</p>
+<p><strong>Key Insight:</strong> In Tauri apps, UI state bugs often stem from backend enum handling gaps or async initialization races; direct store subscription ensures reactive correctness.</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="4-claude-code-persistent-1h-timeouts-despite-high-timeout-configuration-and-windows-ssh-dead-references">4. Claude Code persistent 1h+ timeouts despite high timeout configuration, and Windows SSH dead references.<a hidden class="anchor" aria-hidden="true" href="#4-claude-code-persistent-1h-timeouts-despite-high-timeout-configuration-and-windows-ssh-dead-references">#</a></h4>
+<p><strong>Solution:</strong> Diagnosed timeouts as credential expiry/network issues (fixed duration across retries) rather than API slowness; audited SSH config to remove dead aliases (yby, athena) and fix X11 path compatibility.</p>
+<p><strong>Key Insight:</strong> Persistent fixed-duration rejections indicate authentication or network middlebox failures; cross-platform SSH requires careful handling of native device paths (/dev/null vs NUL).</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="code-refactoring-strategy-tokenmonitor">Code Refactoring Strategy (TokenMonitor)<a hidden class="anchor" aria-hidden="true" href="#code-refactoring-strategy-tokenmonitor">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>User defined a &lsquo;First Principles&rsquo; strategy: list all functions, question necessity, and prioritize simplicity over aesthetic organization. Directed AI to audit for dead code.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI performed deep import analysis and usage tracing to identify redundant profiler code and unused IPC handlers, verifying removal safety without breaking dependencies.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human provided the strategic heuristic (YAGNI), while AI executed the evidence-based tactical verification of code paths, ensuring no functional regression during cleanup.</p>
+<h3 id="robocasa-research-novelty-check">RoboCASA Research Novelty Check<a hidden class="anchor" aria-hidden="true" href="#robocasa-research-novelty-check">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>User proposed &rsquo;non-pixel space&rsquo; 3D visual prompting for VLAs, assuming it was a novel niche. Asked AI to review literature.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI actively searched arXiv and found direct collisions with existing works like RoboFlow4D and Dream2Flow, deconstructing the proposal as a repackaging of known hierarchical planning templates.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human focused on the novelty of the interface/model type; AI mapped it to broader published categories (flow models), providing concrete references that invalidated the &lsquo;first-mover&rsquo; assumption.</p>
+<h3 id="asr-architectural-pivot">ASR Architectural Pivot<a hidden class="anchor" aria-hidden="true" href="#asr-architectural-pivot">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>User proposed ignoring mic/system distinction and merging them into one stream to simplify processing complexity.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI evaluated the feasibility, discovered hardware constraints (no local zh-CN), and implemented a &lsquo;smart gating&rsquo; logic to prioritize audio sources intelligently while staying within API limits.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human provided the high-level architectural simplification; AI handled the complex edge-case logic (gating thresholds, rotation timing) to make it viable without introducing echo or API violations.</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
+<ul>
+<li>AI initially generated false-positive conflict reports when analyzing git diffs between force-pushed branches; required explicit merge-base tools to prove true content alignment.</li>
+</ul>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<ul>
+<li>Claude Code safety safeguards blocked web searches for specific &lsquo;3D flow world model&rsquo; terms, limiting the breadth of prior art discovery during the research analysis.</li>
+<li>AI initially suggested standard audio mixing which risked echo; required human correction to implement smart gating. Also failed to automatically push local git tags for CI triggers.</li>
+</ul>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<ul>
+<li>When merging branches with force-push history divergences, rely on <code>git merge-tree --merge-base=SHA</code> rather than standard diff stats or GitHub&rsquo;s initial conflict UI to find true common ancestors.</li>
+<li>Apple&rsquo;s SFSpeechRecognizer requires short-lived tasks (~60s); for long sessions, explicit rotation logic and stream simplification are mandatory to avoid severe latency.</li>
+<li>In Tauri apps, ensure Svelte stores are directly subscribed to for reactive state initialization to prevent stale defaults caused by async config loading delays.</li>
+</ul>
+<h3 id="practical-learnings">Practical Learnings<a hidden class="anchor" aria-hidden="true" href="#practical-learnings">#</a></h3>
+<ul>
+<li>In restricted Windows environments, wrapping CLI commands with <code>cmd /c</code> is an effective way to bypass PowerShell execution policies without changing system-wide security settings.</li>
+<li>When diagnosing AI agent timeouts, check credential freshness and network middleboxes before adjusting timeout values; fixed-duration failure patterns indicate auth/network issues, not API slowness.</li>
+</ul>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<h3 id="tokenmonitor">TokenMonitor<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor">#</a></h3>
+<p><strong>• Repository Cleanup, Upstream Merge, and v0.14.1 Release Prep</strong>
+<em>05:52:50</em>
+The user directed a comprehensive audit of the TokenMonitor repository to remove dead code (profiler, IPC handlers) and reorganize structure. Complex git divergence from upstream force-pushes was resolved using <code>git merge-tree</code>, revealing only 2 real conflicts. UI bugs were fixed (sticky headers, status bars, default state sync). Documentation was translated to English, and the project was tagged as v0.14.1.</p>
+<h3 id="meetinghelper">MeetingHelper<a hidden class="anchor" aria-hidden="true" href="#meetinghelper">#</a></h3>
+<p><strong>• ASR Latency Diagnosis and Smart Gating Implementation</strong>
+<em>04:44:12</em>
+Diagnosed critical &gt;20-minute lag in MeetingHelper&rsquo;s Apple ASR (<code>--source both</code>) caused by violating ~1-minute task limits. Implemented a smart-gating strategy to merge mic/system audio into one stream with 50-second rotation. Confirmed local zh-CN ASR limitations and transcribed sample audio.</p>
+<h3 id="academic-research-robocasa">Academic Research (RoboCASA)<a hidden class="anchor" aria-hidden="true" href="#academic-research-robocasa">#</a></h3>
+<p><strong>• Novelty Check for 3D Visual Prompting in VLAs</strong>
+<em>05:46:30</em>
+Analyzed transcripts regarding &lsquo;World Models&rsquo; and 3D spatial reasoning. AI validated that the user&rsquo;s proposed non-pixel space approach had significant prior art collisions (RoboFlow4D, Dream2Flow), concluding it was a repackaging of existing concepts rather than a novel contribution.</p>
+<h3 id="infrastructure--tools">Infrastructure &amp; Tools<a hidden class="anchor" aria-hidden="true" href="#infrastructure--tools">#</a></h3>
+<p><strong>• SSH Audit, Claude Code Config, and Ponytail Install</strong>
+<em>16:42:13</em>
+Audited Windows SSH config (removed dead aliases), fixed Claude Code timeout issues (identified as credential expiry), and installed the Ponytail CLI plugin for Codex on Windows, bypassing PowerShell restrictions.</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-07-12</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$79.83</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>95M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>353K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>94.6%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $4</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $76</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (5.4%), Codex (94.6%)">
+          <span style="width:5.4%; background:var(--usage-cost-main)"></span>
+          <span style="width:94.6%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 94.6%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 5.4%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (94.6%), active tokens (5.4%)">
+          <span style="width:94.6%; background:var(--usage-cache)"></span>
+          <span style="width:5.4%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Codex drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:73be777c14683262 -->
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

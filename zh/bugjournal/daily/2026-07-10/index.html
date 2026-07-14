@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-07-10 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="完成了LifeCopilot高风险“想法到系统方案”流程的实现，未出现任何关键漏洞；通过负对采样技术优化了MIHD模型训练时的显存使用效率；在MeetingHelper中通过实现本地Sherpa-ONNX双源流程，解决了苹果语音并发限制问题。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-10/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-07-10/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-10/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-10/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-07-10">
+  <meta property="og:description" content="完成了LifeCopilot高风险“想法到系统方案”流程的实现，未出现任何关键漏洞；通过负对采样技术优化了MIHD模型训练时的显存使用效率；在MeetingHelper中通过实现本地Sherpa-ONNX双源流程，解决了苹果语音并发限制问题。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-07-10T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-07-10T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-07-10">
+  <meta name="twitter:description" content="完成了LifeCopilot高风险“想法到系统方案”流程的实现，未出现任何关键漏洞；通过负对采样技术优化了MIHD模型训练时的显存使用效率；在MeetingHelper中通过实现本地Sherpa-ONNX双源流程，解决了苹果语音并发限制问题。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-07-10",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-07-10/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-07-10",
+  "name": "Bug Journal 2026-07-10",
+  "description": "完成了LifeCopilot高风险“想法到系统方案”流程的实现，未出现任何关键漏洞；通过负对采样技术优化了MIHD模型训练时的显存使用效率；在MeetingHelper中通过实现本地Sherpa-ONNX双源流程，解决了苹果语音并发限制问题。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-07-10 日常概述 完成工作： 在 Discord 和 REST 接口上完成了 LifeCopilot 从想法到平面的管道（第 10 阶段），并实现了可靠的崩溃恢复和幂等性机制；优化了 MIHD 高维数据集的对比学习算法；通过子进程工作模式绕过 macOS 语音 API 限制，实施本地 Sherpa-ONNX 支持，解决了 MeetingHelper 双源转录问题。 实现方式： 使用 DAG 驱动的并行子代理（ccedit）实现管道功能；在 PyTorch 损失函数中应用负对采样技术；创建音频处理子进程工作程序和自动安装脚本；对所有活跃项目进行项目结构和文档重构。 影响： 为 LifeCopilot 建立了可生产的特性流程，使大规模 MIHD 数据集训练无需 OOM 错误，并恢复了 macOS 上可靠的本地双源音频转录功能。 DCC 完成工作： 没有重大活动或被动角色。 实现方式： 不适用 影响： 不适用 MacBook 完成工作： 针对 Apple 语音故障进行假设驱动的调试，实施子进程工作架构，设置本地 Sherpa-ONNX ASR。完成了项目目录结构和文档的重构。 实现方式： 使用 Codex/Claude Code 诊断操作系统级并发限制，编写 Swift/Python 补丁，创建设置脚本，并重构文件路径。 影响： 完全独立于 Apple 在线 API 限制，实现了双源转录功能。 MacOS 完成工作： 搭建了 MeetingHelper 开发环境。诊断了 SFSpeechRecognizer 的限制。 实现方式： 根据 MacBook 日志将 MeetingHelper 作为主要开发机器。 影响： 不适用 TzJsDesktop 完成工作： 协调了 LifeCopilot 从想法到平面的管道实现（第 8–10 阶段）。执行了第 9 阶段的对抗性审查和第 10 阶段的 DAG 驱动代码生成。还管理了 Gadget 历史日志导出。 实现方式： 使用 ‘ccedit’ 技能进行并行代理调度、ECL 规划和验证门控。处理了 Gadget CLI 的 SSL 环境修复问题。 影响： 实现了完全验证、安全的管道功能，所有功能节点均正常运行。 my-pc 完成工作： 执行了 MIHD VRAM 优化（负对采样）。进行了 VLA 空间特性研究规划。审计了 ai-companion 结构并完成了 Gadget 逻辑设计。 实现方式： 实现了 PyTorch 损失函数修改，起草了 ECL 研究计划，并进行了文件系统审计。 影响： 实现了大规模训练稳定性，并制定了 3D 特性 VLA 整合路线图。 完成了 LifeCopilot 高风险“从想法到平面管道”的实现，未出现关键漏洞，通过负对采样优化了 MIHD 模型训练 VRAM，并通过实施本地 Sherpa-ONNX 双源管道解决了 MeetingHelper 中的 macOS 语音并发限制问题。\n任务 架构与策略 ✅ 从想法到平面管道实现（LifeCopilot） — 完成了从想法到平面的 ECL 的所有 24 个功能节点。包括工作流状态机、幂等存储、平面同步检查点、Discord 持久化 UI 和 REST 连接。通过红蓝对抗验证，消除了 56 种风险。 ✅ 通过负对采样优化 MIHD VRAM — 在 STAIGTrainer 和 BasicContrastive 损失函数中实现了可选的随机负对采样，减少 O(N²) 内存使用，允许在 crop10large 等高维数据集上训练。 ✅ 修复 MeetingHelper 双源音频并发问题 — 通过实施子进程工作程序（SubprocessASR）解决了 macOS 语音 API 单任务限制，后来引入 Sherpa-ONNX 实现完全本地离线双源转录。 实现与修复 ✅ 3D 特性研究计划：VLA 中的 3D 特性 — 制定了将 VGGT 衍生的 3D 点云特性整合到 Visual Language Action 模型中的研究 ECL 计划，包括架构和基准测试策略。 ✅ 项目重构与文档编写 — 将 MeetingHelper 结构化为 src/swift 和 src/python 目录。更新了 LifeCopilot 和 MeetingHelper 的 README/tutorial。修复了应用退出时转录持久化逻辑。 ✅ Gadget 历史日志恢复 — 导出并合并了五个历史日期的每日报告，解决了 Git Bash 中的 SSL_CERT_FILE 环境冲突问题。 问题与解决方案 关键问题 1. 双源模式下 Apple 语音 API 出现“未检测到语音”错误，随后因 macOS 上 SFSpeechRecognizer 的单进程限制导致崩溃。 解决方案： 通过假设测试诊断出操作系统限制。实施子进程工作模式以绕过限制，后来用 Sherpa-ONNX 替代依赖项，实现可靠的本地离线支持。\n关键洞察： 操作系统级 API 并发限制是架构障碍；需要 IPC 或替代引擎，而非仅通过单进程代码修复。\n2. LifeCopilot 旧的 POST /api/goals/capsules/{id}/approve 端点允许绕过新的 IdeaWorkflow，导致竞争条件和重复条目。 解决方案： 通过注入单例 GoalCapsuleStore 强化旧端点，为具有工作流线的胶囊添加 409 Conflict 保护机制。在存储层实施原子 CAS 更新。\n关键洞察： 新功能必须审计和保护现有公共入口点以防止状态损坏；共享状态必须在存储层而非仅 API 层进行管控。\n3. MIHD 高维对比学习损失导致 OOM，因为需要计算 O(N²) 相似矩阵。 解决方案： 在损失函数分母中实现向量化负对采样。在采样负样本的同时保持正样本的精度，并通过回归测试确保在禁用时位一致。\n关键洞察： 如果谨慎应用，负采样可有效减少 VRAM 使用，同时避免干扰正样本梯度并保持向后兼容性。\n一般问题 4. MeetingHelper 在 ASR 将文本标记为“最终”前退出时，转录数据丢失。 解决方案： 修改 LiveSubtitle.swift，在 applicationWillTerminate 和 stop.sh 事件上持久化临时字幕，将持久化与 ASR 内部状态分离。\n关键洞察： 应用生命周期事件比类似 ASR 最终性的领域特定标志更可靠地触发数据持久化。\n5. SSL_CERT_FILE 环境冲突导致 Windows Git Bash 中 Gadget CLI 超时。 解决方案： 在运行 Python summarize 命令前清除 SSL_CERT_FILE，恢复 Ollama 连接。关键洞察： 由shell继承的环境变量可能会悄无声息地破坏工具链；显式清理环境通常比依赖更新更快。\n人类与AI方法对比 战略层面 MVP开发中的并发策略 角色 方法 人类 用户坚持在LifeCopilot单进程MVP中使用简单的asyncio.Lock，而不采用复杂的CAS/Lease机制，更注重开发速度和简洁性，而非分布式系统的严谨性。 AI AI最初提出了类似生产系统的强大但复杂的并发控制方案（CAS），需要调整以符合MVP有限的范围。 差异分析： 人类在本地MVP中恰当地应用了‘YAGNI’原则，而AI则采用了不必要的过度设计的高可靠性模式。\n诊断Apple Speech的并发限制 角色 方法 人类 用户通过观察错误日志发现问题源于操作系统级别的“每个进程一个任务”限制，促使架构转向子进程。 AI AI最初难以进行深度系统探测，错误地将问题误认为是超时或音频质量问题，直到用户的洞察明确了系统限制。 差异分析： 人类利用操作系统知识快速识别根本原因，而AI则专注于Swift代码的实现级调试。\n对抗性验证范围 角色 方法 人类 用户为“Idea-to-Plane”审查定义了特定的评判标准和攻击向量，确保旧端点与新工作流进行对比审查。 AI AI生成了广泛的攻击方案，但需要人类干预以聚焦新存储与现有REST API之间的关键交集。 差异分析： 人类提供了AI无法获得的精确架构背景，从而推动了有效的缓解策略。\n实施层面 处理规划中的大上下文 角色 方法 人类 用户指示AI在响应流停滞时将大的ECL计划分成临时YAML文件，有效管理令牌/输出限制。 AI AI尝试生成单块内容，但因上下文限制失败，需要人类干预改为迭代文件写入策略。 差异分析： 人类意识到生成工件时需要分页，而AI缺乏自主应用此限制的意愿。\nAI局限性 一般局限性 未能自动检测Git Bash中的SSL_CERT_FILE环境冲突，导致在Ollama调用时出现无声失败，直到人工诊断。 尝试使用过时上下文编辑文件会导致“文件已被修改”错误；AI需要在长时间会话中针对大文件实施读-改循环。 AI响应流在生成大YAML/ECL文件或复杂多文件输出时经常停滞或中断，需要用户手动分块指示。 最初调试Apple Speech问题时过度强调“超时”作为原因，直到确认是并发限制，导致不必要的诊断步骤。 经验教训 关键经验 对于单进程本地MVP，asyncio.Lock足以实现并发；除非针对分布式系统，否则不需要复杂的CAS等分布式原语。 当添加新功能时，旧公共API是架构攻击的高风险目标；必须通过 lineage检查和单例存储进行明确加固，以防止绕过。 处理特定于操作系统的API（如CoreML/Speech）时，在深入调试代码之前，需验证文档/API行为中的并发限制；架构图比试错编程更高效。 实际经验 在PyTorch对比学习中的VRAM优化中，负采样策略必须确保在禁用时行为完全一致，以避免现有工作流的无声回归。 Sherpa-ONNX与Paraformer模型为macOS上的双语语音识别提供了可靠、轻量、完全离线的替代方案，可以绕过苹果的在线速率限制。 令牌使用 AI Usage · 2026-07-10\rClaude Code + Codex\rTotal cost$368.60\rTotal tokens133M\rOutput tokens2M\rCache read87.9%\rCost split\rClaude Code $358 ·\rCodex $10\rToken character\rCache reads 87.9% ·\rActive 12.1%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "428",
+  "inLanguage": "zh",
+  "datePublished": "2026-07-10T00:00:00-05:00",
+  "dateModified": "2026-07-10T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-07-10/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="zh"
+                        data-translation-url="https://tzj2006.github.io/bugjournal/daily/2026-07-10/">EN
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-07-10
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-07-10 00:00:00 -0500 -0500'>2026年7月10日</span>&nbsp;·&nbsp;<span>3 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-07-10">每日报告 — 2026-07-10<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-07-10">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>完成工作：</strong> 在 Discord 和 REST 接口上完成了 LifeCopilot 从想法到平面的管道（第 10 阶段），并实现了可靠的崩溃恢复和幂等性机制；优化了 MIHD 高维数据集的对比学习算法；通过子进程工作模式绕过 macOS 语音 API 限制，实施本地 Sherpa-ONNX 支持，解决了 MeetingHelper 双源转录问题。</li>
+<li><strong>实现方式：</strong> 使用 DAG 驱动的并行子代理（ccedit）实现管道功能；在 PyTorch 损失函数中应用负对采样技术；创建音频处理子进程工作程序和自动安装脚本；对所有活跃项目进行项目结构和文档重构。</li>
+<li><strong>影响：</strong> 为 LifeCopilot 建立了可生产的特性流程，使大规模 MIHD 数据集训练无需 OOM 错误，并恢复了 macOS 上可靠的本地双源音频转录功能。</li>
+</ul>
+<h3 id="dcc">DCC<a hidden class="anchor" aria-hidden="true" href="#dcc">#</a></h3>
+<ul>
+<li><strong>完成工作：</strong> 没有重大活动或被动角色。</li>
+<li><strong>实现方式：</strong> 不适用</li>
+<li><strong>影响：</strong> 不适用</li>
+</ul>
+<h3 id="macbook">MacBook<a hidden class="anchor" aria-hidden="true" href="#macbook">#</a></h3>
+<ul>
+<li><strong>完成工作：</strong> 针对 Apple 语音故障进行假设驱动的调试，实施子进程工作架构，设置本地 Sherpa-ONNX ASR。完成了项目目录结构和文档的重构。</li>
+<li><strong>实现方式：</strong> 使用 Codex/Claude Code 诊断操作系统级并发限制，编写 Swift/Python 补丁，创建设置脚本，并重构文件路径。</li>
+<li><strong>影响：</strong> 完全独立于 Apple 在线 API 限制，实现了双源转录功能。</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>完成工作：</strong> 搭建了 MeetingHelper 开发环境。诊断了 SFSpeechRecognizer 的限制。</li>
+<li><strong>实现方式：</strong> 根据 MacBook 日志将 MeetingHelper 作为主要开发机器。</li>
+<li><strong>影响：</strong> 不适用</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>完成工作：</strong> 协调了 LifeCopilot 从想法到平面的管道实现（第 8–10 阶段）。执行了第 9 阶段的对抗性审查和第 10 阶段的 DAG 驱动代码生成。还管理了 Gadget 历史日志导出。</li>
+<li><strong>实现方式：</strong> 使用 ‘ccedit’ 技能进行并行代理调度、ECL 规划和验证门控。处理了 Gadget CLI 的 SSL 环境修复问题。</li>
+<li><strong>影响：</strong> 实现了完全验证、安全的管道功能，所有功能节点均正常运行。</li>
+</ul>
+<h3 id="my-pc">my-pc<a hidden class="anchor" aria-hidden="true" href="#my-pc">#</a></h3>
+<ul>
+<li><strong>完成工作：</strong> 执行了 MIHD VRAM 优化（负对采样）。进行了 VLA 空间特性研究规划。审计了 ai-companion 结构并完成了 Gadget 逻辑设计。</li>
+<li><strong>实现方式：</strong> 实现了 PyTorch 损失函数修改，起草了 ECL 研究计划，并进行了文件系统审计。</li>
+<li><strong>影响：</strong> 实现了大规模训练稳定性，并制定了 3D 特性 VLA 整合路线图。</li>
+</ul>
+<blockquote>
+<p>完成了 LifeCopilot 高风险“从想法到平面管道”的实现，未出现关键漏洞，通过负对采样优化了 MIHD 模型训练 VRAM，并通过实施本地 Sherpa-ONNX 双源管道解决了 MeetingHelper 中的 macOS 语音并发限制问题。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>✅ <strong>从想法到平面管道实现（LifeCopilot）</strong> — 完成了从想法到平面的 ECL 的所有 24 个功能节点。包括工作流状态机、幂等存储、平面同步检查点、Discord 持久化 UI 和 REST 连接。通过红蓝对抗验证，消除了 56 种风险。</li>
+<li>✅ <strong>通过负对采样优化 MIHD VRAM</strong> — 在 STAIGTrainer 和 BasicContrastive 损失函数中实现了可选的随机负对采样，减少 O(N²) 内存使用，允许在 crop10large 等高维数据集上训练。</li>
+<li>✅ <strong>修复 MeetingHelper 双源音频并发问题</strong> — 通过实施子进程工作程序（SubprocessASR）解决了 macOS 语音 API 单任务限制，后来引入 Sherpa-ONNX 实现完全本地离线双源转录。</li>
+</ul>
+<h3 id="实现与修复">实现与修复<a hidden class="anchor" aria-hidden="true" href="#实现与修复">#</a></h3>
+<ul>
+<li>✅ <strong>3D 特性研究计划：VLA 中的 3D 特性</strong> — 制定了将 VGGT 衍生的 3D 点云特性整合到 Visual Language Action 模型中的研究 ECL 计划，包括架构和基准测试策略。</li>
+<li>✅ <strong>项目重构与文档编写</strong> — 将 MeetingHelper 结构化为 src/swift 和 src/python 目录。更新了 LifeCopilot 和 MeetingHelper 的 README/tutorial。修复了应用退出时转录持久化逻辑。</li>
+<li>✅ <strong>Gadget 历史日志恢复</strong> — 导出并合并了五个历史日期的每日报告，解决了 Git Bash 中的 SSL_CERT_FILE 环境冲突问题。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-双源模式下-apple-语音-api-出现未检测到语音错误随后因-macos-上-sfspeechrecognizer-的单进程限制导致崩溃">1. 双源模式下 Apple 语音 API 出现“未检测到语音”错误，随后因 macOS 上 SFSpeechRecognizer 的单进程限制导致崩溃。<a hidden class="anchor" aria-hidden="true" href="#1-双源模式下-apple-语音-api-出现未检测到语音错误随后因-macos-上-sfspeechrecognizer-的单进程限制导致崩溃">#</a></h4>
+<p><strong>解决方案：</strong> 通过假设测试诊断出操作系统限制。实施子进程工作模式以绕过限制，后来用 Sherpa-ONNX 替代依赖项，实现可靠的本地离线支持。</p>
+<p><strong>关键洞察：</strong> 操作系统级 API 并发限制是架构障碍；需要 IPC 或替代引擎，而非仅通过单进程代码修复。</p>
+<h4 id="2-lifecopilot-旧的-post-apigoalscapsulesidapprove-端点允许绕过新的-ideaworkflow导致竞争条件和重复条目">2. LifeCopilot 旧的 POST /api/goals/capsules/{id}/approve 端点允许绕过新的 IdeaWorkflow，导致竞争条件和重复条目。<a hidden class="anchor" aria-hidden="true" href="#2-lifecopilot-旧的-post-apigoalscapsulesidapprove-端点允许绕过新的-ideaworkflow导致竞争条件和重复条目">#</a></h4>
+<p><strong>解决方案：</strong> 通过注入单例 GoalCapsuleStore 强化旧端点，为具有工作流线的胶囊添加 409 Conflict 保护机制。在存储层实施原子 CAS 更新。</p>
+<p><strong>关键洞察：</strong> 新功能必须审计和保护现有公共入口点以防止状态损坏；共享状态必须在存储层而非仅 API 层进行管控。</p>
+<h4 id="3-mihd-高维对比学习损失导致-oom因为需要计算-on-相似矩阵">3. MIHD 高维对比学习损失导致 OOM，因为需要计算 O(N²) 相似矩阵。<a hidden class="anchor" aria-hidden="true" href="#3-mihd-高维对比学习损失导致-oom因为需要计算-on-相似矩阵">#</a></h4>
+<p><strong>解决方案：</strong> 在损失函数分母中实现向量化负对采样。在采样负样本的同时保持正样本的精度，并通过回归测试确保在禁用时位一致。</p>
+<p><strong>关键洞察：</strong> 如果谨慎应用，负采样可有效减少 VRAM 使用，同时避免干扰正样本梯度并保持向后兼容性。</p>
+<h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
+<h4 id="4-meetinghelper-在-asr-将文本标记为最终前退出时转录数据丢失">4. MeetingHelper 在 ASR 将文本标记为“最终”前退出时，转录数据丢失。<a hidden class="anchor" aria-hidden="true" href="#4-meetinghelper-在-asr-将文本标记为最终前退出时转录数据丢失">#</a></h4>
+<p><strong>解决方案：</strong> 修改 LiveSubtitle.swift，在 applicationWillTerminate 和 stop.sh 事件上持久化临时字幕，将持久化与 ASR 内部状态分离。</p>
+<p><strong>关键洞察：</strong> 应用生命周期事件比类似 ASR 最终性的领域特定标志更可靠地触发数据持久化。</p>
+<h4 id="5-ssl_cert_file-环境冲突导致-windows-git-bash-中-gadget-cli-超时">5. SSL_CERT_FILE 环境冲突导致 Windows Git Bash 中 Gadget CLI 超时。<a hidden class="anchor" aria-hidden="true" href="#5-ssl_cert_file-环境冲突导致-windows-git-bash-中-gadget-cli-超时">#</a></h4>
+<p><strong>解决方案：</strong> 在运行 Python summarize 命令前清除 SSL_CERT_FILE，恢复 Ollama 连接。<strong>关键洞察：</strong> 由shell继承的环境变量可能会悄无声息地破坏工具链；显式清理环境通常比依赖更新更快。</p>
+<h2 id="人类与ai方法对比">人类与AI方法对比<a hidden class="anchor" aria-hidden="true" href="#人类与ai方法对比">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="mvp开发中的并发策略">MVP开发中的并发策略<a hidden class="anchor" aria-hidden="true" href="#mvp开发中的并发策略">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户坚持在LifeCopilot单进程MVP中使用简单的asyncio.Lock，而不采用复杂的CAS/Lease机制，更注重开发速度和简洁性，而非分布式系统的严谨性。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI最初提出了类似生产系统的强大但复杂的并发控制方案（CAS），需要调整以符合MVP有限的范围。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类在本地MVP中恰当地应用了‘YAGNI’原则，而AI则采用了不必要的过度设计的高可靠性模式。</p>
+<h4 id="诊断apple-speech的并发限制">诊断Apple Speech的并发限制<a hidden class="anchor" aria-hidden="true" href="#诊断apple-speech的并发限制">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户通过观察错误日志发现问题源于操作系统级别的“每个进程一个任务”限制，促使架构转向子进程。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI最初难以进行深度系统探测，错误地将问题误认为是超时或音频质量问题，直到用户的洞察明确了系统限制。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类利用操作系统知识快速识别根本原因，而AI则专注于Swift代码的实现级调试。</p>
+<h4 id="对抗性验证范围">对抗性验证范围<a hidden class="anchor" aria-hidden="true" href="#对抗性验证范围">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户为“Idea-to-Plane”审查定义了特定的评判标准和攻击向量，确保旧端点与新工作流进行对比审查。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI生成了广泛的攻击方案，但需要人类干预以聚焦新存储与现有REST API之间的关键交集。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类提供了AI无法获得的精确架构背景，从而推动了有效的缓解策略。</p>
+<h3 id="实施层面">实施层面<a hidden class="anchor" aria-hidden="true" href="#实施层面">#</a></h3>
+<h4 id="处理规划中的大上下文">处理规划中的大上下文<a hidden class="anchor" aria-hidden="true" href="#处理规划中的大上下文">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户指示AI在响应流停滞时将大的ECL计划分成临时YAML文件，有效管理令牌/输出限制。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI尝试生成单块内容，但因上下文限制失败，需要人类干预改为迭代文件写入策略。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类意识到生成工件时需要分页，而AI缺乏自主应用此限制的意愿。</p>
+<h2 id="ai局限性">AI局限性<a hidden class="anchor" aria-hidden="true" href="#ai局限性">#</a></h2>
+<h3 id="一般局限性">一般局限性<a hidden class="anchor" aria-hidden="true" href="#一般局限性">#</a></h3>
+<ul>
+<li>未能自动检测Git Bash中的SSL_CERT_FILE环境冲突，导致在Ollama调用时出现无声失败，直到人工诊断。</li>
+<li>尝试使用过时上下文编辑文件会导致“文件已被修改”错误；AI需要在长时间会话中针对大文件实施读-改循环。</li>
+<li>AI响应流在生成大YAML/ECL文件或复杂多文件输出时经常停滞或中断，需要用户手动分块指示。</li>
+<li>最初调试Apple Speech问题时过度强调“超时”作为原因，直到确认是并发限制，导致不必要的诊断步骤。</li>
+</ul>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="关键经验">关键经验<a hidden class="anchor" aria-hidden="true" href="#关键经验">#</a></h3>
+<ul>
+<li>对于单进程本地MVP，asyncio.Lock足以实现并发；除非针对分布式系统，否则不需要复杂的CAS等分布式原语。</li>
+<li>当添加新功能时，旧公共API是架构攻击的高风险目标；必须通过 lineage检查和单例存储进行明确加固，以防止绕过。</li>
+<li>处理特定于操作系统的API（如CoreML/Speech）时，在深入调试代码之前，需验证文档/API行为中的并发限制；架构图比试错编程更高效。</li>
+</ul>
+<h3 id="实际经验">实际经验<a hidden class="anchor" aria-hidden="true" href="#实际经验">#</a></h3>
+<ul>
+<li>在PyTorch对比学习中的VRAM优化中，负采样策略必须确保在禁用时行为完全一致，以避免现有工作流的无声回归。</li>
+<li>Sherpa-ONNX与Paraformer模型为macOS上的双语语音识别提供了可靠、轻量、完全离线的替代方案，可以绕过苹果的在线速率限制。</li>
+</ul>
+<h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-07-10</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$368.60</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>133M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>2M</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>87.9%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $358</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $10</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (97.3%), Codex (2.7%)">
+          <span style="width:97.3%; background:var(--usage-cost-main)"></span>
+          <span style="width:2.7%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 87.9%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 12.1%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (87.9%), active tokens (12.1%)">
+          <span style="width:87.9%; background:var(--usage-cache)"></span>
+          <span style="width:12.1%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:11b0e2d0bf0200c2 -->
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
