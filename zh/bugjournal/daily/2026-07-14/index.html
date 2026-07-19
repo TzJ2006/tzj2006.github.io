@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-07-14 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="执行了高流量日常工作流，重点优化HPC存储，在天和3上恢复了约1.7TB的数据；完成了GR00T量化流程架构的完善，部署并调试了Action-Sketcher机器人测试基准，修正了ErrorRecoveryBenchmark数据集的定义，并对Gadget工具包基础设施进行了重构。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-14/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-07-14/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-14/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-14/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-07-14">
+  <meta property="og:description" content="执行了高流量日常工作流，重点优化HPC存储，在天和3上恢复了约1.7TB的数据；完成了GR00T量化流程架构的完善，部署并调试了Action-Sketcher机器人测试基准，修正了ErrorRecoveryBenchmark数据集的定义，并对Gadget工具包基础设施进行了重构。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-07-14T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-07-14T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-07-14">
+  <meta name="twitter:description" content="执行了高流量日常工作流，重点优化HPC存储，在天和3上恢复了约1.7TB的数据；完成了GR00T量化流程架构的完善，部署并调试了Action-Sketcher机器人测试基准，修正了ErrorRecoveryBenchmark数据集的定义，并对Gadget工具包基础设施进行了重构。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-07-14",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-07-14/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-07-14",
+  "name": "Bug Journal 2026-07-14",
+  "description": "执行了高流量日常工作流，重点优化HPC存储，在天和3上恢复了约1.7TB的数据；完成了GR00T量化流程架构的完善，部署并调试了Action-Sketcher机器人测试基准，修正了ErrorRecoveryBenchmark数据集的定义，并对Gadget工具包基础设施进行了重构。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-07-14 日常概述 已完成工作： 对 Tianhe3 超级计算机存储进行了针对两位用户的全面审计与清理，识别并归档了关键的 OpenPI checkpoint，同时回收了约 1.7TB 数据。为 Qualcomm 平台上的 GR00T-N1.7 设计了量化流程，成功部署了 Action-Sketcher 推理框架以生成 LIBERO 任务的 2D 可视化轨迹。此外，为 ErrorRecoveryBenchmark 定义了标准数据规范，从损坏的视频资源中恢复文本，更新了 scGHT 评估报告，并对 Gadget 工具包进行了重大基础设施重构。 实施方法： 利用 SSH 调度与 Codex/AI 代理执行远程存储审计（清理灰尘），使用基于 Python 的 HDF5 元数据检查，以及交互式清理脚本。实现了 GR00T 的 AIMET SeqMSE 和 SpinQuant 设计，解决了机器人推理中的 MuJoCo EGL/CUDA 映射冲突，修正了数据集来源逻辑，将 Gadget 配置系统重构为单一真实源，并应用 OCR 技术进行媒体恢复。 影响： 消除了 HPC 集群中的重大存储瓶颈，建立了可复现的边缘部署量化框架，生成了用于机器人策略训练的关键推理数据集，确保了基准验证的数据完整性，提升了本地开发工具的安全性与可维护性。 执行了高流量日常工作流，重点优化 HPC 存储，在 Tianhe3 上回收了约 1.7TB 数据，完成了 GR00T 量化流程架构的完善，部署并调试了 Action-Sketcher 机器人基准测试，修正了 ErrorRecoveryBenchmark 数据集定义，并对 Gadget 工具包基础设施进行了重构。\n任务 架构与策略 🔄 GR00T 量化流程架构与脚本 — 定义了四阶段路线图（FP16 Baseline -\u003e SeqMSE PTQ -\u003e SpinVariant -\u003e Profiling）。在 Qwen3 主干上创建了 AIMet SeqMSE 和 SpinQuant 的 Python 基础设施，编写了 Slurm 脚本，在解决超时问题后成功提交了初始环境设置/基线任务。 ✅ Tianhe3 存储审计与清理执行 — 对 zhaoganlong/tangzijia 区域进行了约 2.7TB 的审计。识别出 OpenPI checkpoint（1.1TB）和 MimicGen 数据为主要消费者。生成并执行了交互式脚本以归档 step-19999 checkpoint 并删除中间文件，回收了约 1.7TB 数据。 ✅ Action-Sketcher 部署与 LIBERO 推广 — 将 Action-Sketcher 部署到 Tianhe3。修改了推广脚本以捕获规划提示和 2D 草图。解决了 MuJoCo EGL/CUDA 冲突，启用了 GPU 4-7 的并行多 GPU 执行，并收集了 10 项任务的数据轨迹（1 次失败）。 ✅ ErrorRecoveryBenchmark 数据质量保障 — 定义了标准的训练/评估规范（每类 1,360 个场景），解决了文档/代码冲突。在 Tianhe3 上进行了只读 HDF5 审计以验证元数据来源，并发现人类演示数据集中的模式差异。 ✅ Gadget 工具包重构与公开发布准备 — 将 Gadget 配置重构为单个仓库本地 config.json，采用失败即止的逻辑。清理了机密信息，重置了公共 GitHub 发布的 git 历史，解决了 Hugo 部署路径解析问题。 实施与修复 ✅ 媒体恢复与研究报告更新 — 实现了基于 GPU 的 OCR 流程以从损坏的 MP4 视频中提取新文本。更新了 MIHD 进展报告，包含 scGPT-HD ARI 结果，并验证了 rclone sync 的稳定性。 问题与解决方案 关键问题 1. ErrorRecoveryBenchmark 数据来源模糊：论文文档、代码和实际 HDF5 数据在数据集大小和“训练”定义方面存在差异。 解决方案： 用户介入定义了标准计数（1360/1360）。AI 修补了审计脚本以接受异构元数据模式（例如 humandemo_source 与 source_dataset）。\n关键洞察： 文档往往落后于代码；明确的“标准”定义和灵活的模式验证对于准确验证基准至关重要。\n2. Tianhe3 存储配额与元数据延迟：HPC 审计揭示了 Lustre 元数据延迟与分布式用户配额之间的复杂关系，这些配额与全局空闲空间不同。 解决方案： 使用 dust 进行高效的目录审计。重新编写了 Python HDF5 检查器，仅读取高级属性而非迭代嵌套组。在清理脚本中增加了明确的 LFS 配额检查，以防止归档时拒绝。\n关键洞察： 大规模 HPC 审计需要仅基于属性的 introspection；全局空间可用性不能保证特定项目的配额余量。\n3. Action-Sketcher 推理失败：遇到 CUDA OOM（设备加载错误）、MuJoCo EGL 设备 ID 与 CUDA_VISIBLE_DEVICES 不匹配，以及 SSH 代理 DNS 故障。 解决方案： 修补了推理代码以明确设置设备。在可见 GPU 上重新映射 MUJOCO_EGL_DEVICE_ID=0，同时本地映射 uv。通过使用缓存的隧道 IP 和主机密钥绕过 DNS 故障，解决了 SSH 连接问题。\n关键洞察： 机器人渲染流程通常将 EGL 索引与 CUDA 可见性分离；当 DNS/Proxy 服务不稳定时，远程 HPC 连接可能需要加密绕过。\n4. 量化环境与模型访问：初始 Slurm 任务因 UV_HTTP_TIMEOUT 包管理器超时在大型轮上失败；后来被受限 HuggingFace 模型（Cosmos-Reason2-2B）阻塞。 解决方案： 在 sbatch 脚本中增加 -u。调查了 Qwen3 的配置交换，但暂停以等待用户 HF 令牌批准，以保持基线完整性。\n关键洞察： 网络超时是 HPC 环境设置中的关键风险；受限模型需要明确的凭证管理，而非架构层面的解决方案。\n一般问题 5. SSH 命令引用与缓冲：复杂的 Python 单行脚本因 Shell 转义问题在 SSH 中失败；长的 HDF5 脚本因缓冲而隐藏进度。 解决方案： 改为通过 SCP 上传独立的 Python 脚本以处理复杂逻辑。在远程脚本中启用无缓冲输出（flush=True），以提供实时反馈。\n关键洞察： 从本地 CLI 工具远程执行应优先使用文件传输而非内联命令；长运行远程进程必须明确刷新。\n6. 视频文件损坏：标准 ffmpeg 提取因下载资源中的 HEVC NAL 单元错误而失败。 解决方案： 实施了关键帧查找策略（-ss）以跳过损坏数据包，使用基于 GPU 的 RapidOCR 恢复有效片段。\n关键洞察： 基于时间戳的查找比连续解码更稳健，可用于从结构损坏的多媒体资源中恢复数据。\n人类与 AI 方法 战略层面 Benchmark 数据定义（ErrorRecovery）| 角色 | 方法 | |——|——| | 人类 | 用户定义了训练集与评估集的语义真实值及具体数量，纠正了 AI 认为代码具有权威性的初始假设。 | | AI | AI 进行了机械验证和架构审计，但在没有人类指导的情况下无法识别“论文现实”与“代码现实”之间的矛盾。 |\n差异分析： 人类提供了战略意图和业务逻辑；AI 负责战术执行和技术验证。\nGadget 配置架构 角色 方法 人类 用户要求采用单一真实值来源配置，并采用快速失败机制，拒绝使用旧式回退方案。 AI AI 重构了不同的模块以符合此架构约束，同时维持过渡阶段的安全性。 差异分析： 人类设定了架构边界；AI 负责迁移复杂性处理。\n战略数据保留与 AI 保守性（Tianhe3 清理） 角色 方法 人类 用户实施了严格的保留策略（仅保留第 19999 步检查点），超越标准备份实践以节省空间。 AI AI 最初基于启发式最佳实践建议保留最终检查和中间检查，仅在用户明确约束后进行调整。 差异分析： 人类优先优化资源；AI 默认保留数据，直到被纠正为止。\nGPU 资源分配策略 角色 方法 人类 用户指定了任务与 GPU 的精确映射，以优化运行效率进行并行部署。 AI AI 生成了复杂的 nohup 调度逻辑和环境变量管理功能，以执行用户的计划。 差异分析： 人类定义了逻辑分配；AI 处理过程控制的语法复杂性。\nAI 局限性 关键局限性 AI 依赖启发式假设来制定保留策略和模型可用性，缺乏对明确用户约束（例如“仅第 19999 步”）或外部门控机制的即时意识，且没有人工指导。 一般局限性 长时间运行的远程 Python 脚本默认会缓冲输出，直到明确修复前，用户无法看到进度。 最初的 MuJoCo 部署尝试未能预见到 EGL/CUDA 设备 ID 映射冲突，需要特定领域知识才能解决。 AI 最初在通过 SSH 执行远程 Python 时难以处理复杂的 shell 引用问题，导致语法错误，需要迭代调试或文件传输解决方案。 经验教训 关键经验 当使用 CUDA_VISIBLE_DEVICES、MUJOCO_EGL_DEVICE_ID 时，必须显式设置为本地 Python 进程索引（通常为 0），而非物理 GPU ID。 在基于 Lustre 的 HPC 集群上，枚举大 HDF5 组会导致元数据延迟；读取文件属性比迭代结构用于溯源分析要快得多。 尽早为实验参数（如数据集大小）建立“标准”真实来源，可避免复杂研究项目中文档落后于代码时的矛盾工作。 机器人领域的 HDF5 数据集通常包含语义冗余（例如 v1 与 v2）；在删除或归档前需通过元数据检查确认身份。 实际经验 来自本地 CLI 工具的稳健远程执行应优先上传脚本而非内联命令，并为长时间进程启用无缓冲输出以确保可见性。 对话总结 GR00T 量化管道 • Qualcomm 部署的架构设计与初始执行 19:32:47.364 | claude_code 建立了完整的 4 阶段路线图用于 GR00T-N1.7 的量化（FP16 基准 -\u003e SeqMSE PTQ -\u003e SpinVariant -\u003e 分析）。归档了代码库架构设计，生成了旋转/量化脚本，并提交了 Slurm 作业链。进度受阻，等待用户提供的 HuggingFace 凭据以启用门控模型。\nTianhe3 存储管理 ✅ HPC 存储审计、分析与清理 19:22:41.312 | codex 对 zhaoganlong 和 tangzijia 用户的 ~2.7TB 使用进行了深度审计。识别出 OpenPI 检查点（1.1TB）和 MimicGen 数据为主要消费者。分析了 HDF5 元数据以区分有效检查点和临时/缓存文件。生成并执行了交互式脚本，归档了最终第 19999 步检查点并删除了约 1.7TB 冗余数据。\nAction-Sketcher / WorldModel3DVisualPrompt ✅ 在 Tianhe3 上的部署、调试和并行部署 03:01:24.739 | codex 将 Action-Sketcher 部署到 Tianhe3，修改了部署脚本以捕获规划提示和 2D 草图。解决了关键错误，包括 CUDA OOM（设备加载错误）、MuJoCo EGL/CUDA 映射冲突以及 SSH 代理 DNS 故障。成功在 GPU 4-7 上并行执行 LIBERO 部署，收集了 10 个任务的数据迹线（1 次失败）。\nErrorRecoveryBenchmark ✅ 数据质量验证和状态调查 22:05:27.672 | codex/claude_code 定义了标准的训练/评估规范（1,360 场景），解决了文档/代码冲突。在 Tianhe3 上执行了只读 HDF5 审计以验证元数据来源，并识别了人类演示数据集中的架构差异。制定了缺失检查点和矛盾文档的恢复计划。\nGadget（GitHub Toolkit） ✅ 配置统一、安全清理和公开发布准备 20:17:12.343 | claude_code/cursor 将 Gadget 配置重构为单个仓库本地 config.json 并采用快速失败逻辑。清理了私有路径/机密信息，重置了公共 GitHub 发布的 git 历史，修复了 Hugo 部署路径问题，并标准化了换行符。\n媒体与研究报告 ✅ 损坏视频恢复和 scGHT 报告更新 19:20:45.816 | claude_code 实现了 GPU 加速 OCR 管道，从损坏视频中提取了约 17k 字符。更新了包含 scGPT-HD ARI 结果的 MIHD 进度报告。验证了 rclone sync 的稳定性用于日常日志记录。\nToken 使用 AI Usage · 2026-07-14\rClaude Code + Codex\rTotal cost$128.35\rTotal tokens111M\rOutput tokens699K\rCache read95.1%\rCost split\rClaude Code $65 ·\rCodex $63\rToken character\rCache reads 95.1% ·\rActive 4.9%\rMost token volume came from cache reads.\r",
+  "wordCount" : "614",
+  "inLanguage": "zh",
+  "datePublished": "2026-07-14T00:00:00-05:00",
+  "dateModified": "2026-07-14T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-07-14/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="zh"
+                        data-translation-url="https://tzj2006.github.io/bugjournal/daily/2026-07-14/">EN
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-07-14
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-07-14 00:00:00 -0500 -0500'>2026年7月14日</span>&nbsp;·&nbsp;<span>3 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-07-14">每日报告 — 2026-07-14<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-07-14">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>已完成工作：</strong> 对 Tianhe3 超级计算机存储进行了针对两位用户的全面审计与清理，识别并归档了关键的 OpenPI checkpoint，同时回收了约 1.7TB 数据。为 Qualcomm 平台上的 GR00T-N1.7 设计了量化流程，成功部署了 Action-Sketcher 推理框架以生成 LIBERO 任务的 2D 可视化轨迹。此外，为 ErrorRecoveryBenchmark 定义了标准数据规范，从损坏的视频资源中恢复文本，更新了 scGHT 评估报告，并对 Gadget 工具包进行了重大基础设施重构。</li>
+<li><strong>实施方法：</strong> 利用 SSH 调度与 Codex/AI 代理执行远程存储审计（清理灰尘），使用基于 Python 的 HDF5 元数据检查，以及交互式清理脚本。实现了 GR00T 的 AIMET SeqMSE 和 SpinQuant 设计，解决了机器人推理中的 MuJoCo EGL/CUDA 映射冲突，修正了数据集来源逻辑，将 Gadget 配置系统重构为单一真实源，并应用 OCR 技术进行媒体恢复。</li>
+<li><strong>影响：</strong> 消除了 HPC 集群中的重大存储瓶颈，建立了可复现的边缘部署量化框架，生成了用于机器人策略训练的关键推理数据集，确保了基准验证的数据完整性，提升了本地开发工具的安全性与可维护性。</li>
+</ul>
+<blockquote>
+<p>执行了高流量日常工作流，重点优化 HPC 存储，在 Tianhe3 上回收了约 1.7TB 数据，完成了 GR00T 量化流程架构的完善，部署并调试了 Action-Sketcher 机器人基准测试，修正了 ErrorRecoveryBenchmark 数据集定义，并对 Gadget 工具包基础设施进行了重构。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>🔄 <strong>GR00T 量化流程架构与脚本</strong> — 定义了四阶段路线图（FP16 Baseline -&gt; SeqMSE PTQ -&gt; SpinVariant -&gt; Profiling）。在 Qwen3 主干上创建了 AIMet SeqMSE 和 SpinQuant 的 Python 基础设施，编写了 Slurm 脚本，在解决超时问题后成功提交了初始环境设置/基线任务。</li>
+<li>✅ <strong>Tianhe3 存储审计与清理执行</strong> — 对 zhaoganlong/tangzijia 区域进行了约 2.7TB 的审计。识别出 OpenPI checkpoint（1.1TB）和 MimicGen 数据为主要消费者。生成并执行了交互式脚本以归档 step-19999 checkpoint 并删除中间文件，回收了约 1.7TB 数据。</li>
+<li>✅ <strong>Action-Sketcher 部署与 LIBERO 推广</strong> — 将 Action-Sketcher 部署到 Tianhe3。修改了推广脚本以捕获规划提示和 2D 草图。解决了 MuJoCo EGL/CUDA 冲突，启用了 GPU 4-7 的并行多 GPU 执行，并收集了 10 项任务的数据轨迹（1 次失败）。</li>
+<li>✅ <strong>ErrorRecoveryBenchmark 数据质量保障</strong> — 定义了标准的训练/评估规范（每类 1,360 个场景），解决了文档/代码冲突。在 Tianhe3 上进行了只读 HDF5 审计以验证元数据来源，并发现人类演示数据集中的模式差异。</li>
+<li>✅ <strong>Gadget 工具包重构与公开发布准备</strong> — 将 Gadget 配置重构为单个仓库本地 <code>config.json</code>，采用失败即止的逻辑。清理了机密信息，重置了公共 GitHub 发布的 git 历史，解决了 Hugo 部署路径解析问题。</li>
+</ul>
+<h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
+<ul>
+<li>✅ <strong>媒体恢复与研究报告更新</strong> — 实现了基于 GPU 的 OCR 流程以从损坏的 MP4 视频中提取新文本。更新了 MIHD 进展报告，包含 scGPT-HD ARI 结果，并验证了 rclone sync 的稳定性。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-errorrecoverybenchmark-数据来源模糊论文文档代码和实际-hdf5-数据在数据集大小和训练定义方面存在差异">1. ErrorRecoveryBenchmark 数据来源模糊：论文文档、代码和实际 HDF5 数据在数据集大小和“训练”定义方面存在差异。<a hidden class="anchor" aria-hidden="true" href="#1-errorrecoverybenchmark-数据来源模糊论文文档代码和实际-hdf5-数据在数据集大小和训练定义方面存在差异">#</a></h4>
+<p><strong>解决方案：</strong> 用户介入定义了标准计数（1360/1360）。AI 修补了审计脚本以接受异构元数据模式（例如 <code>humandemo_source</code> 与 <code>source_dataset</code>）。</p>
+<p><strong>关键洞察：</strong> 文档往往落后于代码；明确的“标准”定义和灵活的模式验证对于准确验证基准至关重要。</p>
+<h4 id="2-tianhe3-存储配额与元数据延迟hpc-审计揭示了-lustre-元数据延迟与分布式用户配额之间的复杂关系这些配额与全局空闲空间不同">2. Tianhe3 存储配额与元数据延迟：HPC 审计揭示了 Lustre 元数据延迟与分布式用户配额之间的复杂关系，这些配额与全局空闲空间不同。<a hidden class="anchor" aria-hidden="true" href="#2-tianhe3-存储配额与元数据延迟hpc-审计揭示了-lustre-元数据延迟与分布式用户配额之间的复杂关系这些配额与全局空闲空间不同">#</a></h4>
+<p><strong>解决方案：</strong> 使用 <code>dust</code> 进行高效的目录审计。重新编写了 Python HDF5 检查器，仅读取高级属性而非迭代嵌套组。在清理脚本中增加了明确的 LFS 配额检查，以防止归档时拒绝。</p>
+<p><strong>关键洞察：</strong> 大规模 HPC 审计需要仅基于属性的 introspection；全局空间可用性不能保证特定项目的配额余量。</p>
+<h4 id="3-action-sketcher-推理失败遇到-cuda-oom设备加载错误mujoco-egl-设备-id-与-cuda_visible_devices-不匹配以及-ssh-代理-dns-故障">3. Action-Sketcher 推理失败：遇到 CUDA OOM（设备加载错误）、MuJoCo EGL 设备 ID 与 <code>CUDA_VISIBLE_DEVICES</code> 不匹配，以及 SSH 代理 DNS 故障。<a hidden class="anchor" aria-hidden="true" href="#3-action-sketcher-推理失败遇到-cuda-oom设备加载错误mujoco-egl-设备-id-与-cuda_visible_devices-不匹配以及-ssh-代理-dns-故障">#</a></h4>
+<p><strong>解决方案：</strong> 修补了推理代码以明确设置设备。在可见 GPU 上重新映射 <code>MUJOCO_EGL_DEVICE_ID=0</code>，同时本地映射 <code>uv</code>。通过使用缓存的隧道 IP 和主机密钥绕过 DNS 故障，解决了 SSH 连接问题。</p>
+<p><strong>关键洞察：</strong> 机器人渲染流程通常将 EGL 索引与 CUDA 可见性分离；当 DNS/Proxy 服务不稳定时，远程 HPC 连接可能需要加密绕过。</p>
+<h4 id="4-量化环境与模型访问初始-slurm-任务因-uv_http_timeout-包管理器超时在大型轮上失败后来被受限-huggingface-模型cosmos-reason2-2b阻塞">4. 量化环境与模型访问：初始 Slurm 任务因 <code>UV_HTTP_TIMEOUT</code> 包管理器超时在大型轮上失败；后来被受限 HuggingFace 模型（Cosmos-Reason2-2B）阻塞。<a hidden class="anchor" aria-hidden="true" href="#4-量化环境与模型访问初始-slurm-任务因-uv_http_timeout-包管理器超时在大型轮上失败后来被受限-huggingface-模型cosmos-reason2-2b阻塞">#</a></h4>
+<p><strong>解决方案：</strong> 在 sbatch 脚本中增加 <code>-u</code>。调查了 Qwen3 的配置交换，但暂停以等待用户 HF 令牌批准，以保持基线完整性。</p>
+<p><strong>关键洞察：</strong> 网络超时是 HPC 环境设置中的关键风险；受限模型需要明确的凭证管理，而非架构层面的解决方案。</p>
+<h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
+<h4 id="5-ssh-命令引用与缓冲复杂的-python-单行脚本因-shell-转义问题在-ssh-中失败长的-hdf5-脚本因缓冲而隐藏进度">5. SSH 命令引用与缓冲：复杂的 Python 单行脚本因 Shell 转义问题在 SSH 中失败；长的 HDF5 脚本因缓冲而隐藏进度。<a hidden class="anchor" aria-hidden="true" href="#5-ssh-命令引用与缓冲复杂的-python-单行脚本因-shell-转义问题在-ssh-中失败长的-hdf5-脚本因缓冲而隐藏进度">#</a></h4>
+<p><strong>解决方案：</strong> 改为通过 SCP 上传独立的 Python 脚本以处理复杂逻辑。在远程脚本中启用无缓冲输出（<code>flush=True</code>），以提供实时反馈。</p>
+<p><strong>关键洞察：</strong> 从本地 CLI 工具远程执行应优先使用文件传输而非内联命令；长运行远程进程必须明确刷新。</p>
+<h4 id="6-视频文件损坏标准-ffmpeg-提取因下载资源中的-hevc-nal-单元错误而失败">6. 视频文件损坏：标准 ffmpeg 提取因下载资源中的 HEVC NAL 单元错误而失败。<a hidden class="anchor" aria-hidden="true" href="#6-视频文件损坏标准-ffmpeg-提取因下载资源中的-hevc-nal-单元错误而失败">#</a></h4>
+<p><strong>解决方案：</strong> 实施了关键帧查找策略（<code>-ss</code>）以跳过损坏数据包，使用基于 GPU 的 RapidOCR 恢复有效片段。</p>
+<p><strong>关键洞察：</strong> 基于时间戳的查找比连续解码更稳健，可用于从结构损坏的多媒体资源中恢复数据。</p>
+<h2 id="人类与-ai-方法">人类与 AI 方法<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="benchmark-数据定义errorrecovery-角色--方法-">Benchmark 数据定义（ErrorRecovery）| 角色 | 方法 |<a hidden class="anchor" aria-hidden="true" href="#benchmark-数据定义errorrecovery-角色--方法-">#</a></h4>
+<p>|&mdash;&mdash;|&mdash;&mdash;|
+| 人类 | 用户定义了训练集与评估集的语义真实值及具体数量，纠正了 AI 认为代码具有权威性的初始假设。 |
+| AI | AI 进行了机械验证和架构审计，但在没有人类指导的情况下无法识别“论文现实”与“代码现实”之间的矛盾。 |</p>
+<p><strong>差异分析：</strong> 人类提供了战略意图和业务逻辑；AI 负责战术执行和技术验证。</p>
+<h4 id="gadget-配置架构">Gadget 配置架构<a hidden class="anchor" aria-hidden="true" href="#gadget-配置架构">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户要求采用单一真实值来源配置，并采用快速失败机制，拒绝使用旧式回退方案。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI 重构了不同的模块以符合此架构约束，同时维持过渡阶段的安全性。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类设定了架构边界；AI 负责迁移复杂性处理。</p>
+<h4 id="战略数据保留与-ai-保守性tianhe3-清理">战略数据保留与 AI 保守性（Tianhe3 清理）<a hidden class="anchor" aria-hidden="true" href="#战略数据保留与-ai-保守性tianhe3-清理">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户实施了严格的保留策略（仅保留第 19999 步检查点），超越标准备份实践以节省空间。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI 最初基于启发式最佳实践建议保留最终检查和中间检查，仅在用户明确约束后进行调整。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类优先优化资源；AI 默认保留数据，直到被纠正为止。</p>
+<h4 id="gpu-资源分配策略">GPU 资源分配策略<a hidden class="anchor" aria-hidden="true" href="#gpu-资源分配策略">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户指定了任务与 GPU 的精确映射，以优化运行效率进行并行部署。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI 生成了复杂的 <code>nohup</code> 调度逻辑和环境变量管理功能，以执行用户的计划。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类定义了逻辑分配；AI 处理过程控制的语法复杂性。</p>
+<h2 id="ai-局限性">AI 局限性<a hidden class="anchor" aria-hidden="true" href="#ai-局限性">#</a></h2>
+<h3 id="关键局限性">关键局限性<a hidden class="anchor" aria-hidden="true" href="#关键局限性">#</a></h3>
+<ul>
+<li>AI 依赖启发式假设来制定保留策略和模型可用性，缺乏对明确用户约束（例如“仅第 19999 步”）或外部门控机制的即时意识，且没有人工指导。</li>
+</ul>
+<h3 id="一般局限性">一般局限性<a hidden class="anchor" aria-hidden="true" href="#一般局限性">#</a></h3>
+<ul>
+<li>长时间运行的远程 Python 脚本默认会缓冲输出，直到明确修复前，用户无法看到进度。</li>
+<li>最初的 MuJoCo 部署尝试未能预见到 EGL/CUDA 设备 ID 映射冲突，需要特定领域知识才能解决。</li>
+<li>AI 最初在通过 SSH 执行远程 Python 时难以处理复杂的 shell 引用问题，导致语法错误，需要迭代调试或文件传输解决方案。</li>
+</ul>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="关键经验">关键经验<a hidden class="anchor" aria-hidden="true" href="#关键经验">#</a></h3>
+<ul>
+<li>当使用 <code>CUDA_VISIBLE_DEVICES</code>、<code>MUJOCO_EGL_DEVICE_ID</code> 时，必须显式设置为本地 Python 进程索引（通常为 0），而非物理 GPU ID。</li>
+<li>在基于 Lustre 的 HPC 集群上，枚举大 HDF5 组会导致元数据延迟；读取文件属性比迭代结构用于溯源分析要快得多。</li>
+<li>尽早为实验参数（如数据集大小）建立“标准”真实来源，可避免复杂研究项目中文档落后于代码时的矛盾工作。</li>
+<li>机器人领域的 HDF5 数据集通常包含语义冗余（例如 v1 与 v2）；在删除或归档前需通过元数据检查确认身份。</li>
+</ul>
+<h3 id="实际经验">实际经验<a hidden class="anchor" aria-hidden="true" href="#实际经验">#</a></h3>
+<ul>
+<li>来自本地 CLI 工具的稳健远程执行应优先上传脚本而非内联命令，并为长时间进程启用无缓冲输出以确保可见性。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<h3 id="gr00t-量化管道">GR00T 量化管道<a hidden class="anchor" aria-hidden="true" href="#gr00t-量化管道">#</a></h3>
+<p><strong>• Qualcomm 部署的架构设计与初始执行</strong>
+<em>19:32:47.364 | claude_code</em>
+建立了完整的 4 阶段路线图用于 GR00T-N1.7 的量化（FP16 基准 -&gt; SeqMSE PTQ -&gt; SpinVariant -&gt; 分析）。归档了代码库架构设计，生成了旋转/量化脚本，并提交了 Slurm 作业链。进度受阻，等待用户提供的 HuggingFace 凭据以启用门控模型。</p>
+<h3 id="tianhe3-存储管理">Tianhe3 存储管理<a hidden class="anchor" aria-hidden="true" href="#tianhe3-存储管理">#</a></h3>
+<p><strong>✅ HPC 存储审计、分析与清理</strong>
+<em>19:22:41.312 | codex</em>
+对 zhaoganlong 和 tangzijia 用户的 ~2.7TB 使用进行了深度审计。识别出 OpenPI 检查点（1.1TB）和 MimicGen 数据为主要消费者。分析了 HDF5 元数据以区分有效检查点和临时/缓存文件。生成并执行了交互式脚本，归档了最终第 19999 步检查点并删除了约 1.7TB 冗余数据。</p>
+<h3 id="action-sketcher--worldmodel3dvisualprompt">Action-Sketcher / WorldModel3DVisualPrompt<a hidden class="anchor" aria-hidden="true" href="#action-sketcher--worldmodel3dvisualprompt">#</a></h3>
+<p><strong>✅ 在 Tianhe3 上的部署、调试和并行部署</strong>
+<em>03:01:24.739 | codex</em>
+将 Action-Sketcher 部署到 Tianhe3，修改了部署脚本以捕获规划提示和 2D 草图。解决了关键错误，包括 CUDA OOM（设备加载错误）、MuJoCo EGL/CUDA 映射冲突以及 SSH 代理 DNS 故障。成功在 GPU 4-7 上并行执行 LIBERO 部署，收集了 10 个任务的数据迹线（1 次失败）。</p>
+<h3 id="errorrecoverybenchmark">ErrorRecoveryBenchmark<a hidden class="anchor" aria-hidden="true" href="#errorrecoverybenchmark">#</a></h3>
+<p><strong>✅ 数据质量验证和状态调查</strong>
+<em>22:05:27.672 | codex/claude_code</em>
+定义了标准的训练/评估规范（1,360 场景），解决了文档/代码冲突。在 Tianhe3 上执行了只读 HDF5 审计以验证元数据来源，并识别了人类演示数据集中的架构差异。制定了缺失检查点和矛盾文档的恢复计划。</p>
+<h3 id="gadgetgithub-toolkit">Gadget（GitHub Toolkit）<a hidden class="anchor" aria-hidden="true" href="#gadgetgithub-toolkit">#</a></h3>
+<p><strong>✅ 配置统一、安全清理和公开发布准备</strong>
+<em>20:17:12.343 | claude_code/cursor</em>
+将 Gadget 配置重构为单个仓库本地 <code>config.json</code> 并采用快速失败逻辑。清理了私有路径/机密信息，重置了公共 GitHub 发布的 git 历史，修复了 Hugo 部署路径问题，并标准化了换行符。</p>
+<h3 id="媒体与研究报告">媒体与研究报告<a hidden class="anchor" aria-hidden="true" href="#媒体与研究报告">#</a></h3>
+<p><strong>✅ 损坏视频恢复和 scGHT 报告更新</strong>
+<em>19:20:45.816 | claude_code</em>
+实现了 GPU 加速 OCR 管道，从损坏视频中提取了约 17k 字符。更新了包含 scGPT-HD ARI 结果的 MIHD 进度报告。验证了 rclone sync 的稳定性用于日常日志记录。</p>
+<h2 id="token-使用">Token 使用<a hidden class="anchor" aria-hidden="true" href="#token-使用">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-07-14</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$128.35</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>111M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>699K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>95.1%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $65</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $63</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (50.6%), Codex (49.4%)">
+          <span style="width:50.6%; background:var(--usage-cost-main)"></span>
+          <span style="width:49.4%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 95.1%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 4.9%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (95.1%), active tokens (4.9%)">
+          <span style="width:95.1%; background:var(--usage-cache)"></span>
+          <span style="width:4.9%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:cdfaf02c40ef6bfa -->
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
