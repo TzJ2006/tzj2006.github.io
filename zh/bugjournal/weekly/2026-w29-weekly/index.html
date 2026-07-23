@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Weekly Summary 2026-W29 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal, Weekly Summary">
+<meta name="description" content="本周是GR00T VLA项目的一个关键转折点，项目从实验性设置转变为经过验证的部署配置。最重要的成就在于发现并修复了导致虚假“100%成功”指标的基础设施问题，从而确立了W8A8作为最佳量化方案（准确率为98.5%，延迟降低了410毫秒）。同时，错误恢复基准测试的数据策略也得到了严格定义和清理，发现合格的人类测试数据极其匮乏（产量低于2%），因此需要新的数据收集策略。在软件工程方面，Tianhe3 HPC系统的存储管理得到了改善，跨仓库的漏洞得到解决，桌面工具（LiveCaption、TokenMonitor）在Windows/macOS环境中也能稳定运行。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w29-weekly/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/weekly/2026-w29-weekly/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w29-weekly/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w29-weekly/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Weekly Summary 2026-W29">
+  <meta property="og:description" content="本周是GR00T VLA项目的一个关键转折点，项目从实验性设置转变为经过验证的部署配置。最重要的成就在于发现并修复了导致虚假“100%成功”指标的基础设施问题，从而确立了W8A8作为最佳量化方案（准确率为98.5%，延迟降低了410毫秒）。同时，错误恢复基准测试的数据策略也得到了严格定义和清理，发现合格的人类测试数据极其匮乏（产量低于2%），因此需要新的数据收集策略。在软件工程方面，Tianhe3 HPC系统的存储管理得到了改善，跨仓库的漏洞得到解决，桌面工具（LiveCaption、TokenMonitor）在Windows/macOS环境中也能稳定运行。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-07-19T23:59:00-05:00">
+    <meta property="article:modified_time" content="2026-07-19T23:59:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Weekly Summary 2026-W29">
+  <meta name="twitter:description" content="本周是GR00T VLA项目的一个关键转折点，项目从实验性设置转变为经过验证的部署配置。最重要的成就在于发现并修复了导致虚假“100%成功”指标的基础设施问题，从而确立了W8A8作为最佳量化方案（准确率为98.5%，延迟降低了410毫秒）。同时，错误恢复基准测试的数据策略也得到了严格定义和清理，发现合格的人类测试数据极其匮乏（产量低于2%），因此需要新的数据收集策略。在软件工程方面，Tianhe3 HPC系统的存储管理得到了改善，跨仓库的漏洞得到解决，桌面工具（LiveCaption、TokenMonitor）在Windows/macOS环境中也能稳定运行。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Weekly Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/weekly/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Weekly Summary 2026-W29",
+      "item": "https://tzj2006.github.io/zh/bugjournal/weekly/2026-w29-weekly/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Weekly Summary 2026-W29",
+  "name": "Weekly Summary 2026-W29",
+  "description": "本周是GR00T VLA项目的一个关键转折点，项目从实验性设置转变为经过验证的部署配置。最重要的成就在于发现并修复了导致虚假“100%成功”指标的基础设施问题，从而确立了W8A8作为最佳量化方案（准确率为98.5%，延迟降低了410毫秒）。同时，错误恢复基准测试的数据策略也得到了严格定义和清理，发现合格的人类测试数据极其匮乏（产量低于2%），因此需要新的数据收集策略。在软件工程方面，Tianhe3 HPC系统的存储管理得到了改善，跨仓库的漏洞得到解决，桌面工具（LiveCaption、TokenMonitor）在Windows/macOS环境中也能稳定运行。",
+  "keywords": [
+    "Bug Journal", "Weekly Summary"
+  ],
+  "articleBody": "每周报告 — 2026-W29 (2026-07-13 ~ 2026-07-19) 本周是 GR00T VLA 项目的关键转折点，从实验性设置过渡到了经过验证的部署配置。最重要的成就是识别并修复了导致虚假“100%成功”指标的基础设施问题，从而确立了 W8A8 作为最佳量化方案（98.5% 准确率，减少 410ms 延迟）。同时，ErrorRecoveryBenchmark 数据策略也得到了严格定义和清理，发现合格的人类演示数据极度匮乏（\u003c2% 产量），因此需要新的数据收集策略。在软件工程方面，Tianhe3 HPC 的存储管理得到了显著改善，跨仓库漏洞得到解决，桌面工具（LiveCaption、TokenMonitor）在 Windows/macOS 环境中保持稳定。\n每周概览 指标 数值 日期范围 2026-07-13 ~ 2026-07-19 活跃天数 6 / 7 总对话数 29 项目数 26 已完成任务数 43 进行中任务数 3 总 tokens 数 371,664,005 总成本 $349.76 Claude 代码 tokens 数 48,302,670 Claude 代码成本 $113.42 Codex tokens 数 323,361,335 Codex 成本 $236.34 每日平均成本 $58.29 项目进展 GR00T VLA 模型量化（6天活跃） — ✅ 完成 成果：\n在 Qualcomm IQ-9075 EVK 硬件上验证了量化流程。 识别并修复了导致虚假高成功率的静默基础设施故障（ZMQ 端口冲突、PyTorch 属性隐藏）。 确定 W8A8 SeqMSE 为最佳部署配置，该方案在 98.5% 准确率的同时减少了约 47% 的延迟，优于 FP16 方式。 确认激活位宽是 NPU 延迟改善的主要因素。 阻碍：\n⚠️ 复杂的 ONNX 导出限制和 AI Hub 兼容性问题需要手动修复挂钩。 ⚠️ 对受门控控制的 HuggingFace 模型的初始依赖需等待令牌批准。 ErrorRecoveryBenchmark（5天活跃） — 🔄 活跃 成果：\n定义了标准数据规范（1,360 个训练/评估场景），解决了文档和代码漂移问题。 在 Tianhe3 上进行了大规模 HDF5 审计，对约 142GB 无效数据进行了安全、哈希验证的清理。 发现原始人类演示数据中不到 2% 符合高保真训练数据的标准。 阻碍：\n⚠️ 合格“恢复”演示数据极度匮乏；现有候选数据不符合严格的来源和成功连续性标准。 ⚠️ 人类演示数据集中的模式差异需要灵活的验证逻辑。 机器人学习基线（Action-Sketcher/RoboMME）（4天活跃） — ✅ 完成 成果：\n在 Tianhe3 和 RoboMME 环境中部署了 Action-Sketcher。 验证了仅动作适应的假设：在没有视觉草图条件的情况下，在记忆任务上完全无法成功（0% 成功率）。 建立了 pi0.5 基线（34%/26%）用于比较。 阻碍：\n⚠️ LIBERO（delta-EE）和 RoboMME（联合角度）之间的领域偏移破坏了预训练策略权重。 ⚠️ LIBERO 环境步数限制（约 580 步）导致规划代理无法完成完整循环评估。 基础设施与工具（Tianhe3/Gadget/桌面）（6天活跃） — 🔄 活跃 成果：\n通过策略性的检查点归档，在 Tianhe3 上释放了约 1.7TB 的 HPC 存储。 解决了 LifeCopilot、ai-companion 和 Gadget 中的跨仓库漏洞（12 项关键修复）。 将 LiveCaption 移植到 Windows 并使用 WSL-vLLM 流式 ASR；稳定了 TokenMonitor 界面。 阻碍：\n⚠️ Windows IDE 与 HPC 集群之间的 SSH 连接问题，需要复杂的隧道解决方案。 ⚠️ Realtek NIC 驱动程序导致桌面工作站出现 BSOD 错误。 3D 世界模型引导的 VLA（研究）（1天活跃） — 🔄 活跃 成果：\n整合文献定义了一个新的研究架构，重点在于反事实路径评估。 关键任务 ✅ 修复 GR00T 评估基础设施（2026-07-17）— 诊断了导致虚假 100% 成功率的 ZMQ 端口冲突和 PyTorch 属性隐藏问题；实施合理性检查以确保有效的基准测试。 ✅ 定义 ErrorRecoveryBenchmark 资格标准（2026-07-16）— 建立了严格的计数标准（1,360/1,360）和来源要求；审计发现原始数据中的合格数据占比低于 2%。 ✅ GR00T W8A8 量化验证（2026-07-19）— 在 Qualcomm 硬件上确定了延迟/准确率权衡，选择 W8A8 SeqMSE 作为生产标准。 ✅ Tianhe3 存储审计与清理（2026-07-14）— 审计并归档了 OpenPI 检查点，释放了约 1.7TB 的关键 HPC 存储空间。 ✅ Action-Sketcher 基线验证（2026-07-17）— 执行了仅动作的基线测试，确认在机器人记忆任务中需要视觉草图条件。 ✅ 跨仓库漏洞修复（2026-07-15）— 修复了 LifeCopilot、ai-companion 和 Gadget 中的 12 项关键问题，包括报告路径不匹配和孤立代码。 ✅ LiveCaption Windows 端口（2026-07-18）— 实现了 WASAPI 音频捕获和 WSL-vLLM 流式 ASR，实现原生 Windows 实时字幕功能。 问题与解决方案 1. 静默基础设施故障（ZMQ 端口冲突、PyTorch 属性隐藏）导致 GR00T 量化基准测试中出现虚假 100% 成功率。[GR00T VLA 模型量化]（2026-07-17） 解决方案： 实施动态端口分配和直接子模块指向，并进行零动作/无输入合理性检查，以验证环境完整性。\n2. 数据极度匮乏：Tianhe3 上原始人类演示数据中不到 2% 符合 ErrorRecoveryBenchmark 的严格资格标准（成功连续性、来源）。[ErrorRecoveryBenchmark]（2026-07-16） 解决方案： 定义标准数据集并进行哈希验证清理；得出结论，需要新的收集/增强策略，而非依赖现有数据池。\n3. Action-Sketcher 仅动作基线在 RoboMME 记忆任务上成功率为 0%，原因是领域偏移（delta-EE 与联合角度）和缺乏视觉上下文。[机器人学习基线]（2026-07-17） 解决方案： 确认草图条件是必要的；优先采用阶段1的自适应训练方式，而非单纯的动作专家调优。\n4. 跨仓库通信故障导致LiveCopilot从空的报告目录读取数据，而Gadget则写入不同的路径。[基础设施与工具] (2026-07-15) **解决方案：**将所有报告路径统一为单一标准outputs/reports/，并清理了三个仓库中的旧引用。\n5. Windows Live Caption的部署需要跨平台的音频支持，而WSLg缺乏用于语音输出的功能。[基础设施与工具] (2026-07-18) **解决方案：**设计了一种混合系统，使用Windows PYAudiowpatch进行回环捕获，使用WSL vLLM进行推理，通过NDJSON管道实现连接。\n6. HPC存储配额至关重要；全球空闲空间掩盖了Tianhe3上特定项目的空间耗尽问题。[基础设施与工具] (2026-07-14)解决方案： 使用 dust 进行审计，通过仅读取 HDF5 属性的 Python 脚本（以避免元数据延迟）来识别 1.1TB 的 OpenPI 检查点以进行归档。 7. 量化基准测试表明 W4A8 不足以保证 GR00T 的 LLM 核心模型精度。[GR00T VLA 模型量化]（2026-07-19） 解决方案： 评估了多种方案后，确定 W8A8 为最佳权衡方案（精度达 98.5%），并发现激活宽度对 NPU 延迟的影响大于权重宽度。\n经验教训 架构（architecture） 量化模型评估流程必须包含“零动作”或“空输入”校验，以检测由基础设施故障导致的虚假指标。 对于 Qualcomm IQ-9075 这样的 NPU 部署，激活位宽（A16-\u003eA8）对延迟改善的影响大于权重位宽；对于精度保持而言，W8A8 通常优于 W4A8。 领域知识（domain） 机器人 VLA 记忆任务与动作执行不同；没有基于草图/记忆条件的基准模型在计数任务上完全失败。 科学研究中的数据质量需要严格的来源证明；仅依赖可使用的数据且无法审计的数据不足以满足标准基准测试的要求。 工具（tools） 在基于 Lustre 的高性能计算集群上，大规模数据集审计只需读取高层属性（无需遍历嵌套组），以避免元数据延迟瓶颈。 跨仓库审计通过分成具有严格输出协议的并行子代理并结合外部模型验证，可以有效发现诸如路径不匹配等盲点。 调试（debugging） 在复杂的 DevOps 环境中，IDE 特定的 SSH 实现（如 Tabby）可能与标准 OpenSSH 行为不同，需要直接配置覆盖而非配置继承。 AI 使用说明 有效模式：\n✓ 使用 Claude Code 处理结构复杂、约束多的任务（批量本地化、JSON 重构），可得到高保真结果。 ✓ 并行子代理审计成功发现了线性审查遗漏的跨仓库错误。 ✓ 策略性的“校验”提示能有效捕捉 AI 对成功基础设施状态的幻觉描述。 局限性：\n✗ AI 难以预测 PyTorch 属性的隐藏状态及 ZMQ 端口冲突，除非用户有怀疑态度且拥有丰富的领域知识。 ✗ 初始 AI 的量化策略建议忽略了 NPU 特定的延迟特性，需要手动调整以关注激活位。 ✗ AI 在复杂的多步骤字符串转义或批量翻译任务中难以保持严格的格式/约束。 下周计划 当前优先事项是解决 ErrorRecoveryBenchmark 数据稀缺问题，现有档案无法填补 1,360 场景的缺口；必须设计新的数据收集或增强逻辑。对于 GR00T，重点将放在在目标边缘硬件上部署 W8A8 模型，并优化 Action-Sketcher 第一阶段中的视觉草图模块。研究应开始原型设计周中提出的 3D World Model 引导的 VLA 架构。\n令牌使用统计 AI Usage · 2026-W29\rClaude Code + Codex\rTotal cost$349.76\rTotal tokens372M\rOutput tokens2M\rCache read95.0%\rCost split\rClaude Code $113 ·\rCodex $236\rToken character\rCache reads 95.0% ·\rActive 5.0%\rMost token volume came from cache reads.\r高峰日： 2026-07-14 — $223.03 / 246.1M 令牌\n每日平均： $58.29\n",
+  "wordCount" : "468",
+  "inLanguage": "zh",
+  "datePublished": "2026-07-19T23:59:00-05:00",
+  "dateModified": "2026-07-19T23:59:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/weekly/2026-w29-weekly/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="zh"
+                        data-translation-url="https://tzj2006.github.io/bugjournal/weekly/2026-w29-weekly/">EN
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span>bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">Weekly Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Weekly Summary 2026-W29
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-07-19 23:59:00 -0500 -0500'>2026年7月19日</span>&nbsp;·&nbsp;<span>3 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每周报告--2026-w29-2026-07-13--2026-07-19">每周报告 — 2026-W29 (2026-07-13 ~ 2026-07-19)<a hidden class="anchor" aria-hidden="true" href="#每周报告--2026-w29-2026-07-13--2026-07-19">#</a></h1>
+<blockquote>
+<p>本周是 GR00T VLA 项目的关键转折点，从实验性设置过渡到了经过验证的部署配置。最重要的成就是识别并修复了导致虚假“100%成功”指标的基础设施问题，从而确立了 W8A8 作为最佳量化方案（98.5% 准确率，减少 410ms 延迟）。同时，ErrorRecoveryBenchmark 数据策略也得到了严格定义和清理，发现合格的人类演示数据极度匮乏（&lt;2% 产量），因此需要新的数据收集策略。在软件工程方面，Tianhe3 HPC 的存储管理得到了显著改善，跨仓库漏洞得到解决，桌面工具（LiveCaption、TokenMonitor）在 Windows/macOS 环境中保持稳定。</p>
+</blockquote>
+<h2 id="每周概览">每周概览<a hidden class="anchor" aria-hidden="true" href="#每周概览">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>指标</th>
+          <th>数值</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>日期范围</td>
+          <td>2026-07-13 ~ 2026-07-19</td>
+      </tr>
+      <tr>
+          <td>活跃天数</td>
+          <td>6 / 7</td>
+      </tr>
+      <tr>
+          <td>总对话数</td>
+          <td>29</td>
+      </tr>
+      <tr>
+          <td>项目数</td>
+          <td>26</td>
+      </tr>
+      <tr>
+          <td>已完成任务数</td>
+          <td>43</td>
+      </tr>
+      <tr>
+          <td>进行中任务数</td>
+          <td>3</td>
+      </tr>
+      <tr>
+          <td>总 tokens 数</td>
+          <td>371,664,005</td>
+      </tr>
+      <tr>
+          <td>总成本</td>
+          <td>$349.76</td>
+      </tr>
+      <tr>
+          <td>Claude 代码 tokens 数</td>
+          <td>48,302,670</td>
+      </tr>
+      <tr>
+          <td>Claude 代码成本</td>
+          <td>$113.42</td>
+      </tr>
+      <tr>
+          <td>Codex tokens 数</td>
+          <td>323,361,335</td>
+      </tr>
+      <tr>
+          <td>Codex 成本</td>
+          <td>$236.34</td>
+      </tr>
+      <tr>
+          <td>每日平均成本</td>
+          <td>$58.29</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="项目进展">项目进展<a hidden class="anchor" aria-hidden="true" href="#项目进展">#</a></h2>
+<h3 id="gr00t-vla-模型量化6天活跃---完成">GR00T VLA 模型量化（6天活跃） — ✅ 完成<a hidden class="anchor" aria-hidden="true" href="#gr00t-vla-模型量化6天活跃---完成">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>在 Qualcomm IQ-9075 EVK 硬件上验证了量化流程。</li>
+<li>识别并修复了导致虚假高成功率的静默基础设施故障（ZMQ 端口冲突、PyTorch 属性隐藏）。</li>
+<li>确定 W8A8 SeqMSE 为最佳部署配置，该方案在 98.5% 准确率的同时减少了约 47% 的延迟，优于 FP16 方式。</li>
+<li>确认激活位宽是 NPU 延迟改善的主要因素。</li>
+</ul>
+<p><strong>阻碍：</strong></p>
+<ul>
+<li>⚠️ 复杂的 ONNX 导出限制和 AI Hub 兼容性问题需要手动修复挂钩。</li>
+<li>⚠️ 对受门控控制的 HuggingFace 模型的初始依赖需等待令牌批准。</li>
+</ul>
+<h3 id="errorrecoverybenchmark5天活跃---活跃">ErrorRecoveryBenchmark（5天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#errorrecoverybenchmark5天活跃---活跃">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>定义了标准数据规范（1,360 个训练/评估场景），解决了文档和代码漂移问题。</li>
+<li>在 Tianhe3 上进行了大规模 HDF5 审计，对约 142GB 无效数据进行了安全、哈希验证的清理。</li>
+<li>发现原始人类演示数据中不到 2% 符合高保真训练数据的标准。</li>
+</ul>
+<p><strong>阻碍：</strong></p>
+<ul>
+<li>⚠️ 合格“恢复”演示数据极度匮乏；现有候选数据不符合严格的来源和成功连续性标准。</li>
+<li>⚠️ 人类演示数据集中的模式差异需要灵活的验证逻辑。</li>
+</ul>
+<h3 id="机器人学习基线action-sketcherrobomme4天活跃---完成">机器人学习基线（Action-Sketcher/RoboMME）（4天活跃） — ✅ 完成<a hidden class="anchor" aria-hidden="true" href="#机器人学习基线action-sketcherrobomme4天活跃---完成">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>在 Tianhe3 和 RoboMME 环境中部署了 Action-Sketcher。</li>
+<li>验证了仅动作适应的假设：在没有视觉草图条件的情况下，在记忆任务上完全无法成功（0% 成功率）。</li>
+<li>建立了 pi0.5 基线（34%/26%）用于比较。</li>
+</ul>
+<p><strong>阻碍：</strong></p>
+<ul>
+<li>⚠️ LIBERO（delta-EE）和 RoboMME（联合角度）之间的领域偏移破坏了预训练策略权重。</li>
+<li>⚠️ LIBERO 环境步数限制（约 580 步）导致规划代理无法完成完整循环评估。</li>
+</ul>
+<h3 id="基础设施与工具tianhe3gadget桌面6天活跃---活跃">基础设施与工具（Tianhe3/Gadget/桌面）（6天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#基础设施与工具tianhe3gadget桌面6天活跃---活跃">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>通过策略性的检查点归档，在 Tianhe3 上释放了约 1.7TB 的 HPC 存储。</li>
+<li>解决了 LifeCopilot、ai-companion 和 Gadget 中的跨仓库漏洞（12 项关键修复）。</li>
+<li>将 LiveCaption 移植到 Windows 并使用 WSL-vLLM 流式 ASR；稳定了 TokenMonitor 界面。</li>
+</ul>
+<p><strong>阻碍：</strong></p>
+<ul>
+<li>⚠️ Windows IDE 与 HPC 集群之间的 SSH 连接问题，需要复杂的隧道解决方案。</li>
+<li>⚠️ Realtek NIC 驱动程序导致桌面工作站出现 BSOD 错误。</li>
+</ul>
+<h3 id="3d-世界模型引导的-vla研究1天活跃---活跃">3D 世界模型引导的 VLA（研究）（1天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#3d-世界模型引导的-vla研究1天活跃---活跃">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>整合文献定义了一个新的研究架构，重点在于反事实路径评估。</li>
+</ul>
+<h2 id="关键任务">关键任务<a hidden class="anchor" aria-hidden="true" href="#关键任务">#</a></h2>
+<ul>
+<li>✅ <strong>修复 GR00T 评估基础设施</strong>（2026-07-17）— 诊断了导致虚假 100% 成功率的 ZMQ 端口冲突和 PyTorch 属性隐藏问题；实施合理性检查以确保有效的基准测试。</li>
+<li>✅ <strong>定义 ErrorRecoveryBenchmark 资格标准</strong>（2026-07-16）— 建立了严格的计数标准（1,360/1,360）和来源要求；审计发现原始数据中的合格数据占比低于 2%。</li>
+<li>✅ <strong>GR00T W8A8 量化验证</strong>（2026-07-19）— 在 Qualcomm 硬件上确定了延迟/准确率权衡，选择 W8A8 SeqMSE 作为生产标准。</li>
+<li>✅ <strong>Tianhe3 存储审计与清理</strong>（2026-07-14）— 审计并归档了 OpenPI 检查点，释放了约 1.7TB 的关键 HPC 存储空间。</li>
+<li>✅ <strong>Action-Sketcher 基线验证</strong>（2026-07-17）— 执行了仅动作的基线测试，确认在机器人记忆任务中需要视觉草图条件。</li>
+<li>✅ <strong>跨仓库漏洞修复</strong>（2026-07-15）— 修复了 LifeCopilot、ai-companion 和 Gadget 中的 12 项关键问题，包括报告路径不匹配和孤立代码。</li>
+<li>✅ <strong>LiveCaption Windows 端口</strong>（2026-07-18）— 实现了 WASAPI 音频捕获和 WSL-vLLM 流式 ASR，实现原生 Windows 实时字幕功能。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="1-静默基础设施故障zmq-端口冲突pytorch-属性隐藏导致-gr00t-量化基准测试中出现虚假-100-成功率gr00t-vla-模型量化2026-07-17">1. 静默基础设施故障（ZMQ 端口冲突、PyTorch 属性隐藏）导致 GR00T 量化基准测试中出现虚假 100% 成功率。[GR00T VLA 模型量化]（2026-07-17）<a hidden class="anchor" aria-hidden="true" href="#1-静默基础设施故障zmq-端口冲突pytorch-属性隐藏导致-gr00t-量化基准测试中出现虚假-100-成功率gr00t-vla-模型量化2026-07-17">#</a></h3>
+<p><strong>解决方案：</strong> 实施动态端口分配和直接子模块指向，并进行零动作/无输入合理性检查，以验证环境完整性。</p>
+<h3 id="2-数据极度匮乏tianhe3-上原始人类演示数据中不到-2-符合-errorrecoverybenchmark-的严格资格标准成功连续性来源errorrecoverybenchmark2026-07-16">2. 数据极度匮乏：Tianhe3 上原始人类演示数据中不到 2% 符合 ErrorRecoveryBenchmark 的严格资格标准（成功连续性、来源）。[ErrorRecoveryBenchmark]（2026-07-16）<a hidden class="anchor" aria-hidden="true" href="#2-数据极度匮乏tianhe3-上原始人类演示数据中不到-2-符合-errorrecoverybenchmark-的严格资格标准成功连续性来源errorrecoverybenchmark2026-07-16">#</a></h3>
+<p><strong>解决方案：</strong> 定义标准数据集并进行哈希验证清理；得出结论，需要新的收集/增强策略，而非依赖现有数据池。</p>
+<h3 id="3-action-sketcher-仅动作基线在-robomme-记忆任务上成功率为-0原因是领域偏移delta-ee-与联合角度和缺乏视觉上下文机器人学习基线2026-07-17">3. Action-Sketcher 仅动作基线在 RoboMME 记忆任务上成功率为 0%，原因是领域偏移（delta-EE 与联合角度）和缺乏视觉上下文。[机器人学习基线]（2026-07-17）<a hidden class="anchor" aria-hidden="true" href="#3-action-sketcher-仅动作基线在-robomme-记忆任务上成功率为-0原因是领域偏移delta-ee-与联合角度和缺乏视觉上下文机器人学习基线2026-07-17">#</a></h3>
+<p><strong>解决方案：</strong> 确认草图条件是必要的；优先采用阶段1的自适应训练方式，而非单纯的动作专家调优。</p>
+<h3 id="4-跨仓库通信故障导致livecopilot从空的报告目录读取数据而gadget则写入不同的路径基础设施与工具-2026-07-15">4. 跨仓库通信故障导致LiveCopilot从空的报告目录读取数据，而Gadget则写入不同的路径。[基础设施与工具] (2026-07-15)<a hidden class="anchor" aria-hidden="true" href="#4-跨仓库通信故障导致livecopilot从空的报告目录读取数据而gadget则写入不同的路径基础设施与工具-2026-07-15">#</a></h3>
+<p>**解决方案：**将所有报告路径统一为单一标准<code>outputs/reports/</code>，并清理了三个仓库中的旧引用。</p>
+<h3 id="5-windows-live-caption的部署需要跨平台的音频支持而wslg缺乏用于语音输出的功能基础设施与工具-2026-07-18">5. Windows Live Caption的部署需要跨平台的音频支持，而WSLg缺乏用于语音输出的功能。[基础设施与工具] (2026-07-18)<a hidden class="anchor" aria-hidden="true" href="#5-windows-live-caption的部署需要跨平台的音频支持而wslg缺乏用于语音输出的功能基础设施与工具-2026-07-18">#</a></h3>
+<p>**解决方案：**设计了一种混合系统，使用Windows PYAudiowpatch进行回环捕获，使用WSL vLLM进行推理，通过NDJSON管道实现连接。</p>
+<h3 id="6-hpc存储配额至关重要全球空闲空间掩盖了tianhe3上特定项目的空间耗尽问题基础设施与工具-2026-07-14解决方案-使用-dust-进行审计通过仅读取-hdf5-属性的-python-脚本以避免元数据延迟来识别-11tb-的-openpi-检查点以进行归档">6. HPC存储配额至关重要；全球空闲空间掩盖了Tianhe3上特定项目的空间耗尽问题。[基础设施与工具] (2026-07-14)<strong>解决方案：</strong> 使用 <code>dust</code> 进行审计，通过仅读取 HDF5 属性的 Python 脚本（以避免元数据延迟）来识别 1.1TB 的 OpenPI 检查点以进行归档。<a hidden class="anchor" aria-hidden="true" href="#6-hpc存储配额至关重要全球空闲空间掩盖了tianhe3上特定项目的空间耗尽问题基础设施与工具-2026-07-14解决方案-使用-dust-进行审计通过仅读取-hdf5-属性的-python-脚本以避免元数据延迟来识别-11tb-的-openpi-检查点以进行归档">#</a></h3>
+<h3 id="7-量化基准测试表明-w4a8-不足以保证-gr00t-的-llm-核心模型精度gr00t-vla-模型量化2026-07-19">7. 量化基准测试表明 W4A8 不足以保证 GR00T 的 LLM 核心模型精度。[GR00T VLA 模型量化]（2026-07-19）<a hidden class="anchor" aria-hidden="true" href="#7-量化基准测试表明-w4a8-不足以保证-gr00t-的-llm-核心模型精度gr00t-vla-模型量化2026-07-19">#</a></h3>
+<p><strong>解决方案：</strong> 评估了多种方案后，确定 W8A8 为最佳权衡方案（精度达 98.5%），并发现激活宽度对 NPU 延迟的影响大于权重宽度。</p>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="架构architecture">架构（architecture）<a hidden class="anchor" aria-hidden="true" href="#架构architecture">#</a></h3>
+<ul>
+<li>量化模型评估流程必须包含“零动作”或“空输入”校验，以检测由基础设施故障导致的虚假指标。</li>
+<li>对于 Qualcomm IQ-9075 这样的 NPU 部署，激活位宽（A16-&gt;A8）对延迟改善的影响大于权重位宽；对于精度保持而言，W8A8 通常优于 W4A8。</li>
+</ul>
+<h3 id="领域知识domain">领域知识（domain）<a hidden class="anchor" aria-hidden="true" href="#领域知识domain">#</a></h3>
+<ul>
+<li>机器人 VLA 记忆任务与动作执行不同；没有基于草图/记忆条件的基准模型在计数任务上完全失败。</li>
+<li>科学研究中的数据质量需要严格的来源证明；仅依赖可使用的数据且无法审计的数据不足以满足标准基准测试的要求。</li>
+</ul>
+<h3 id="工具tools">工具（tools）<a hidden class="anchor" aria-hidden="true" href="#工具tools">#</a></h3>
+<ul>
+<li>在基于 Lustre 的高性能计算集群上，大规模数据集审计只需读取高层属性（无需遍历嵌套组），以避免元数据延迟瓶颈。</li>
+<li>跨仓库审计通过分成具有严格输出协议的并行子代理并结合外部模型验证，可以有效发现诸如路径不匹配等盲点。</li>
+</ul>
+<h3 id="调试debugging">调试（debugging）<a hidden class="anchor" aria-hidden="true" href="#调试debugging">#</a></h3>
+<ul>
+<li>在复杂的 DevOps 环境中，IDE 特定的 SSH 实现（如 Tabby）可能与标准 OpenSSH 行为不同，需要直接配置覆盖而非配置继承。</li>
+</ul>
+<h2 id="ai-使用说明">AI 使用说明<a hidden class="anchor" aria-hidden="true" href="#ai-使用说明">#</a></h2>
+<p><strong>有效模式：</strong></p>
+<ul>
+<li>✓ 使用 Claude Code 处理结构复杂、约束多的任务（批量本地化、JSON 重构），可得到高保真结果。</li>
+<li>✓ 并行子代理审计成功发现了线性审查遗漏的跨仓库错误。</li>
+<li>✓ 策略性的“校验”提示能有效捕捉 AI 对成功基础设施状态的幻觉描述。</li>
+</ul>
+<p><strong>局限性：</strong></p>
+<ul>
+<li>✗ AI 难以预测 PyTorch 属性的隐藏状态及 ZMQ 端口冲突，除非用户有怀疑态度且拥有丰富的领域知识。</li>
+<li>✗ 初始 AI 的量化策略建议忽略了 NPU 特定的延迟特性，需要手动调整以关注激活位。</li>
+<li>✗ AI 在复杂的多步骤字符串转义或批量翻译任务中难以保持严格的格式/约束。</li>
+</ul>
+<h2 id="下周计划">下周计划<a hidden class="anchor" aria-hidden="true" href="#下周计划">#</a></h2>
+<p>当前优先事项是解决 ErrorRecoveryBenchmark 数据稀缺问题，现有档案无法填补 1,360 场景的缺口；必须设计新的数据收集或增强逻辑。对于 GR00T，重点将放在在目标边缘硬件上部署 W8A8 模型，并优化 Action-Sketcher 第一阶段中的视觉草图模块。研究应开始原型设计周中提出的 3D World Model 引导的 VLA 架构。</p>
+<h2 id="令牌使用统计">令牌使用统计<a hidden class="anchor" aria-hidden="true" href="#令牌使用统计">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-W29</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$349.76</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>372M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>2M</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>95.0%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $113</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $236</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (32.4%), Codex (67.6%)">
+          <span style="width:32.4%; background:var(--usage-cost-main)"></span>
+          <span style="width:67.6%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 95.0%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 5.0%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (95.0%), active tokens (5.0%)">
+          <span style="width:95.0%; background:var(--usage-cache)"></span>
+          <span style="width:5.0%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<p><strong>高峰日：</strong> 2026-07-14 — $223.03 / 246.1M 令牌</p>
+<p><strong>每日平均：</strong> $58.29</p>
+<!-- gadget:src-hash:456851ae803959df -->
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

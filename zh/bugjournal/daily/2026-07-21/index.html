@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-07-21 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="完成了pi0.5量化分析，发现了Dragonwing上的硬件限制，随后整合了quantize-MVP代码库以便公开分享，并解决了复杂的本地环境依赖问题，从而能够同时对GR00T和pi0.5进行准确率矩阵评估。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-21/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-07-21/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-21/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-21/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-07-21">
+  <meta property="og:description" content="完成了pi0.5量化分析，发现了Dragonwing上的硬件限制，随后整合了quantize-MVP代码库以便公开分享，并解决了复杂的本地环境依赖问题，从而能够同时对GR00T和pi0.5进行准确率矩阵评估。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-07-21T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-07-21T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-07-21">
+  <meta name="twitter:description" content="完成了pi0.5量化分析，发现了Dragonwing上的硬件限制，随后整合了quantize-MVP代码库以便公开分享，并解决了复杂的本地环境依赖问题，从而能够同时对GR00T和pi0.5进行准确率矩阵评估。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-07-21",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-07-21/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-07-21",
+  "name": "Bug Journal 2026-07-21",
+  "description": "完成了pi0.5量化分析，发现了Dragonwing上的硬件限制，随后整合了quantize-MVP代码库以便公开分享，并解决了复杂的本地环境依赖问题，从而能够同时对GR00T和pi0.5进行准确率矩阵评估。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-07-21 日常概述 已完成工作： 在 Qualcomm AI Hub 上对 pi0.5 FP16 主干进行了全栈分析，发现了 NPU 内存限制问题，并将相关结果打包以便迁移至 A100；随后将项目整理为最小可行产品（quantize-MVP）仓库，解决了多 GPU 节点上的复杂运行时环境依赖问题，从而能够同时进行 GR00T 和 Pi0.5 精度评估。 实现方式： 执行 SLURM 作业进行分析/ONNX 量化处理，分析 QNN 后端日志以确认上下文二进制大小限制，通过 SSH 密钥推送干净代码；创建本地执行脚本替代集群特定逻辑，手动修补 AIET 源代码以实现精度扫描，通过配置修改解决 HuggingFace 受限模型问题，并编译带有明确 CUDA 头文件路径的自定义 AIMET 版本。 影响： 确认 pi0.5 FP16 主干在未经量化的情况下与 IQ-9075 NPU 不兼容，建立了可复现的 MVP 基线用于后续工作，通过解决关键环境问题使得全精度矩阵计算成为可能。 athena 已完成工作： 在 Dragonwing IQ-9075 上执行 pi0.5 分析/量化作业，将代码库整理为 quantize-MVP 并推送到 GitHub。 实现方式： 执行 slurm 脚本，修补 aimet_onnx 以支持主干精度，预热 ONNX 缓存，分析内存限制日志，通过去除 Slurm 依赖关系重构仓库，通过 SSH 执行 git force-push。 影响： 获得部分延迟数据，发现硬件结构不兼容问题，提供了干净、可共享的代码库用于后续的 A100 处理。 lighthouse 已完成工作： 配置复杂的本地环境以进行 GR00T/Pi0.5 评估，解决依赖冲突并启动精度矩阵计算。 实现方式： 编译支持 CUDA 的自定义 AIMET 版本，修补 processor_config.json 以绕过 HuggingFace 受限模型，创建 ffmpeg/websockets 依赖的符号链接，并在双 GPU 上启动后台评估作业。 影响： 解决了之前因缺失二进制文件和版本冲突而停止的评估流程，使得模型精度测试能够同时进行。 完成了 pi0.5 量化的分析，发现 Dragonwing 上的硬件限制，然后整合 quantize-MVP 代码库用于公开分享，解决了复杂的本地环境依赖问题，从而能够同时进行 GR00T 和 Pi0.5 的精度矩阵评估。\n任务 架构与策略 ✅ quantize-MVP 仓库整理与迁移准备 — 将项目代码库重构为最小化的可复现 quantize-MVP 结构，移除集群特定脚本，准备 A100 迁移文档，并推送到私有 GitHub 仓库。 ✅ pi0.5 FP16 量化与分析 — 在 Dragonwing 上尝试全矩阵量化（SeqMSE/SpinQuant）和分析；发现 FP16 主干与 IQ-9075 NPU 不兼容因上下文二进制限制，通过切换至 CPU/启发式减少样本解决 QuantSim 中的 GPU OOM 问题。 ✅ GR00T 与 Pi0.5 的本地环境配置 — 解决了包括自定义 AIMET 编译与 CUDA 头文件、通过配置修改访问 HuggingFace 受限模型、缺失系统二进制文件（ffmpeg/websockets）在内的复杂依赖问题。 ✅ LIBERO 评估流程修复 — 诊断并修复 TMPDIR 竞争条件、慢量化推理的 websocket 超时问题以及 ONNX 下载重复问题，以实现稳定的评估运行。 实施与修复 🔄 启动精度矩阵评估 — 在多个 GPU 上开始针对 GR00T 和 Pi0.5 的多种精度配置（W8A16、W4A16 等）的后台评估作业。 问题与解决方案 关键问题 1. pi0.5 FP16 主干在 Qualcomm AI Hub (IQ-9075 EVK) 上因上下文二进制大小超出而失败。 解决方案： 分析 QNN 日志确认图结构大小（3.78GB）超过 NPU 限制（3.67GB）；得出结论 FP16 主干在结构上不兼容，必须进行量化或拆分。\n关键洞察： 需要 \u003e3.67GB 上下文二进制量的 FP16 模型无法在 IQ-9075 NPU 上运行；对于该硬件而言量化是必须的。\n2. 多 GPU 节点上自定义 AIMET 版本编译失败，原因是不存在 Eigen3 和 CUDA/cuDNN 头文件。 解决方案： 通过 conda 安装 Eigen3，在 site-packages 中查找 NVIDIA cuDNN 头文件，在 pip install 时明确设置 CMAKE_PREFIX_PATH/CPATH。\n关键洞察： 自定义 AI 工具包版本通常需要手动配置头文件路径；标准 pip 安装无法满足复杂构建环境需求。\n3. HuggingFace 受限模型出现 403 Forbidden 错误，Isaac-GR00T 缺少检查点文件。 解决方案： 识别出 ’libero_object_qwenvl’ 为本地变体；修补 processor_config.json 以指向公共 Qwen3-VL-2B-Instruct 模型，并为本地结果创建符号链接。\n关键洞察： 受限或私有模型通常需要通过本地配置修改来使用公开可用的基础模型作为替代。\n4. 在 24GB GPU 上 SeqMSE 正向计算过程中，激活开销导致 QuantSim GPU 模拟出现 OOM 问题。 解决方案： 将 QuantSim 改为仅 CPU 执行，通过启发式方法减少 num_samples/candidates 数量以使得运行时间可行，接受轻微的精度折衷。\n关键洞察： 低容量 GPU（24GB）不足以进行完整的 pi0.5 主干模拟；需要 A100（80GB）才能获得高保真结果。\n一般问题 5. LIBERO 评估因 TMPDIR 竞争条件和 websocket 超时不匹配而崩溃。 解决方案： 在 SLURM 脚本中强制每个作业使用唯一的 TMPDIR，修补 websocket 客户端以禁用慢量化推理的 keepalive 超时，为缺失的 ffmpeg 二进制文件创建符号链接。\n关键洞察： 共享临时目录是并发中的关键问题；量化的模型需要更长的推理超时时间，超出了默认 websocket 允许的范围。\n人类与 AI 方法 战略层面 硬件限制与策略确定 角色 方法 人类 用户战略性地识别了 F P16 主干不兼容问题，并指导迁移至 A100；确定本地 GPU 不足以实现全矩阵高保真度。 AI AI 进行详细的日志分析以确认 3.78GB 与 3.67GB 限制差异，执行仅 CPU 的 QuantSim 替代方案，并修补源代码以实现精度扫描。 差异分析： 人类定义了架构边界和迁移策略；AI 提供了技术验证并在这些约束下执行变通方案。\n仓库整理与环境复杂性| 角色 | 方法 | |——|——| | 人类 | 用户定义了 MVP 范围（最小的脚本，无需 Slurm 依赖），并识别了复杂的依赖链（HuggingFace 控制的模型、AIMET 构建）。 | | AI | AI 执行了文件精简操作，重构代码以在本地运行，管理沙箱中的 GIT-SSH 认证，并手动构建构建配置。 |\n**差异分析：**人类提供了“最小”和“可修复”的战略定义；AI 处理了依赖解析和版本控制操作的机械复杂性。\nAI 局限性 一般局限性 AI 最初在 Isaac-GR00T 工具包文件中的 Git-LFS 指针错误上遇到困难，需要明确的 ‘git lfs pull’ 命令；还面临 GitHub CLI 的沙箱权限问题。 由于硬件限制，AI 依赖启发式参数减少方法（样本/候选者）进行 QuantSim 处理，这比原生默认设置降低了精度保真度。 经验教训 关键经验 FP16 pi0.5 主干与 Qualcomm IQ-9075 EVK NPU 在二进制大小限制下结构不兼容，与 GR00T 不同；全精度量化需要 A100（80GB）GPU。 复杂的 AI 环境通常需要手动干预以构建自定义工具包（AIMET）和解决受控模型问题；简单的 pip 安装通常不足以满足混合架构设置。 实际经验 量化的模型会显著增加推理延迟，需要在多任务环境中调整默认 WebSocket 超时设置和共享资源隔离（TMPDIR）。 对话总结 ✅ pi0.5 量化、MVP 整理和环境配置 21:28:32.476 | claude_code 用户将 pi0.5 FP16 主干的局限性分析指向 Dragonwing（IQ-9075），识别了 NPU 上下文二进制约束。随后，该仓库被整理成最小的“量化-MVP”结构以供公开分享。AI 协助解决了 lighthouse（AIMET 编译、HuggingFace 控制模型）上的复杂本地环境依赖问题，并同时启动 GR00T 和 Pi0.5 的并行评估任务。\n",
+  "wordCount" : "424",
+  "inLanguage": "zh",
+  "datePublished": "2026-07-21T00:00:00-05:00",
+  "dateModified": "2026-07-21T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-07-21/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="zh"
+                        data-translation-url="https://tzj2006.github.io/bugjournal/daily/2026-07-21/">EN
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-07-21
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-07-21 00:00:00 -0500 -0500'>2026年7月21日</span>&nbsp;·&nbsp;<span>2 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-07-21">每日报告 — 2026-07-21<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-07-21">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>已完成工作：</strong> 在 Qualcomm AI Hub 上对 pi0.5 FP16 主干进行了全栈分析，发现了 NPU 内存限制问题，并将相关结果打包以便迁移至 A100；随后将项目整理为最小可行产品（quantize-MVP）仓库，解决了多 GPU 节点上的复杂运行时环境依赖问题，从而能够同时进行 GR00T 和 Pi0.5 精度评估。</li>
+<li><strong>实现方式：</strong> 执行 SLURM 作业进行分析/ONNX 量化处理，分析 QNN 后端日志以确认上下文二进制大小限制，通过 SSH 密钥推送干净代码；创建本地执行脚本替代集群特定逻辑，手动修补 AIET 源代码以实现精度扫描，通过配置修改解决 HuggingFace 受限模型问题，并编译带有明确 CUDA 头文件路径的自定义 AIMET 版本。</li>
+<li><strong>影响：</strong> 确认 pi0.5 FP16 主干在未经量化的情况下与 IQ-9075 NPU 不兼容，建立了可复现的 MVP 基线用于后续工作，通过解决关键环境问题使得全精度矩阵计算成为可能。</li>
+</ul>
+<h3 id="athena">athena<a hidden class="anchor" aria-hidden="true" href="#athena">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 在 Dragonwing IQ-9075 上执行 pi0.5 分析/量化作业，将代码库整理为 quantize-MVP 并推送到 GitHub。</li>
+<li><strong>实现方式：</strong> 执行 slurm 脚本，修补 aimet_onnx 以支持主干精度，预热 ONNX 缓存，分析内存限制日志，通过去除 Slurm 依赖关系重构仓库，通过 SSH 执行 git force-push。</li>
+<li><strong>影响：</strong> 获得部分延迟数据，发现硬件结构不兼容问题，提供了干净、可共享的代码库用于后续的 A100 处理。</li>
+</ul>
+<h3 id="lighthouse">lighthouse<a hidden class="anchor" aria-hidden="true" href="#lighthouse">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 配置复杂的本地环境以进行 GR00T/Pi0.5 评估，解决依赖冲突并启动精度矩阵计算。</li>
+<li><strong>实现方式：</strong> 编译支持 CUDA 的自定义 AIMET 版本，修补 processor_config.json 以绕过 HuggingFace 受限模型，创建 ffmpeg/websockets 依赖的符号链接，并在双 GPU 上启动后台评估作业。</li>
+<li><strong>影响：</strong> 解决了之前因缺失二进制文件和版本冲突而停止的评估流程，使得模型精度测试能够同时进行。</li>
+</ul>
+<blockquote>
+<p>完成了 pi0.5 量化的分析，发现 Dragonwing 上的硬件限制，然后整合 quantize-MVP 代码库用于公开分享，解决了复杂的本地环境依赖问题，从而能够同时进行 GR00T 和 Pi0.5 的精度矩阵评估。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>✅ <strong>quantize-MVP 仓库整理与迁移准备</strong> — 将项目代码库重构为最小化的可复现 quantize-MVP 结构，移除集群特定脚本，准备 A100 迁移文档，并推送到私有 GitHub 仓库。</li>
+<li>✅ <strong>pi0.5 FP16 量化与分析</strong> — 在 Dragonwing 上尝试全矩阵量化（SeqMSE/SpinQuant）和分析；发现 FP16 主干与 IQ-9075 NPU 不兼容因上下文二进制限制，通过切换至 CPU/启发式减少样本解决 QuantSim 中的 GPU OOM 问题。</li>
+<li>✅ <strong>GR00T 与 Pi0.5 的本地环境配置</strong> — 解决了包括自定义 AIMET 编译与 CUDA 头文件、通过配置修改访问 HuggingFace 受限模型、缺失系统二进制文件（ffmpeg/websockets）在内的复杂依赖问题。</li>
+<li>✅ <strong>LIBERO 评估流程修复</strong> — 诊断并修复 TMPDIR 竞争条件、慢量化推理的 websocket 超时问题以及 ONNX 下载重复问题，以实现稳定的评估运行。</li>
+</ul>
+<h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
+<ul>
+<li>🔄 <strong>启动精度矩阵评估</strong> — 在多个 GPU 上开始针对 GR00T 和 Pi0.5 的多种精度配置（W8A16、W4A16 等）的后台评估作业。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-pi05-fp16-主干在-qualcomm-ai-hub-iq-9075-evk-上因上下文二进制大小超出而失败">1. pi0.5 FP16 主干在 Qualcomm AI Hub (IQ-9075 EVK) 上因上下文二进制大小超出而失败。<a hidden class="anchor" aria-hidden="true" href="#1-pi05-fp16-主干在-qualcomm-ai-hub-iq-9075-evk-上因上下文二进制大小超出而失败">#</a></h4>
+<p><strong>解决方案：</strong> 分析 QNN 日志确认图结构大小（3.78GB）超过 NPU 限制（3.67GB）；得出结论 FP16 主干在结构上不兼容，必须进行量化或拆分。</p>
+<p><strong>关键洞察：</strong> 需要 &gt;3.67GB 上下文二进制量的 FP16 模型无法在 IQ-9075 NPU 上运行；对于该硬件而言量化是必须的。</p>
+<h4 id="2-多-gpu-节点上自定义-aimet-版本编译失败原因是不存在-eigen3-和-cudacudnn-头文件">2. 多 GPU 节点上自定义 AIMET 版本编译失败，原因是不存在 Eigen3 和 CUDA/cuDNN 头文件。<a hidden class="anchor" aria-hidden="true" href="#2-多-gpu-节点上自定义-aimet-版本编译失败原因是不存在-eigen3-和-cudacudnn-头文件">#</a></h4>
+<p><strong>解决方案：</strong> 通过 conda 安装 Eigen3，在 site-packages 中查找 NVIDIA cuDNN 头文件，在 pip install 时明确设置 CMAKE_PREFIX_PATH/CPATH。</p>
+<p><strong>关键洞察：</strong> 自定义 AI 工具包版本通常需要手动配置头文件路径；标准 pip 安装无法满足复杂构建环境需求。</p>
+<h4 id="3-huggingface-受限模型出现-403-forbidden-错误isaac-gr00t-缺少检查点文件">3. HuggingFace 受限模型出现 403 Forbidden 错误，Isaac-GR00T 缺少检查点文件。<a hidden class="anchor" aria-hidden="true" href="#3-huggingface-受限模型出现-403-forbidden-错误isaac-gr00t-缺少检查点文件">#</a></h4>
+<p><strong>解决方案：</strong> 识别出 &rsquo;libero_object_qwenvl&rsquo; 为本地变体；修补 processor_config.json 以指向公共 Qwen3-VL-2B-Instruct 模型，并为本地结果创建符号链接。</p>
+<p><strong>关键洞察：</strong> 受限或私有模型通常需要通过本地配置修改来使用公开可用的基础模型作为替代。</p>
+<h4 id="4-在-24gb-gpu-上-seqmse-正向计算过程中激活开销导致-quantsim-gpu-模拟出现-oom-问题">4. 在 24GB GPU 上 SeqMSE 正向计算过程中，激活开销导致 QuantSim GPU 模拟出现 OOM 问题。<a hidden class="anchor" aria-hidden="true" href="#4-在-24gb-gpu-上-seqmse-正向计算过程中激活开销导致-quantsim-gpu-模拟出现-oom-问题">#</a></h4>
+<p><strong>解决方案：</strong> 将 QuantSim 改为仅 CPU 执行，通过启发式方法减少 num_samples/candidates 数量以使得运行时间可行，接受轻微的精度折衷。</p>
+<p><strong>关键洞察：</strong> 低容量 GPU（24GB）不足以进行完整的 pi0.5 主干模拟；需要 A100（80GB）才能获得高保真结果。</p>
+<h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
+<h4 id="5-libero-评估因-tmpdir-竞争条件和-websocket-超时不匹配而崩溃">5. LIBERO 评估因 TMPDIR 竞争条件和 websocket 超时不匹配而崩溃。<a hidden class="anchor" aria-hidden="true" href="#5-libero-评估因-tmpdir-竞争条件和-websocket-超时不匹配而崩溃">#</a></h4>
+<p><strong>解决方案：</strong> 在 SLURM 脚本中强制每个作业使用唯一的 TMPDIR，修补 websocket 客户端以禁用慢量化推理的 keepalive 超时，为缺失的 ffmpeg 二进制文件创建符号链接。</p>
+<p><strong>关键洞察：</strong> 共享临时目录是并发中的关键问题；量化的模型需要更长的推理超时时间，超出了默认 websocket 允许的范围。</p>
+<h2 id="人类与-ai-方法">人类与 AI 方法<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="硬件限制与策略确定">硬件限制与策略确定<a hidden class="anchor" aria-hidden="true" href="#硬件限制与策略确定">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户战略性地识别了 F P16 主干不兼容问题，并指导迁移至 A100；确定本地 GPU 不足以实现全矩阵高保真度。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI 进行详细的日志分析以确认 3.78GB 与 3.67GB 限制差异，执行仅 CPU 的 QuantSim 替代方案，并修补源代码以实现精度扫描。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类定义了架构边界和迁移策略；AI 提供了技术验证并在这些约束下执行变通方案。</p>
+<h4 id="仓库整理与环境复杂性-角色--方法-">仓库整理与环境复杂性| 角色 | 方法 |<a hidden class="anchor" aria-hidden="true" href="#仓库整理与环境复杂性-角色--方法-">#</a></h4>
+<p>|&mdash;&mdash;|&mdash;&mdash;|
+| 人类 | 用户定义了 MVP 范围（最小的脚本，无需 Slurm 依赖），并识别了复杂的依赖链（HuggingFace 控制的模型、AIMET 构建）。 |
+| AI   | AI 执行了文件精简操作，重构代码以在本地运行，管理沙箱中的 GIT-SSH 认证，并手动构建构建配置。 |</p>
+<p>**差异分析：**人类提供了“最小”和“可修复”的战略定义；AI 处理了依赖解析和版本控制操作的机械复杂性。</p>
+<h2 id="ai-局限性">AI 局限性<a hidden class="anchor" aria-hidden="true" href="#ai-局限性">#</a></h2>
+<h3 id="一般局限性">一般局限性<a hidden class="anchor" aria-hidden="true" href="#一般局限性">#</a></h3>
+<ul>
+<li>AI 最初在 Isaac-GR00T 工具包文件中的 Git-LFS 指针错误上遇到困难，需要明确的 ‘git lfs pull’ 命令；还面临 GitHub CLI 的沙箱权限问题。</li>
+<li>由于硬件限制，AI 依赖启发式参数减少方法（样本/候选者）进行 QuantSim 处理，这比原生默认设置降低了精度保真度。</li>
+</ul>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="关键经验">关键经验<a hidden class="anchor" aria-hidden="true" href="#关键经验">#</a></h3>
+<ul>
+<li>FP16 pi0.5 主干与 Qualcomm IQ-9075 EVK NPU 在二进制大小限制下结构不兼容，与 GR00T 不同；全精度量化需要 A100（80GB）GPU。</li>
+<li>复杂的 AI 环境通常需要手动干预以构建自定义工具包（AIMET）和解决受控模型问题；简单的 pip 安装通常不足以满足混合架构设置。</li>
+</ul>
+<h3 id="实际经验">实际经验<a hidden class="anchor" aria-hidden="true" href="#实际经验">#</a></h3>
+<ul>
+<li>量化的模型会显著增加推理延迟，需要在多任务环境中调整默认 WebSocket 超时设置和共享资源隔离（TMPDIR）。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<p><strong>✅ pi0.5 量化、MVP 整理和环境配置</strong>
+<em>21:28:32.476 | claude_code</em>
+用户将 pi0.5 FP16 主干的局限性分析指向 Dragonwing（IQ-9075），识别了 NPU 上下文二进制约束。随后，该仓库被整理成最小的“量化-MVP”结构以供公开分享。AI 协助解决了 lighthouse（AIMET 编译、HuggingFace 控制模型）上的复杂本地环境依赖问题，并同时启动 GR00T 和 Pi0.5 的并行评估任务。</p>
+<!-- gadget:src-hash:c550788315bff39c -->
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
