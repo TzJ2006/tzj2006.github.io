@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-07-27 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="在天和3上执行并监控了四次并行基于OpenVLA-LoRA的训练过程，每次训练步数达到20k步，同时采用磁盘故障容错式检查点机制；通过法医式诊断发现，协变量偏移是Coffee Nominal评估失败的主要原因。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-27/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-07-27/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-27/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-27/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-07-27">
+  <meta property="og:description" content="在天和3上执行并监控了四次并行基于OpenVLA-LoRA的训练过程，每次训练步数达到20k步，同时采用磁盘故障容错式检查点机制；通过法医式诊断发现，协变量偏移是Coffee Nominal评估失败的主要原因。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-07-27T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-07-27T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-07-27">
+  <meta name="twitter:description" content="在天和3上执行并监控了四次并行基于OpenVLA-LoRA的训练过程，每次训练步数达到20k步，同时采用磁盘故障容错式检查点机制；通过法医式诊断发现，协变量偏移是Coffee Nominal评估失败的主要原因。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-07-27",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-07-27/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-07-27",
+  "name": "Bug Journal 2026-07-27",
+  "description": "在天和3上执行并监控了四次并行基于OpenVLA-LoRA的训练过程，每次训练步数达到20k步，同时采用磁盘故障容错式检查点机制；通过法医式诊断发现，协变量偏移是Coffee Nominal评估失败的主要原因。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-07-27 日常概述 已完成工作： 在4-7个GPU上继续并监控OpenVLA-LoRA训练四个机器人操作任务（咖啡/堆叠名义任务及恢复任务），成功合并LoRA检查点并启动并行评估服务器。针对咖啡名义任务中的关键评估失败进行了调查，确定零成功指标是由协变量偏移导致，而非模型崩溃或数据错误。 实施方法： 使用Codex代理管理SSH会话以进行过程监控、检查点验证（SHA256哈希）和环境故障排查。在检查点期间实现磁盘空间回退至/tmp的try-except逻辑，通过探测现有conda环境解决依赖冲突，并执行教师强制诊断以比较名义模型和恢复模型的动作预测误差。 影响： 尽管天和3号机存储受限，仍维持了不间断的训练收敛。明确表明名义任务失败是由于训练数据分布不匹配（协变量偏移）而非基础设施故障，为增加恢复数据比例以提升闭环鲁棒性提供了战略方向。 在天和3号机上执行并监控了四次并行OpenVLA-LoRA训练运行，每次高达20k步，实施磁盘故障容错检查点机制，同时进行法医诊断以确认协变量偏移是咖啡名义评估失败的主要原因。\n任务 架构与策略 🔄 OpenVLA-LoRA训练与检查点管理 — 监控四次并行训练运行（咖啡/堆叠名义/恢复）从10k到20k步。实施具有磁盘配额回退逻辑的健壮检查点保存机制，防止训练中断。 ✅ 咖啡名义失败的法医诊断 — 通过验证SHA256哈希的检查点完整性、使用PyArrow比较数据集指纹以及检查推理后处理来调查零成功评估指标，确认模型处于活动状态但因协变量偏移而失败。 ✅ LoRA检查点合并与评估部署 — 在4-7个GPU上合并所有四个任务检查点的LoRA权重，解决Python路径依赖问题。启动并行低并发VLA评估服务器和发布工服以验证性能。 ✅ 教师强制诊断比较 — 对96个配对样本执行诊断脚本，比较名义模型和恢复模型之间的L1动作误差，确认闭环设置下的误差累积问题。 实施与修复 ✅ 磁盘空间和环境管理 — 手动清理700GB的磁盘空间。通过探测现有conda环境（例如PyArrow的’rlds_env’）并修正PYTHONPATH层次结构来解决复杂的依赖问题。 问题与解决方案 关键问题 1. 咖啡名义清洁评估报告为零成功，与领域预期不符。 解决方案： 进行法医分析：验证检查点哈希与合并日志一致（排除模型故障），确认数据集配对完整性。得出结论，失败是由于名义任务中的严格终止标准（边界条件）被协变量偏移加剧，而非数据错误或模型崩溃。\n关键洞察： 名义任务中的零成功通常表明轨迹偏离碰到障碍物，而非模型能力不足；在责怪模型之前，验证“成功”标准和分布覆盖是至关重要的。\n2. 检查点保存期间主要磁盘空间配额被超出，存在训练中断风险。 解决方案： 实现try-except逻辑，在主要存储失败时回退至/tmp，确保训练连续性。用户随后清理磁盘空间以恢复默认行为。\n关键洞察： 自动化训练系统必须在受限HPC环境中将进程持续性置于存储持久性之上；优雅降级对于长运行至关重要。\n一般问题 3. PowerShell SSH命令失败是由于Windows主机与Linux远程之间的复杂正则表达式/转义不一致。 解决方案： 用通过stdin发送的base64编码的Python脚本替代内联bash命令，绕过shell转义层，确保整个通道中的代码完整性。\n关键洞察： 复杂的跨平台shell转义容易出错；使用base64编码的有效载荷进行远程执行是一种稳健可靠的替代方案。\n4. LoRA合并失败且出现ModuleNotFoundError对于’prismatic’；诊断脚本因默认环境中缺少PyArrow而失败。 解决方案： 明确设置LoRA合并的PYTHONPATH。在远程主机上探测多个conda环境，找到包含所需库（PyArrow、PIL）的环境，而非安装新包。\n关键洞察： 远程执行环境很少包含隐式模块路径；手动路径注入是必需的。扫描现有环境比在隔离训练环境中安装依赖项更快更安全。\n人类与AI方法 战略层面 模型故障的根本原因分析 角色 方法 人类 人类直观怀疑协变量偏移和领域不匹配，引导调查方向为数据组成而非基础设施故障。 AI AI最初专注于字面数据验证（哈希、文件差异）和依赖检查，在诊断确认后才与人类的理论洞察一致。 差异分析： 人类提供战略性的领域直觉和启发式方法；AI执行了确认或反驳假设所需的严格、繁琐的底层验证。\n处理训练循环中的磁盘满错误 角色 方法 人类 用户做出战略决策，在磁盘错误时不停止训练，而是选择通知并回退至/tmp。 AI AI实施技术性的try-except包装和心跳监控来实现此策略。 差异分析： 人类定义了高级操作约束（持续性）；AI提供强大的工具来强制执行该约束而无需手动干预。\n并行评估扩展决策 角色 方法 人类 用户明确批准运行四个并行评估服务器，尽管已知GPU内存竞争风险（使用70-95GB），优先保证实验吞吐量。 AI AI评估资源限制，警告OOM风险，但在验证后执行该指令。 差异分析： 人类在稳定性和速度之间做出战略权衡；AI作为风险管理者确保可行性。\nAI局限性 关键局限性 1. 咖啡名义清洁评估报告为零成功，与领域预期不符。- 人工智能在初次尝试时未能自动检测缺失的模块依赖项（‘prismatic’、‘pyarrow’），需要人工介入调试或手动检查环境。 一般限制 人工智能在生成适用于复杂正则表达式和多层shell转义处理的正确的PowerShell到Bash SSH命令时遇到困难，常导致语法错误。 经验教训 关键经验 在机器人VLA模型中，名义数据上的低离线训练损失并不能保证闭环性能；必须在训练数据中明确赋予恢复/修正场景的权重，以缓解协变量偏移问题。 对于长时间运行的HPC任务，具有容错性的编码模式（使用try-except并包含回退/通知机制）优于标准的错误导致崩溃行为。 通过SHA256哈希对合并日志进行检查点来源验证，是确认模型状态完整性的有效方法，可避免因‘错误模型’问题而浪费调试时间。 对话总结 • OpenVLA-LoRA训练继续、检查点处理及诊断分析 10:33:53.461 | codex 用户指示在Tianhe3 GPU 4-7上继续对四个任务（Coffee/Stack Nominal/Recovery）的OpenVLA-OFT LoRA训练。人工智能实现了磁盘配额回退逻辑，以防止在检查点保存时训练中断。同时，诊断工作集中在解释Coffee Nominal评估中的零成功指标； forensic分析排除了数据不匹配或模型损坏的情况，确定协变量偏移是根本原因。策略讨论认为，增加恢复数据比例对于实现稳定的闭环性能至关重要。系统在多个验证和训练阶段保持了稳定的并行执行。\n令牌使用 AI Usage · 2026-07-27\rCodex\rTotal cost$80.45\rTotal tokens106M\rOutput tokens371K\rCache read95.8%\rToken character\rCache reads 95.8% ·\rActive 4.2%\rMost token volume came from cache reads.\r",
+  "wordCount" : "146",
+  "inLanguage": "zh",
+  "datePublished": "2026-07-27T00:00:00-05:00",
+  "dateModified": "2026-07-27T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-07-27/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="zh"
+                        data-translation-url="https://tzj2006.github.io/bugjournal/daily/2026-07-27/">EN
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-07-27
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-07-27 00:00:00 -0500 -0500'>2026年7月27日</span>&nbsp;·&nbsp;<span>1 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-07-27">每日报告 — 2026-07-27<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-07-27">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>已完成工作：</strong> 在4-7个GPU上继续并监控OpenVLA-LoRA训练四个机器人操作任务（咖啡/堆叠名义任务及恢复任务），成功合并LoRA检查点并启动并行评估服务器。针对咖啡名义任务中的关键评估失败进行了调查，确定零成功指标是由协变量偏移导致，而非模型崩溃或数据错误。</li>
+<li><strong>实施方法：</strong> 使用Codex代理管理SSH会话以进行过程监控、检查点验证（SHA256哈希）和环境故障排查。在检查点期间实现磁盘空间回退至/tmp的try-except逻辑，通过探测现有conda环境解决依赖冲突，并执行教师强制诊断以比较名义模型和恢复模型的动作预测误差。</li>
+<li><strong>影响：</strong> 尽管天和3号机存储受限，仍维持了不间断的训练收敛。明确表明名义任务失败是由于训练数据分布不匹配（协变量偏移）而非基础设施故障，为增加恢复数据比例以提升闭环鲁棒性提供了战略方向。</li>
+</ul>
+<blockquote>
+<p>在天和3号机上执行并监控了四次并行OpenVLA-LoRA训练运行，每次高达20k步，实施磁盘故障容错检查点机制，同时进行法医诊断以确认协变量偏移是咖啡名义评估失败的主要原因。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>🔄 <strong>OpenVLA-LoRA训练与检查点管理</strong> — 监控四次并行训练运行（咖啡/堆叠名义/恢复）从10k到20k步。实施具有磁盘配额回退逻辑的健壮检查点保存机制，防止训练中断。</li>
+<li>✅ <strong>咖啡名义失败的法医诊断</strong> — 通过验证SHA256哈希的检查点完整性、使用PyArrow比较数据集指纹以及检查推理后处理来调查零成功评估指标，确认模型处于活动状态但因协变量偏移而失败。</li>
+<li>✅ <strong>LoRA检查点合并与评估部署</strong> — 在4-7个GPU上合并所有四个任务检查点的LoRA权重，解决Python路径依赖问题。启动并行低并发VLA评估服务器和发布工服以验证性能。</li>
+<li>✅ <strong>教师强制诊断比较</strong> — 对96个配对样本执行诊断脚本，比较名义模型和恢复模型之间的L1动作误差，确认闭环设置下的误差累积问题。</li>
+</ul>
+<h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
+<ul>
+<li>✅ <strong>磁盘空间和环境管理</strong> — 手动清理700GB的磁盘空间。通过探测现有conda环境（例如PyArrow的&rsquo;rlds_env&rsquo;）并修正PYTHONPATH层次结构来解决复杂的依赖问题。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-咖啡名义清洁评估报告为零成功与领域预期不符">1. 咖啡名义清洁评估报告为零成功，与领域预期不符。<a hidden class="anchor" aria-hidden="true" href="#1-咖啡名义清洁评估报告为零成功与领域预期不符">#</a></h4>
+<p><strong>解决方案：</strong> 进行法医分析：验证检查点哈希与合并日志一致（排除模型故障），确认数据集配对完整性。得出结论，失败是由于名义任务中的严格终止标准（边界条件）被协变量偏移加剧，而非数据错误或模型崩溃。</p>
+<p><strong>关键洞察：</strong> 名义任务中的零成功通常表明轨迹偏离碰到障碍物，而非模型能力不足；在责怪模型之前，验证“成功”标准和分布覆盖是至关重要的。</p>
+<h4 id="2-检查点保存期间主要磁盘空间配额被超出存在训练中断风险">2. 检查点保存期间主要磁盘空间配额被超出，存在训练中断风险。<a hidden class="anchor" aria-hidden="true" href="#2-检查点保存期间主要磁盘空间配额被超出存在训练中断风险">#</a></h4>
+<p><strong>解决方案：</strong> 实现try-except逻辑，在主要存储失败时回退至/tmp，确保训练连续性。用户随后清理磁盘空间以恢复默认行为。</p>
+<p><strong>关键洞察：</strong> 自动化训练系统必须在受限HPC环境中将进程持续性置于存储持久性之上；优雅降级对于长运行至关重要。</p>
+<h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
+<h4 id="3-powershell-ssh命令失败是由于windows主机与linux远程之间的复杂正则表达式转义不一致">3. PowerShell SSH命令失败是由于Windows主机与Linux远程之间的复杂正则表达式/转义不一致。<a hidden class="anchor" aria-hidden="true" href="#3-powershell-ssh命令失败是由于windows主机与linux远程之间的复杂正则表达式转义不一致">#</a></h4>
+<p><strong>解决方案：</strong> 用通过stdin发送的base64编码的Python脚本替代内联bash命令，绕过shell转义层，确保整个通道中的代码完整性。</p>
+<p><strong>关键洞察：</strong> 复杂的跨平台shell转义容易出错；使用base64编码的有效载荷进行远程执行是一种稳健可靠的替代方案。</p>
+<h4 id="4-lora合并失败且出现modulenotfounderror对于prismatic诊断脚本因默认环境中缺少pyarrow而失败">4. LoRA合并失败且出现ModuleNotFoundError对于&rsquo;prismatic&rsquo;；诊断脚本因默认环境中缺少PyArrow而失败。<a hidden class="anchor" aria-hidden="true" href="#4-lora合并失败且出现modulenotfounderror对于prismatic诊断脚本因默认环境中缺少pyarrow而失败">#</a></h4>
+<p><strong>解决方案：</strong> 明确设置LoRA合并的PYTHONPATH。在远程主机上探测多个conda环境，找到包含所需库（PyArrow、PIL）的环境，而非安装新包。</p>
+<p><strong>关键洞察：</strong> 远程执行环境很少包含隐式模块路径；手动路径注入是必需的。扫描现有环境比在隔离训练环境中安装依赖项更快更安全。</p>
+<h2 id="人类与ai方法">人类与AI方法<a hidden class="anchor" aria-hidden="true" href="#人类与ai方法">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="模型故障的根本原因分析">模型故障的根本原因分析<a hidden class="anchor" aria-hidden="true" href="#模型故障的根本原因分析">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>人类直观怀疑协变量偏移和领域不匹配，引导调查方向为数据组成而非基础设施故障。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI最初专注于字面数据验证（哈希、文件差异）和依赖检查，在诊断确认后才与人类的理论洞察一致。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类提供战略性的领域直觉和启发式方法；AI执行了确认或反驳假设所需的严格、繁琐的底层验证。</p>
+<h4 id="处理训练循环中的磁盘满错误">处理训练循环中的磁盘满错误<a hidden class="anchor" aria-hidden="true" href="#处理训练循环中的磁盘满错误">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户做出战略决策，在磁盘错误时不停止训练，而是选择通知并回退至/tmp。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI实施技术性的try-except包装和心跳监控来实现此策略。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类定义了高级操作约束（持续性）；AI提供强大的工具来强制执行该约束而无需手动干预。</p>
+<h4 id="并行评估扩展决策">并行评估扩展决策<a hidden class="anchor" aria-hidden="true" href="#并行评估扩展决策">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户明确批准运行四个并行评估服务器，尽管已知GPU内存竞争风险（使用70-95GB），优先保证实验吞吐量。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI评估资源限制，警告OOM风险，但在验证后执行该指令。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类在稳定性和速度之间做出战略权衡；AI作为风险管理者确保可行性。</p>
+<h2 id="ai局限性">AI局限性<a hidden class="anchor" aria-hidden="true" href="#ai局限性">#</a></h2>
+<h3 id="关键局限性">关键局限性<a hidden class="anchor" aria-hidden="true" href="#关键局限性">#</a></h3>
+<h4 id="1-咖啡名义清洁评估报告为零成功与领域预期不符--人工智能在初次尝试时未能自动检测缺失的模块依赖项prismaticpyarrow需要人工介入调试或手动检查环境">1. 咖啡名义清洁评估报告为零成功，与领域预期不符。- 人工智能在初次尝试时未能自动检测缺失的模块依赖项（‘prismatic’、‘pyarrow’），需要人工介入调试或手动检查环境。<a hidden class="anchor" aria-hidden="true" href="#1-咖啡名义清洁评估报告为零成功与领域预期不符--人工智能在初次尝试时未能自动检测缺失的模块依赖项prismaticpyarrow需要人工介入调试或手动检查环境">#</a></h4>
+<h3 id="一般限制">一般限制<a hidden class="anchor" aria-hidden="true" href="#一般限制">#</a></h3>
+<ul>
+<li>人工智能在生成适用于复杂正则表达式和多层shell转义处理的正确的PowerShell到Bash SSH命令时遇到困难，常导致语法错误。</li>
+</ul>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="关键经验">关键经验<a hidden class="anchor" aria-hidden="true" href="#关键经验">#</a></h3>
+<ul>
+<li>在机器人VLA模型中，名义数据上的低离线训练损失并不能保证闭环性能；必须在训练数据中明确赋予恢复/修正场景的权重，以缓解协变量偏移问题。</li>
+<li>对于长时间运行的HPC任务，具有容错性的编码模式（使用try-except并包含回退/通知机制）优于标准的错误导致崩溃行为。</li>
+<li>通过SHA256哈希对合并日志进行检查点来源验证，是确认模型状态完整性的有效方法，可避免因‘错误模型’问题而浪费调试时间。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<p><strong>• OpenVLA-LoRA训练继续、检查点处理及诊断分析</strong>
+<em>10:33:53.461 | codex</em>
+用户指示在Tianhe3 GPU 4-7上继续对四个任务（Coffee/Stack Nominal/Recovery）的OpenVLA-OFT LoRA训练。人工智能实现了磁盘配额回退逻辑，以防止在检查点保存时训练中断。同时，诊断工作集中在解释Coffee Nominal评估中的零成功指标； forensic分析排除了数据不匹配或模型损坏的情况，确定协变量偏移是根本原因。策略讨论认为，增加恢复数据比例对于实现稳定的闭环性能至关重要。系统在多个验证和训练阶段保持了稳定的并行执行。</p>
+<h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-07-27</span>
+        <span class="usage-card__source">Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$80.45</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>106M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>371K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>95.8%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 95.8%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 4.2%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (95.8%), active tokens (4.2%)">
+          <span style="width:95.8%; background:var(--usage-cache)"></span>
+          <span style="width:4.2%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:9ce76755626008db -->
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

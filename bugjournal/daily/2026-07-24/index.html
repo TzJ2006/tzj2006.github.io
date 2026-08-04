@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-07-24 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="Completed a critical data leakage audit for the ErrorRecoveryBenchmark rebuttal, verified the health and utilization of four active OpenVLA training jobs, and conducted environment validation for OpenVLA-OFT LoRA setup on Tianhe-3.">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/bugjournal/daily/2026-07-24/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-07-24/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-24/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/bugjournal/daily/2026-07-24/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-07-24">
+  <meta property="og:description" content="Completed a critical data leakage audit for the ErrorRecoveryBenchmark rebuttal, verified the health and utilization of four active OpenVLA training jobs, and conducted environment validation for OpenVLA-OFT LoRA setup on Tianhe-3.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-07-24T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-07-24T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-07-24">
+  <meta name="twitter:description" content="Completed a critical data leakage audit for the ErrorRecoveryBenchmark rebuttal, verified the health and utilization of four active OpenVLA training jobs, and conducted environment validation for OpenVLA-OFT LoRA setup on Tianhe-3.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-07-24",
+      "item": "https://tzj2006.github.io/bugjournal/daily/2026-07-24/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-07-24",
+  "name": "Bug Journal 2026-07-24",
+  "description": "Completed a critical data leakage audit for the ErrorRecoveryBenchmark rebuttal, verified the health and utilization of four active OpenVLA training jobs, and conducted environment validation for OpenVLA-OFT LoRA setup on Tianhe-3.",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-07-24 Daily Overview What was done: Performed forensic data auditing for a NIPS rebuttal, monitored four concurrent OpenVLA training campaigns, and validated the Tianhe-3 HPC environment for new OpenVLA-OFT experiments. How it was done: Executed read-only SSH commands to inspect JSONL metadata and lineage manifests on Tianhe-3; utilized Codex agents to check GPU states, logs, and Python package dependencies in the conda environment. Impact: Identified 100% clean trajectory overlap between train/eval sets for honest rebuttal response, confirmed healthy status of four-GPU training jobs, and established dependency baselines for OpenVLA-OFT while noting path sync issues. Completed a critical data leakage audit for the ErrorRecoveryBenchmark rebuttal, verified the health and utilization of four active OpenVLA training jobs, and conducted environment validation for OpenVLA-OFT LoRA setup on Tianhe-3.\nTasks Architecture \u0026 Strategy ✅ Audit Train/Eval Data Leakage — Analyzed training and evaluation datasets on Tianhe-3 to determine if clean trajectories, object configurations, or post-error states were leaked between splits; confirmed 100% overlap in source clean trajectories. ✅ Rebuttal Response Strategy — Formulated responses for NIPS reviewers regarding missing supplements, limited policy coverage, and data split integrity based on audit findings. ✅ Monitor OpenVLA Training Jobs — Performed final status checks on four active OpenVLA training jobs, verifying scheduler states, GPU utilization, and log absence of failure markers across multiple checkpoints. 🔄 OpenVLA-OFT Training Setup Investigation — Verified data availability and environment compatibility on Tianhe-3 for OpenVLA-OFT LoRA training across six mimicgen domains; identified stale editable install paths. Implementation \u0026 Fixes ✅ Dataset Structure Validation — Checked directory structures and metadata files for six nominal and six error-included datasets to ensure compatibility with LeRobot/OpenVLA loaders. ✅ Dependency Inventory — Confirmed installed versions of PyTorch, Transformers, PEFT, and OpenVLA-OFT in the conda environment on Tianhe-3. ✅ Fix DOCX Rendering Script — Diagnosed and patched render_docx_with_word.ps1 to handle absolute vs. relative output paths correctly during Word automation for NIPS rebuttal processing. Problems \u0026 Solutions Critical Issues 1. Reviewer concern regarding data leakage between training and evaluation sets for ErrorRecoveryBenchmark; potential overlap in physical scenes or trajectories. Solution: Traced code to confirm both generators read from shared clean trajectory folders. Queried multiple JSONL manifests on Tianhe-3 to discover 100% overlap in source clean trajectories. Verified that while exact post-error fingerprints showed some overlap, the critical issue was the shared lineage, necessitating disclosure.\nKey Insight: Sharing source clean trajectories constitutes data leakage even if injected error states are unique; future splits must occur at the trajectory level before generation.\n2. Command execution errors in remote shell due to syntax mismatch: ‘unexpected EOF while looking matching \"' when embedding bash commands in Python tool calls. Solution: Corrected JSON escaping in arguments, ensuring quotes were properly escaped for bash command injection on the remote host.\nKey Insight: Explicit quote escaping is critical when embedding shell scripts within Python JSON structures; single-pass interpretation often fails if local/remote parsing rules differ.\nGeneral Issues 3. Target directory and editable installation path for OpenVLA-OFT returned ‘No such file or directory’ during GIT/Pip status checks on Tianhe-3. Solution: Identified that the local editable installation path was stale or unsynced. Pivoted to inspecting site-packages and using pip show -f to locate actual executable scripts, as hard-coded paths from other setups are unreliable.\nKey Insight: Editable installs often drift from source repos; always verify pip output against actual file system existence when debugging missing dependencies.\n4. PowerShell script failed with ‘path format not supported’ and path handle bugs in automation tools due to incorrect JoinPath logic for absolute directories. Solution: Patched render_docx_with_word.ps1 to check if output directory is rooted before joining; used GetFullPath directly for absolute paths. Resolved permission denied exceptions on CIM instances during PDF processing.\nKey Insight: Absolute paths passed to path-utility functions require conditional routing for rooted vs. relative paths to avoid double-resolution errors.\n5. AI initial SSH failure to resolve ’tianhe3’ hostname automatically. Solution: Resolved by providing explicit host keys or aliases, as the agent lacked automatic DNS resolution for internal cluster names.\nKey Insight: Autonomous agents may lack pre-configured DNS or SSH aliases for private HPC clusters.\nHuman vs AI Approaches Strategic Level Data Leakage Investigation Methodology Role Approach Human The human requested a specific comparison of clean trajectories and post-error states to address reviewer concerns, driving the investigation towards lineage verification. AI The AI implemented a rigorous read-only SSH strategy, querying existing JSONL manifests without modifying the dataset, focusing on evidence gathering. Difference Analysis: Human defined the strategic goal (answering the reviewer), while AI adopted an operational constraint (Read-Only) that prevented accidental data modification during the sensitive audit.\nTraining Strategy Formulation vs. Infrastructure Check Role Approach Human User explicitly requested finding pre-existing Robosuite LoRA configurations and copying parameters, indicating a strategy of leveraging established benchmarks. AI AI focused on technical feasibility checks (SSH, env versions) and broad literature search but did not proactively locate specific existing config files as requested. Difference Analysis: Human intent was strategic replication; AI interpreted the request primarily as an infrastructure readiness check. Human domain knowledge guided the scope more than generic AI advice.\nImplementation Level Path Handling and Automation Logic Role Approach Human Human treated file paths as generic strings across different OS environments (Windows PowerShell vs. Linux Bash). AI AI identified type-specific API constraints, writing conditional logic for absolute/relative paths in PowerShell and handling quote escaping for nested bash calls. Difference Analysis: AI recognized OS-specific parsing rules and exception handling requirements that human implicit assumptions overlooked.\nAI Limitations Critical Limitations AI initially failed to locate exact ‘OpenVLA-OFT Robosuite LoRA’ pre-trained config or code snippets via web search, indicating difficulty accessing niche, recent, or unindexed repository details without direct codebase access. General Limitations AI struggled with complex nested shell quoting in automated tool calls, leading to syntax errors that required iterative correction. AI failed to resolve ’tianhe3’ hostname via SSH automatically, suggesting it lacks configuration for internal cluster DNS/SSH aliases. Learnings Key Learnings Sharing source clean trajectories between training and evaluation datasets effectively constitutes data leakage, requiring trajectory-level splitting before any error injection or scene generation. In remote HPC debugging via AI agents, always explicitly verify synchronization between pip editable installs and actual file system paths, as they frequently drift. Practical Learnings For niche models like OpenVLA-OFT, relying on ‘what others have done’ requires direct codebase inspection rather than general web searches, which may return tangentially related works. When auditing large-scale scientific datasets, relying on auxiliary qualification manifests (e.g., training_lineage.jsonl) is more reliable and faster than re-running generation pipelines or scanning raw scene files. Conversation Summaries ErrorRecoveryBenchmark ✅ NIPS Rebuttal Admin, DOCX Fix \u0026 Forensic Data Leakage Audit 06:19:38.474 | codex The session combined administrative tasks for NIPS rebuttals with critical forensic auditing. Initial efforts fixed render_docx_with_word.ps1 path handling bugs and permission issues for document processing. Subsequently, the team conducted a deep audit of the ErrorRecoveryBenchmark to address reviewer concerns about data leakage. By tracing lineage manifests on Tianhe-3, it was discovered that 100% of source clean trajectories for the training set overlapped with the evaluation set. This finding invalidates claims of independent splits and necessitates a transparent rebuttal strategy regarding shared trajectory lineages.\nOpenVLA-Training 🔄 OpenVLA Training Monitor \u0026 OpenVLA-OFT Environment Validation 15:50:24.295 | codex Activities included monitoring four active four-GPU OpenVLA training jobs, confirming healthy scheduler states and GPU utilization with no failure markers. Concurrently, preliminary investigation for OpenVLA-OFT LoRA training on Tianhe-3 was conducted. This involved validating dataset structures (LeRobot format) and inventorying Python dependencies (PyTorch, PEFT). A key finding was the discrepancy between the expected editable installation path and the actual file system, requiring a shift to package-based introspection for locating scripts.\nToken Usage AI Usage · 2026-07-24\rCodex\rTotal cost$288.00\rTotal tokens397M\rOutput tokens1M\rCache read96.4%\rToken character\rCache reads 96.4% ·\rActive 3.6%\rMost token volume came from cache reads.\r",
+  "wordCount" : "1293",
+  "inLanguage": "en",
+  "datePublished": "2026-07-24T00:00:00-05:00",
+  "dateModified": "2026-07-24T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/bugjournal/daily/2026-07-24/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="en"
+                        data-translation-url="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-24/">中文
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-07-24
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-07-24 00:00:00 -0500 -0500'>July 24, 2026</span>&nbsp;·&nbsp;<span>7 min</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-07-24">Daily Report — 2026-07-24<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-07-24">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>What was done:</strong> Performed forensic data auditing for a NIPS rebuttal, monitored four concurrent OpenVLA training campaigns, and validated the Tianhe-3 HPC environment for new OpenVLA-OFT experiments.</li>
+<li><strong>How it was done:</strong> Executed read-only SSH commands to inspect JSONL metadata and lineage manifests on Tianhe-3; utilized Codex agents to check GPU states, logs, and Python package dependencies in the conda environment.</li>
+<li><strong>Impact:</strong> Identified 100% clean trajectory overlap between train/eval sets for honest rebuttal response, confirmed healthy status of four-GPU training jobs, and established dependency baselines for OpenVLA-OFT while noting path sync issues.</li>
+</ul>
+<blockquote>
+<p>Completed a critical data leakage audit for the ErrorRecoveryBenchmark rebuttal, verified the health and utilization of four active OpenVLA training jobs, and conducted environment validation for OpenVLA-OFT LoRA setup on Tianhe-3.</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<ul>
+<li>✅ <strong>Audit Train/Eval Data Leakage</strong> — Analyzed training and evaluation datasets on Tianhe-3 to determine if clean trajectories, object configurations, or post-error states were leaked between splits; confirmed 100% overlap in source clean trajectories.</li>
+<li>✅ <strong>Rebuttal Response Strategy</strong> — Formulated responses for NIPS reviewers regarding missing supplements, limited policy coverage, and data split integrity based on audit findings.</li>
+<li>✅ <strong>Monitor OpenVLA Training Jobs</strong> — Performed final status checks on four active OpenVLA training jobs, verifying scheduler states, GPU utilization, and log absence of failure markers across multiple checkpoints.</li>
+<li>🔄 <strong>OpenVLA-OFT Training Setup Investigation</strong> — Verified data availability and environment compatibility on Tianhe-3 for OpenVLA-OFT LoRA training across six mimicgen domains; identified stale editable install paths.</li>
+</ul>
+<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<ul>
+<li>✅ <strong>Dataset Structure Validation</strong> — Checked directory structures and metadata files for six nominal and six error-included datasets to ensure compatibility with LeRobot/OpenVLA loaders.</li>
+<li>✅ <strong>Dependency Inventory</strong> — Confirmed installed versions of PyTorch, Transformers, PEFT, and OpenVLA-OFT in the conda environment on Tianhe-3.</li>
+<li>✅ <strong>Fix DOCX Rendering Script</strong> — Diagnosed and patched <code>render_docx_with_word.ps1</code> to handle absolute vs. relative output paths correctly during Word automation for NIPS rebuttal processing.</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-reviewer-concern-regarding-data-leakage-between-training-and-evaluation-sets-for-errorrecoverybenchmark-potential-overlap-in-physical-scenes-or-trajectories">1. Reviewer concern regarding data leakage between training and evaluation sets for ErrorRecoveryBenchmark; potential overlap in physical scenes or trajectories.<a hidden class="anchor" aria-hidden="true" href="#1-reviewer-concern-regarding-data-leakage-between-training-and-evaluation-sets-for-errorrecoverybenchmark-potential-overlap-in-physical-scenes-or-trajectories">#</a></h4>
+<p><strong>Solution:</strong> Traced code to confirm both generators read from shared clean trajectory folders. Queried multiple JSONL manifests on Tianhe-3 to discover 100% overlap in source clean trajectories. Verified that while exact post-error fingerprints showed some overlap, the critical issue was the shared lineage, necessitating disclosure.</p>
+<p><strong>Key Insight:</strong> Sharing source clean trajectories constitutes data leakage even if injected error states are unique; future splits must occur at the trajectory level before generation.</p>
+<h4 id="2-command-execution-errors-in-remote-shell-due-to-syntax-mismatch-unexpected-eof-while-looking-matching--when-embedding-bash-commands-in-python-tool-calls">2. Command execution errors in remote shell due to syntax mismatch: &lsquo;unexpected EOF while looking matching <code>&quot;'</code> when embedding bash commands in Python tool calls.<a hidden class="anchor" aria-hidden="true" href="#2-command-execution-errors-in-remote-shell-due-to-syntax-mismatch-unexpected-eof-while-looking-matching--when-embedding-bash-commands-in-python-tool-calls">#</a></h4>
+<p><strong>Solution:</strong> Corrected JSON escaping in arguments, ensuring quotes were properly escaped for bash command injection on the remote host.</p>
+<p><strong>Key Insight:</strong> Explicit quote escaping is critical when embedding shell scripts within Python JSON structures; single-pass interpretation often fails if local/remote parsing rules differ.</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="3-target-directory-and-editable-installation-path-for-openvla-oft-returned-no-such-file-or-directory-during-gitpip-status-checks-on-tianhe-3">3. Target directory and editable installation path for OpenVLA-OFT returned &lsquo;No such file or directory&rsquo; during GIT/Pip status checks on Tianhe-3.<a hidden class="anchor" aria-hidden="true" href="#3-target-directory-and-editable-installation-path-for-openvla-oft-returned-no-such-file-or-directory-during-gitpip-status-checks-on-tianhe-3">#</a></h4>
+<p><strong>Solution:</strong> Identified that the local editable installation path was stale or unsynced. Pivoted to inspecting <code>site-packages</code> and using <code>pip show -f</code> to locate actual executable scripts, as hard-coded paths from other setups are unreliable.</p>
+<p><strong>Key Insight:</strong> Editable installs often drift from source repos; always verify <code>pip</code> output against actual file system existence when debugging missing dependencies.</p>
+<h4 id="4-powershell-script-failed-with-path-format-not-supported-and-path-handle-bugs-in-automation-tools-due-to-incorrect-joinpath-logic-for-absolute-directories">4. PowerShell script failed with &lsquo;path format not supported&rsquo; and path handle bugs in automation tools due to incorrect JoinPath logic for absolute directories.<a hidden class="anchor" aria-hidden="true" href="#4-powershell-script-failed-with-path-format-not-supported-and-path-handle-bugs-in-automation-tools-due-to-incorrect-joinpath-logic-for-absolute-directories">#</a></h4>
+<p><strong>Solution:</strong> Patched <code>render_docx_with_word.ps1</code> to check if output directory is rooted before joining; used <code>GetFullPath</code> directly for absolute paths. Resolved permission denied exceptions on CIM instances during PDF processing.</p>
+<p><strong>Key Insight:</strong> Absolute paths passed to path-utility functions require conditional routing for rooted vs. relative paths to avoid double-resolution errors.</p>
+<h4 id="5-ai-initial-ssh-failure-to-resolve-tianhe3-hostname-automatically">5. AI initial SSH failure to resolve &rsquo;tianhe3&rsquo; hostname automatically.<a hidden class="anchor" aria-hidden="true" href="#5-ai-initial-ssh-failure-to-resolve-tianhe3-hostname-automatically">#</a></h4>
+<p><strong>Solution:</strong> Resolved by providing explicit host keys or aliases, as the agent lacked automatic DNS resolution for internal cluster names.</p>
+<p><strong>Key Insight:</strong> Autonomous agents may lack pre-configured DNS or SSH aliases for private HPC clusters.</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="data-leakage-investigation-methodology">Data Leakage Investigation Methodology<a hidden class="anchor" aria-hidden="true" href="#data-leakage-investigation-methodology">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>The human requested a specific comparison of clean trajectories and post-error states to address reviewer concerns, driving the investigation towards lineage verification.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>The AI implemented a rigorous read-only SSH strategy, querying existing JSONL manifests without modifying the dataset, focusing on evidence gathering.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human defined the strategic goal (answering the reviewer), while AI adopted an operational constraint (Read-Only) that prevented accidental data modification during the sensitive audit.</p>
+<h4 id="training-strategy-formulation-vs-infrastructure-check">Training Strategy Formulation vs. Infrastructure Check<a hidden class="anchor" aria-hidden="true" href="#training-strategy-formulation-vs-infrastructure-check">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>User explicitly requested finding pre-existing Robosuite LoRA configurations and copying parameters, indicating a strategy of leveraging established benchmarks.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI focused on technical feasibility checks (SSH, env versions) and broad literature search but did not proactively locate specific existing config files as requested.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human intent was strategic replication; AI interpreted the request primarily as an infrastructure readiness check. Human domain knowledge guided the scope more than generic AI advice.</p>
+<h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
+<h4 id="path-handling-and-automation-logic">Path Handling and Automation Logic<a hidden class="anchor" aria-hidden="true" href="#path-handling-and-automation-logic">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>Human treated file paths as generic strings across different OS environments (Windows PowerShell vs. Linux Bash).</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI identified type-specific API constraints, writing conditional logic for absolute/relative paths in PowerShell and handling quote escaping for nested bash calls.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> AI recognized OS-specific parsing rules and exception handling requirements that human implicit assumptions overlooked.</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
+<ul>
+<li>AI initially failed to locate exact &lsquo;OpenVLA-OFT Robosuite LoRA&rsquo; pre-trained config or code snippets via web search, indicating difficulty accessing niche, recent, or unindexed repository details without direct codebase access.</li>
+</ul>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<ul>
+<li>AI struggled with complex nested shell quoting in automated tool calls, leading to syntax errors that required iterative correction.</li>
+<li>AI failed to resolve &rsquo;tianhe3&rsquo; hostname via SSH automatically, suggesting it lacks configuration for internal cluster DNS/SSH aliases.</li>
+</ul>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<ul>
+<li>Sharing source clean trajectories between training and evaluation datasets effectively constitutes data leakage, requiring trajectory-level splitting before any error injection or scene generation.</li>
+<li>In remote HPC debugging via AI agents, always explicitly verify synchronization between <code>pip</code> editable installs and actual file system paths, as they frequently drift.</li>
+</ul>
+<h3 id="practical-learnings">Practical Learnings<a hidden class="anchor" aria-hidden="true" href="#practical-learnings">#</a></h3>
+<ul>
+<li>For niche models like OpenVLA-OFT, relying on &lsquo;what others have done&rsquo; requires direct codebase inspection rather than general web searches, which may return tangentially related works.</li>
+<li>When auditing large-scale scientific datasets, relying on auxiliary qualification manifests (e.g., <code>training_lineage.jsonl</code>) is more reliable and faster than re-running generation pipelines or scanning raw scene files.</li>
+</ul>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<h3 id="errorrecoverybenchmark">ErrorRecoveryBenchmark<a hidden class="anchor" aria-hidden="true" href="#errorrecoverybenchmark">#</a></h3>
+<p><strong>✅ NIPS Rebuttal Admin, DOCX Fix &amp; Forensic Data Leakage Audit</strong>
+<em>06:19:38.474 | codex</em>
+The session combined administrative tasks for NIPS rebuttals with critical forensic auditing. Initial efforts fixed <code>render_docx_with_word.ps1</code> path handling bugs and permission issues for document processing. Subsequently, the team conducted a deep audit of the ErrorRecoveryBenchmark to address reviewer concerns about data leakage. By tracing lineage manifests on Tianhe-3, it was discovered that 100% of source clean trajectories for the training set overlapped with the evaluation set. This finding invalidates claims of independent splits and necessitates a transparent rebuttal strategy regarding shared trajectory lineages.</p>
+<h3 id="openvla-training">OpenVLA-Training<a hidden class="anchor" aria-hidden="true" href="#openvla-training">#</a></h3>
+<p><strong>🔄 OpenVLA Training Monitor &amp; OpenVLA-OFT Environment Validation</strong>
+<em>15:50:24.295 | codex</em>
+Activities included monitoring four active four-GPU OpenVLA training jobs, confirming healthy scheduler states and GPU utilization with no failure markers. Concurrently, preliminary investigation for OpenVLA-OFT LoRA training on Tianhe-3 was conducted. This involved validating dataset structures (LeRobot format) and inventorying Python dependencies (PyTorch, PEFT). A key finding was the discrepancy between the expected editable installation path and the actual file system, requiring a shift to package-based introspection for locating scripts.</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-07-24</span>
+        <span class="usage-card__source">Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$288.00</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>397M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>1M</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>96.4%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 96.4%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 3.6%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (96.4%), active tokens (3.6%)">
+          <span style="width:96.4%; background:var(--usage-cache)"></span>
+          <span style="width:3.6%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:fe6ccf3bf346432e -->
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

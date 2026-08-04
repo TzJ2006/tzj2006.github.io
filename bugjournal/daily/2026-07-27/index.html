@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-07-27 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="Executed and monitored four parallel OpenVLA-LoRA training runs on Tianhe3 up to 20k steps, implementing disk-fault-tolerant checkpointing, while conducting forensic diagnostics that identified covariate shift as the primary cause of Coffee Nominal evaluation failure.">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/bugjournal/daily/2026-07-27/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-07-27/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-27/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/bugjournal/daily/2026-07-27/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-07-27">
+  <meta property="og:description" content="Executed and monitored four parallel OpenVLA-LoRA training runs on Tianhe3 up to 20k steps, implementing disk-fault-tolerant checkpointing, while conducting forensic diagnostics that identified covariate shift as the primary cause of Coffee Nominal evaluation failure.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-07-27T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-07-27T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-07-27">
+  <meta name="twitter:description" content="Executed and monitored four parallel OpenVLA-LoRA training runs on Tianhe3 up to 20k steps, implementing disk-fault-tolerant checkpointing, while conducting forensic diagnostics that identified covariate shift as the primary cause of Coffee Nominal evaluation failure.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-07-27",
+      "item": "https://tzj2006.github.io/bugjournal/daily/2026-07-27/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-07-27",
+  "name": "Bug Journal 2026-07-27",
+  "description": "Executed and monitored four parallel OpenVLA-LoRA training runs on Tianhe3 up to 20k steps, implementing disk-fault-tolerant checkpointing, while conducting forensic diagnostics that identified covariate shift as the primary cause of Coffee Nominal evaluation failure.",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-07-27 Daily Overview What was done: Resumed and monitored OpenVLA-LoRA training for four robotic manipulation tasks (Coffee/Stack Nominal and Recovery) on GPUs 4-7, successfully merging LoRA checkpoints and launching parallel evaluation servers. Investigated critical evaluation failures in the Coffee Nominal task, diagnosing zero-success metrics as a result of covariate shift rather than model collapse or data errors. How it was done: utilized a Codex agent to manage SSH sessions for process monitoring, checkpoint verification (SHA256 hashing), and environment troubleshooting. Implemented try-except logic for disk space fallback to /tmp during checkpoints, resolved dependency conflicts by probing existing conda environments, and executed teacher-forced diagnostics comparing action prediction errors between nominal and recovery models. Impact: Maintained uninterrupted training convergence despite significant storage constraints on Tianhe3. Clarified that nominal task failures were due to distributional mismatch in training data (covariate shift) rather than infrastructure bugs, establishing a strategic direction to increase recovery data ratios for improved closed-loop robustness. Executed and monitored four parallel OpenVLA-LoRA training runs on Tianhe3 up to 20k steps, implementing disk-fault-tolerant checkpointing, while conducting forensic diagnostics that identified covariate shift as the primary cause of Coffee Nominal evaluation failure.\nTasks Architecture \u0026 Strategy 🔄 OpenVLA-LoRA Training and Checkpointing — Monitored four parallel training runs (Coffee/Stack Nominal/Recovery) from 10k to 20k steps. Implemented robust checkpoint saving with disk-quota fallback logic to prevent training interruption. ✅ Forensic Diagnosis of Coffee Nominal Failure — Investigated zero-success evaluation metrics by verifying checkpoint integrity via SHA256 hashing, comparing dataset fingerprints using PyArrow, and inspecting inference post-processing. Confirmed model was active but failing due to covariate shift. ✅ LoRA Checkpoint Merging and Evaluation Deployment — Merged LoRA weights for all four task checkpoints on GPUs 4-7, resolving Python path dependencies. Launched parallel low-concurrency VLA evaluation servers and rollout workers to validate performance. ✅ Teacher-Forced Diagnostic Comparison — Executed diagnostic scripts on 96 paired samples to compare L1 action errors between nominal and recovery models, confirming error accumulation issues in closed-loop settings. Implementation \u0026 Fixes ✅ Disk Space and Environment Management — Cleaned 700GB of disk space manually. Resolved complex dependency issues by probing existing conda environments (e.g., ‘rlds_env’ for PyArrow) and correcting PYTHONPATH hierarchies. Problems \u0026 Solutions Critical Issues 1. Coffee Nominal Clean evaluation reported exactly zero successes, contradicting domain expectations. Solution: Performed forensic analysis: verified checkpoint hashes matched merge logs (ruling out bad models) and confirmed dataset pairing integrity. Concluded the failure was due to strict termination criteria in nominal tasks (boundary conditions) exacerbated by covariate shift, not data errors or model collapse.\nKey Insight: Zero successes in nominal tasks often indicate trajectory deviations hitting obstacles rather than model incompetence; verifying ‘success’ criteria and distributional coverage is essential before blaming the model.\n2. Primary disk space quota exceeded during checkpoint saving, risking training interruption. Solution: Implemented try-except logic to fallback to /tmp if primary storage fails, ensuring training continuity. User later cleaned disk space to restore default behavior.\nKey Insight: Automated training systems must prioritize process persistence over storage permanence in constrained HPC environments; graceful degradation is critical for long runs.\nGeneral Issues 3. PowerShell SSH command failures due to complex regex/escaping inconsistencies between Windows host and Linux remote. Solution: Replaced inline bash commands with base64-encoded Python scripts sent via stdin to bypass shell escaping layers, ensuring code integrity across the tunnel.\nKey Insight: Complex cross-platform shell escaping is error-prone; using base64-encoded payloads for remote execution provides a robust and reliable alternative.\n4. LoRA merge failed with ModuleNotFoundError for ‘prismatic’; diagnostic scripts failed due to missing PyArrow in default environment. Solution: Explicitly set PYTHONPATH for LoRA merge. Probed multiple conda environments on the remote host to find one containing required libraries (PyArrow, PIL) rather than installing new packages.\nKey Insight: Remote execution environments rarely include implicit module paths; manual path injection is mandatory. Scanning pre-existing environments is faster and safer than installing dependencies in isolated training contexts.\nHuman vs AI Approaches Strategic Level Root Cause Analysis of Model Failure Role Approach Human Human intuitively suspected covariate shift and domain mismatch, guiding the investigation toward data composition rather than infrastructure bugs. AI AI initially focused on literal data verification (hashes, file diffs) and dependency checks, only aligning with the human’s theoretical insight after diagnostic confirmation. Difference Analysis: Human provided strategic domain intuition and heuristics; AI performed the rigorous, tedious low-level verification required to confirm or refute hypotheses.\nHandling Disk Full Errors in Training Loops Role Approach Human User devised the strategic decision to never stop training on disk errors, opting instead for notification and fallback to /tmp. AI AI implemented the technical try-except wrappers and heartbeat monitors to execute this policy. Difference Analysis: Human defined the high-level operational constraint (persistence); AI provided the robust instrumentation to enforce it without manual intervention.\nParallel Evaluation Scaling Decision Role Approach Human User explicitly approved running four parallel evaluation servers despite known GPU memory contention risks (70-95GB usage), prioritizing experimental throughput. AI AI assessed the resource constraints, warned of OOM risks, but executed the directive after validation. Difference Analysis: Human drove the strategic trade-off between stability and speed; AI acted as a risk manager ensuring feasibility.\nAI Limitations Critical Limitations AI failed to automatically detect missing module dependencies (‘prismatic’, ‘pyarrow’) during initial attempts, requiring human-in-the-loop debugging or manual environment probing. General Limitations AI struggled with generating correct PowerShell-to-Bash SSH commands for complex regex patterns and multi-layered shell escaping, frequently resulting in syntax errors. Learnings Key Learnings In robotic VLA models, low offline training loss on nominal data does not guarantee closed-loop performance; recovery/correction scenarios must be explicitly weighted in training data to mitigate covariate shift. For long-running HPC jobs, fault-tolerant coding patterns (try-except with fallback/notify) are superior to standard crash-on-error behavior. Checkpoint provenance verification via SHA256 hashing against merge logs is the definitive method to confirm model state integrity, preventing wasted debugging time on ‘wrong model’ issues. Conversation Summaries • OpenVLA-LoRA Training Continuation, Checkpoint Handling, and Diagnostic Analysis 10:33:53.461 | codex The user directed the continuation of OpenVLA-OFT LoRA training for four tasks (Coffee/Stack Nominal/Recovery) on Tianhe3 GPUs 4-7. The AI implemented disk-quota fallback logic to prevent training interruption during checkpoint saves. Concurrently, diagnostic efforts focused on explaining zero-success metrics in Coffee Nominal evaluations; forensic analysis ruled out data mismatches or model corruption, identifying covariate shift as the root cause. Strategic discussions concluded that increasing recovery data ratios is necessary for robust closed-loop performance. The system maintained stable parallel execution across multiple stages of verification and training.\nToken Usage AI Usage · 2026-07-27\rCodex\rTotal cost$80.45\rTotal tokens106M\rOutput tokens371K\rCache read95.8%\rToken character\rCache reads 95.8% ·\rActive 4.2%\rMost token volume came from cache reads.\r",
+  "wordCount" : "1099",
+  "inLanguage": "en",
+  "datePublished": "2026-07-27T00:00:00-05:00",
+  "dateModified": "2026-07-27T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/bugjournal/daily/2026-07-27/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="en"
+                        data-translation-url="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-27/">中文
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-07-27
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-07-27 00:00:00 -0500 -0500'>July 27, 2026</span>&nbsp;·&nbsp;<span>6 min</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-07-27">Daily Report — 2026-07-27<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-07-27">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>What was done:</strong> Resumed and monitored OpenVLA-LoRA training for four robotic manipulation tasks (Coffee/Stack Nominal and Recovery) on GPUs 4-7, successfully merging LoRA checkpoints and launching parallel evaluation servers. Investigated critical evaluation failures in the Coffee Nominal task, diagnosing zero-success metrics as a result of covariate shift rather than model collapse or data errors.</li>
+<li><strong>How it was done:</strong>  utilized a Codex agent to manage SSH sessions for process monitoring, checkpoint verification (SHA256 hashing), and environment troubleshooting. Implemented try-except logic for disk space fallback to /tmp during checkpoints, resolved dependency conflicts by probing existing conda environments, and executed teacher-forced diagnostics comparing action prediction errors between nominal and recovery models.</li>
+<li><strong>Impact:</strong> Maintained uninterrupted training convergence despite significant storage constraints on Tianhe3. Clarified that nominal task failures were due to distributional mismatch in training data (covariate shift) rather than infrastructure bugs, establishing a strategic direction to increase recovery data ratios for improved closed-loop robustness.</li>
+</ul>
+<blockquote>
+<p>Executed and monitored four parallel OpenVLA-LoRA training runs on Tianhe3 up to 20k steps, implementing disk-fault-tolerant checkpointing, while conducting forensic diagnostics that identified covariate shift as the primary cause of Coffee Nominal evaluation failure.</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<ul>
+<li>🔄 <strong>OpenVLA-LoRA Training and Checkpointing</strong> — Monitored four parallel training runs (Coffee/Stack Nominal/Recovery) from 10k to 20k steps. Implemented robust checkpoint saving with disk-quota fallback logic to prevent training interruption.</li>
+<li>✅ <strong>Forensic Diagnosis of Coffee Nominal Failure</strong> — Investigated zero-success evaluation metrics by verifying checkpoint integrity via SHA256 hashing, comparing dataset fingerprints using PyArrow, and inspecting inference post-processing. Confirmed model was active but failing due to covariate shift.</li>
+<li>✅ <strong>LoRA Checkpoint Merging and Evaluation Deployment</strong> — Merged LoRA weights for all four task checkpoints on GPUs 4-7, resolving Python path dependencies. Launched parallel low-concurrency VLA evaluation servers and rollout workers to validate performance.</li>
+<li>✅ <strong>Teacher-Forced Diagnostic Comparison</strong> — Executed diagnostic scripts on 96 paired samples to compare L1 action errors between nominal and recovery models, confirming error accumulation issues in closed-loop settings.</li>
+</ul>
+<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<ul>
+<li>✅ <strong>Disk Space and Environment Management</strong> — Cleaned 700GB of disk space manually. Resolved complex dependency issues by probing existing conda environments (e.g., &lsquo;rlds_env&rsquo; for PyArrow) and correcting PYTHONPATH hierarchies.</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-coffee-nominal-clean-evaluation-reported-exactly-zero-successes-contradicting-domain-expectations">1. Coffee Nominal Clean evaluation reported exactly zero successes, contradicting domain expectations.<a hidden class="anchor" aria-hidden="true" href="#1-coffee-nominal-clean-evaluation-reported-exactly-zero-successes-contradicting-domain-expectations">#</a></h4>
+<p><strong>Solution:</strong> Performed forensic analysis: verified checkpoint hashes matched merge logs (ruling out bad models) and confirmed dataset pairing integrity. Concluded the failure was due to strict termination criteria in nominal tasks (boundary conditions) exacerbated by covariate shift, not data errors or model collapse.</p>
+<p><strong>Key Insight:</strong> Zero successes in nominal tasks often indicate trajectory deviations hitting obstacles rather than model incompetence; verifying &lsquo;success&rsquo; criteria and distributional coverage is essential before blaming the model.</p>
+<h4 id="2-primary-disk-space-quota-exceeded-during-checkpoint-saving-risking-training-interruption">2. Primary disk space quota exceeded during checkpoint saving, risking training interruption.<a hidden class="anchor" aria-hidden="true" href="#2-primary-disk-space-quota-exceeded-during-checkpoint-saving-risking-training-interruption">#</a></h4>
+<p><strong>Solution:</strong> Implemented try-except logic to fallback to /tmp if primary storage fails, ensuring training continuity. User later cleaned disk space to restore default behavior.</p>
+<p><strong>Key Insight:</strong> Automated training systems must prioritize process persistence over storage permanence in constrained HPC environments; graceful degradation is critical for long runs.</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="3-powershell-ssh-command-failures-due-to-complex-regexescaping-inconsistencies-between-windows-host-and-linux-remote">3. PowerShell SSH command failures due to complex regex/escaping inconsistencies between Windows host and Linux remote.<a hidden class="anchor" aria-hidden="true" href="#3-powershell-ssh-command-failures-due-to-complex-regexescaping-inconsistencies-between-windows-host-and-linux-remote">#</a></h4>
+<p><strong>Solution:</strong> Replaced inline bash commands with base64-encoded Python scripts sent via stdin to bypass shell escaping layers, ensuring code integrity across the tunnel.</p>
+<p><strong>Key Insight:</strong> Complex cross-platform shell escaping is error-prone; using base64-encoded payloads for remote execution provides a robust and reliable alternative.</p>
+<h4 id="4-lora-merge-failed-with-modulenotfounderror-for-prismatic-diagnostic-scripts-failed-due-to-missing-pyarrow-in-default-environment">4. LoRA merge failed with ModuleNotFoundError for &lsquo;prismatic&rsquo;; diagnostic scripts failed due to missing PyArrow in default environment.<a hidden class="anchor" aria-hidden="true" href="#4-lora-merge-failed-with-modulenotfounderror-for-prismatic-diagnostic-scripts-failed-due-to-missing-pyarrow-in-default-environment">#</a></h4>
+<p><strong>Solution:</strong> Explicitly set PYTHONPATH for LoRA merge. Probed multiple conda environments on the remote host to find one containing required libraries (PyArrow, PIL) rather than installing new packages.</p>
+<p><strong>Key Insight:</strong> Remote execution environments rarely include implicit module paths; manual path injection is mandatory. Scanning pre-existing environments is faster and safer than installing dependencies in isolated training contexts.</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="root-cause-analysis-of-model-failure">Root Cause Analysis of Model Failure<a hidden class="anchor" aria-hidden="true" href="#root-cause-analysis-of-model-failure">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>Human intuitively suspected covariate shift and domain mismatch, guiding the investigation toward data composition rather than infrastructure bugs.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI initially focused on literal data verification (hashes, file diffs) and dependency checks, only aligning with the human&rsquo;s theoretical insight after diagnostic confirmation.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human provided strategic domain intuition and heuristics; AI performed the rigorous, tedious low-level verification required to confirm or refute hypotheses.</p>
+<h4 id="handling-disk-full-errors-in-training-loops">Handling Disk Full Errors in Training Loops<a hidden class="anchor" aria-hidden="true" href="#handling-disk-full-errors-in-training-loops">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>User devised the strategic decision to never stop training on disk errors, opting instead for notification and fallback to /tmp.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI implemented the technical try-except wrappers and heartbeat monitors to execute this policy.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human defined the high-level operational constraint (persistence); AI provided the robust instrumentation to enforce it without manual intervention.</p>
+<h4 id="parallel-evaluation-scaling-decision">Parallel Evaluation Scaling Decision<a hidden class="anchor" aria-hidden="true" href="#parallel-evaluation-scaling-decision">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>User explicitly approved running four parallel evaluation servers despite known GPU memory contention risks (70-95GB usage), prioritizing experimental throughput.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI assessed the resource constraints, warned of OOM risks, but executed the directive after validation.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human drove the strategic trade-off between stability and speed; AI acted as a risk manager ensuring feasibility.</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
+<ul>
+<li>AI failed to automatically detect missing module dependencies (&lsquo;prismatic&rsquo;, &lsquo;pyarrow&rsquo;) during initial attempts, requiring human-in-the-loop debugging or manual environment probing.</li>
+</ul>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<ul>
+<li>AI struggled with generating correct PowerShell-to-Bash SSH commands for complex regex patterns and multi-layered shell escaping, frequently resulting in syntax errors.</li>
+</ul>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<ul>
+<li>In robotic VLA models, low offline training loss on nominal data does not guarantee closed-loop performance; recovery/correction scenarios must be explicitly weighted in training data to mitigate covariate shift.</li>
+<li>For long-running HPC jobs, fault-tolerant coding patterns (try-except with fallback/notify) are superior to standard crash-on-error behavior.</li>
+<li>Checkpoint provenance verification via SHA256 hashing against merge logs is the definitive method to confirm model state integrity, preventing wasted debugging time on &lsquo;wrong model&rsquo; issues.</li>
+</ul>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<p><strong>• OpenVLA-LoRA Training Continuation, Checkpoint Handling, and Diagnostic Analysis</strong>
+<em>10:33:53.461 | codex</em>
+The user directed the continuation of OpenVLA-OFT LoRA training for four tasks (Coffee/Stack Nominal/Recovery) on Tianhe3 GPUs 4-7. The AI implemented disk-quota fallback logic to prevent training interruption during checkpoint saves. Concurrently, diagnostic efforts focused on explaining zero-success metrics in Coffee Nominal evaluations; forensic analysis ruled out data mismatches or model corruption, identifying covariate shift as the root cause. Strategic discussions concluded that increasing recovery data ratios is necessary for robust closed-loop performance. The system maintained stable parallel execution across multiple stages of verification and training.</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-07-27</span>
+        <span class="usage-card__source">Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$80.45</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>106M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>371K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>95.8%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 95.8%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 4.2%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (95.8%), active tokens (4.2%)">
+          <span style="width:95.8%; background:var(--usage-cache)"></span>
+          <span style="width:4.2%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:9ce76755626008db -->
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

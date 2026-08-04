@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-07-26 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="执行并优化了多GPU下的OpenVLA LoRA训练，通过MiMicGen增强技术验证数据来源合规性，并清理了约840GB的旧检查点，为错误恢复策略学习奠定了坚实基础。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-26/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-07-26/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-26/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-26/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-07-26">
+  <meta property="og:description" content="执行并优化了多GPU下的OpenVLA LoRA训练，通过MiMicGen增强技术验证数据来源合规性，并清理了约840GB的旧检查点，为错误恢复策略学习奠定了坚实基础。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-07-26T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-07-26T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-07-26">
+  <meta name="twitter:description" content="执行并优化了多GPU下的OpenVLA LoRA训练，通过MiMicGen增强技术验证数据来源合规性，并清理了约840GB的旧检查点，为错误恢复策略学习奠定了坚实基础。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-07-26",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-07-26/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-07-26",
+  "name": "Bug Journal 2026-07-26",
+  "description": "执行并优化了多GPU下的OpenVLA LoRA训练，通过MiMicGen增强技术验证数据来源合规性，并清理了约840GB的旧检查点，为错误恢复策略学习奠定了坚实基础。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-07-26 日常概述 已完成工作： 对 GR00T 检查点进行了深度存储清理，准备了并审核了六个不同的 OpenVLA 数据集（标称值与错误变体），在 Tianhe3 上启动了四个并行 LoRA 微调任务，并将验证过的咖啡恢复数据集传输到本地存储。 执行方式： 采用基于 SSH 的审计和手动确认进行磁盘清理；利用 MiMicGen 和 SHA-256 来源追踪进行数据验证；通过心跳监视器管理 3-7 号 GPU 之间的动态 GPU 分配，并解决远程执行的跨shell逃逸问题。 影响： 释放了关键存储空间，确保了增强数据中的高质量低多样性种子多样性，并在初始 CPU/gpu 瓶颈情况下建立了稳定的基准，用于比较标称值与错误条件下的机器人策略。 执行并优化了多 GPU OpenVLA LoRA 训练，通过 MiMicGen 增强技术审核了数据来源，并清理了约 840GB 的旧检查点，为错误恢复策略学习建立了稳固基础。\n任务 架构与策略 ✅ 多 GPU OpenVLA LoRA 训练执行 — 成功在 3、5、6、7 号 GPU 上运行了四个并发 OpenVLA-LoRA 训练任务（coffee_nominal, coffee_recovery, stack_nominal, stack_recovery），直至第 10,000 步。为六种场景配置了数据加载器，并实时监控损失/GPU 利用率。 ✅ GR00T 检查点清理 — 从 ‘tangzijia’ 目录中识别并删除了 884GB 未使用的 GR00T 中间检查点（checkpoint-1000 到 checkpoint-9000），释放了约 840GB 空间，同时保留了最终结果。 ✅ 人类数据质量审核与 MiMicGen 增强 — 审核了用于训练的人类演示文件；对符合条件的样本执行了 32 线程的 MiMicGen 增强，生成了针对少数错误类型的合成变体。 ✅ 检查点验证与优雅终止 — 验证了第 10,000 步检查点的完整性，在确认磁盘写入稳定后优雅地终止了原始训练过程。 ✅ 咖啡恢复数据集来源分析 — 追踪了 1,075 个咖啡恢复案例的来源，确认其中 885 个是仅从 29 个基础人类演示中生成的合成变体，并发现增强集中的多样性较低。 ❌ 恢复配置与启动尝试 — 尝试将 LoRA 权重合并到检查点中，以 1,000 步的保存频率重新启动训练；由于 tmux 中的脚本路径错误而失败。 实施与修复 ✅ 远程到本地数据同步 — 在 Tianhe3 上编译了 11GB 的 LeRobot 格式咖啡数据集，通过 tar 压缩包和 SCP 传输到本地 Windows 存储，并进行了 SHA-256 验证。 ✅ 训练性能调试 — 通过优化 MuJoCo 工作进程冲突和数据预加载策略，解决了训练速度慢和 CPU 利用率高的问题。 问题与解决方案 关键问题 1. 之前的增强处理产生了 885 个样本，这些样本是仅由 29 个基础演示产生的低多样性变体，存在模型过拟合风险。 解决方案： 使用 SHA-256 哈希进行深度审计，确认其唯一性，同时暴露出有限的种子多样性；计划在未来运行中优先收集多样化的基础数据。\n关键洞察： 增强数据的量并不保证数据多样性；来源追踪对于有效的合成数据集整理至关重要。\n2. 初始训练速度慢且 GPU 利用率不稳定，主要是由于 CPU 瓶颈（MuJoCo 工作进程）和错误的初始 GPU 分配。 解决方案： 人类手动识别了瓶颈，将任务重新分配到特定 GPU（3、5、6、7），并调整数据预处理方法。AI 重新配置了独立评估以解决资源竞争问题。\n关键洞察： 当初始自动化分配无法最大化硬件吞吐量时，需要动态资源管理和人工干预；在 GPU 计算限制之前，CPU 端环境渲染通常是主要瓶颈。\n3. LoRA 合并脚本立即出现 ‘No such file or directory’（Errno 2）错误，针对 ‘/HOME/sysu_gbli2/…/merge_lora_weights_and_save.py’。 解决方案： 按照调试模式协议暂停执行，生成详细故障的 HTML 报告，并等待人类确认。未尝试自动重试以防止数据损坏。\n关键洞察： 通过 tmux 启动的 shell 脚本中的硬编码路径依赖非常脆弱；由于自动化代理设置的工作目录上下文，相对路径与绝对路径解析失败。\n一般问题 4. 在 PowerShell 中执行嵌套在 PowerShell 字符串中的复杂 bash 命令时，出现 PowerShell 语法错误（‘unexpected EOF’，标记转义问题）。 解决方案： 重构了命令执行策略，将循环逻辑分离为不同的 SSH 调用或在 Bash 中使用单引号以防止 PowerShell 解释；改用更简单的 sed/grep 进行日志检查。\n关键洞察： 跨 shell 命令嵌套（PowerShell \u003e SSH \u003e Bash）需要谨慎的转义策略；在目标 shell 中使用单引号可防止主机 shell 过早终止。\n5. 瞬态 DNS 解析失败和本地 SSH 配置问题导致无法连接到 tianhe3/proxy.nscc-gz.cn。 解决方案： 网络恢复后重新尝试只读 SSH 命令；检查 SSH 配置权限，并通过 .ssh/config 中的代理设置访问远程机器。\n关键洞察： 远程主机解析依赖于本地客户端 SSH 配置；监控脚本必须通过重试逻辑优雅地处理瞬态网络错误。\n人类与 AI 方法 战略层面 GPU 资源管理策略 角色 方法 人类 人类分析 GPU 内存/使用率，识别未充分利用的情况，手动重新安排训练对到特定物理 GPU（例如 3/5 号 GPU 上的 Coffee），并停止冲突任务。 AI 最初遵循通用的分配指令，但依赖人类来停止物理任务；后来提供严格的指标监控和热图分析。 差异分析： 人类通过物理验证卡状态并干预来展示战略资源管理，而 AI 专注于数据验证、指标和自动健康检查，没有了解瞬态过程的完整上下文。\nN/A 角色 方法 人类 人类识别出合成数据中低多样性战略风险，对 ‘885 个样本’ 进行了审计调查，发现仅依赖 29 个基础演示。 AI AI 执行了系统的统计审计、哈希检查和对服务器目录的日志 grep，以定量确认人类关于数据稀缺性的假设。 GPU 资源管理策略 角色 方法 人类 人类分析 GPU 内存/使用率，识别未充分利用的情况，手动重新安排训练对到特定物理 GPU（例如 3/5 号 GPU 上的 Coffee），并停止冲突任务。 AI 最初遵循通用的分配指令，但依赖人类来停止物理任务；后来提供严格的指标监控和热图分析。 差异分析： 人类通过物理验证卡状态并干预来展示战略资源管理，而 AI 专注于数据验证、指标和自动健康检查，没有了解瞬态过程的完整上下文。差异分析： 人类提供了关于数据质量重于数量的关键见解；AI则提供了严格的自动化验证机制来证明这一点。\n调试协议遵守情况 角色 方法 人类 人类允许AI诊断路径错误，但明确指示进行监控而非冒险的自动化修复。 AI AI正确识别了潜在数据损坏风险的严重程度（写入错误的路径），并停止自主执行，生成详细的HTML报告而非猜测修复方案。 差异分析： AI在安全关键的文件操作方面表现出更高的谨慎性，与可能盲目重试的常规自动化调试不同；这符合HPC工作流程的最佳实践。\n实施层面 磁盘清理风险评估 角色 方法 人类 人类请求删除“GR00T检查点”，意图较为广泛。 AI AI提出了分阶段方案：列出文件，按“可恢复”、“保留”和“危险”分类，并等待明确确认后再删除特定路径。 差异分析： AI提供了细致的风险分析与安全防护机制，防止了关键最终检查点的意外删除，将人类的广泛请求转化为安全的子集。\n数据传输优化 角色 方法 人类 人类请求高效移动大型数据集并确保完整性。 AI AI实现了稳健的工作流程：服务器端tar压缩，双方均进行SHA-256校验和计算，并在本地验证解压过程。 差异分析： AI独立构建了安全、可验证的传输管道，增加了安全层（校验和），确保在11GB数据传输过程中没有隐性损坏发生。\nAI局限性 一般局限性 在没有检查本地SSH配置文件的情况下，本地环境无法最初解析“tianhe3”主机名；暂停以诊断环境问题，而非立即执行。 系统安全策略阻止代理读取~/.bash_history以追踪来源；对于需要磁盘检查的Get-CimInstance，还面临权限问题，需采用替代策略。 通过Bash在tmux中调用“merge_lora_weights_and_save.py”时，无法正确解析绝对路径，可能是由于环境变量不匹配或从PowerShell通过SSH传递的工作目录上下文错误。 在Windows上的PowerShell和远程Linux HPC节点上的Bash之间处理复杂的嵌套命令转义时遇到困难，导致初始执行尝试出现语法错误。 通过~/.bash_history追踪来源的初步尝试被安全策略拒绝；不得不依赖较慢、不够全面的日志文件和元数据。 经验教训 关键经验 在跨不同操作系统层级的HPC任务自动化时（Windows客户端 -\u003e Linux服务器），始终使用绝对路径，无论是Python解释器还是脚本文件，以避免工作目录歧义。 在审计合成数据集时，始终验证“种子多样性”（独特基础演示数量）以及总样本数，以防止误导性的体积指标。 在审计HPC系统上的大容量存储时，始终验证活跃作业状态（squeue）和备份清单文件后再进行删除，以确保数据完整性。 实际经验 在分布式环境中的大规模数据传输中，在SCP之前在源服务器上压缩比逐个文件流式传输更可靠、更快。 在多代理RL训练设置中，CPU侧环境并行化通常是观察到的GPU效率瓶颈；性能分析应从数据加载器和渲染器开始，而非假设GPU限制。 监控GPU内存与利用率是效率的关键指标；低利用率伴随高内存通常表明数据加载或预处理瓶颈，而非模型计算限制。 在沙箱环境中进行取证审计时，代理必须依赖应用层产物而非系统级历史记录。 对话总结 ✅ 当日结束汇总：训练、数据审计和基础设施准备 18:00:00.000 | codex 汇总会议涵盖了ErrorRecoveryBenchmark项目的三个主要流程：1) 训练操作：在Tianhe3 GPU上启动四个并发OpenVLA-LoRA微调任务（3,5,6,7），通过手动重新分配解决初始CPU/GPU瓶颈，并验证第10,000个检查点。tmux中的脚本路径错误导致恢复阶段受阻。2) 数据科学：审计人类演示数据，发现885个增强咖啡恢复样本来自仅29个基础演示（多样性低），并执行了有针对性的MiMicGen增强操作。本地传输了11GB经过验证的数据集。3) 基础设施：清理了884GB未使用的GR00T检查点以释放存储。关键收获包括跨shell转义的重要性、远程脚本使用绝对路径，以及基于数据多样性验证而非体积指标。\n令牌使用 AI Usage · 2026-07-26\rCodex\rTotal cost$138.90\rTotal tokens188M\rOutput tokens614K\rCache read96.1%\rToken character\rCache reads 96.1% ·\rActive 3.9%\rMost token volume came from cache reads.\r",
+  "wordCount" : "393",
+  "inLanguage": "zh",
+  "datePublished": "2026-07-26T00:00:00-05:00",
+  "dateModified": "2026-07-26T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-07-26/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="zh"
+                        data-translation-url="https://tzj2006.github.io/bugjournal/daily/2026-07-26/">EN
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-07-26
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-07-26 00:00:00 -0500 -0500'>2026年7月26日</span>&nbsp;·&nbsp;<span>2 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-07-26">每日报告 — 2026-07-26<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-07-26">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>已完成工作：</strong> 对 GR00T 检查点进行了深度存储清理，准备了并审核了六个不同的 OpenVLA 数据集（标称值与错误变体），在 Tianhe3 上启动了四个并行 LoRA 微调任务，并将验证过的咖啡恢复数据集传输到本地存储。</li>
+<li><strong>执行方式：</strong> 采用基于 SSH 的审计和手动确认进行磁盘清理；利用 MiMicGen 和 SHA-256 来源追踪进行数据验证；通过心跳监视器管理 3-7 号 GPU 之间的动态 GPU 分配，并解决远程执行的跨shell逃逸问题。</li>
+<li><strong>影响：</strong> 释放了关键存储空间，确保了增强数据中的高质量低多样性种子多样性，并在初始 CPU/gpu 瓶颈情况下建立了稳定的基准，用于比较标称值与错误条件下的机器人策略。</li>
+</ul>
+<blockquote>
+<p>执行并优化了多 GPU OpenVLA LoRA 训练，通过 MiMicGen 增强技术审核了数据来源，并清理了约 840GB 的旧检查点，为错误恢复策略学习建立了稳固基础。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>✅ <strong>多 GPU OpenVLA LoRA 训练执行</strong> — 成功在 3、5、6、7 号 GPU 上运行了四个并发 OpenVLA-LoRA 训练任务（coffee_nominal, coffee_recovery, stack_nominal, stack_recovery），直至第 10,000 步。为六种场景配置了数据加载器，并实时监控损失/GPU 利用率。</li>
+<li>✅ <strong>GR00T 检查点清理</strong> — 从 ‘tangzijia’ 目录中识别并删除了 884GB 未使用的 GR00T 中间检查点（checkpoint-1000 到 checkpoint-9000），释放了约 840GB 空间，同时保留了最终结果。</li>
+<li>✅ <strong>人类数据质量审核与 MiMicGen 增强</strong> — 审核了用于训练的人类演示文件；对符合条件的样本执行了 32 线程的 MiMicGen 增强，生成了针对少数错误类型的合成变体。</li>
+<li>✅ <strong>检查点验证与优雅终止</strong> — 验证了第 10,000 步检查点的完整性，在确认磁盘写入稳定后优雅地终止了原始训练过程。</li>
+<li>✅ <strong>咖啡恢复数据集来源分析</strong> — 追踪了 1,075 个咖啡恢复案例的来源，确认其中 885 个是仅从 29 个基础人类演示中生成的合成变体，并发现增强集中的多样性较低。</li>
+<li>❌ <strong>恢复配置与启动尝试</strong> — 尝试将 LoRA 权重合并到检查点中，以 1,000 步的保存频率重新启动训练；由于 tmux 中的脚本路径错误而失败。</li>
+</ul>
+<h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
+<ul>
+<li>✅ <strong>远程到本地数据同步</strong> — 在 Tianhe3 上编译了 11GB 的 LeRobot 格式咖啡数据集，通过 tar 压缩包和 SCP 传输到本地 Windows 存储，并进行了 SHA-256 验证。</li>
+<li>✅ <strong>训练性能调试</strong> — 通过优化 MuJoCo 工作进程冲突和数据预加载策略，解决了训练速度慢和 CPU 利用率高的问题。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-之前的增强处理产生了-885-个样本这些样本是仅由-29-个基础演示产生的低多样性变体存在模型过拟合风险">1. 之前的增强处理产生了 885 个样本，这些样本是仅由 29 个基础演示产生的低多样性变体，存在模型过拟合风险。<a hidden class="anchor" aria-hidden="true" href="#1-之前的增强处理产生了-885-个样本这些样本是仅由-29-个基础演示产生的低多样性变体存在模型过拟合风险">#</a></h4>
+<p><strong>解决方案：</strong> 使用 SHA-256 哈希进行深度审计，确认其唯一性，同时暴露出有限的种子多样性；计划在未来运行中优先收集多样化的基础数据。</p>
+<p><strong>关键洞察：</strong> 增强数据的量并不保证数据多样性；来源追踪对于有效的合成数据集整理至关重要。</p>
+<h4 id="2-初始训练速度慢且-gpu-利用率不稳定主要是由于-cpu-瓶颈mujoco-工作进程和错误的初始-gpu-分配">2. 初始训练速度慢且 GPU 利用率不稳定，主要是由于 CPU 瓶颈（MuJoCo 工作进程）和错误的初始 GPU 分配。<a hidden class="anchor" aria-hidden="true" href="#2-初始训练速度慢且-gpu-利用率不稳定主要是由于-cpu-瓶颈mujoco-工作进程和错误的初始-gpu-分配">#</a></h4>
+<p><strong>解决方案：</strong> 人类手动识别了瓶颈，将任务重新分配到特定 GPU（3、5、6、7），并调整数据预处理方法。AI 重新配置了独立评估以解决资源竞争问题。</p>
+<p><strong>关键洞察：</strong> 当初始自动化分配无法最大化硬件吞吐量时，需要动态资源管理和人工干预；在 GPU 计算限制之前，CPU 端环境渲染通常是主要瓶颈。</p>
+<h4 id="3-lora-合并脚本立即出现-no-such-file-or-directoryerrno-2错误针对-homesysu_gbli2merge_lora_weights_and_savepy">3. LoRA 合并脚本立即出现 ‘No such file or directory’（Errno 2）错误，针对 &lsquo;/HOME/sysu_gbli2/&hellip;/merge_lora_weights_and_save.py&rsquo;。<a hidden class="anchor" aria-hidden="true" href="#3-lora-合并脚本立即出现-no-such-file-or-directoryerrno-2错误针对-homesysu_gbli2merge_lora_weights_and_savepy">#</a></h4>
+<p><strong>解决方案：</strong> 按照调试模式协议暂停执行，生成详细故障的 HTML 报告，并等待人类确认。未尝试自动重试以防止数据损坏。</p>
+<p><strong>关键洞察：</strong> 通过 tmux 启动的 shell 脚本中的硬编码路径依赖非常脆弱；由于自动化代理设置的工作目录上下文，相对路径与绝对路径解析失败。</p>
+<h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
+<h4 id="4-在-powershell-中执行嵌套在-powershell-字符串中的复杂-bash-命令时出现-powershell-语法错误unexpected-eof标记转义问题">4. 在 PowerShell 中执行嵌套在 PowerShell 字符串中的复杂 bash 命令时，出现 PowerShell 语法错误（‘unexpected EOF’，标记转义问题）。<a hidden class="anchor" aria-hidden="true" href="#4-在-powershell-中执行嵌套在-powershell-字符串中的复杂-bash-命令时出现-powershell-语法错误unexpected-eof标记转义问题">#</a></h4>
+<p><strong>解决方案：</strong> 重构了命令执行策略，将循环逻辑分离为不同的 SSH 调用或在 Bash 中使用单引号以防止 PowerShell 解释；改用更简单的 sed/grep 进行日志检查。</p>
+<p><strong>关键洞察：</strong> 跨 shell 命令嵌套（PowerShell &gt; SSH &gt; Bash）需要谨慎的转义策略；在目标 shell 中使用单引号可防止主机 shell 过早终止。</p>
+<h4 id="5-瞬态-dns-解析失败和本地-ssh-配置问题导致无法连接到-tianhe3proxynscc-gzcn">5. 瞬态 DNS 解析失败和本地 SSH 配置问题导致无法连接到 tianhe3/proxy.nscc-gz.cn。<a hidden class="anchor" aria-hidden="true" href="#5-瞬态-dns-解析失败和本地-ssh-配置问题导致无法连接到-tianhe3proxynscc-gzcn">#</a></h4>
+<p><strong>解决方案：</strong> 网络恢复后重新尝试只读 SSH 命令；检查 SSH 配置权限，并通过 .ssh/config 中的代理设置访问远程机器。</p>
+<p><strong>关键洞察：</strong> 远程主机解析依赖于本地客户端 SSH 配置；监控脚本必须通过重试逻辑优雅地处理瞬态网络错误。</p>
+<h2 id="人类与-ai-方法">人类与 AI 方法<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="gpu-资源管理策略">GPU 资源管理策略<a hidden class="anchor" aria-hidden="true" href="#gpu-资源管理策略">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>人类分析 GPU 内存/使用率，识别未充分利用的情况，手动重新安排训练对到特定物理 GPU（例如 3/5 号 GPU 上的 Coffee），并停止冲突任务。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初遵循通用的分配指令，但依赖人类来停止物理任务；后来提供严格的指标监控和热图分析。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类通过物理验证卡状态并干预来展示战略资源管理，而 AI 专注于数据验证、指标和自动健康检查，没有了解瞬态过程的完整上下文。</p>
+<h4 id="na">N/A<a hidden class="anchor" aria-hidden="true" href="#na">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>人类识别出合成数据中低多样性战略风险，对 ‘885 个样本’ 进行了审计调查，发现仅依赖 29 个基础演示。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI 执行了系统的统计审计、哈希检查和对服务器目录的日志 grep，以定量确认人类关于数据稀缺性的假设。</td>
+      </tr>
+  </tbody>
+</table>
+<h4 id="gpu-资源管理策略-1">GPU 资源管理策略<a hidden class="anchor" aria-hidden="true" href="#gpu-资源管理策略-1">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>人类分析 GPU 内存/使用率，识别未充分利用的情况，手动重新安排训练对到特定物理 GPU（例如 3/5 号 GPU 上的 Coffee），并停止冲突任务。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初遵循通用的分配指令，但依赖人类来停止物理任务；后来提供严格的指标监控和热图分析。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类通过物理验证卡状态并干预来展示战略资源管理，而 AI 专注于数据验证、指标和自动健康检查，没有了解瞬态过程的完整上下文。<strong>差异分析：</strong> 人类提供了关于数据质量重于数量的关键见解；AI则提供了严格的自动化验证机制来证明这一点。</p>
+<h4 id="调试协议遵守情况">调试协议遵守情况<a hidden class="anchor" aria-hidden="true" href="#调试协议遵守情况">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>人类允许AI诊断路径错误，但明确指示进行监控而非冒险的自动化修复。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI正确识别了潜在数据损坏风险的严重程度（写入错误的路径），并停止自主执行，生成详细的HTML报告而非猜测修复方案。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> AI在安全关键的文件操作方面表现出更高的谨慎性，与可能盲目重试的常规自动化调试不同；这符合HPC工作流程的最佳实践。</p>
+<h3 id="实施层面">实施层面<a hidden class="anchor" aria-hidden="true" href="#实施层面">#</a></h3>
+<h4 id="磁盘清理风险评估">磁盘清理风险评估<a hidden class="anchor" aria-hidden="true" href="#磁盘清理风险评估">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>人类请求删除“GR00T检查点”，意图较为广泛。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI提出了分阶段方案：列出文件，按“可恢复”、“保留”和“危险”分类，并等待明确确认后再删除特定路径。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> AI提供了细致的风险分析与安全防护机制，防止了关键最终检查点的意外删除，将人类的广泛请求转化为安全的子集。</p>
+<h4 id="数据传输优化">数据传输优化<a hidden class="anchor" aria-hidden="true" href="#数据传输优化">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>人类请求高效移动大型数据集并确保完整性。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI实现了稳健的工作流程：服务器端tar压缩，双方均进行SHA-256校验和计算，并在本地验证解压过程。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> AI独立构建了安全、可验证的传输管道，增加了安全层（校验和），确保在11GB数据传输过程中没有隐性损坏发生。</p>
+<h2 id="ai局限性">AI局限性<a hidden class="anchor" aria-hidden="true" href="#ai局限性">#</a></h2>
+<h3 id="一般局限性">一般局限性<a hidden class="anchor" aria-hidden="true" href="#一般局限性">#</a></h3>
+<ul>
+<li>在没有检查本地SSH配置文件的情况下，本地环境无法最初解析“tianhe3”主机名；暂停以诊断环境问题，而非立即执行。</li>
+<li>系统安全策略阻止代理读取<code>~/.bash_history</code>以追踪来源；对于需要磁盘检查的<code>Get-CimInstance</code>，还面临权限问题，需采用替代策略。</li>
+<li>通过Bash在tmux中调用“merge_lora_weights_and_save.py”时，无法正确解析绝对路径，可能是由于环境变量不匹配或从PowerShell通过SSH传递的工作目录上下文错误。</li>
+<li>在Windows上的PowerShell和远程Linux HPC节点上的Bash之间处理复杂的嵌套命令转义时遇到困难，导致初始执行尝试出现语法错误。</li>
+<li>通过<code>~/.bash_history</code>追踪来源的初步尝试被安全策略拒绝；不得不依赖较慢、不够全面的日志文件和元数据。</li>
+</ul>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="关键经验">关键经验<a hidden class="anchor" aria-hidden="true" href="#关键经验">#</a></h3>
+<ul>
+<li>在跨不同操作系统层级的HPC任务自动化时（Windows客户端 -&gt; Linux服务器），始终使用绝对路径，无论是Python解释器还是脚本文件，以避免工作目录歧义。</li>
+<li>在审计合成数据集时，始终验证“种子多样性”（独特基础演示数量）以及总样本数，以防止误导性的体积指标。</li>
+<li>在审计HPC系统上的大容量存储时，始终验证活跃作业状态（<code>squeue</code>）和备份清单文件后再进行删除，以确保数据完整性。</li>
+</ul>
+<h3 id="实际经验">实际经验<a hidden class="anchor" aria-hidden="true" href="#实际经验">#</a></h3>
+<ul>
+<li>在分布式环境中的大规模数据传输中，在SCP之前在源服务器上压缩比逐个文件流式传输更可靠、更快。</li>
+<li>在多代理RL训练设置中，CPU侧环境并行化通常是观察到的GPU效率瓶颈；性能分析应从数据加载器和渲染器开始，而非假设GPU限制。</li>
+<li>监控GPU内存与利用率是效率的关键指标；低利用率伴随高内存通常表明数据加载或预处理瓶颈，而非模型计算限制。</li>
+<li>在沙箱环境中进行取证审计时，代理必须依赖应用层产物而非系统级历史记录。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<p><strong>✅ 当日结束汇总：训练、数据审计和基础设施准备</strong>
+<em>18:00:00.000 | codex</em>
+汇总会议涵盖了ErrorRecoveryBenchmark项目的三个主要流程：1) 训练操作：在Tianhe3 GPU上启动四个并发OpenVLA-LoRA微调任务（3,5,6,7），通过手动重新分配解决初始CPU/GPU瓶颈，并验证第10,000个检查点。tmux中的脚本路径错误导致恢复阶段受阻。2) 数据科学：审计人类演示数据，发现885个增强咖啡恢复样本来自仅29个基础演示（多样性低），并执行了有针对性的MiMicGen增强操作。本地传输了11GB经过验证的数据集。3) 基础设施：清理了884GB未使用的GR00T检查点以释放存储。关键收获包括跨shell转义的重要性、远程脚本使用绝对路径，以及基于数据多样性验证而非体积指标。</p>
+<h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-07-26</span>
+        <span class="usage-card__source">Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$138.90</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>188M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>614K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>96.1%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 96.1%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 3.9%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (96.1%), active tokens (3.9%)">
+          <span style="width:96.1%; background:var(--usage-cache)"></span>
+          <span style="width:3.9%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:cd9d3e9e041cb8fc -->
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
