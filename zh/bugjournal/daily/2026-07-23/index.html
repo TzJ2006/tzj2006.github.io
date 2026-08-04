@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-07-23 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="当天重点解决了ErrorRecoveryBenchmark流程中的关键数据完整性问题，通过协调本地和远程数据集状态，修正审计逻辑以恢复555个有效的人类演示数据用于增强训练；此外还完成了天和3号HPC基础设施的故障排除工作（SSH代理恢复）、空间转录组研究相关科学协议的审核、大规模VLA模型量化实验的重新开展，以及静态网站渲染的技术维护。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-23/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-07-23/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-23/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-23/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-07-23">
+  <meta property="og:description" content="当天重点解决了ErrorRecoveryBenchmark流程中的关键数据完整性问题，通过协调本地和远程数据集状态，修正审计逻辑以恢复555个有效的人类演示数据用于增强训练；此外还完成了天和3号HPC基础设施的故障排除工作（SSH代理恢复）、空间转录组研究相关科学协议的审核、大规模VLA模型量化实验的重新开展，以及静态网站渲染的技术维护。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-07-23T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-07-23T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-07-23">
+  <meta name="twitter:description" content="当天重点解决了ErrorRecoveryBenchmark流程中的关键数据完整性问题，通过协调本地和远程数据集状态，修正审计逻辑以恢复555个有效的人类演示数据用于增强训练；此外还完成了天和3号HPC基础设施的故障排除工作（SSH代理恢复）、空间转录组研究相关科学协议的审核、大规模VLA模型量化实验的重新开展，以及静态网站渲染的技术维护。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-07-23",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-07-23/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-07-23",
+  "name": "Bug Journal 2026-07-23",
+  "description": "当天重点解决了ErrorRecoveryBenchmark流程中的关键数据完整性问题，通过协调本地和远程数据集状态，修正审计逻辑以恢复555个有效的人类演示数据用于增强训练；此外还完成了天和3号HPC基础设施的故障排除工作（SSH代理恢复）、空间转录组研究相关科学协议的审核、大规模VLA模型量化实验的重新开展，以及静态网站渲染的技术维护。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-07-23 日常概述 已完成工作： 针对 ErrorRecoveryBenchmark 数据集、HPC 网络稳定性、科学研究协议和 MLOps 基础设施，开展了多方面的诊断与修复工作。主要活动包括：在本地 Windows 和远程 Tianhe-3 环境中验证数据集数量；修复共享 HPC 节点上的 SSH 隧道问题；审核空间转录组研究出版计划；恢复依赖 GPU 的推理测试。 实施方法： 通过迭代的 SSH 命令、PowerShell 脚本和 Python 数据分析来协调设备间的目录结构和审计日志。采用多智能体调度（Grok/Fable/Cursor）进行科学协议验证。通过调整 SSH 配置恢复 HPC 连接，并使用带健康检查的后台 bash 脚本继续 VLA 任务。 影响： 解决了 ErrorRecoveryBenchmark 审计中的关键假阴性错误，使得能够使用 555 个高质量人类演示数据进行数据增强。恢复了 Tianhe-3 的可靠互联网访问，确保了即将发表的论文的严谨性，并维持了长期 AI 模型量化测试的连续性。 当天重点解决了 ErrorRecoveryBenchmark 流程中的关键数据完整性问题，通过协调本地和远程数据集状态，修正审计逻辑以恢复 555 个有效的人类演示数据用于增强；相关工作还包括对 Tianhe-3 HPC 基础设施的故障排除（SSH 代理恢复）、空间转录组研究的科学协议审核、大规模 VLA 模型量化实验的恢复，以及静态网站渲染的技术维护。\n任务 架构与策略 ✅ ErrorRecoveryBenchmark 数据审计与协调 — 对 973 个人类恢复演示进行了全面审计；发现验证脚本中的逻辑错误导致假拒绝，已修正初始状态重置逻辑，恢复 555 条有效轨迹，并在 Tianhe-3 上建立了训练/评估集的基准计数。 🔄 MimicGen 增强流程执行 — 在 Tianhe-3 上配置并启动了 32 Worker 的 MimicGen 增强流程，以扩展恢复的 555 个人类演示数据。针对某些任务/错误单元缺乏种子的情况调整策略，优先处理可行的子空间。 ✅ 空间转录组协议审计 — 通过多智能体审计（Grok、Fable、GPT-5.6）对科学论文附录和查询实验设计进行了审核。实施决策冻结和严格的基线隔离，防止标签泄露并确保有效的跨样本泛化声明。 ✅ Hugo 网站数学渲染修复 — 通过配置 Goldmark 穿透功能和实施条件性 MathJax 4 加载，解决了 d-GitHub-gadget 静态网站上的 LaTeX 公式渲染问题，避免与金融数据冲突。 实施与修复 ✅ Tianhe-3 SSH 代理恢复 — 诊断出由僵尸进程导致的陈旧端口绑定引起的 Tianhe-3 上无声 SSH 代理故障。通过切换至临时端口（10090+）并设置明确的保持活动设置，恢复了连接。 🔄 VLA 量化实验连续性 — 在 API 超时后恢复 pi0.5 和 GR00T 矩阵评估任务。验证检查点状态，清理本地配置，修复 WebSocket 客户端策略，确保长期运行的推理服务器稳定。 ✅ APP-Q HD 数据获取与验证 — 下载 Visium HD P3 数据（GEO GSM8594570），通过服务器归档验证 SHA-256 完整性，并将目录结构与之前的 P2 数据集对齐。 ✅ 本地数据集库存与模式分析 — 在远程处理和增强前，验证本地 ErrorRecoveryBenchData 文件夹结构、文件数量及 NPZ/HDF5 模式的一致性。 问题与解决方案 关键问题 1. ErrorRecoveryBenchmark 审计脚本假阴性：验证逻辑错误地将仿真环境重置为原始错误状态，而非轨迹记录的起始状态（$states[0]$），导致有效的人类演示被拒绝。 解决方案： 修改审计脚本，从收集的 NPZ 文件中的 $states[0]$ 重新执行动作，与远程操作控制器的实际重置点一致。这样恢复了 555 条之前被拒绝的高置信度轨迹。\n关键洞察： 在基于仿真的机器人流程中，审计逻辑必须完全反映数据收集控制器的初始条件；状态初始化差异会导致灾难性的数据丢失，而原始文件数量无法发现。\n2. 本地和远程数据集状态差异：初步审计显示训练/评估场景的计数不一致，原因是 7 月 17 日对服务器的修剪操作清空了 v5_training 目录，仅留下摘要元数据。 解决方案： 将远程 SSH 枚举与本地审计日志及历史 JSON 摘要进行对比。发现虽然训练原始数据被修剪，但评估数据（约 135k 场景）仍然完整，发布的清单中包含度量定义错误。\n关键洞察： 必须通过最近的文件系统状态来验证远程数据集的可用性，而不是依赖静态发布清单；目录空置的时间戳分析可揭示最近的流程修剪事件。\n3. 空间转录组计划中的不公平基线：提议的查询实验设计允许比较每张幻灯片上的 HVG 和共享基线，存在标签泄露和无效科学结论的风险。 解决方案： Fable 审计发现了泄漏风险；计划修改为强制使用原始_shared 基线，并在编码开始前预注册度量标准（FUCR/SLPT），实施严格的决策冻结。\n关键洞察： 科学有效性需要预注册的协议和变量隔离；允许代码实现先于严格基线审计进行，会导致实验设计中包含不公平的假设。\n4. Goldmark 下划线的清理：默认的 Hugo markdown 处理会删除 LaTeX 命令中的下划线，导致公式渲染失败。 解决方案： 启用 Goldmark 的“穿透”扩展以保留原始 TeX 分隔符，通过前言标志实现条件性 MathJax 4 注入，避免与金融数据冲突。\n关键洞察： 静态网站生成器通常会清理类似数学的语法；结合穿透扩展和范围有限的脚本加载，可安全处理复杂内容而不破坏其他页面部分。\n一般问题 5. Tianhe-3 上 SSH 反向代理故障：由于僵尸 sshd 进程持有死亡会话的默认端口，导致持续的连接超时（“curl timeout 000”）。解决方案： 识别了过期的套接字持有者，并更新了 ~/.ssh/config 以使用临时端口（10090+）与 ServerAliveInterval 和 ExitOnForwardFailure，无需 root 权限即可恢复可靠的访问。 关键洞察： 共享的 HPC 节点会积累过期的端口绑定；在多用户环境中，主动的端口轮换和保持活跃机制对于稳定的 SSH 隧道至关重要。\n6. VLA 推理服务器超时：pi0.5 和 GR00T 评估任务在长时间运行的基准测试中遭遇 WebSocket 连接中断。 解决方案： 检查日志以确认检查点完整性，终止过期的服务器，更新 websocket_client_policy.py 中的适当超时设置，并在后台重新启动任务。\n关键洞察： 长期运行的 AI 推理服务常常会泄漏资源或默默失败；明确验证“成功”状态的逻辑比仅依赖进程状态更可靠。\n7. PowerShell/SSH 语法错误：带有括号的复杂 find 命令因 PowerShell 参数解析差异而失败。 解决方案： 简化 shell 命令，将其拆分为连续的 SSH 调用，并避免在 PowerShell 字符串中使用复杂的 bash 运算符。\n关键洞察： 远程命令执行需要仔细注意主机操作系统 shell 语法；在 Windows（主机）和 Linux（远程）之间传输时，对 ‘(’、‘)’ 和 ‘|’ 等特殊字符进行转义非常重要。\n8. MimicGen 源数据覆盖不足：即使恢复了 555 个示例，仍有 25 个任务/错误单元没有种子数据，导致数据无法统一扩展。 解决方案： 调整增强策略，优先填充 106 个可用单元（目标为 +505 个样本），并明确标记不可行的单元，而非完全失败。\n关键洞察： 算法式数据增强无法克服物理/数据收集限制；数据集平衡策略必须在早期阶段考虑缺失种子数据的分布。\n人类与 AI 方法对比 战略层面 科学协议设计准则 角色 方法 人类 用户要求在任何代码修改之前冻结实验变量（矩阵范围、基线选择），并规定特定的多智能体审计流程。 AI AI 模型自然优先实现即时效果或生成推测性结果。用户强制执行“SPEC 优先”准则，避免浪费计算资源。 差异分析： 人类注重严格的实验控制和审计记录；AI 则追求任务完成速度。这种限制防止了无效指标被纳入流程。\n“成功”在机器人数据中的定义 角色 方法 人类 用户质疑为何在收集过程中标记为 ‘success=True’ 的数据会被审计拒绝，怀疑收集逻辑与训练工具之间存在差异。 AI AI 通过研究 Robosuite/MuJoCo 物理模型证明，“成功”取决于初始状态的一致性，而不仅仅是文件头信息。确认了审计的无效重置点。 差异分析： 人类直觉正确识别了逻辑不一致性。AI 通过状态演变分析提供了技术证明，弥合了收集日志与训练要求之间的差距。\n实施层面 共享节点上的 SSH 端口取证 角色 方法 人类 用户认真询问过期的端口是否属于其他用户或容器，防止共享资源被意外终止。 AI AI 最初假设静默失败意味着本地僵尸进程，并建议终止逻辑而不验证所有权范围。 差异分析： 人类意识到共享 HPC 基础设施的安全风险；AI 则采用简单的进程管理。这一洞察防止了潜在的用户会话中断。\n数据指标定义的清晰性 角色 方法 人类 用户要求按任务/错误分别统计数量，需要精确的细分而非总和。 AI AI 构建了结构化矩阵，显示尽管 Eval 数据丰富，但由于剪枝导致 Training 数据实际上为零，暴露了明显错误。 差异分析： AI 正确理解了对细节洞察的需求，并识别了发布清单中的指标定义不一致问题，简单的回应会忽略这些问题。\nAI 局限性 一般限制 GPT-5.6 子代理因内部序列化错误无法处理大二进制文件，需要以受限读取范围进行重试。 通过 AI 工具执行 PowerShell 操作在远程 Windows 子系统上导致复杂 shell 命令的引用问题，需要频繁调试字符串转义。 AI 最初未能意识到共享 HPC 节点上的过期 SSH 端口可能属于其他用户或容器，存在错误资源操纵的风险。 经验教训 关键经验 在基于模拟的机器人数据集中，审计逻辑必须严格与控制器的初始重置状态一致；时间步或环境重置的不匹配可能导致整个数据集子集失效。 对于空间转录组学中的跨样本泛化声明，至少需要两对样本和严格的 k-hop 排除策略作为样本内控制，以避免过度泛化。 处理远程服务器检查时，通过比较多个来源来验证数据完整性：原始文件系统状态、审计 JSON 摘要和发布清单，以发现指标定义不一致的问题。 在将 MathJax/KaTeX 与静态网站生成器集成时，检查现有文本模式（如货币）是否使用数学分隔符，避免意外的解析错误。 实际经验 长期运行的 AI 推理服务器常常泄漏资源或默默失败；明确搜索成功状态的日志比依赖进程状态更为必要。 在共享 HPC 集群中，‘ServerAliveInterval’和临时端口对于可靠的 SSH 隧道至关重要；默认配置通常导致无限期的套接字泄漏，需要轮换。 MimicGen 增强需要具有完整目标姿态的有效源数据演示；单纯的轨迹成功不足以在缺乏种子数据的场景中生成可靠数据。 对话总结 错误恢复基准测试**• 综合数据集审核、逻辑修正与增强策略** 03:26:52.831 | codex/claude_code 对天和3号服务器及本地Windows桌面上的ErrorRecoveryBenchmark数据集进行了深度检查。发现训练目录因剪枝而为空，而评估数据（约135k个场景）仍完好无损。审核了973个人类恢复演示，发现审核脚本的逻辑错误（初始状态重置不当）导致了误拒绝情况。修正了逻辑，成功恢复了555条有效轨迹，并启动MimicGen增强处理（32个工作进程）。解决了本地模式验证与远程服务器状态之间的差异问题。\n✅ 天和3号服务器的SSH配置修复 00:48:00.092 | claude_code 诊断出天和3号服务器上由僵尸进程占用端口导致的持续SSH代理故障。更新了配置，使用新的临时端口（10090+）并设置ServerAliveInterval与ExitOnForwardFailure，验证了连接恢复情况。\nMIHD_SpatialTranscriptomics ✅ 多智能体SPEC审核以修订论文 16:37:00-04:00 | cursor 协调了Grok（调查）、Fable（科学审核）和GPT-SOL（工程审核），针对扩展DLPFC附录及修复查询公平基线的6阶段计划进行了审查。识别了泄露风险，要求在编码前执行决策冻结，建立了严格的跨样本泛化声明规范。\nQualcomm_AI_Hub • VLA量化矩阵工作恢复 23:46:50.241 | claude_code 在API超时后恢复了背景pi0.5和GR00T评估任务。清理了代码库配置，验证了状态进展的检查点日志，并修复了WebSocket客户端超时问题，确保在长时间评估过程中服务器连接稳定。\nd-GitHub-gadget ✅ Hugo MathJax配置修复 19:41:00-04:00 | cursor 通过启用Goldmark穿透机制来解决Hugo站点上的LaTeX公式渲染问题，以保留下划线符号；通过前置部分实现条件性MathJax 4注入，避免与财务数据冲突。\n令牌使用 AI Usage · 2026-07-23\rClaude Code + Codex\rTotal cost$52.61\rTotal tokens59M\rOutput tokens343K\rCache read94.3%\rCost split\rClaude Code $3 ·\rCodex $50\rToken character\rCache reads 94.3% ·\rActive 5.7%\rMost token volume came from cache reads; Codex drove nearly all cost.\r",
+  "wordCount" : "479",
+  "inLanguage": "zh",
+  "datePublished": "2026-07-23T00:00:00-05:00",
+  "dateModified": "2026-07-23T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-07-23/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="zh"
+                        data-translation-url="https://tzj2006.github.io/bugjournal/daily/2026-07-23/">EN
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-07-23
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-07-23 00:00:00 -0500 -0500'>2026年7月23日</span>&nbsp;·&nbsp;<span>3 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-07-23">每日报告 — 2026-07-23<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-07-23">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>已完成工作：</strong> 针对 ErrorRecoveryBenchmark 数据集、HPC 网络稳定性、科学研究协议和 MLOps 基础设施，开展了多方面的诊断与修复工作。主要活动包括：在本地 Windows 和远程 Tianhe-3 环境中验证数据集数量；修复共享 HPC 节点上的 SSH 隧道问题；审核空间转录组研究出版计划；恢复依赖 GPU 的推理测试。</li>
+<li><strong>实施方法：</strong> 通过迭代的 SSH 命令、PowerShell 脚本和 Python 数据分析来协调设备间的目录结构和审计日志。采用多智能体调度（Grok/Fable/Cursor）进行科学协议验证。通过调整 SSH 配置恢复 HPC 连接，并使用带健康检查的后台 bash 脚本继续 VLA 任务。</li>
+<li><strong>影响：</strong> 解决了 ErrorRecoveryBenchmark 审计中的关键假阴性错误，使得能够使用 555 个高质量人类演示数据进行数据增强。恢复了 Tianhe-3 的可靠互联网访问，确保了即将发表的论文的严谨性，并维持了长期 AI 模型量化测试的连续性。</li>
+</ul>
+<blockquote>
+<p>当天重点解决了 ErrorRecoveryBenchmark 流程中的关键数据完整性问题，通过协调本地和远程数据集状态，修正审计逻辑以恢复 555 个有效的人类演示数据用于增强；相关工作还包括对 Tianhe-3 HPC 基础设施的故障排除（SSH 代理恢复）、空间转录组研究的科学协议审核、大规模 VLA 模型量化实验的恢复，以及静态网站渲染的技术维护。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>✅ <strong>ErrorRecoveryBenchmark 数据审计与协调</strong> — 对 973 个人类恢复演示进行了全面审计；发现验证脚本中的逻辑错误导致假拒绝，已修正初始状态重置逻辑，恢复 555 条有效轨迹，并在 Tianhe-3 上建立了训练/评估集的基准计数。</li>
+<li>🔄 <strong>MimicGen 增强流程执行</strong> — 在 Tianhe-3 上配置并启动了 32  Worker 的 MimicGen 增强流程，以扩展恢复的 555 个人类演示数据。针对某些任务/错误单元缺乏种子的情况调整策略，优先处理可行的子空间。</li>
+<li>✅ <strong>空间转录组协议审计</strong> — 通过多智能体审计（Grok、Fable、GPT-5.6）对科学论文附录和查询实验设计进行了审核。实施决策冻结和严格的基线隔离，防止标签泄露并确保有效的跨样本泛化声明。</li>
+<li>✅ <strong>Hugo 网站数学渲染修复</strong> — 通过配置 Goldmark 穿透功能和实施条件性 MathJax 4 加载，解决了 d-GitHub-gadget 静态网站上的 LaTeX 公式渲染问题，避免与金融数据冲突。</li>
+</ul>
+<h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
+<ul>
+<li>✅ <strong>Tianhe-3 SSH 代理恢复</strong> — 诊断出由僵尸进程导致的陈旧端口绑定引起的 Tianhe-3 上无声 SSH 代理故障。通过切换至临时端口（10090+）并设置明确的保持活动设置，恢复了连接。</li>
+<li>🔄 <strong>VLA 量化实验连续性</strong> — 在 API 超时后恢复 pi0.5 和 GR00T 矩阵评估任务。验证检查点状态，清理本地配置，修复 WebSocket 客户端策略，确保长期运行的推理服务器稳定。</li>
+<li>✅ <strong>APP-Q HD 数据获取与验证</strong> — 下载 Visium HD P3 数据（GEO GSM8594570），通过服务器归档验证 SHA-256 完整性，并将目录结构与之前的 P2 数据集对齐。</li>
+<li>✅ <strong>本地数据集库存与模式分析</strong> — 在远程处理和增强前，验证本地 <code>ErrorRecoveryBenchData</code> 文件夹结构、文件数量及 NPZ/HDF5 模式的一致性。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-errorrecoverybenchmark-审计脚本假阴性验证逻辑错误地将仿真环境重置为原始错误状态而非轨迹记录的起始状态导致有效的人类演示被拒绝">1. ErrorRecoveryBenchmark 审计脚本假阴性：验证逻辑错误地将仿真环境重置为原始错误状态，而非轨迹记录的起始状态（$states[0]$），导致有效的人类演示被拒绝。<a hidden class="anchor" aria-hidden="true" href="#1-errorrecoverybenchmark-审计脚本假阴性验证逻辑错误地将仿真环境重置为原始错误状态而非轨迹记录的起始状态导致有效的人类演示被拒绝">#</a></h4>
+<p><strong>解决方案：</strong> 修改审计脚本，从收集的 NPZ 文件中的 $states[0]$ 重新执行动作，与远程操作控制器的实际重置点一致。这样恢复了 555 条之前被拒绝的高置信度轨迹。</p>
+<p><strong>关键洞察：</strong> 在基于仿真的机器人流程中，审计逻辑必须完全反映数据收集控制器的初始条件；状态初始化差异会导致灾难性的数据丢失，而原始文件数量无法发现。</p>
+<h4 id="2-本地和远程数据集状态差异初步审计显示训练评估场景的计数不一致原因是-7-月-17-日对服务器的修剪操作清空了-v5_training-目录仅留下摘要元数据">2. 本地和远程数据集状态差异：初步审计显示训练/评估场景的计数不一致，原因是 7 月 17 日对服务器的修剪操作清空了 <code>v5_training</code> 目录，仅留下摘要元数据。<a hidden class="anchor" aria-hidden="true" href="#2-本地和远程数据集状态差异初步审计显示训练评估场景的计数不一致原因是-7-月-17-日对服务器的修剪操作清空了-v5_training-目录仅留下摘要元数据">#</a></h4>
+<p><strong>解决方案：</strong> 将远程 SSH 枚举与本地审计日志及历史 JSON 摘要进行对比。发现虽然训练原始数据被修剪，但评估数据（约 135k 场景）仍然完整，发布的清单中包含度量定义错误。</p>
+<p><strong>关键洞察：</strong> 必须通过最近的文件系统状态来验证远程数据集的可用性，而不是依赖静态发布清单；目录空置的时间戳分析可揭示最近的流程修剪事件。</p>
+<h4 id="3-空间转录组计划中的不公平基线提议的查询实验设计允许比较每张幻灯片上的-hvg-和共享基线存在标签泄露和无效科学结论的风险">3. 空间转录组计划中的不公平基线：提议的查询实验设计允许比较每张幻灯片上的 HVG 和共享基线，存在标签泄露和无效科学结论的风险。<a hidden class="anchor" aria-hidden="true" href="#3-空间转录组计划中的不公平基线提议的查询实验设计允许比较每张幻灯片上的-hvg-和共享基线存在标签泄露和无效科学结论的风险">#</a></h4>
+<p><strong>解决方案：</strong> Fable 审计发现了泄漏风险；计划修改为强制使用原始_shared 基线，并在编码开始前预注册度量标准（FUCR/SLPT），实施严格的决策冻结。</p>
+<p><strong>关键洞察：</strong> 科学有效性需要预注册的协议和变量隔离；允许代码实现先于严格基线审计进行，会导致实验设计中包含不公平的假设。</p>
+<h4 id="4-goldmark-下划线的清理默认的-hugo-markdown-处理会删除-latex-命令中的下划线导致公式渲染失败">4. Goldmark 下划线的清理：默认的 Hugo markdown 处理会删除 LaTeX 命令中的下划线，导致公式渲染失败。<a hidden class="anchor" aria-hidden="true" href="#4-goldmark-下划线的清理默认的-hugo-markdown-处理会删除-latex-命令中的下划线导致公式渲染失败">#</a></h4>
+<p><strong>解决方案：</strong> 启用 Goldmark 的“穿透”扩展以保留原始 TeX 分隔符，通过前言标志实现条件性 MathJax 4 注入，避免与金融数据冲突。</p>
+<p><strong>关键洞察：</strong> 静态网站生成器通常会清理类似数学的语法；结合穿透扩展和范围有限的脚本加载，可安全处理复杂内容而不破坏其他页面部分。</p>
+<h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
+<h4 id="5-tianhe-3-上-ssh-反向代理故障由于僵尸-sshd-进程持有死亡会话的默认端口导致持续的连接超时curl-timeout-000解决方案-识别了过期的套接字持有者并更新了-sshconfig-以使用临时端口10090与-serveraliveinterval-和-exitonforwardfailure无需-root-权限即可恢复可靠的访问">5. Tianhe-3 上 SSH 反向代理故障：由于僵尸 sshd 进程持有死亡会话的默认端口，导致持续的连接超时（“curl timeout 000”）。<strong>解决方案：</strong> 识别了过期的套接字持有者，并更新了 <code>~/.ssh/config</code> 以使用临时端口（10090+）与 <code>ServerAliveInterval</code> 和 <code>ExitOnForwardFailure</code>，无需 root 权限即可恢复可靠的访问。<a hidden class="anchor" aria-hidden="true" href="#5-tianhe-3-上-ssh-反向代理故障由于僵尸-sshd-进程持有死亡会话的默认端口导致持续的连接超时curl-timeout-000解决方案-识别了过期的套接字持有者并更新了-sshconfig-以使用临时端口10090与-serveraliveinterval-和-exitonforwardfailure无需-root-权限即可恢复可靠的访问">#</a></h4>
+<p><strong>关键洞察：</strong> 共享的 HPC 节点会积累过期的端口绑定；在多用户环境中，主动的端口轮换和保持活跃机制对于稳定的 SSH 隧道至关重要。</p>
+<h4 id="6-vla-推理服务器超时pi05-和-gr00t-评估任务在长时间运行的基准测试中遭遇-websocket-连接中断">6. VLA 推理服务器超时：pi0.5 和 GR00T 评估任务在长时间运行的基准测试中遭遇 WebSocket 连接中断。<a hidden class="anchor" aria-hidden="true" href="#6-vla-推理服务器超时pi05-和-gr00t-评估任务在长时间运行的基准测试中遭遇-websocket-连接中断">#</a></h4>
+<p><strong>解决方案：</strong> 检查日志以确认检查点完整性，终止过期的服务器，更新 <code>websocket_client_policy.py</code> 中的适当超时设置，并在后台重新启动任务。</p>
+<p><strong>关键洞察：</strong> 长期运行的 AI 推理服务常常会泄漏资源或默默失败；明确验证“成功”状态的逻辑比仅依赖进程状态更可靠。</p>
+<h4 id="7-powershellssh-语法错误带有括号的复杂-find-命令因-powershell-参数解析差异而失败">7. PowerShell/SSH 语法错误：带有括号的复杂 <code>find</code> 命令因 PowerShell 参数解析差异而失败。<a hidden class="anchor" aria-hidden="true" href="#7-powershellssh-语法错误带有括号的复杂-find-命令因-powershell-参数解析差异而失败">#</a></h4>
+<p><strong>解决方案：</strong> 简化 shell 命令，将其拆分为连续的 SSH 调用，并避免在 PowerShell 字符串中使用复杂的 bash 运算符。</p>
+<p><strong>关键洞察：</strong> 远程命令执行需要仔细注意主机操作系统 shell 语法；在 Windows（主机）和 Linux（远程）之间传输时，对 ‘(’、‘)’ 和 ‘|’ 等特殊字符进行转义非常重要。</p>
+<h4 id="8-mimicgen-源数据覆盖不足即使恢复了-555-个示例仍有-25-个任务错误单元没有种子数据导致数据无法统一扩展">8. MimicGen 源数据覆盖不足：即使恢复了 555 个示例，仍有 25 个任务/错误单元没有种子数据，导致数据无法统一扩展。<a hidden class="anchor" aria-hidden="true" href="#8-mimicgen-源数据覆盖不足即使恢复了-555-个示例仍有-25-个任务错误单元没有种子数据导致数据无法统一扩展">#</a></h4>
+<p><strong>解决方案：</strong> 调整增强策略，优先填充 106 个可用单元（目标为 +505 个样本），并明确标记不可行的单元，而非完全失败。</p>
+<p><strong>关键洞察：</strong> 算法式数据增强无法克服物理/数据收集限制；数据集平衡策略必须在早期阶段考虑缺失种子数据的分布。</p>
+<h2 id="人类与-ai-方法对比">人类与 AI 方法对比<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法对比">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="科学协议设计准则">科学协议设计准则<a hidden class="anchor" aria-hidden="true" href="#科学协议设计准则">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户要求在任何代码修改之前冻结实验变量（矩阵范围、基线选择），并规定特定的多智能体审计流程。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI 模型自然优先实现即时效果或生成推测性结果。用户强制执行“SPEC 优先”准则，避免浪费计算资源。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类注重严格的实验控制和审计记录；AI 则追求任务完成速度。这种限制防止了无效指标被纳入流程。</p>
+<h4 id="成功在机器人数据中的定义">“成功”在机器人数据中的定义<a hidden class="anchor" aria-hidden="true" href="#成功在机器人数据中的定义">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户质疑为何在收集过程中标记为 ‘success=True’ 的数据会被审计拒绝，怀疑收集逻辑与训练工具之间存在差异。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI 通过研究 Robosuite/MuJoCo 物理模型证明，“成功”取决于初始状态的一致性，而不仅仅是文件头信息。确认了审计的无效重置点。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类直觉正确识别了逻辑不一致性。AI 通过状态演变分析提供了技术证明，弥合了收集日志与训练要求之间的差距。</p>
+<h3 id="实施层面">实施层面<a hidden class="anchor" aria-hidden="true" href="#实施层面">#</a></h3>
+<h4 id="共享节点上的-ssh-端口取证">共享节点上的 SSH 端口取证<a hidden class="anchor" aria-hidden="true" href="#共享节点上的-ssh-端口取证">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户认真询问过期的端口是否属于其他用户或容器，防止共享资源被意外终止。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI 最初假设静默失败意味着本地僵尸进程，并建议终止逻辑而不验证所有权范围。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类意识到共享 HPC 基础设施的安全风险；AI 则采用简单的进程管理。这一洞察防止了潜在的用户会话中断。</p>
+<h4 id="数据指标定义的清晰性">数据指标定义的清晰性<a hidden class="anchor" aria-hidden="true" href="#数据指标定义的清晰性">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户要求按任务/错误分别统计数量，需要精确的细分而非总和。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI 构建了结构化矩阵，显示尽管 Eval 数据丰富，但由于剪枝导致 Training 数据实际上为零，暴露了明显错误。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> AI 正确理解了对细节洞察的需求，并识别了发布清单中的指标定义不一致问题，简单的回应会忽略这些问题。</p>
+<h2 id="ai-局限性">AI 局限性<a hidden class="anchor" aria-hidden="true" href="#ai-局限性">#</a></h2>
+<h3 id="一般限制">一般限制<a hidden class="anchor" aria-hidden="true" href="#一般限制">#</a></h3>
+<ul>
+<li>GPT-5.6 子代理因内部序列化错误无法处理大二进制文件，需要以受限读取范围进行重试。</li>
+<li>通过 AI 工具执行 PowerShell 操作在远程 Windows 子系统上导致复杂 shell 命令的引用问题，需要频繁调试字符串转义。</li>
+<li>AI 最初未能意识到共享 HPC 节点上的过期 SSH 端口可能属于其他用户或容器，存在错误资源操纵的风险。</li>
+</ul>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="关键经验">关键经验<a hidden class="anchor" aria-hidden="true" href="#关键经验">#</a></h3>
+<ul>
+<li>在基于模拟的机器人数据集中，审计逻辑必须严格与控制器的初始重置状态一致；时间步或环境重置的不匹配可能导致整个数据集子集失效。</li>
+<li>对于空间转录组学中的跨样本泛化声明，至少需要两对样本和严格的 k-hop 排除策略作为样本内控制，以避免过度泛化。</li>
+<li>处理远程服务器检查时，通过比较多个来源来验证数据完整性：原始文件系统状态、审计 JSON 摘要和发布清单，以发现指标定义不一致的问题。</li>
+<li>在将 MathJax/KaTeX 与静态网站生成器集成时，检查现有文本模式（如货币）是否使用数学分隔符，避免意外的解析错误。</li>
+</ul>
+<h3 id="实际经验">实际经验<a hidden class="anchor" aria-hidden="true" href="#实际经验">#</a></h3>
+<ul>
+<li>长期运行的 AI 推理服务器常常泄漏资源或默默失败；明确搜索成功状态的日志比依赖进程状态更为必要。</li>
+<li>在共享 HPC 集群中，‘ServerAliveInterval’和临时端口对于可靠的 SSH 隧道至关重要；默认配置通常导致无限期的套接字泄漏，需要轮换。</li>
+<li>MimicGen 增强需要具有完整目标姿态的有效源数据演示；单纯的轨迹成功不足以在缺乏种子数据的场景中生成可靠数据。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<h3 id="错误恢复基准测试-综合数据集审核逻辑修正与增强策略">错误恢复基准测试**• 综合数据集审核、逻辑修正与增强策略**<a hidden class="anchor" aria-hidden="true" href="#错误恢复基准测试-综合数据集审核逻辑修正与增强策略">#</a></h3>
+<p><em>03:26:52.831 | codex/claude_code</em>
+对天和3号服务器及本地Windows桌面上的ErrorRecoveryBenchmark数据集进行了深度检查。发现训练目录因剪枝而为空，而评估数据（约135k个场景）仍完好无损。审核了973个人类恢复演示，发现审核脚本的逻辑错误（初始状态重置不当）导致了误拒绝情况。修正了逻辑，成功恢复了555条有效轨迹，并启动MimicGen增强处理（32个工作进程）。解决了本地模式验证与远程服务器状态之间的差异问题。</p>
+<p><strong>✅ 天和3号服务器的SSH配置修复</strong>
+<em>00:48:00.092 | claude_code</em>
+诊断出天和3号服务器上由僵尸进程占用端口导致的持续SSH代理故障。更新了配置，使用新的临时端口（10090+）并设置ServerAliveInterval与ExitOnForwardFailure，验证了连接恢复情况。</p>
+<h3 id="mihd_spatialtranscriptomics">MIHD_SpatialTranscriptomics<a hidden class="anchor" aria-hidden="true" href="#mihd_spatialtranscriptomics">#</a></h3>
+<p><strong>✅ 多智能体SPEC审核以修订论文</strong>
+<em>16:37:00-04:00 | cursor</em>
+协调了Grok（调查）、Fable（科学审核）和GPT-SOL（工程审核），针对扩展DLPFC附录及修复查询公平基线的6阶段计划进行了审查。识别了泄露风险，要求在编码前执行决策冻结，建立了严格的跨样本泛化声明规范。</p>
+<h3 id="qualcomm_ai_hub">Qualcomm_AI_Hub<a hidden class="anchor" aria-hidden="true" href="#qualcomm_ai_hub">#</a></h3>
+<p><strong>• VLA量化矩阵工作恢复</strong>
+<em>23:46:50.241 | claude_code</em>
+在API超时后恢复了背景pi0.5和GR00T评估任务。清理了代码库配置，验证了状态进展的检查点日志，并修复了WebSocket客户端超时问题，确保在长时间评估过程中服务器连接稳定。</p>
+<h3 id="d-github-gadget">d-GitHub-gadget<a hidden class="anchor" aria-hidden="true" href="#d-github-gadget">#</a></h3>
+<p><strong>✅ Hugo MathJax配置修复</strong>
+<em>19:41:00-04:00 | cursor</em>
+通过启用Goldmark穿透机制来解决Hugo站点上的LaTeX公式渲染问题，以保留下划线符号；通过前置部分实现条件性MathJax 4注入，避免与财务数据冲突。</p>
+<h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-07-23</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$52.61</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>59M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>343K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>94.3%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $3</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $50</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (5.8%), Codex (94.2%)">
+          <span style="width:5.8%; background:var(--usage-cost-main)"></span>
+          <span style="width:94.2%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 94.3%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 5.7%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (94.3%), active tokens (5.7%)">
+          <span style="width:94.3%; background:var(--usage-cache)"></span>
+          <span style="width:5.7%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Codex drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:5b9ae164323ce7fe -->
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

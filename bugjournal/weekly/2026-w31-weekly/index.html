@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Weekly Summary 2026-W31 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal, Weekly Summary">
+<meta name="description" content="This week focused on diagnosing fundamental failure modes in OpenVLA-LoRA training and establishing robust evaluation infrastructure. The primary achievement was identifying &lsquo;covariate shift&rsquo; as the root cause of zero-success rates in nominal-only policies, confirming that recovery-augmented data is critical for closed-loop stability. Simultaneously, maintenance tasks included rebuilding global AI configuration standards across 15 repositories and restoring the BetterSSH workspace, while continuing intensive training experiments on the Tianhe3 cluster.">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/bugjournal/weekly/2026-w31-weekly/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/weekly/2026-w31-weekly/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w31-weekly/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/bugjournal/weekly/2026-w31-weekly/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Weekly Summary 2026-W31">
+  <meta property="og:description" content="This week focused on diagnosing fundamental failure modes in OpenVLA-LoRA training and establishing robust evaluation infrastructure. The primary achievement was identifying ‘covariate shift’ as the root cause of zero-success rates in nominal-only policies, confirming that recovery-augmented data is critical for closed-loop stability. Simultaneously, maintenance tasks included rebuilding global AI configuration standards across 15 repositories and restoring the BetterSSH workspace, while continuing intensive training experiments on the Tianhe3 cluster.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-08-02T23:59:00-05:00">
+    <meta property="article:modified_time" content="2026-08-02T23:59:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Weekly Summary 2026-W31">
+  <meta name="twitter:description" content="This week focused on diagnosing fundamental failure modes in OpenVLA-LoRA training and establishing robust evaluation infrastructure. The primary achievement was identifying ‘covariate shift’ as the root cause of zero-success rates in nominal-only policies, confirming that recovery-augmented data is critical for closed-loop stability. Simultaneously, maintenance tasks included rebuilding global AI configuration standards across 15 repositories and restoring the BetterSSH workspace, while continuing intensive training experiments on the Tianhe3 cluster.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Weekly Summaries",
+      "item": "https://tzj2006.github.io/bugjournal/weekly/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Weekly Summary 2026-W31",
+      "item": "https://tzj2006.github.io/bugjournal/weekly/2026-w31-weekly/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Weekly Summary 2026-W31",
+  "name": "Weekly Summary 2026-W31",
+  "description": "This week focused on diagnosing fundamental failure modes in OpenVLA-LoRA training and establishing robust evaluation infrastructure. The primary achievement was identifying \u0026lsquo;covariate shift\u0026rsquo; as the root cause of zero-success rates in nominal-only policies, confirming that recovery-augmented data is critical for closed-loop stability. Simultaneously, maintenance tasks included rebuilding global AI configuration standards across 15 repositories and restoring the BetterSSH workspace, while continuing intensive training experiments on the Tianhe3 cluster.",
+  "keywords": [
+    "Bug Journal", "Weekly Summary"
+  ],
+  "articleBody": "Weekly Report — 2026-W31 (2026-07-27 ~ 2026-08-02) This week focused on diagnosing fundamental failure modes in OpenVLA-LoRA training and establishing robust evaluation infrastructure. The primary achievement was identifying ‘covariate shift’ as the root cause of zero-success rates in nominal-only policies, confirming that recovery-augmented data is critical for closed-loop stability. Simultaneously, maintenance tasks included rebuilding global AI configuration standards across 15 repositories and restoring the BetterSSH workspace, while continuing intensive training experiments on the Tianhe3 cluster.\nWeekly Overview Metric Value Date Range 2026-07-27 ~ 2026-08-02 Active Days 4 / 7 Total Conversations 9 Projects 5 Tasks Completed 15 Tasks In Progress 2 Total Tokens 333,545,535 Total Cost $283.74 Claude Code Token 32,278,096 Claude Code Cost $77.93 Codex Token 301,267,439 Codex Cost $205.81 Daily Average Cost $56.75 Project Progress OpenVLA-LoRA Training \u0026 Evaluation (4 days active) — 🔄 active Accomplishments:\nIdentified covariate shift as the cause of Coffee Nominal failure (zero success). Established robust disk-fault-tolerant checkpointing fallback mechanisms. Launched parallel evaluations for six Robosuite tasks on Tianhe3. Validated evaluation infrastructure via automated JSON integrity checks. Blockers:\n⚠️ Missing OPENVLA_OFT_ROOT environment variable causing initial crash loops. ⚠️ Disk quota exhaustion requiring manual cleanup and /tmp fallback logic. ⚠️ Complex PowerShell-to-Bash SSH escaping issues for remote execution. Repository Maintenance \u0026 Configuration (2 days active) — ✅ completed Accomplishments:\nStandardized CLAUDE.md and AGENTS.md across 15 GitHub repositories. Rebuilt BetterSSH pnpm workspace configuration from individual package contexts. Synchronized and merged PRs for 7 repositories to unify main branches. Blockers:\n⚠️ Security classifiers blocking auto-merge of high-risk git workflows. ⚠️ Stale documentation in legacy config files requiring complete replacement. Key Tasks ✅ Coffee Nominal Zero Success Root Cause Analysis (2026-07-28) — Investigated 0% success rate by ruling out pipeline bugs and identifying closed-loop covariate shift. Proved that tiny initial biases compound in off-manifold states, requiring recovery data. 🔄 OpenVLA-LoRA Training Management (2026-07-31) — Orchestrated six concurrent training jobs on Tianhe3. Resolved missing environment variables via patching launch scripts and monitored progress via remote SSH. ✅ Global Repository Configuration Rebuild (2026-07-30) — Deleted obsolete configs across 15 repos and rebuilt canonical CLAUDE.md/AGENTS.md files using parallel AI agents to ensure up-to-date guidance. ✅ BetterSSH Workspace Restoration (2026-07-31) — Reconstructed missing root config files (package.json, pnpm-workspace.yaml) by analyzing individual package dependencies and fixed ESM/CJS interop issues. ✅ LoRA Checkpoint Merging and Evaluation Deployment (2026-07-27) — Merged LoRA weights for four task checkpoints, resolved Python path dependencies, and launched parallel VLA evaluation servers. Problems \u0026 Solutions 1. Coffee Nominal policy exhibited 0% success rate despite low training loss, initially suspected as pipeline bugs or checkpoint corruption. [OpenVLA-LoRA Training \u0026 Evaluation] (2026-07-28) Solution: Performed paired evaluation against Recovery data and verified weight deltas. Identified ‘closed-loop covariate shift’ where deviation from nominal trajectories leads to unrecoverable states due to lack of recovery examples in training data.\n2. Primary disk space quota exceeded during checkpoint saving, risking training interruption on Tianhe3. [OpenVLA-LoRA Training \u0026 Evaluation] (2026-07-27) Solution: Implemented try-except logic to fallback to /tmp if primary storage fails. User later cleaned 700GB of disk space to restore default behavior and ensure long-term stability.\n3. OpenVLA training jobs crashed due to missing ‘OPENVLA_OFT_ROOT’ environment variable, appearing after import success. [OpenVLA-LoRA Training \u0026 Evaluation] (2026-07-31) Solution: Identified the missing variable via traceback logs and applied a patch to export the correct path in the launch script, allowing successful job resubmission.\n4. betterSSH root workspace files were lost during repo move, breaking pnpm builds and typechecks. [Repository Maintenance \u0026 Configuration] (2026-07-31) Solution: Reconstructed root configuration by extrapolating from individual package configs. Fixed ssh-config 5.2 ESM/CJS interop issues by updating imports and test signatures.\nLearnings Domain Knowledge (domain) Nominal-only imitation learning is fundamentally unstable in closed-loop environments; even a small fraction (4%) of error-recovery trajectories can be the difference between functional and broken policies due to covariate shift. Debugging (debugging) Checkpoint provenance verification via SHA256 hashing is definitive for confirming model state integrity, preventing wasted debugging time on ‘wrong model’ issues in distributed training. Tools (tools) Automated configuration generation should use a ’thin adapter’ strategy (separating tool-specific notes from generic guidelines) to prevent documentation drift across multiple repositories. When root workspace config files are lost in pnpm monorepos, examining individual package.json ’extends’ fields provides a reliable method to reconstruct the structure accurately via static analysis. Architecture (architecture) In distributed deep learning, missing environment variables are silent failure causes. Validation scripts must check configuration completeness before launch to avoid wasting GPU time. AI Usage Notes Effective Patterns:\n✓ Using parallel AI agents to scan codebases and rebuild standard configuration files across many repositories simultaneously. ✓ Employing base64-encoded Python scripts sent via stdin over SSH to bypass complex cross-platform shell escaping issues between Windows and Linux. Limitations:\n✗ AI struggled to diagnose covariate shift from zero-success metrics without explicit human hypothesis guidance, defaulting to environmental checks. ✗ Claude Code’s security classifier prevents automatic execution of ‘gh pr merge’, requiring manual intervention for final merges despite technical capability. ✗ Automatically detecting missing module dependencies in remote environments often fails without prior knowledge of conda environment names. Next Week Outlook Next week priorities include increasing the ratio of recovery data in OpenVLA-LoRA training to mitigate covariate shift and improving closed-loop robustness. Continue monitoring the six concurrent training runs on Tianhe3 to completion, focusing on convergence metrics for coffee and stack tasks. Address remaining repository documentation inconsistencies and finalize the BetterSSH workspace stability after ESM updates.\nToken Usage Statistics AI Usage · 2026-W31\rClaude Code + Codex\rTotal cost$283.74\rTotal tokens334M\rOutput tokens1M\rCache read96.2%\rCost split\rClaude Code $78 ·\rCodex $206\rToken character\rCache reads 96.2% ·\rActive 3.8%\rMost token volume came from cache reads.\rPeak Day: 2026-07-27 — $80.45 / 106.1M tokens\nDaily Average: $56.75\n",
+  "wordCount" : "946",
+  "inLanguage": "en",
+  "datePublished": "2026-08-02T23:59:00-05:00",
+  "dateModified": "2026-08-02T23:59:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/bugjournal/weekly/2026-w31-weekly/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="en"
+                        data-translation-url="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w31-weekly/">中文
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/bugjournal/daily/" title="bugJournal">
+                    <span>bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/weekly/">Weekly Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Weekly Summary 2026-W31
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-08-02 23:59:00 -0500 -0500'>August 2, 2026</span>&nbsp;·&nbsp;<span>5 min</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="weekly-report--2026-w31-2026-07-27--2026-08-02">Weekly Report — 2026-W31 (2026-07-27 ~ 2026-08-02)<a hidden class="anchor" aria-hidden="true" href="#weekly-report--2026-w31-2026-07-27--2026-08-02">#</a></h1>
+<blockquote>
+<p>This week focused on diagnosing fundamental failure modes in OpenVLA-LoRA training and establishing robust evaluation infrastructure. The primary achievement was identifying &lsquo;covariate shift&rsquo; as the root cause of zero-success rates in nominal-only policies, confirming that recovery-augmented data is critical for closed-loop stability. Simultaneously, maintenance tasks included rebuilding global AI configuration standards across 15 repositories and restoring the BetterSSH workspace, while continuing intensive training experiments on the Tianhe3 cluster.</p>
+</blockquote>
+<h2 id="weekly-overview">Weekly Overview<a hidden class="anchor" aria-hidden="true" href="#weekly-overview">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>Metric</th>
+          <th>Value</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Date Range</td>
+          <td>2026-07-27 ~ 2026-08-02</td>
+      </tr>
+      <tr>
+          <td>Active Days</td>
+          <td>4 / 7</td>
+      </tr>
+      <tr>
+          <td>Total Conversations</td>
+          <td>9</td>
+      </tr>
+      <tr>
+          <td>Projects</td>
+          <td>5</td>
+      </tr>
+      <tr>
+          <td>Tasks Completed</td>
+          <td>15</td>
+      </tr>
+      <tr>
+          <td>Tasks In Progress</td>
+          <td>2</td>
+      </tr>
+      <tr>
+          <td>Total Tokens</td>
+          <td>333,545,535</td>
+      </tr>
+      <tr>
+          <td>Total Cost</td>
+          <td>$283.74</td>
+      </tr>
+      <tr>
+          <td>Claude Code Token</td>
+          <td>32,278,096</td>
+      </tr>
+      <tr>
+          <td>Claude Code Cost</td>
+          <td>$77.93</td>
+      </tr>
+      <tr>
+          <td>Codex Token</td>
+          <td>301,267,439</td>
+      </tr>
+      <tr>
+          <td>Codex Cost</td>
+          <td>$205.81</td>
+      </tr>
+      <tr>
+          <td>Daily Average Cost</td>
+          <td>$56.75</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="project-progress">Project Progress<a hidden class="anchor" aria-hidden="true" href="#project-progress">#</a></h2>
+<h3 id="openvla-lora-training--evaluation-4-days-active---active">OpenVLA-LoRA Training &amp; Evaluation (4 days active) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#openvla-lora-training--evaluation-4-days-active---active">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
+<ul>
+<li>Identified covariate shift as the cause of Coffee Nominal failure (zero success).</li>
+<li>Established robust disk-fault-tolerant checkpointing fallback mechanisms.</li>
+<li>Launched parallel evaluations for six Robosuite tasks on Tianhe3.</li>
+<li>Validated evaluation infrastructure via automated JSON integrity checks.</li>
+</ul>
+<p><strong>Blockers:</strong></p>
+<ul>
+<li>⚠️ Missing OPENVLA_OFT_ROOT environment variable causing initial crash loops.</li>
+<li>⚠️ Disk quota exhaustion requiring manual cleanup and /tmp fallback logic.</li>
+<li>⚠️ Complex PowerShell-to-Bash SSH escaping issues for remote execution.</li>
+</ul>
+<h3 id="repository-maintenance--configuration-2-days-active---completed">Repository Maintenance &amp; Configuration (2 days active) — ✅ completed<a hidden class="anchor" aria-hidden="true" href="#repository-maintenance--configuration-2-days-active---completed">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
+<ul>
+<li>Standardized CLAUDE.md and AGENTS.md across 15 GitHub repositories.</li>
+<li>Rebuilt BetterSSH pnpm workspace configuration from individual package contexts.</li>
+<li>Synchronized and merged PRs for 7 repositories to unify main branches.</li>
+</ul>
+<p><strong>Blockers:</strong></p>
+<ul>
+<li>⚠️ Security classifiers blocking auto-merge of high-risk git workflows.</li>
+<li>⚠️ Stale documentation in legacy config files requiring complete replacement.</li>
+</ul>
+<h2 id="key-tasks">Key Tasks<a hidden class="anchor" aria-hidden="true" href="#key-tasks">#</a></h2>
+<ul>
+<li>✅ <strong>Coffee Nominal Zero Success Root Cause Analysis</strong> (2026-07-28) — Investigated 0% success rate by ruling out pipeline bugs and identifying closed-loop covariate shift. Proved that tiny initial biases compound in off-manifold states, requiring recovery data.</li>
+<li>🔄 <strong>OpenVLA-LoRA Training Management</strong> (2026-07-31) — Orchestrated six concurrent training jobs on Tianhe3. Resolved missing environment variables via patching launch scripts and monitored progress via remote SSH.</li>
+<li>✅ <strong>Global Repository Configuration Rebuild</strong> (2026-07-30) — Deleted obsolete configs across 15 repos and rebuilt canonical CLAUDE.md/AGENTS.md files using parallel AI agents to ensure up-to-date guidance.</li>
+<li>✅ <strong>BetterSSH Workspace Restoration</strong> (2026-07-31) — Reconstructed missing root config files (package.json, pnpm-workspace.yaml) by analyzing individual package dependencies and fixed ESM/CJS interop issues.</li>
+<li>✅ <strong>LoRA Checkpoint Merging and Evaluation Deployment</strong> (2026-07-27) — Merged LoRA weights for four task checkpoints, resolved Python path dependencies, and launched parallel VLA evaluation servers.</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="1-coffee-nominal-policy-exhibited-0-success-rate-despite-low-training-loss-initially-suspected-as-pipeline-bugs-or-checkpoint-corruption-openvla-lora-training--evaluation-2026-07-28">1. Coffee Nominal policy exhibited 0% success rate despite low training loss, initially suspected as pipeline bugs or checkpoint corruption. [OpenVLA-LoRA Training &amp; Evaluation] (2026-07-28)<a hidden class="anchor" aria-hidden="true" href="#1-coffee-nominal-policy-exhibited-0-success-rate-despite-low-training-loss-initially-suspected-as-pipeline-bugs-or-checkpoint-corruption-openvla-lora-training--evaluation-2026-07-28">#</a></h3>
+<p><strong>Solution:</strong> Performed paired evaluation against Recovery data and verified weight deltas. Identified &lsquo;closed-loop covariate shift&rsquo; where deviation from nominal trajectories leads to unrecoverable states due to lack of recovery examples in training data.</p>
+<h3 id="2-primary-disk-space-quota-exceeded-during-checkpoint-saving-risking-training-interruption-on-tianhe3-openvla-lora-training--evaluation-2026-07-27">2. Primary disk space quota exceeded during checkpoint saving, risking training interruption on Tianhe3. [OpenVLA-LoRA Training &amp; Evaluation] (2026-07-27)<a hidden class="anchor" aria-hidden="true" href="#2-primary-disk-space-quota-exceeded-during-checkpoint-saving-risking-training-interruption-on-tianhe3-openvla-lora-training--evaluation-2026-07-27">#</a></h3>
+<p><strong>Solution:</strong> Implemented try-except logic to fallback to /tmp if primary storage fails. User later cleaned 700GB of disk space to restore default behavior and ensure long-term stability.</p>
+<h3 id="3-openvla-training-jobs-crashed-due-to-missing-openvla_oft_root-environment-variable-appearing-after-import-success-openvla-lora-training--evaluation-2026-07-31">3. OpenVLA training jobs crashed due to missing &lsquo;OPENVLA_OFT_ROOT&rsquo; environment variable, appearing after import success. [OpenVLA-LoRA Training &amp; Evaluation] (2026-07-31)<a hidden class="anchor" aria-hidden="true" href="#3-openvla-training-jobs-crashed-due-to-missing-openvla_oft_root-environment-variable-appearing-after-import-success-openvla-lora-training--evaluation-2026-07-31">#</a></h3>
+<p><strong>Solution:</strong> Identified the missing variable via traceback logs and applied a patch to export the correct path in the launch script, allowing successful job resubmission.</p>
+<h3 id="4-betterssh-root-workspace-files-were-lost-during-repo-move-breaking-pnpm-builds-and-typechecks-repository-maintenance--configuration-2026-07-31">4. betterSSH root workspace files were lost during repo move, breaking pnpm builds and typechecks. [Repository Maintenance &amp; Configuration] (2026-07-31)<a hidden class="anchor" aria-hidden="true" href="#4-betterssh-root-workspace-files-were-lost-during-repo-move-breaking-pnpm-builds-and-typechecks-repository-maintenance--configuration-2026-07-31">#</a></h3>
+<p><strong>Solution:</strong> Reconstructed root configuration by extrapolating from individual package configs. Fixed ssh-config 5.2 ESM/CJS interop issues by updating imports and test signatures.</p>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="domain-knowledge-domain">Domain Knowledge (domain)<a hidden class="anchor" aria-hidden="true" href="#domain-knowledge-domain">#</a></h3>
+<ul>
+<li>Nominal-only imitation learning is fundamentally unstable in closed-loop environments; even a small fraction (4%) of error-recovery trajectories can be the difference between functional and broken policies due to covariate shift.</li>
+</ul>
+<h3 id="debugging-debugging">Debugging (debugging)<a hidden class="anchor" aria-hidden="true" href="#debugging-debugging">#</a></h3>
+<ul>
+<li>Checkpoint provenance verification via SHA256 hashing is definitive for confirming model state integrity, preventing wasted debugging time on &lsquo;wrong model&rsquo; issues in distributed training.</li>
+</ul>
+<h3 id="tools-tools">Tools (tools)<a hidden class="anchor" aria-hidden="true" href="#tools-tools">#</a></h3>
+<ul>
+<li>Automated configuration generation should use a &rsquo;thin adapter&rsquo; strategy (separating tool-specific notes from generic guidelines) to prevent documentation drift across multiple repositories.</li>
+<li>When root workspace config files are lost in pnpm monorepos, examining individual package.json &rsquo;extends&rsquo; fields provides a reliable method to reconstruct the structure accurately via static analysis.</li>
+</ul>
+<h3 id="architecture-architecture">Architecture (architecture)<a hidden class="anchor" aria-hidden="true" href="#architecture-architecture">#</a></h3>
+<ul>
+<li>In distributed deep learning, missing environment variables are silent failure causes. Validation scripts must check configuration completeness before launch to avoid wasting GPU time.</li>
+</ul>
+<h2 id="ai-usage-notes">AI Usage Notes<a hidden class="anchor" aria-hidden="true" href="#ai-usage-notes">#</a></h2>
+<p><strong>Effective Patterns:</strong></p>
+<ul>
+<li>✓ Using parallel AI agents to scan codebases and rebuild standard configuration files across many repositories simultaneously.</li>
+<li>✓ Employing base64-encoded Python scripts sent via stdin over SSH to bypass complex cross-platform shell escaping issues between Windows and Linux.</li>
+</ul>
+<p><strong>Limitations:</strong></p>
+<ul>
+<li>✗ AI struggled to diagnose covariate shift from zero-success metrics without explicit human hypothesis guidance, defaulting to environmental checks.</li>
+<li>✗ Claude Code&rsquo;s security classifier prevents automatic execution of &lsquo;gh pr merge&rsquo;, requiring manual intervention for final merges despite technical capability.</li>
+<li>✗ Automatically detecting missing module dependencies in remote environments often fails without prior knowledge of conda environment names.</li>
+</ul>
+<h2 id="next-week-outlook">Next Week Outlook<a hidden class="anchor" aria-hidden="true" href="#next-week-outlook">#</a></h2>
+<p>Next week priorities include increasing the ratio of recovery data in OpenVLA-LoRA training to mitigate covariate shift and improving closed-loop robustness. Continue monitoring the six concurrent training runs on Tianhe3 to completion, focusing on convergence metrics for coffee and stack tasks. Address remaining repository documentation inconsistencies and finalize the BetterSSH workspace stability after ESM updates.</p>
+<h2 id="token-usage-statistics">Token Usage Statistics<a hidden class="anchor" aria-hidden="true" href="#token-usage-statistics">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-W31</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$283.74</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>334M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>1M</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>96.2%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $78</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $206</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (27.5%), Codex (72.5%)">
+          <span style="width:27.5%; background:var(--usage-cost-main)"></span>
+          <span style="width:72.5%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 96.2%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 3.8%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (96.2%), active tokens (3.8%)">
+          <span style="width:96.2%; background:var(--usage-cache)"></span>
+          <span style="width:3.8%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<p><strong>Peak Day:</strong> 2026-07-27 — $80.45 / 106.1M tokens</p>
+<p><strong>Daily Average:</strong> $56.75</p>
+<!-- gadget:src-hash:2120452b726da92c -->
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
