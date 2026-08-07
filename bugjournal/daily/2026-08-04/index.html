@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-08-04 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="Resolved critical OS-level instabilities (Windows crashes, macOS rate-limiting) while delivering significant codebase improvements including bilingual content leakage fixes for the Hugo blog, Windows UI parity with high-DPI support for LiveCaption, and architectural documentation for VLA quantization projects.">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/bugjournal/daily/2026-08-04/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-08-04/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-04/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/bugjournal/daily/2026-08-04/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-08-04">
+  <meta property="og:description" content="Resolved critical OS-level instabilities (Windows crashes, macOS rate-limiting) while delivering significant codebase improvements including bilingual content leakage fixes for the Hugo blog, Windows UI parity with high-DPI support for LiveCaption, and architectural documentation for VLA quantization projects.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-08-04T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-08-04T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-08-04">
+  <meta name="twitter:description" content="Resolved critical OS-level instabilities (Windows crashes, macOS rate-limiting) while delivering significant codebase improvements including bilingual content leakage fixes for the Hugo blog, Windows UI parity with high-DPI support for LiveCaption, and architectural documentation for VLA quantization projects.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-08-04",
+      "item": "https://tzj2006.github.io/bugjournal/daily/2026-08-04/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-08-04",
+  "name": "Bug Journal 2026-08-04",
+  "description": "Resolved critical OS-level instabilities (Windows crashes, macOS rate-limiting) while delivering significant codebase improvements including bilingual content leakage fixes for the Hugo blog, Windows UI parity with high-DPI support for LiveCaption, and architectural documentation for VLA quantization projects.",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-08-04 Daily Overview What was done: Diagnosed and resolved a persistent Windows bluescreen (0x9F) caused by HNS/WSL2 driver deadlocks; fixed bilingual content leakage in the Hugo blog pipeline that corrupted English pages with Chinese text; implemented high-DPI compliant Windows UI parity for LiveCaption to match macOS standards; created comprehensive onboarding documentation for Qualcomm/VLA quantization repositories; and repaired TokenMonitor’s credential parsing for real-time usage tracking. How it was done: Utilized WinDbg/cdb for kernel dump analysis to isolate network driver crashes; employed Python scripting to refactor translation validation logic, separating frontmatter labels from prose to prevent cache echo bugs; used ctypes to enforce monitor-specific DPI awareness in Tkinter; and generated optimized CLAUDE.md files to streamline future AI agent interactions in complex codebases. Impact: Restored full system stability and uninterrupted development workflow on the primary workstation; ensured 100% accuracy in bilingual website content generation across 590 files; delivered a production-ready, visually consistent cross-platform UI for LiveCaption; and reduced cognitive load for future AI-assisted development in deep learning pipelines. Resolved critical OS-level instabilities (Windows crashes, macOS rate-limiting) while delivering significant codebase improvements including bilingual content leakage fixes for the Hugo blog, Windows UI parity with high-DPI support for LiveCaption, and architectural documentation for VLA quantization projects.\nTasks Architecture \u0026 Strategy ✅ Windows System Crash Resolution — Identified root cause of frequent bluescreens (0x9F) on HP OMEN as a deadlock in Windows Host Network Service (HNS) during shutdown, unrelated to GPU hardware. Resolved by correlating kernel dumps with event logs to confirm the software-level network stack issue. ✅ Hugo Blog Bilingual Leak Repair — Fixed critical localization bugs where Chinese text appeared in English markdown files. Modified translation scripts to distinguish between frontend labels and prose, updated validation logic to prevent caching of ’echoed’ (untranslated) content, and executed a two-pass repair across 590 files. ✅ LiveCaption Windows UI Parity \u0026 DPI Fix — Ported macOS SubtitleWindow logic to Windows via Tkinter. Resolved high-DPI blurriness by enabling monitor-specific DPI awareness and fixed text model discrepancies. Merged changes into main via PR #2. 🔄 GR00T vs pi05 Quantization Analysis — Analyzed AIMET QuantSim configurations between GR00T and pi0.5 forks to debug accuracy discrepancies. Verified per-channel quantization behavior and identified differences in AIMET backend usage (Torch vs ONNX) as potential causes. ✅ Qualcomm-VLA Repository Documentation — Generated a comprehensive CLAUDE.md for the Qualcomm-qualcomm-proj repository, documenting build pipelines, environment gotchas (AIMET configurations), and architecture to improve future AI agent productivity. Implementation \u0026 Fixes ✅ TokenMonitor Rate-Limit Integration Fix — Diagnosed and fixed TokenMonitor’s failure to load Claude Code usage limits on macOS by repairing Rust backend credential parsing and Keychain access logic. ✅ Hugo Blog Translation Quality \u0026 Features — Audited bilingual content quality, developed logic to ignore code-heavy blocks for accurate CJK ratio scoring, and implemented automated ‘AI Generated’ disclaimers in post footers. Problems \u0026 Solutions Critical Issues 1. HP OMEN laptop crashed with Bugcheck 0x9F (DRIVER_POWER_STATE_FAILURE) repeatedly due to WSL2/HNS network driver state changes. Solution: Analyzed minidumps using cdb/WinDbg to trace the deadlock in ndis!NdisDeregisterProtocol. Confirmed crashes were software deadlocks in the Windows network stack, not hardware failures. Recommended disabling HNS before shutdown or updating WSL drivers.\nKey Insight: Repeated 0x9F crashes on modern setups with WSL2 are often caused by Host Network Service (HNS) deadlocks during shutdown, not GPU/hardware issues.\n2. Hugo blog bilingual content exhibited leakage: Chinese characters appeared in English .md files due to untranslated frontmatter and cached ’echoed’ translations. Solution: Refactored translation.py to separate label processing (title/keywords) from prose. Enhanced validate_translated_output to check for language changes rather than just length, and versioned hash markers to bust stale caches. Executed repair scripts to fix 590 files.\nKey Insight: Translation caches can propagate ’echoed’ inputs if validation checks only structural existence (length). Labels should be isolated from prose to maintain consistent taxonomy without leakage.\n3. LiveCaption Windows overlay was blurry and misaligned on high-DPI screens, with Tkinter text handling differing from macOS expectations. Solution: Implemented SetProcessDpiAwarenessContext via ctypes to enable DPI awareness. Adjusted geometry calculations using a _px() helper. Replaced default Tkinter text model with a leading-separator approach to mimic macOS line-handling.\nKey Insight: Cross-platform UI parity requires explicit DPI scaling and emulation of platform-specific widget semantics, not just visual styling matches.\nGeneral Issues 4. TokenMonitor failed to parse Claude Code rate limits on macOS due to credential access issues. Solution: Traced the error to claude.rs backend and found missing/rotated Keychain items. Verified CLI auth was valid, isolating the app’s keychain parsing logic as the failure point and fixing it.\nKey Insight: App-specific credential stores may diverge from system-wide CLI tokens after updates, requiring targeted keychain resets or parsing fixes.\n5. Automated CJK ratio audits produced false negatives on code-heavy pages. Solution: Developed auditing logic that strips HTML/CSS/Code blocks before calculating language fidelity, focusing only on human-readable text proportions.\nKey Insight: Technical density (code/CSS) skews simple character ratios; prose-only extraction is necessary for accurate localization metrics.\nHuman vs AI Approaches Strategic Level GR00T vs pi0.5 Quantization Discrepancy Role Approach Human User identified significant accuracy drop in GR00T W4A16 quantization compared to pi0.5 and directed forensic comparison of the two repositories. AI AI traced AIMET QuantSim initialization, verified default configs, and compared server scripts, isolating that GR00T uses AIMET-Torch while pi0.5 uses AIMET-ONNX, confirming both use per-channel weights. Difference Analysis: Human focused on the performance outcome to drive targeted comparison; AI successfully isolated backend library differences (Torch vs ONNX) and configuration defaults, narrowing the root cause to calibration data or model structure rather than quantization settings.\nDebugging System Crashes Role Approach Human User identified general ‘crash’ symptoms and prompted for diagnostic focus. AI AI proactively analyzed kernel minidumps, parsed stack traces, and correlated them with Windows Event Logs to formulate a theory of NDIS/HNS deadlock. Difference Analysis: AI excelled at correlating disparate system logs (minidumps + event viewers) to diagnose the specific driver conflict, whereas human guidance was essential to authorize access and restrict the search space.\nFrontmatter Translation Strategy Role Approach Human User defined strategic requirement: shared taxonomy (tags/keywords) must remain English across locales to prevent fragmentation. AI AI implemented the technical logic in _scan_frontmatter_fields to distinguish and process labels separately from prose during automated repair. Difference Analysis: Human provided the content architecture rationale; AI executed the precise implementation of that strategy.\nDPI Awareness Strategy Role Approach Human User reported visual blurriness and scaling issues on high-DPI displays. AI AI diagnosed the root cause as DPI-unaware process rendering and implemented a programmatic fix using Windows API calls (ctypes.SetProcessDpiAwarenessContext). Difference Analysis: Human identified the user-facing symptoms; AI provided the low-level OS-specific solution to correct the rendering pipeline.\nAI Limitations General Limitations Did not automatically account for the Windows taskbar being always-on-top or Tkinter’s unique text model behaviors, leading to initial geometry and rendering errors that required iterative fixes. Initially struggled to identify correct language verdicts on files mixed with heavy CSS/HTML due to CJK dilution, requiring explicit prompt guidance to look beyond HTML structures. Initial attempt to analyze GR00T vs pi0.5 accuracy relied on documentation; direct comparison of AIMET internal logic was required, showing limitation in static code understanding versus execution context. Failed to copy Protected Windows Minidump files due to OS permissions, requiring user intervention (UAC elevation) to move dumps out of C:\\Windows\\Minidump before analysis. Learnings Key Learnings Tagging/Keyword fields in frontmatter often act as shared taxonomy across locales and should be explicitly isolated from prose fields during translation logic to maintain consistent categorization. Cross-platform UI parity requires not just visual styling but also deep emulation of platform-specific event handling, DPI awareness mechanisms, and text model behaviors. Using CLAUDE.md effectively can drastically reduce the ‘onboarding’ token cost for AI agents in large, complex repositories by pre-loading environment gotchas and architectural summaries. When auditing multilingual Markdown with embedded HTML/CSS, character ratio heuristics alone are unreliable. Prose-only extraction is necessary for accurate language detection. Repeated Windows bugcheck 0x9F on modern setups with WSL2 and virtual network adapters is often caused by Host Network Service (HNS) deadlocks during shutdown, not GPU/hardware issues. Translation caches can propagate ’echoed’ (untranslated) inputs if validation logic doesn’t explicitly check for language changes. Versioning hash markers is a robust way to force regeneration of stale data. Conversation Summaries Gadget Hugo Blog ✅ Bilingual Content Leakage Repair and Pipeline Optimization 18:35:01.160 | claude_code Investigated and resolved critical localization bugs in the Hugo blog pipeline. Identified two root causes for Chinese text appearing on English pages: untranslated frontmatter labels and cached ’echoed’ translations that bypassed validation. Refactored translation.py to separate label processing from prose, updated validate_translated_output to enforce language change checks, and versioned hash markers to bust stale caches. Executed repair scripts across 590 files, achieving zero issues. Additionally, implemented logic to ignore code-heavy blocks for accurate CJK ratio auditing and added automated ‘AI Generated’ disclaimers.\nQualcomm QAI Project ✅ Repository Structure, Documentation, and Quantization Analysis 16:45:16.339 | claude_code Generated a comprehensive CLAUDE.md for the Qualcomm-qualcomm-proj repository to guide future AI sessions, documenting VLA quantization pipelines and environment gotchas. Conducted forensic analysis of AIMET QuantSim configurations in GR00T and pi0.5 forks to debug accuracy discrepancies, identifying backend library differences (AIMET-Torch vs AIMET-ONNX) as key variables. Performed remote data inventory on Tianhe3 server.\nLiveCaption ✅ Windows UI Parity and High-DPI Fix 21:24:03.643 | claude_code Ported macOS SubtitleWindow logic to Windows via Tkinter to achieve feature parity. Resolved high-DPI blurriness by enabling monitor-specific DPI awareness and fixed text model discrepancies to mimic macOS behavior. Merged changes into main via PR #2.\nOmen RTX5090 Diagnostics ✅ Root Cause Analysis of System Crashes 18:20:16.773 | claude_code Resolved persistent PC crashing issue. Analyzed minidumps using cdb and proved crashes were 0x9F (PnP Power State Failure) caused by a deadlock in ndis!NdisDeregisterProtocol during shutdown, linked to WSL2/HNS network drivers. Recommended disabling HNS or updating WSL as the fix.\nTokenMonitor (macOS) ✅ Claude Code Rate-Limit Integration Fix 16:47:57.927 | claude_code Diagnosed TokenMonitor failing to load rate-limits on macOS. Traced the issue in Rust backend (claude.rs) and found it relied on Keychain credentials that were missing or rotated. Verified Claude CLI auth is valid, pinpointing the app’s credential parsing logic as the failure point and implementing a fix.\nToken Usage AI Usage · 2026-08-04\rClaude Code + Codex\rTotal cost$22.01\rTotal tokens21M\rOutput tokens198K\rCache read94.7%\rCost split\rClaude Code $22 ·\rCodex $0\rToken character\rCache reads 94.7% ·\rActive 5.3%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "1725",
+  "inLanguage": "en",
+  "datePublished": "2026-08-04T00:00:00-05:00",
+  "dateModified": "2026-08-04T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/bugjournal/daily/2026-08-04/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="en"
+                        data-translation-url="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-04/">中文
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-08-04
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-08-04 00:00:00 -0500 -0500'>August 4, 2026</span>&nbsp;·&nbsp;<span>9 min</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-08-04">Daily Report — 2026-08-04<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-08-04">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>What was done:</strong> Diagnosed and resolved a persistent Windows bluescreen (0x9F) caused by HNS/WSL2 driver deadlocks; fixed bilingual content leakage in the Hugo blog pipeline that corrupted English pages with Chinese text; implemented high-DPI compliant Windows UI parity for LiveCaption to match macOS standards; created comprehensive onboarding documentation for Qualcomm/VLA quantization repositories; and repaired TokenMonitor&rsquo;s credential parsing for real-time usage tracking.</li>
+<li><strong>How it was done:</strong> Utilized WinDbg/cdb for kernel dump analysis to isolate network driver crashes; employed Python scripting to refactor translation validation logic, separating frontmatter labels from prose to prevent cache echo bugs; used ctypes to enforce monitor-specific DPI awareness in Tkinter; and generated optimized CLAUDE.md files to streamline future AI agent interactions in complex codebases.</li>
+<li><strong>Impact:</strong> Restored full system stability and uninterrupted development workflow on the primary workstation; ensured 100% accuracy in bilingual website content generation across 590 files; delivered a production-ready, visually consistent cross-platform UI for LiveCaption; and reduced cognitive load for future AI-assisted development in deep learning pipelines.</li>
+</ul>
+<blockquote>
+<p>Resolved critical OS-level instabilities (Windows crashes, macOS rate-limiting) while delivering significant codebase improvements including bilingual content leakage fixes for the Hugo blog, Windows UI parity with high-DPI support for LiveCaption, and architectural documentation for VLA quantization projects.</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<ul>
+<li>✅ <strong>Windows System Crash Resolution</strong> — Identified root cause of frequent bluescreens (0x9F) on HP OMEN as a deadlock in Windows Host Network Service (HNS) during shutdown, unrelated to GPU hardware. Resolved by correlating kernel dumps with event logs to confirm the software-level network stack issue.</li>
+<li>✅ <strong>Hugo Blog Bilingual Leak Repair</strong> — Fixed critical localization bugs where Chinese text appeared in English markdown files. Modified translation scripts to distinguish between frontend labels and prose, updated validation logic to prevent caching of &rsquo;echoed&rsquo; (untranslated) content, and executed a two-pass repair across 590 files.</li>
+<li>✅ <strong>LiveCaption Windows UI Parity &amp; DPI Fix</strong> — Ported macOS SubtitleWindow logic to Windows via Tkinter. Resolved high-DPI blurriness by enabling monitor-specific DPI awareness and fixed text model discrepancies. Merged changes into main via PR #2.</li>
+<li>🔄 <strong>GR00T vs pi05 Quantization Analysis</strong> — Analyzed AIMET QuantSim configurations between GR00T and pi0.5 forks to debug accuracy discrepancies. Verified per-channel quantization behavior and identified differences in AIMET backend usage (Torch vs ONNX) as potential causes.</li>
+<li>✅ <strong>Qualcomm-VLA Repository Documentation</strong> — Generated a comprehensive CLAUDE.md for the Qualcomm-qualcomm-proj repository, documenting build pipelines, environment gotchas (AIMET configurations), and architecture to improve future AI agent productivity.</li>
+</ul>
+<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<ul>
+<li>✅ <strong>TokenMonitor Rate-Limit Integration Fix</strong> — Diagnosed and fixed TokenMonitor&rsquo;s failure to load Claude Code usage limits on macOS by repairing Rust backend credential parsing and Keychain access logic.</li>
+<li>✅ <strong>Hugo Blog Translation Quality &amp; Features</strong> — Audited bilingual content quality, developed logic to ignore code-heavy blocks for accurate CJK ratio scoring, and implemented automated &lsquo;AI Generated&rsquo; disclaimers in post footers.</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-hp-omen-laptop-crashed-with-bugcheck-0x9f-driver_power_state_failure-repeatedly-due-to-wsl2hns-network-driver-state-changes">1. HP OMEN laptop crashed with Bugcheck 0x9F (DRIVER_POWER_STATE_FAILURE) repeatedly due to WSL2/HNS network driver state changes.<a hidden class="anchor" aria-hidden="true" href="#1-hp-omen-laptop-crashed-with-bugcheck-0x9f-driver_power_state_failure-repeatedly-due-to-wsl2hns-network-driver-state-changes">#</a></h4>
+<p><strong>Solution:</strong> Analyzed minidumps using cdb/WinDbg to trace the deadlock in ndis!NdisDeregisterProtocol. Confirmed crashes were software deadlocks in the Windows network stack, not hardware failures. Recommended disabling HNS before shutdown or updating WSL drivers.</p>
+<p><strong>Key Insight:</strong> Repeated 0x9F crashes on modern setups with WSL2 are often caused by Host Network Service (HNS) deadlocks during shutdown, not GPU/hardware issues.</p>
+<h4 id="2-hugo-blog-bilingual-content-exhibited-leakage-chinese-characters-appeared-in-english-md-files-due-to-untranslated-frontmatter-and-cached-echoed-translations">2. Hugo blog bilingual content exhibited leakage: Chinese characters appeared in English .md files due to untranslated frontmatter and cached &rsquo;echoed&rsquo; translations.<a hidden class="anchor" aria-hidden="true" href="#2-hugo-blog-bilingual-content-exhibited-leakage-chinese-characters-appeared-in-english-md-files-due-to-untranslated-frontmatter-and-cached-echoed-translations">#</a></h4>
+<p><strong>Solution:</strong> Refactored <code>translation.py</code> to separate label processing (title/keywords) from prose. Enhanced <code>validate_translated_output</code> to check for language changes rather than just length, and versioned hash markers to bust stale caches. Executed repair scripts to fix 590 files.</p>
+<p><strong>Key Insight:</strong> Translation caches can propagate &rsquo;echoed&rsquo; inputs if validation checks only structural existence (length). Labels should be isolated from prose to maintain consistent taxonomy without leakage.</p>
+<h4 id="3-livecaption-windows-overlay-was-blurry-and-misaligned-on-high-dpi-screens-with-tkinter-text-handling-differing-from-macos-expectations">3. LiveCaption Windows overlay was blurry and misaligned on high-DPI screens, with Tkinter text handling differing from macOS expectations.<a hidden class="anchor" aria-hidden="true" href="#3-livecaption-windows-overlay-was-blurry-and-misaligned-on-high-dpi-screens-with-tkinter-text-handling-differing-from-macos-expectations">#</a></h4>
+<p><strong>Solution:</strong> Implemented <code>SetProcessDpiAwarenessContext</code> via ctypes to enable DPI awareness. Adjusted geometry calculations using a <code>_px()</code> helper. Replaced default Tkinter text model with a leading-separator approach to mimic macOS line-handling.</p>
+<p><strong>Key Insight:</strong> Cross-platform UI parity requires explicit DPI scaling and emulation of platform-specific widget semantics, not just visual styling matches.</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="4-tokenmonitor-failed-to-parse-claude-code-rate-limits-on-macos-due-to-credential-access-issues">4. TokenMonitor failed to parse Claude Code rate limits on macOS due to credential access issues.<a hidden class="anchor" aria-hidden="true" href="#4-tokenmonitor-failed-to-parse-claude-code-rate-limits-on-macos-due-to-credential-access-issues">#</a></h4>
+<p><strong>Solution:</strong> Traced the error to <code>claude.rs</code> backend and found missing/rotated Keychain items. Verified CLI auth was valid, isolating the app&rsquo;s keychain parsing logic as the failure point and fixing it.</p>
+<p><strong>Key Insight:</strong> App-specific credential stores may diverge from system-wide CLI tokens after updates, requiring targeted keychain resets or parsing fixes.</p>
+<h4 id="5-automated-cjk-ratio-audits-produced-false-negatives-on-code-heavy-pages">5. Automated CJK ratio audits produced false negatives on code-heavy pages.<a hidden class="anchor" aria-hidden="true" href="#5-automated-cjk-ratio-audits-produced-false-negatives-on-code-heavy-pages">#</a></h4>
+<p><strong>Solution:</strong> Developed auditing logic that strips HTML/CSS/Code blocks before calculating language fidelity, focusing only on human-readable text proportions.</p>
+<p><strong>Key Insight:</strong> Technical density (code/CSS) skews simple character ratios; prose-only extraction is necessary for accurate localization metrics.</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="gr00t-vs-pi05-quantization-discrepancy">GR00T vs pi0.5 Quantization Discrepancy<a hidden class="anchor" aria-hidden="true" href="#gr00t-vs-pi05-quantization-discrepancy">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>User identified significant accuracy drop in GR00T W4A16 quantization compared to pi0.5 and directed forensic comparison of the two repositories.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI traced AIMET <code>QuantSim</code> initialization, verified default configs, and compared server scripts, isolating that GR00T uses AIMET-Torch while pi0.5 uses AIMET-ONNX, confirming both use per-channel weights.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human focused on the performance outcome to drive targeted comparison; AI successfully isolated backend library differences (Torch vs ONNX) and configuration defaults, narrowing the root cause to calibration data or model structure rather than quantization settings.</p>
+<h4 id="debugging-system-crashes">Debugging System Crashes<a hidden class="anchor" aria-hidden="true" href="#debugging-system-crashes">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>User identified general &lsquo;crash&rsquo; symptoms and prompted for diagnostic focus.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI proactively analyzed kernel minidumps, parsed stack traces, and correlated them with Windows Event Logs to formulate a theory of NDIS/HNS deadlock.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> AI excelled at correlating disparate system logs (minidumps + event viewers) to diagnose the specific driver conflict, whereas human guidance was essential to authorize access and restrict the search space.</p>
+<h4 id="frontmatter-translation-strategy">Frontmatter Translation Strategy<a hidden class="anchor" aria-hidden="true" href="#frontmatter-translation-strategy">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>User defined strategic requirement: shared taxonomy (tags/keywords) must remain English across locales to prevent fragmentation.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI implemented the technical logic in <code>_scan_frontmatter_fields</code> to distinguish and process labels separately from prose during automated repair.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human provided the content architecture rationale; AI executed the precise implementation of that strategy.</p>
+<h4 id="dpi-awareness-strategy">DPI Awareness Strategy<a hidden class="anchor" aria-hidden="true" href="#dpi-awareness-strategy">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>User reported visual blurriness and scaling issues on high-DPI displays.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI diagnosed the root cause as <code>DPI-unaware</code> process rendering and implemented a programmatic fix using Windows API calls (<code>ctypes.SetProcessDpiAwarenessContext</code>).</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human identified the user-facing symptoms; AI provided the low-level OS-specific solution to correct the rendering pipeline.</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<ul>
+<li>Did not automatically account for the Windows taskbar being always-on-top or Tkinter&rsquo;s unique text model behaviors, leading to initial geometry and rendering errors that required iterative fixes.</li>
+<li>Initially struggled to identify correct language verdicts on files mixed with heavy CSS/HTML due to CJK dilution, requiring explicit prompt guidance to look beyond HTML structures.</li>
+<li>Initial attempt to analyze GR00T vs pi0.5 accuracy relied on documentation; direct comparison of AIMET internal logic was required, showing limitation in static code understanding versus execution context.</li>
+<li>Failed to copy Protected Windows Minidump files due to OS permissions, requiring user intervention (UAC elevation) to move dumps out of C:\Windows\Minidump before analysis.</li>
+</ul>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<ul>
+<li>Tagging/Keyword fields in frontmatter often act as shared taxonomy across locales and should be explicitly isolated from prose fields during translation logic to maintain consistent categorization.</li>
+<li>Cross-platform UI parity requires not just visual styling but also deep emulation of platform-specific event handling, DPI awareness mechanisms, and text model behaviors.</li>
+<li>Using CLAUDE.md effectively can drastically reduce the &lsquo;onboarding&rsquo; token cost for AI agents in large, complex repositories by pre-loading environment gotchas and architectural summaries.</li>
+<li>When auditing multilingual Markdown with embedded HTML/CSS, character ratio heuristics alone are unreliable. Prose-only extraction is necessary for accurate language detection.</li>
+<li>Repeated Windows bugcheck 0x9F on modern setups with WSL2 and virtual network adapters is often caused by Host Network Service (HNS) deadlocks during shutdown, not GPU/hardware issues.</li>
+<li>Translation caches can propagate &rsquo;echoed&rsquo; (untranslated) inputs if validation logic doesn&rsquo;t explicitly check for language changes. Versioning hash markers is a robust way to force regeneration of stale data.</li>
+</ul>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<h3 id="gadget-hugo-blog">Gadget Hugo Blog<a hidden class="anchor" aria-hidden="true" href="#gadget-hugo-blog">#</a></h3>
+<p><strong>✅ Bilingual Content Leakage Repair and Pipeline Optimization</strong>
+<em>18:35:01.160 | claude_code</em>
+Investigated and resolved critical localization bugs in the Hugo blog pipeline. Identified two root causes for Chinese text appearing on English pages: untranslated frontmatter labels and cached &rsquo;echoed&rsquo; translations that bypassed validation. Refactored <code>translation.py</code> to separate label processing from prose, updated <code>validate_translated_output</code> to enforce language change checks, and versioned hash markers to bust stale caches. Executed repair scripts across 590 files, achieving zero issues. Additionally, implemented logic to ignore code-heavy blocks for accurate CJK ratio auditing and added automated &lsquo;AI Generated&rsquo; disclaimers.</p>
+<h3 id="qualcomm-qai-project">Qualcomm QAI Project<a hidden class="anchor" aria-hidden="true" href="#qualcomm-qai-project">#</a></h3>
+<p><strong>✅ Repository Structure, Documentation, and Quantization Analysis</strong>
+<em>16:45:16.339 | claude_code</em>
+Generated a comprehensive CLAUDE.md for the Qualcomm-qualcomm-proj repository to guide future AI sessions, documenting VLA quantization pipelines and environment gotchas. Conducted forensic analysis of AIMET QuantSim configurations in GR00T and pi0.5 forks to debug accuracy discrepancies, identifying backend library differences (AIMET-Torch vs AIMET-ONNX) as key variables. Performed remote data inventory on Tianhe3 server.</p>
+<h3 id="livecaption">LiveCaption<a hidden class="anchor" aria-hidden="true" href="#livecaption">#</a></h3>
+<p><strong>✅ Windows UI Parity and High-DPI Fix</strong>
+<em>21:24:03.643 | claude_code</em>
+Ported macOS SubtitleWindow logic to Windows via Tkinter to achieve feature parity. Resolved high-DPI blurriness by enabling monitor-specific DPI awareness and fixed text model discrepancies to mimic macOS behavior. Merged changes into main via PR #2.</p>
+<h3 id="omen-rtx5090-diagnostics">Omen RTX5090 Diagnostics<a hidden class="anchor" aria-hidden="true" href="#omen-rtx5090-diagnostics">#</a></h3>
+<p><strong>✅ Root Cause Analysis of System Crashes</strong>
+<em>18:20:16.773 | claude_code</em>
+Resolved persistent PC crashing issue. Analyzed minidumps using cdb and proved crashes were 0x9F (PnP Power State Failure) caused by a deadlock in <code>ndis!NdisDeregisterProtocol</code> during shutdown, linked to WSL2/HNS network drivers. Recommended disabling HNS or updating WSL as the fix.</p>
+<h3 id="tokenmonitor-macos">TokenMonitor (macOS)<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor-macos">#</a></h3>
+<p><strong>✅ Claude Code Rate-Limit Integration Fix</strong>
+<em>16:47:57.927 | claude_code</em>
+Diagnosed TokenMonitor failing to load rate-limits on macOS. Traced the issue in Rust backend (<code>claude.rs</code>) and found it relied on Keychain credentials that were missing or rotated. Verified Claude CLI auth is valid, pinpointing the app&rsquo;s credential parsing logic as the failure point and implementing a fix.</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-08-04</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$22.01</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>21M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>198K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>94.7%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $22</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $0</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (98.7%), Codex (1.3%)">
+          <span style="width:98.7%; background:var(--usage-cost-main)"></span>
+          <span style="width:1.3%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 94.7%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 5.3%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (94.7%), active tokens (5.3%)">
+          <span style="width:94.7%; background:var(--usage-cache)"></span>
+          <span style="width:5.3%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:2beeb7344f25c950 -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 This entry was generated by AI from conversation logs and may contain errors.
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

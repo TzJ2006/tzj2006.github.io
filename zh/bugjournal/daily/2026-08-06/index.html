@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-08-06 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="解决了pi0.5管道中的关键静默量化问题，完成了MIHD研究的进展报告，同时为RoboMemory的视觉记忆实验建立了基础基础设施和MVP设计。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-06/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-08-06/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-06/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-06/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-08-06">
+  <meta property="og:description" content="解决了pi0.5管道中的关键静默量化问题，完成了MIHD研究的进展报告，同时为RoboMemory的视觉记忆实验建立了基础基础设施和MVP设计。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-08-06T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-08-06T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-08-06">
+  <meta name="twitter:description" content="解决了pi0.5管道中的关键静默量化问题，完成了MIHD研究的进展报告，同时为RoboMemory的视觉记忆实验建立了基础基础设施和MVP设计。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-08-06",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-06/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-08-06",
+  "name": "Bug Journal 2026-08-06",
+  "description": "解决了pi0.5管道中的关键静默量化问题，完成了MIHD研究的进展报告，同时为RoboMemory的视觉记忆实验建立了基础基础设施和MVP设计。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-08-06 日常概述 已完成工作： 审查并修复了 pi0.5 中的致命静默量化错误，该错误导致之前的结果无效；调整脚本以匹配上游 API 变更；开始低比特率验证；同时完成 MIHD 研究报告的架构重组和聚类分析；设计并启动 RoboMemory 的 MVP 实验，比较视觉提示与文本提示，包括烟雾训练验证。 实施方法： 进行对抗性代码审计和内部状态探测，以识别 pi0.5 中缺失的编码负载；通过 git 历史分析来协调不同的准确率指标；使用多智能体编排来构建 MIHD 报告结构和进行统计审计；通过深入文献综述和架构优化来定义 RoboMemory MVP，随后在 Tianhe3 上完成环境设置和训练部署。 影响： 恢复了 pi0.5 有效的低比特率评估能力，避免进一步计算浪费；建立了稳健且经统计验证的 MIHD 交付结构；创建了高可信度、低风险的实验流程，用于机器人中的视觉记忆注入。 MacOS 已完成工作： 协调多智能体工作流以完成 MIHD 报告，并对 pi0.5 量化脚本进行代码审计/调试。 实施方法： 使用 Claude Code CLI 进行文件探索、git 操作、脚本编辑、CUDA/CPU 资源管理，并通过 Cursor IDE 进行并行任务执行。 影响： 纠正了基本流程错误，确保数据有效性；实现了实验运行的大规模并行化和报告生成。 TzJsDesktop 已完成工作： 部署 drawn_memory 模块，通过 SSH 在 Tianhe3 上执行试点数据预处理，并管理 ErrorRecoveryBenchmark 的 git 历史。 实施方法： 使用后台 SSH 会话、nohup 进程和自定义部署脚本进行幂等性补丁；使用 Codex 检查分支并分类提交。 影响： 实现了从原始数据到处理数据集的完整流程连接；整理了仓库历史以便清晰理解。 lighthouse 已完成工作： 使用基于 CPU 的工作负载对 pi0.5 量化模型进行深度代码审计、错误修复和验证；准备评估环境配置。 实施方法： 使用 Monitor 和后台代理进行流程审计，识别由 load_checkpoint 忽略设备标志导致的 OOM 错误，修补脚本，解决检查点下载的 DNS/VPN 问题。 影响： 解决了量化结果中的致命静默错误；确保评估基础设施准备就绪。 解决了 pi0.5 流程中的关键静默量化故障，完成了 MIHD 研究进展报告，同时建立了 RoboMemory 视觉记忆实验的基础设施和 MVP 设计。\n任务 架构与策略 ✅ 修复 pi0.5 静默量化故障和对齐问题 — 发现激活编码在评估期间生成但从未加载，导致结果无效。通过添加 load_encodings_to_sim 调用来修复。合并了 5 个上游提交以将脚本与新的 SpinQuant R1/R2 接口对齐，并重写 pi05_quantize.sh 以支持每个组件精度。还修复了 aimet_quant_types 中的静默降级错误。 🔄 验证 pi0.5 流程并启动低比特率矩阵 — 使用修正后的指标重新评估现有检查点，并启动全面的 W4A4/W8A4 验证矩阵。通过隔离 GPU 环境变量解决了量化过程中的 CPU OOM 问题。 ✅ 完成 MIHD 研究报告结构和分析 — 将英文和中文报告整理为 Results/TODO/Appends。完成了 HD P2 全幻灯片聚类（GT-A），结合 scGPT/TEDDY/NCL 融合，解决了 App-M 矩阵差异，并标准化查询协议。使用 Holm 校正进行统计审计。 ✅ RoboMemory MVP：视觉与文本提示实验设计 — 将项目转向 MVP，比较 RouteStick/PatternLock 上的 oracle 驱动文本坐标与绘制覆盖层。通过文献综述确认其新颖性超过 VP-VLA/TraceVLA。实现了子目标解析器/渲染器，并验证来自文本元数据的 oracle 信号。 ✅ RoboMemory：W1 完成和基础设施设置 — 在 Tianhe3 上执行 pi0.5 烟雾训练（1000 步），验证损失收敛，并处理 pilot3 数据。在 lighthouse 上准备评估客户端代码，定义三臂实验设置（绘制/文本/基线）。 🔄 启动 RoboMemory 训练和监控状态 — 在 tianhe3 GPU 上启动 Drawn 和 Text 分支的并行 30k 步训练。监控收敛情况。 ✅ ErrorRecoveryBenchmark Git 组织和路径修复 — 将 git 历史按主题分类。在 Tianhe3 上完成文件重新定位后更新脚本中的硬编码路径，验证语法和远程目录存在性。 问题与解决方案 关键问题 1. 静默量化失败：pi0.5 评估显示有效成功率，但激活编码在推理期间未加载，导致未量化。 解决方案： 在 model.py 中为 Vision、Backbone 和 Action Expert 组件添加 load_encodings_to_sim。通过探测 QuantizationSimModel op_modes 验证激活从 updateStats 移动到 quantizeDequantize。合并了 Jinhee Kim 分支中的上游修复。\n关键洞察： AIMET-ONNX 将量化图（float ONNX）与元数据（编码 JSON）分离。仅加载 ONNX 文件而不明确加载编码会导致未量化推理，即使有“量化”检查点文件夹。\n2. RoboMME 基线模糊性和新颖性担忧：VP-VLA（视觉噪声）和 TraceVLA（微调）之间存在冲突，质疑视觉提示是否已解决。 解决方案： 将范围缩小到对两种模式都有 oracle 真实值控制的实验。文献综述确认先前工作专注于“当前意图”或需要微调，为冻结 VLMs 上的“过去记忆可视化”建立了新颖性。\n关键洞察： 当信息密度超过文本嵌入能力时（例如连续轨迹与离散坐标），视觉提示具有价值。\n3. 量化有效性方面的矛盾证据：Jinhee 的最新结果显示显著下降，与应使所有结果无效的静默错误假设相矛盾。 解决方案： 调查 git 历史发现 Jinhee 当天早就在她的分支中修复了精确的编码加载错误。这解决了我们旧损坏代码与她有效/修复结果之间的异常。\n关键洞察： 人类对最近提交的上下文知识可以迅速解决 AI 可能归因于复杂模型行为或数据问题的逻辑异常。\n4. HVG+UNI2+NCL 几何量规翻转：跨幻灯片查询显示极端反转versal（第3层映射到白质）。**解决方案：**通过Procrustes对齐证明，嵌入空间本身随幻灯片独立翻转。更新报告叙述以反映这种结构不稳定性，而非数据错误。 **关键洞察：**每张幻灯片学习的图规范可能导致任意轴翻转，这在单张幻灯片指标中不可见，但对跨幻灯片迁移造成灾难性影响。\n5. JAX CUDA 后端故障：空的 CUDA_VISIBLE_DEVICES 导致后端错误，而非回退机制。 **解决方案：**设置 JAX_PLATFORMS=cpu 用于归一化统计，然后明确指定训练使用的GPU。\n**关键洞察：**空设备列表可能导致JAX中的特定后端错误；需要明确处理。\n一般问题 6. CPU量化过程中CUDA内存不足：LeRepo的加载器忽略 --host-device cpu 标志，强制权重传输至GPU。 **解决方案：**取消设置/覆盖CUDA环境变量 CUDA_VISIBLE_DEVICES=，或修改 pi05_quantize.sh 以在应用量化前强制回退到CPU加载基础检查点。\n**关键洞察：**明确的API标志通常无法深入渗透第三方加载器；有时需要环境层面的隔离。\n7. scGPT在零UMI瓦片上的分箱失败：空数组min()操作导致具有零有效单元格的瓦片处理崩溃，尽管总UMI \u003e 0。 **解决方案：**对非零词汇基因的细胞进行过滤，或接受这些特定瓦片的部分完成结果。在Visium HD中被视为数据预处理中的边缘情况。\n**关键洞察：**Visium HD瓦片可能包含零UMI细胞，如果不预先过滤就会破坏下游分箱。\n8. 磁盘空间耗尽：AIMET外部权重在量化过程中填满根分区。通过导出 TMPDIR 并硬链接共享组件解决。 **解决方案：**无需处理\n**关键洞察：**AIMET的延迟提取会产生大临时文件；忽略临时目录是常见的设置陷阱。\n9. QFormer在完整幻灯片上内存不足：标准GPU无法支持17k点的自注意力计算。 **解决方案：**固定到高内存GPU 5000_ada，并实现分块前向传递逻辑。拒绝简单的子采样以保持科学协议的兼容性。\n**关键洞察：**没有明确的内存策略，标准VRAM限制无法支持完整幻灯片的自注意力计算。\n人类与AI方法 战略层面 无声量化错误和矛盾结果的根本原因 角色 方法 人类 人类认为结果错误是因为缺乏改进。注意到Jinhee的14.5%下降结果阻止了过快接受“完全损坏”的结论，成为逻辑锚点。 AI AI进行对抗性审计，探测 QuantSim 内部状态 op_mode，证明激活未量化，并通过git blame/日志调查与Jinhee结果的时间差异。 **差异分析：**人类提供战略怀疑和上下文异常检测；AI执行运行时检查和历史验证，解决“代码显示已量化”与“推理显示浮点”之间的矛盾。\nRoboMemory项目范围定义 角色 方法 人类 用户拒绝复杂的绘制记忆系统，坚持简单MVP问题：“视觉提示有帮助吗？”并针对文本失效的任务。 AI 初始提案过度设计解决方案。AI转向识别机制差距（轨迹的文本编码损失），并根据人类的简化约束设计控制实验。 **差异分析：**人类关注基本问题和任务选择，排除复杂性。AI将其转化为基于预言机的具体比较设计。\nHVG查询反转解释 角色 方法 人类 最初怀疑数据错误或路由错误（“完全相反”），要求调查。 AI 进行几何分析证明这是独立图学习的结构性方法限制（轴翻转），而非数据加载错误。 **差异分析：**人类寻找数据错误；AI证明这是结构性的方法限制。\n视觉记忆注入设计和预言源 角色 方法 人类 关注战略约束（零成本覆盖）并质疑扫描原始h5文件的效率。 AI 验证现有的pkl文本字段包含所有必要信号，无需复杂的侧载文件。提供解析器/渲染器的实现细节。 **差异分析：**人类通过质疑假设提高效率；AI通过模式分析进行验证。\nAI限制 关键限制 在启动长期量化任务前未能检测到Jinhee的分支领先，导致在过时的接口上浪费计算资源。 一般限制 无法阻止LeRepo/LeRobot加载器在SDK设备提示下强制使用CUDA，需要环境变量解决方案。 依赖WebSearch获取非常新的（2026年）论文存在幻觉风险；在得出新颖性结论前，手动验证arXiv链接至关重要。 未能将重复 /usage命令解释为潜在错误/挂起状态，提供通用响应而非调查用户意图。 AI对QFormer的初步修复建议为子采样，人类正确识别这是改变科学协议而非解决内存限制。 学习成果 关键学习成果 AIMET-ONNX量化不会在保存/加载循环中保持持久性，除非明确调用 load_encodings_to_sim;总是在修复后探测QuantSim op_modes。 在协作分支中启动长期量化任务前，始终获取上游主版本，避免基于过时接口构建。 实际学习成果 当集成改变CLI界面的上游变更时，完全重写驱动脚本而非补丁；无声API不匹配导致错误数据生产。 视觉记忆信号完全可以从现有数据集的文本元数据获得，避免昂贵的分割或几何投影计算。 对于HD完整幻灯片分析，使用官方8µm分片提供更好的可比性，但在分箱步骤中需小心处理零单元格瓦片。 连续几何轨迹的文本表示相比离散坐标丢失大量信息，为特定任务家族提供视觉叠加是合理的。 每张幻灯片学习的图规范可能导致任意轴翻转，这在单张幻灯片指标中不可见，但对跨幻灯片迁移造成灾难性影响。 对话总结 Qualcomm VLA量化 (pi0.5)✅ 量化错误修复与 API 对齐 19:07:08.257 | claude_code 发现一个关键错误：pi0.5评估忽略了校准编码，导致准确率结果无效（激活值仍为 FP16 格式）。通过 QuantSim 测试验证；发现 Jinhee Kim 当天早些时候在其分支中已修复此问题。合并了 5 个上游提交，与新的 SpinQuant R1/R2 接口保持一致。修复了 aimet_quant_types 中的静默降级错误及磁盘空间问题。启动了低比特率验证矩阵。\nMIHD 研究项目 ✅ 报告重构与聚类分析 00:00:00 | cursor 完成进度报告（结果/TODO/附加内容）的结构性重组。使用 scGPT/TEDDY/NCL 完成了 HD P2 全页聚类（GT-A）。解决了 App-M 矩阵中的空白区域，并标准化了查询协议。进行统计审计并应用了 Holm 校正方法。解决了 scGPT 在零 UMI 切片上的分箱失败以及 HVG 几何测量方向翻转问题。\nRoboMemory (RoboMME) ✅ MVP 设计与发布 04:37:11.950 | claude_code 从复杂的绘制记忆系统转向 MVP，比较了 RouteStick/PatternLock 任务中视觉与文本提示的效果。文献综述确认其新颖性优于 VP-VLA/TraceVLA。实现了子目标解析器/渲染器。验证了文本元数据中的预言信号。完成 pi0.5 烟雾训练及 pilot3 数据预处理。在 Tianhe3 上启动了 30k 步并行训练。\nErrorRecoveryBenchmark ✅ Git 组织与路径迁移 04:15:13.994 | codex 将仓库历史记录整理为不同的主题提交（评估、GR00T、OpenVLA-OFT）。在 Tianhe3 集群进行文件重定位后，更新脚本中的硬编码路径。通过 SSH 验证语法及远程目录存在性。\nTzJsDesktop 开发环境 ❌ 重复的使用命令执行 04:22:25.725 | claude_code 用户连续 100 次执行 /usage 命令而未收到提示。AI 保持不活动状态。没有实质性开发工作发生。\n令牌使用 AI Usage · 2026-08-06\rClaude Code + Codex\rTotal cost$263.33\rTotal tokens148M\rOutput tokens808K\rCache read95.9%\rCost split\rClaude Code $256 ·\rCodex $7\rToken character\rCache reads 95.9% ·\rActive 4.1%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "503",
+  "inLanguage": "zh",
+  "datePublished": "2026-08-06T00:00:00-05:00",
+  "dateModified": "2026-08-06T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-06/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="zh"
+                        data-translation-url="https://tzj2006.github.io/bugjournal/daily/2026-08-06/">EN
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-08-06
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-08-06 00:00:00 -0500 -0500'>2026年8月6日</span>&nbsp;·&nbsp;<span>3 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-08-06">每日报告 — 2026-08-06<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-08-06">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>已完成工作：</strong> 审查并修复了 pi0.5 中的致命静默量化错误，该错误导致之前的结果无效；调整脚本以匹配上游 API 变更；开始低比特率验证；同时完成 MIHD 研究报告的架构重组和聚类分析；设计并启动 RoboMemory 的 MVP 实验，比较视觉提示与文本提示，包括烟雾训练验证。</li>
+<li><strong>实施方法：</strong> 进行对抗性代码审计和内部状态探测，以识别 pi0.5 中缺失的编码负载；通过 git 历史分析来协调不同的准确率指标；使用多智能体编排来构建 MIHD 报告结构和进行统计审计；通过深入文献综述和架构优化来定义 RoboMemory MVP，随后在 Tianhe3 上完成环境设置和训练部署。</li>
+<li><strong>影响：</strong> 恢复了 pi0.5 有效的低比特率评估能力，避免进一步计算浪费；建立了稳健且经统计验证的 MIHD 交付结构；创建了高可信度、低风险的实验流程，用于机器人中的视觉记忆注入。</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 协调多智能体工作流以完成 MIHD 报告，并对 pi0.5 量化脚本进行代码审计/调试。</li>
+<li><strong>实施方法：</strong> 使用 Claude Code CLI 进行文件探索、git 操作、脚本编辑、CUDA/CPU 资源管理，并通过 Cursor IDE 进行并行任务执行。</li>
+<li><strong>影响：</strong> 纠正了基本流程错误，确保数据有效性；实现了实验运行的大规模并行化和报告生成。</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 部署 drawn_memory 模块，通过 SSH 在 Tianhe3 上执行试点数据预处理，并管理 ErrorRecoveryBenchmark 的 git 历史。</li>
+<li><strong>实施方法：</strong> 使用后台 SSH 会话、nohup 进程和自定义部署脚本进行幂等性补丁；使用 Codex 检查分支并分类提交。</li>
+<li><strong>影响：</strong> 实现了从原始数据到处理数据集的完整流程连接；整理了仓库历史以便清晰理解。</li>
+</ul>
+<h3 id="lighthouse">lighthouse<a hidden class="anchor" aria-hidden="true" href="#lighthouse">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 使用基于 CPU 的工作负载对 pi0.5 量化模型进行深度代码审计、错误修复和验证；准备评估环境配置。</li>
+<li><strong>实施方法：</strong> 使用 Monitor 和后台代理进行流程审计，识别由 <code>load_checkpoint</code> 忽略设备标志导致的 OOM 错误，修补脚本，解决检查点下载的 DNS/VPN 问题。</li>
+<li><strong>影响：</strong> 解决了量化结果中的致命静默错误；确保评估基础设施准备就绪。</li>
+</ul>
+<blockquote>
+<p>解决了 pi0.5 流程中的关键静默量化故障，完成了 MIHD 研究进展报告，同时建立了 RoboMemory 视觉记忆实验的基础设施和 MVP 设计。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>✅ <strong>修复 pi0.5 静默量化故障和对齐问题</strong> — 发现激活编码在评估期间生成但从未加载，导致结果无效。通过添加 <code>load_encodings_to_sim</code> 调用来修复。合并了 5 个上游提交以将脚本与新的 SpinQuant R1/R2 接口对齐，并重写 <code>pi05_quantize.sh</code> 以支持每个组件精度。还修复了 <code>aimet_quant_types</code> 中的静默降级错误。</li>
+<li>🔄 <strong>验证 pi0.5 流程并启动低比特率矩阵</strong> — 使用修正后的指标重新评估现有检查点，并启动全面的 W4A4/W8A4 验证矩阵。通过隔离 GPU 环境变量解决了量化过程中的 CPU OOM 问题。</li>
+<li>✅ <strong>完成 MIHD 研究报告结构和分析</strong> — 将英文和中文报告整理为 Results/TODO/Appends。完成了 HD P2 全幻灯片聚类（GT-A），结合 scGPT/TEDDY/NCL 融合，解决了 App-M 矩阵差异，并标准化查询协议。使用 Holm 校正进行统计审计。</li>
+<li>✅ <strong>RoboMemory MVP：视觉与文本提示实验设计</strong> — 将项目转向 MVP，比较 RouteStick/PatternLock 上的 oracle 驱动文本坐标与绘制覆盖层。通过文献综述确认其新颖性超过 VP-VLA/TraceVLA。实现了子目标解析器/渲染器，并验证来自文本元数据的 oracle 信号。</li>
+<li>✅ <strong>RoboMemory：W1 完成和基础设施设置</strong> — 在 Tianhe3 上执行 pi0.5 烟雾训练（1000 步），验证损失收敛，并处理 pilot3 数据。在 lighthouse 上准备评估客户端代码，定义三臂实验设置（绘制/文本/基线）。</li>
+<li>🔄 <strong>启动 RoboMemory 训练和监控状态</strong> — 在 tianhe3 GPU 上启动 Drawn 和 Text 分支的并行 30k 步训练。监控收敛情况。</li>
+<li>✅ <strong>ErrorRecoveryBenchmark Git 组织和路径修复</strong> — 将 git 历史按主题分类。在 Tianhe3 上完成文件重新定位后更新脚本中的硬编码路径，验证语法和远程目录存在性。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-静默量化失败pi05-评估显示有效成功率但激活编码在推理期间未加载导致未量化">1. 静默量化失败：pi0.5 评估显示有效成功率，但激活编码在推理期间未加载，导致未量化。<a hidden class="anchor" aria-hidden="true" href="#1-静默量化失败pi05-评估显示有效成功率但激活编码在推理期间未加载导致未量化">#</a></h4>
+<p><strong>解决方案：</strong> 在 <code>model.py</code> 中为 Vision、Backbone 和 Action Expert 组件添加 <code>load_encodings_to_sim</code>。通过探测 <code>QuantizationSimModel</code> op_modes 验证激活从 <code>updateStats</code> 移动到 <code>quantizeDequantize</code>。合并了 Jinhee Kim 分支中的上游修复。</p>
+<p><strong>关键洞察：</strong> AIMET-ONNX 将量化图（float ONNX）与元数据（编码 JSON）分离。仅加载 ONNX 文件而不明确加载编码会导致未量化推理，即使有“量化”检查点文件夹。</p>
+<h4 id="2-robomme-基线模糊性和新颖性担忧vp-vla视觉噪声和-tracevla微调之间存在冲突质疑视觉提示是否已解决">2. RoboMME 基线模糊性和新颖性担忧：VP-VLA（视觉噪声）和 TraceVLA（微调）之间存在冲突，质疑视觉提示是否已解决。<a hidden class="anchor" aria-hidden="true" href="#2-robomme-基线模糊性和新颖性担忧vp-vla视觉噪声和-tracevla微调之间存在冲突质疑视觉提示是否已解决">#</a></h4>
+<p><strong>解决方案：</strong> 将范围缩小到对两种模式都有 oracle 真实值控制的实验。文献综述确认先前工作专注于“当前意图”或需要微调，为冻结 VLMs 上的“过去记忆可视化”建立了新颖性。</p>
+<p><strong>关键洞察：</strong> 当信息密度超过文本嵌入能力时（例如连续轨迹与离散坐标），视觉提示具有价值。</p>
+<h4 id="3-量化有效性方面的矛盾证据jinhee-的最新结果显示显著下降与应使所有结果无效的静默错误假设相矛盾">3. 量化有效性方面的矛盾证据：Jinhee 的最新结果显示显著下降，与应使所有结果无效的静默错误假设相矛盾。<a hidden class="anchor" aria-hidden="true" href="#3-量化有效性方面的矛盾证据jinhee-的最新结果显示显著下降与应使所有结果无效的静默错误假设相矛盾">#</a></h4>
+<p><strong>解决方案：</strong> 调查 git 历史发现 Jinhee 当天早就在她的分支中修复了精确的编码加载错误。这解决了我们旧损坏代码与她有效/修复结果之间的异常。</p>
+<p><strong>关键洞察：</strong> 人类对最近提交的上下文知识可以迅速解决 AI 可能归因于复杂模型行为或数据问题的逻辑异常。</p>
+<h4 id="4-hvguni2ncl-几何量规翻转跨幻灯片查询显示极端反转versal第3层映射到白质解决方案通过procrustes对齐证明嵌入空间本身随幻灯片独立翻转更新报告叙述以反映这种结构不稳定性而非数据错误">4. HVG+UNI2+NCL 几何量规翻转：跨幻灯片查询显示极端反转versal（第3层映射到白质）。**解决方案：**通过Procrustes对齐证明，嵌入空间本身随幻灯片独立翻转。更新报告叙述以反映这种结构不稳定性，而非数据错误。<a hidden class="anchor" aria-hidden="true" href="#4-hvguni2ncl-几何量规翻转跨幻灯片查询显示极端反转versal第3层映射到白质解决方案通过procrustes对齐证明嵌入空间本身随幻灯片独立翻转更新报告叙述以反映这种结构不稳定性而非数据错误">#</a></h4>
+<p>**关键洞察：**每张幻灯片学习的图规范可能导致任意轴翻转，这在单张幻灯片指标中不可见，但对跨幻灯片迁移造成灾难性影响。</p>
+<h4 id="5-jax-cuda-后端故障空的-cuda_visible_devices-导致后端错误而非回退机制">5. JAX CUDA 后端故障：空的 <code>CUDA_VISIBLE_DEVICES</code> 导致后端错误，而非回退机制。<a hidden class="anchor" aria-hidden="true" href="#5-jax-cuda-后端故障空的-cuda_visible_devices-导致后端错误而非回退机制">#</a></h4>
+<p>**解决方案：**设置 <code>JAX_PLATFORMS=cpu</code> 用于归一化统计，然后明确指定训练使用的GPU。</p>
+<p>**关键洞察：**空设备列表可能导致JAX中的特定后端错误；需要明确处理。</p>
+<h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
+<h4 id="6-cpu量化过程中cuda内存不足lerepo的加载器忽略---host-device-cpu-标志强制权重传输至gpu">6. CPU量化过程中CUDA内存不足：LeRepo的加载器忽略 <code>--host-device cpu</code> 标志，强制权重传输至GPU。<a hidden class="anchor" aria-hidden="true" href="#6-cpu量化过程中cuda内存不足lerepo的加载器忽略---host-device-cpu-标志强制权重传输至gpu">#</a></h4>
+<p>**解决方案：**取消设置/覆盖CUDA环境变量 <code>CUDA_VISIBLE_DEVICES=</code>，或修改 <code>pi05_quantize.sh</code> 以在应用量化前强制回退到CPU加载基础检查点。</p>
+<p>**关键洞察：**明确的API标志通常无法深入渗透第三方加载器；有时需要环境层面的隔离。</p>
+<h4 id="7-scgpt在零umi瓦片上的分箱失败空数组min操作导致具有零有效单元格的瓦片处理崩溃尽管总umi--0">7. scGPT在零UMI瓦片上的分箱失败：空数组min()操作导致具有零有效单元格的瓦片处理崩溃，尽管总UMI &gt; 0。<a hidden class="anchor" aria-hidden="true" href="#7-scgpt在零umi瓦片上的分箱失败空数组min操作导致具有零有效单元格的瓦片处理崩溃尽管总umi--0">#</a></h4>
+<p>**解决方案：**对非零词汇基因的细胞进行过滤，或接受这些特定瓦片的部分完成结果。在Visium HD中被视为数据预处理中的边缘情况。</p>
+<p>**关键洞察：**Visium HD瓦片可能包含零UMI细胞，如果不预先过滤就会破坏下游分箱。</p>
+<h4 id="8-磁盘空间耗尽aimet外部权重在量化过程中填满根分区通过导出-tmpdir-并硬链接共享组件解决">8. 磁盘空间耗尽：AIMET外部权重在量化过程中填满根分区。通过导出 <code>TMPDIR</code> 并硬链接共享组件解决。<a hidden class="anchor" aria-hidden="true" href="#8-磁盘空间耗尽aimet外部权重在量化过程中填满根分区通过导出-tmpdir-并硬链接共享组件解决">#</a></h4>
+<p>**解决方案：**无需处理</p>
+<p>**关键洞察：**AIMET的延迟提取会产生大临时文件；忽略临时目录是常见的设置陷阱。</p>
+<h4 id="9-qformer在完整幻灯片上内存不足标准gpu无法支持17k点的自注意力计算">9. QFormer在完整幻灯片上内存不足：标准GPU无法支持17k点的自注意力计算。<a hidden class="anchor" aria-hidden="true" href="#9-qformer在完整幻灯片上内存不足标准gpu无法支持17k点的自注意力计算">#</a></h4>
+<p>**解决方案：**固定到高内存GPU <code>5000_ada</code>，并实现分块前向传递逻辑。拒绝简单的子采样以保持科学协议的兼容性。</p>
+<p>**关键洞察：**没有明确的内存策略，标准VRAM限制无法支持完整幻灯片的自注意力计算。</p>
+<h2 id="人类与ai方法">人类与AI方法<a hidden class="anchor" aria-hidden="true" href="#人类与ai方法">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="无声量化错误和矛盾结果的根本原因">无声量化错误和矛盾结果的根本原因<a hidden class="anchor" aria-hidden="true" href="#无声量化错误和矛盾结果的根本原因">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>人类认为结果错误是因为缺乏改进。注意到Jinhee的14.5%下降结果阻止了过快接受“完全损坏”的结论，成为逻辑锚点。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI进行对抗性审计，探测 <code>QuantSim</code> 内部状态 <code>op_mode</code>，证明激活未量化，并通过git blame/日志调查与Jinhee结果的时间差异。</td>
+      </tr>
+  </tbody>
+</table>
+<p>**差异分析：**人类提供战略怀疑和上下文异常检测；AI执行运行时检查和历史验证，解决“代码显示已量化”与“推理显示浮点”之间的矛盾。</p>
+<h4 id="robomemory项目范围定义">RoboMemory项目范围定义<a hidden class="anchor" aria-hidden="true" href="#robomemory项目范围定义">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户拒绝复杂的绘制记忆系统，坚持简单MVP问题：“视觉提示有帮助吗？”并针对文本失效的任务。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>初始提案过度设计解决方案。AI转向识别机制差距（轨迹的文本编码损失），并根据人类的简化约束设计控制实验。</td>
+      </tr>
+  </tbody>
+</table>
+<p>**差异分析：**人类关注基本问题和任务选择，排除复杂性。AI将其转化为基于预言机的具体比较设计。</p>
+<h4 id="hvg查询反转解释">HVG查询反转解释<a hidden class="anchor" aria-hidden="true" href="#hvg查询反转解释">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>最初怀疑数据错误或路由错误（“完全相反”），要求调查。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>进行几何分析证明这是独立图学习的结构性方法限制（轴翻转），而非数据加载错误。</td>
+      </tr>
+  </tbody>
+</table>
+<p>**差异分析：**人类寻找数据错误；AI证明这是结构性的方法限制。</p>
+<h4 id="视觉记忆注入设计和预言源">视觉记忆注入设计和预言源<a hidden class="anchor" aria-hidden="true" href="#视觉记忆注入设计和预言源">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>关注战略约束（零成本覆盖）并质疑扫描原始h5文件的效率。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>验证现有的pkl文本字段包含所有必要信号，无需复杂的侧载文件。提供解析器/渲染器的实现细节。</td>
+      </tr>
+  </tbody>
+</table>
+<p>**差异分析：**人类通过质疑假设提高效率；AI通过模式分析进行验证。</p>
+<h2 id="ai限制">AI限制<a hidden class="anchor" aria-hidden="true" href="#ai限制">#</a></h2>
+<h3 id="关键限制">关键限制<a hidden class="anchor" aria-hidden="true" href="#关键限制">#</a></h3>
+<ul>
+<li>在启动长期量化任务前未能检测到Jinhee的分支领先，导致在过时的接口上浪费计算资源。</li>
+</ul>
+<h3 id="一般限制">一般限制<a hidden class="anchor" aria-hidden="true" href="#一般限制">#</a></h3>
+<ul>
+<li>无法阻止LeRepo/LeRobot加载器在SDK设备提示下强制使用CUDA，需要环境变量解决方案。</li>
+<li>依赖WebSearch获取非常新的（2026年）论文存在幻觉风险；在得出新颖性结论前，手动验证arXiv链接至关重要。</li>
+<li>未能将重复 /usage命令解释为潜在错误/挂起状态，提供通用响应而非调查用户意图。</li>
+<li>AI对QFormer的初步修复建议为子采样，人类正确识别这是改变科学协议而非解决内存限制。</li>
+</ul>
+<h2 id="学习成果">学习成果<a hidden class="anchor" aria-hidden="true" href="#学习成果">#</a></h2>
+<h3 id="关键学习成果">关键学习成果<a hidden class="anchor" aria-hidden="true" href="#关键学习成果">#</a></h3>
+<ul>
+<li>AIMET-ONNX量化不会在保存/加载循环中保持持久性，除非明确调用 <code>load_encodings_to_sim</code>;总是在修复后探测QuantSim op_modes。</li>
+<li>在协作分支中启动长期量化任务前，始终获取上游主版本，避免基于过时接口构建。</li>
+</ul>
+<h3 id="实际学习成果">实际学习成果<a hidden class="anchor" aria-hidden="true" href="#实际学习成果">#</a></h3>
+<ul>
+<li>当集成改变CLI界面的上游变更时，完全重写驱动脚本而非补丁；无声API不匹配导致错误数据生产。</li>
+<li>视觉记忆信号完全可以从现有数据集的文本元数据获得，避免昂贵的分割或几何投影计算。</li>
+<li>对于HD完整幻灯片分析，使用官方8µm分片提供更好的可比性，但在分箱步骤中需小心处理零单元格瓦片。</li>
+<li>连续几何轨迹的文本表示相比离散坐标丢失大量信息，为特定任务家族提供视觉叠加是合理的。</li>
+<li>每张幻灯片学习的图规范可能导致任意轴翻转，这在单张幻灯片指标中不可见，但对跨幻灯片迁移造成灾难性影响。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<h3 id="qualcomm-vla量化-pi05-量化错误修复与-api-对齐">Qualcomm VLA量化 (pi0.5)<strong>✅ 量化错误修复与 API 对齐</strong><a hidden class="anchor" aria-hidden="true" href="#qualcomm-vla量化-pi05-量化错误修复与-api-对齐">#</a></h3>
+<p><em>19:07:08.257 | claude_code</em>
+发现一个关键错误：pi0.5评估忽略了校准编码，导致准确率结果无效（激活值仍为 FP16 格式）。通过 QuantSim 测试验证；发现 Jinhee Kim 当天早些时候在其分支中已修复此问题。合并了 5 个上游提交，与新的 SpinQuant R1/R2 接口保持一致。修复了 <code>aimet_quant_types</code> 中的静默降级错误及磁盘空间问题。启动了低比特率验证矩阵。</p>
+<h3 id="mihd-研究项目">MIHD 研究项目<a hidden class="anchor" aria-hidden="true" href="#mihd-研究项目">#</a></h3>
+<p><strong>✅ 报告重构与聚类分析</strong>
+<em>00:00:00 | cursor</em>
+完成进度报告（结果/TODO/附加内容）的结构性重组。使用 scGPT/TEDDY/NCL 完成了 HD P2 全页聚类（GT-A）。解决了 App-M 矩阵中的空白区域，并标准化了查询协议。进行统计审计并应用了 Holm 校正方法。解决了 scGPT 在零 UMI 切片上的分箱失败以及 HVG 几何测量方向翻转问题。</p>
+<h3 id="robomemory-robomme">RoboMemory (RoboMME)<a hidden class="anchor" aria-hidden="true" href="#robomemory-robomme">#</a></h3>
+<p><strong>✅ MVP 设计与发布</strong>
+<em>04:37:11.950 | claude_code</em>
+从复杂的绘制记忆系统转向 MVP，比较了 RouteStick/PatternLock 任务中视觉与文本提示的效果。文献综述确认其新颖性优于 VP-VLA/TraceVLA。实现了子目标解析器/渲染器。验证了文本元数据中的预言信号。完成 pi0.5 烟雾训练及 pilot3 数据预处理。在 Tianhe3 上启动了 30k 步并行训练。</p>
+<h3 id="errorrecoverybenchmark">ErrorRecoveryBenchmark<a hidden class="anchor" aria-hidden="true" href="#errorrecoverybenchmark">#</a></h3>
+<p><strong>✅ Git 组织与路径迁移</strong>
+<em>04:15:13.994 | codex</em>
+将仓库历史记录整理为不同的主题提交（评估、GR00T、OpenVLA-OFT）。在 Tianhe3 集群进行文件重定位后，更新脚本中的硬编码路径。通过 SSH 验证语法及远程目录存在性。</p>
+<h3 id="tzjsdesktop-开发环境">TzJsDesktop 开发环境<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop-开发环境">#</a></h3>
+<p><strong>❌ 重复的使用命令执行</strong>
+<em>04:22:25.725 | claude_code</em>
+用户连续 100 次执行 /usage 命令而未收到提示。AI 保持不活动状态。没有实质性开发工作发生。</p>
+<h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-08-06</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$263.33</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>148M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>808K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>95.9%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $256</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $7</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (97.3%), Codex (2.7%)">
+          <span style="width:97.3%; background:var(--usage-cost-main)"></span>
+          <span style="width:2.7%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 95.9%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 4.1%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (95.9%), active tokens (4.1%)">
+          <span style="width:95.9%; background:var(--usage-cache)"></span>
+          <span style="width:4.1%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:349af2fc86399407 -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
