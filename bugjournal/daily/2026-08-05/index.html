@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-08-05 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="Resolved critical GR00T W4 quantization accuracy collapse by fixing RMSNorm configuration and validated deployability; completed Phd application strategy audit and MIHD progress report overhaul with full-slide clustering; optimized TokenMonitor rate-limiting and ErrorRecoveryBenchmark repository state with significant remote disk cleanup.">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/bugjournal/daily/2026-08-05/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-08-05/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-05/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/bugjournal/daily/2026-08-05/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-08-05">
+  <meta property="og:description" content="Resolved critical GR00T W4 quantization accuracy collapse by fixing RMSNorm configuration and validated deployability; completed Phd application strategy audit and MIHD progress report overhaul with full-slide clustering; optimized TokenMonitor rate-limiting and ErrorRecoveryBenchmark repository state with significant remote disk cleanup.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-08-05T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-08-05T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-08-05">
+  <meta name="twitter:description" content="Resolved critical GR00T W4 quantization accuracy collapse by fixing RMSNorm configuration and validated deployability; completed Phd application strategy audit and MIHD progress report overhaul with full-slide clustering; optimized TokenMonitor rate-limiting and ErrorRecoveryBenchmark repository state with significant remote disk cleanup.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-08-05",
+      "item": "https://tzj2006.github.io/bugjournal/daily/2026-08-05/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-08-05",
+  "name": "Bug Journal 2026-08-05",
+  "description": "Resolved critical GR00T W4 quantization accuracy collapse by fixing RMSNorm configuration and validated deployability; completed Phd application strategy audit and MIHD progress report overhaul with full-slide clustering; optimized TokenMonitor rate-limiting and ErrorRecoveryBenchmark repository state with significant remote disk cleanup.",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-08-05 Daily Overview What was done: Delivered definitive fixes for GR00T model quantization accuracy (RMSNorm/Int4) while simultaneously executing complex multi-agent campaigns for MIHD spatial transcriptomics analysis, PhD application planning, and ErrorRecoveryBenchmark repository cleanup. Additionally, resolved TokenMonitor’s self-inflicted API rate limits and diagnosed hardware-level USB interference causing input latency. How it was done: Employed extensive parallel agent orchestration for GPU experimentation (AIMET validation), filesystem auditing (Tianhe3 disk cleanup), and code refactoring (TokenMonitor Keychain removal). Manual verification was used for PhD policy nuances, git state analysis, and hardware troubleshooting via DPC/ISR metrics. Impact: Secured deployable W4/W8 quantization configurations for GR00T with negligible accuracy loss, reclaimed ~1.2TB+ of storage across HPC clusters, established a robust roadmap for 2027 PhD applications, and restored critical monitoring functionality in TokenMonitor while cleaning up technical debt in ErrorRecoveryBenchmark. MacOS What was done: Coordinated PhD application strategy research, MIHD report restructuring, and ErrorRecoveryBenchmark archival planning. Diagnosed USB interference causes for peripheral latency. How it was done: Used web search tools to verify university admission policies and professor affiliations; executed parallel shell commands for disk audits (~1.9TB scanned); managed git state and dual-version release strategies for ErrorRecoveryBenchmark. Impact: Defined high-level strategic roadmaps for PhD admissions and project releases, while identifying root causes for hardware latency issues. TzJsDesktop What was done: Executed core development tasks including GR00T quantization debugging, TokenMonitor refactoring, ErrorRecoveryBenchmark git operations, and MIHD pipeline execution. How it was done: Utilized CLI tools for AIMET config fixes (norm_bw=16), PowerShell for DPC analysis, and iterative coding for TokenMonitor’s new claude_cli.rs module. Orchestrated SLURM jobs for HD clustering and managed tmux sessions for matrix validation. Impact: Resolved critical technical blockers: quantization collapse, token rate-limit bans, disk exhaustion, and test suite failures. Delivered clean git commits and robust pipeline scripts. lighthouse What was done: Audited final deliverables for MIHD progress report and verified HTML rendering consistency. How it was done: Automated audits on claim evidence ledgers and generated significance testing units to ensure scientific rigor in the final documentation. Impact: Validated the integrity of experimental results and documentation before final submission, ensuring no broken links or false claims were propagated. Resolved critical GR00T W4 quantization accuracy collapse by fixing RMSNorm configuration and validated deployability; completed Phd application strategy audit and MIHD progress report overhaul with full-slide clustering; optimized TokenMonitor rate-limiting and ErrorRecoveryBenchmark repository state with significant remote disk cleanup.\nTasks Architecture \u0026 Strategy ✅ GR00T RMSNorm Quantization Fix \u0026 Validation — Corrected W4 quantization collapse by excluding RMSNorm scales from int4 or setting norm_bw=16. Validated full 8-grid accuracy matrix proving deployability with \u003c0.1% loss vs FP norms. ✅ PhD Application Strategy \u0026 Policy Audit — Generated comprehensive 17-week plan for 2027 Fall CS/Robotics PhD, verified TOEFL waiver rules (expired score nuances), and audited target professor affiliations. ✅ MIHD Progress Report Overhaul \u0026 Clustering — Completed HD full-slide clustering (43 tiles), refined fair query protocols (FUCR/SLPT), and restructured report documentation with verified claim evidence. ✅ TokenMonitor Rate-Limit \u0026 Keychain Refactor — Fixed vanishing Claude usage data by switching to claude -p '/usage' CLI. Removed ~1,400 lines of macOS Keychain dependency code for cross-platform simplification. ✅ ErrorRecoveryBenchmark Repository Cleanup \u0026 Auditing — Performed deep git state audit, categorized uncommitted changes into five themes, executed thematic commits, and fixed unit tests for Windows compatibility. ✅ Tianhe3 High-Performance Computing Disk Cleanup — Archived GR00T artifacts and cleaned ~247GB+ of junk files on the remote HPC cluster to prevent storage pool exhaustion. ✅ Hardware Latency Diagnosis (USB/Windows) — Diagnosed mouse stuttering as RF interference from USB 3.0 ports affecting 2.4GHz receivers, providing actionable hardware mitigation steps. Implementation \u0026 Fixes ✅ OpenVLA/GR00T Pipeline Infrastructure Debugging — Resolved disk space leaks in pi0.5 matrix execution, fixed scGPT zero-UMI bar failures, and addressed CUDA OOMs via chunked forward passes. Problems \u0026 Solutions Critical Issues 1. GR00T W4 quantization accuracy collapsed to \u003c12% due to RMSNorm scales being incorrectly quantized as int4 per-tensor by default AIMET config. Solution: Identified that multiplicative norm scales have high dynamic range incompatible with int4. Fixed by setting norm_bw=16 or excluding norms from weight quantization. Validated via extensive GPU grid testing.\nKey Insight: AIMet’s default_param_bw=4 applies to all unmapped layers, destroying norm values. Norm parameters must always be preserved (FP) or set to \u003e=16-bit.\n2. TokenMonitor’s aggressive HTTP polling of Anthropic OAuth API caused a self-inflicted 429 rate-limit ban, hiding all usage data. Solution: Pivoted data source from direct API calls to the local claude -p '/usage' CLI command. This bypasses rate limits entirely as it reads local state rather than requesting tokens.\nKey Insight: Monitor tools should prioritize local vendor CLIs/statuslines over public APIs when available, to avoid rate-limit conflicts and authentication complexity.\n3. Tianhe3 cluster storage approaching capacity (1.6TB+ usage) with large intermediate checkpoints and HF caches. Solution: Audited disk usage via parallel agents; identified redundant LoRA checkpoints and inactive artifacts. Executed targeted cleanup/archival scripts to reclaim ~247GB+.\nKey Insight: High-frequency checkpointing in training runs creates massive redundancy. Automated prunning strategies must be implemented early in pipeline design.\n4. Cursor latency/stuttering on Windows desktop despite low CPU/DPC loads. Solution: Diagnosed as RF interference from USB 3.0 SuperSpeed signals leaking into the 2.4GHz band used by wireless mice. Verified by observing latency cessation when receiver port was changed.\nKey Insight: Input device latency issues on Windows should first investigate electromagnetic interference (USB 3.0 spectral leakage) before exploring driver/DPC optimizations.\n5. RebutBench audit reported 0/1360 human demos as qualified, suggesting severe data failure. Solution: Root-caused the issue to a harness bug where outdated indices pointed to previously deleted scene files (FileNotFound). The actual demo data was healthy.\nKey Insight: Audit failures in benchmarks may stem from infrastructure/indexing bugs rather than data quality issues; always verify test harness integrity first.\nGeneral Issues 6. MIHD HD QFormer fusion failed with CUDA OOM on full slides due to self-attention memory scaling with sequence length. Solution: Implemented spot-chunking in QFormerFusion.py to process spots in batches (e.g., 4096), reducing peak memory usage while maintaining embedding dimensions.\nKey Insight: Transformer-based models on high-density spatial data require chunked inference strategies to fit within GPU memory constraints.\n7. pi0.5 accuracy matrix failed due to ‘No space left on device’ caused by AIMET ONNX export leaving large temporary files in TMPDIR. Solution: Identified the leak of ~7GB temp files per task. Fixed pipeline scripts with explicit cleanup traps and verified sufficient disk space before launching long-running matrices.\nKey Insight: Shared HPC environments are volatile; pipelines must explicitly manage local temp files rather than relying on OS auto-cleanup.\n8. Windows-specific path separators and ACL permissions caused unit test failures and temp directory access denied errors in ErrorRecoveryBenchmark. Solution: Updated scripts to use platform-aware path logic (os.path) and configured pytest to use repo-local ignored directories for temp storage to bypass ACL restrictions.\nKey Insight: Cross-platform compatibility requires explicit handling of OS-specific paths and strict adherence to Windows permission models in testing frameworks.\nHuman vs AI Approaches Strategic Decision Making (PhD \u0026 Release Plans) Role Approach Human User prioritized long-term PhD strategy over short-term panic, deciding to retain ‘48.6%’ headline for consistency despite data discrepancies. Directed dual-version release plan for ErrorRecoveryBenchmark. AI AI pivoted focus from immediate barriers (expired TOEFL) to structural risks (professor affiliations). Provided technical execution for dual-track releases and audit verification. Difference Analysis: User defined the strategic context and acceptance criteria (consistency \u003e precision, long-term planning); AI provided the mechanistic proof and technical scaffolding to execute these high-level decisions safely.\nTechnical Diagnosis \u0026 Verification Role Approach Human User identified discrepancies in quantization results (W4 collapse) and suggested using vendor CLI (claude -p) for monitoring, correcting AI assumptions about CLI capabilities. AI AI performed systematic variable isolation (AIMET defaults, channel destruction stats), verified the viability of the user’s CLI suggestion, and implemented the robust claude_cli.rs module. Difference Analysis: User provided critical strategic shortcuts and identified high-level failure points; AI supplied the deep technical validation and implementation details to confirm and execute the solution.\nAI Limitations General Limitations Git diff tools initially over-reported changes by including untracked binaries (~29k lines vs 1.7k actual code changes), requiring manual filtering for accurate code review metrics. AI initially underestimated pi0.5 matrix runtime (~15h vs actual ~40h) and relied on memory for professor affiliations before verifying, risking outdated outreach targets. AI struggled to distinguish one-slide vs. two-slide feature spaces in MIHD query metrics initially, leading to ambiguous comparisons that required user correction. Learnings Key Learnings RMSNorm/LayerNorm scales are highly sensitive to quantization; always enforce FP or \u003e=16-bit bitwidth for multiplicative norm parameters in AIMET pipelines. Monitoring IDE/Agent usage should prioritize local CLI output or statuslines over public APIs to avoid rate-limit conflicts and simplify authentication flows. Admissions policies regarding ’expired’ TOEFL scores are nuanced; applicants with US degrees may still qualify via PDF uploads even if official validity has passed. Chunked forward passes are essential for scaling transformer models to high-density spatial transcriptomics data (HD) without OOM errors. Fair evaluation of foundation models requires strict control over feature spaces; ignoring alignment between methods (e.g., HVG vs Transformers) leads to misleading baselines. Practical Learnings USB 3.0 signals generate harmonics in the 2.4GHz band; placing wireless receivers near USB3 ports is a common source of input latency that often mimics software issues. Conversation Summaries Qualcomm-GR00T-VLA • RMSNorm Quantization Fix \u0026 Deployability Validation 18:04:08.207 | claude_code Resolved critical W4 quantization collapse in GR00T by identifying that RMSNorm scales were incorrectly quantized to int4. Fixed by setting norm_bw=16 or preserving FP. Extensive validation across 3 GPUs confirmed 16-bit norm yields equivalent accuracy (~97-99%) compared to FP norms, establishing a deployable W4A16 path.\nPhD-Application-Strategy • CS/Robotics PhD Plan \u0026 Policy Audit 18:46:31.363 | claude_code Developed a comprehensive 17-week application plan for 2027 Fall CS/Robotics PhD. Audited TOEFL waiver rules (noting CMU accepts expired scores for US degree holders), verified professor affiliations via WebSearch, and generated email templates to mitigate strategic risks.\nMIHD Progress Report • Multi-agent Campaign for Report Overhaul \u0026 Clustering 10:00:00-04:00 | cursor Executed a comprehensive campaign to finalize the MIHD progress report. Completed HD full-slide clustering (43 tiles), refined fair query protocols (FUCR/SLPT) to distinguish one/two-slide gene spaces, and restructured documentation with verified claim evidence ledgers.\nTokenMonitor • Rate-Limit Ban Fix \u0026 Architecture Simplification 18:36:52.309 | claude_code Resolved vanishing Claude usage data in TokenMonitor caused by self-inflicted API rate limits. Refactored to use claude -p '/usage' CLI, eliminating rate-limit exposure. Simultaneously removed ~1,400 lines of macOS Keychain dependency code to simplify cross-platform support.\nErrorRecoveryBenchmark • Repository Audit \u0026 Thematic Committing 02:53:30.875 | codex Performed deep audit of ErrorRecoveryBenchmark repo, categorizing uncommitted changes into five themes (Eval Protocol, GR00T, OpenVLA, etc.). Executed focused git commits for each theme, fixed Windows-specific test suite issues, and updated .gitignore to exclude internal artifacts.\nHPC Disk Management • Multi-TB Storage Audit \u0026 Cleanup Strategy 15:09:00-04:00 | cursor Orchestrated parallel agents to scan 1.9TB of storage on Tianhe3 and local directories. Identified redundant checkpoints and caches, proposing safe deletion strategies to reclaim ~247GB+ and prevent Lustre pool exhaustion.\nToken Usage AI Usage · 2026-08-05\rClaude Code + Codex\rTotal cost$191.96\rTotal tokens130M\rOutput tokens1M\rCache read93.4%\rCost split\rClaude Code $189 ·\rCodex $3\rToken character\rCache reads 93.4% ·\rActive 6.6%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "1860",
+  "inLanguage": "en",
+  "datePublished": "2026-08-05T00:00:00-05:00",
+  "dateModified": "2026-08-05T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/bugjournal/daily/2026-08-05/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="en"
+                        data-translation-url="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-05/">中文
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-08-05
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-08-05 00:00:00 -0500 -0500'>August 5, 2026</span>&nbsp;·&nbsp;<span>9 min</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-08-05">Daily Report — 2026-08-05<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-08-05">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>What was done:</strong> Delivered definitive fixes for GR00T model quantization accuracy (RMSNorm/Int4) while simultaneously executing complex multi-agent campaigns for MIHD spatial transcriptomics analysis, PhD application planning, and ErrorRecoveryBenchmark repository cleanup. Additionally, resolved TokenMonitor&rsquo;s self-inflicted API rate limits and diagnosed hardware-level USB interference causing input latency.</li>
+<li><strong>How it was done:</strong> Employed extensive parallel agent orchestration for GPU experimentation (AIMET validation), filesystem auditing (Tianhe3 disk cleanup), and code refactoring (TokenMonitor Keychain removal). Manual verification was used for PhD policy nuances, git state analysis, and hardware troubleshooting via DPC/ISR metrics.</li>
+<li><strong>Impact:</strong> Secured deployable W4/W8 quantization configurations for GR00T with negligible accuracy loss, reclaimed ~1.2TB+ of storage across HPC clusters, established a robust roadmap for 2027 PhD applications, and restored critical monitoring functionality in TokenMonitor while cleaning up technical debt in ErrorRecoveryBenchmark.</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>What was done:</strong> Coordinated PhD application strategy research, MIHD report restructuring, and ErrorRecoveryBenchmark archival planning. Diagnosed USB interference causes for peripheral latency.</li>
+<li><strong>How it was done:</strong> Used web search tools to verify university admission policies and professor affiliations; executed parallel shell commands for disk audits (~1.9TB scanned); managed git state and dual-version release strategies for ErrorRecoveryBenchmark.</li>
+<li><strong>Impact:</strong> Defined high-level strategic roadmaps for PhD admissions and project releases, while identifying root causes for hardware latency issues.</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>What was done:</strong> Executed core development tasks including GR00T quantization debugging, TokenMonitor refactoring, ErrorRecoveryBenchmark git operations, and MIHD pipeline execution.</li>
+<li><strong>How it was done:</strong> Utilized CLI tools for AIMET config fixes (norm_bw=16), PowerShell for DPC analysis, and iterative coding for TokenMonitor&rsquo;s new <code>claude_cli.rs</code> module. Orchestrated SLURM jobs for HD clustering and managed tmux sessions for matrix validation.</li>
+<li><strong>Impact:</strong> Resolved critical technical blockers: quantization collapse, token rate-limit bans, disk exhaustion, and test suite failures. Delivered clean git commits and robust pipeline scripts.</li>
+</ul>
+<h3 id="lighthouse">lighthouse<a hidden class="anchor" aria-hidden="true" href="#lighthouse">#</a></h3>
+<ul>
+<li><strong>What was done:</strong> Audited final deliverables for MIHD progress report and verified HTML rendering consistency.</li>
+<li><strong>How it was done:</strong> Automated audits on claim evidence ledgers and generated significance testing units to ensure scientific rigor in the final documentation.</li>
+<li><strong>Impact:</strong> Validated the integrity of experimental results and documentation before final submission, ensuring no broken links or false claims were propagated.</li>
+</ul>
+<blockquote>
+<p>Resolved critical GR00T W4 quantization accuracy collapse by fixing RMSNorm configuration and validated deployability; completed Phd application strategy audit and MIHD progress report overhaul with full-slide clustering; optimized TokenMonitor rate-limiting and ErrorRecoveryBenchmark repository state with significant remote disk cleanup.</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<ul>
+<li>✅ <strong>GR00T RMSNorm Quantization Fix &amp; Validation</strong> — Corrected W4 quantization collapse by excluding RMSNorm scales from int4 or setting norm_bw=16. Validated full 8-grid accuracy matrix proving deployability with &lt;0.1% loss vs FP norms.</li>
+<li>✅ <strong>PhD Application Strategy &amp; Policy Audit</strong> — Generated comprehensive 17-week plan for 2027 Fall CS/Robotics PhD, verified TOEFL waiver rules (expired score nuances), and audited target professor affiliations.</li>
+<li>✅ <strong>MIHD Progress Report Overhaul &amp; Clustering</strong> — Completed HD full-slide clustering (43 tiles), refined fair query protocols (FUCR/SLPT), and restructured report documentation with verified claim evidence.</li>
+<li>✅ <strong>TokenMonitor Rate-Limit &amp; Keychain Refactor</strong> — Fixed vanishing Claude usage data by switching to <code>claude -p '/usage'</code> CLI. Removed ~1,400 lines of macOS Keychain dependency code for cross-platform simplification.</li>
+<li>✅ <strong>ErrorRecoveryBenchmark Repository Cleanup &amp; Auditing</strong> — Performed deep git state audit, categorized uncommitted changes into five themes, executed thematic commits, and fixed unit tests for Windows compatibility.</li>
+<li>✅ <strong>Tianhe3 High-Performance Computing Disk Cleanup</strong> — Archived GR00T artifacts and cleaned ~247GB+ of junk files on the remote HPC cluster to prevent storage pool exhaustion.</li>
+<li>✅ <strong>Hardware Latency Diagnosis (USB/Windows)</strong> — Diagnosed mouse stuttering as RF interference from USB 3.0 ports affecting 2.4GHz receivers, providing actionable hardware mitigation steps.</li>
+</ul>
+<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<ul>
+<li>✅ <strong>OpenVLA/GR00T Pipeline Infrastructure Debugging</strong> — Resolved disk space leaks in pi0.5 matrix execution, fixed scGPT zero-UMI bar failures, and addressed CUDA OOMs via chunked forward passes.</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-gr00t-w4-quantization-accuracy-collapsed-to-12-due-to-rmsnorm-scales-being-incorrectly-quantized-as-int4-per-tensor-by-default-aimet-config">1. GR00T W4 quantization accuracy collapsed to &lt;12% due to RMSNorm scales being incorrectly quantized as int4 per-tensor by default AIMET config.<a hidden class="anchor" aria-hidden="true" href="#1-gr00t-w4-quantization-accuracy-collapsed-to-12-due-to-rmsnorm-scales-being-incorrectly-quantized-as-int4-per-tensor-by-default-aimet-config">#</a></h4>
+<p><strong>Solution:</strong> Identified that multiplicative norm scales have high dynamic range incompatible with int4. Fixed by setting <code>norm_bw=16</code> or excluding norms from weight quantization. Validated via extensive GPU grid testing.</p>
+<p><strong>Key Insight:</strong> AIMet&rsquo;s <code>default_param_bw=4</code> applies to all unmapped layers, destroying norm values. Norm parameters must always be preserved (FP) or set to &gt;=16-bit.</p>
+<h4 id="2-tokenmonitors-aggressive-http-polling-of-anthropic-oauth-api-caused-a-self-inflicted-429-rate-limit-ban-hiding-all-usage-data">2. TokenMonitor&rsquo;s aggressive HTTP polling of Anthropic OAuth API caused a self-inflicted 429 rate-limit ban, hiding all usage data.<a hidden class="anchor" aria-hidden="true" href="#2-tokenmonitors-aggressive-http-polling-of-anthropic-oauth-api-caused-a-self-inflicted-429-rate-limit-ban-hiding-all-usage-data">#</a></h4>
+<p><strong>Solution:</strong> Pivoted data source from direct API calls to the local <code>claude -p '/usage'</code> CLI command. This bypasses rate limits entirely as it reads local state rather than requesting tokens.</p>
+<p><strong>Key Insight:</strong> Monitor tools should prioritize local vendor CLIs/statuslines over public APIs when available, to avoid rate-limit conflicts and authentication complexity.</p>
+<h4 id="3-tianhe3-cluster-storage-approaching-capacity-16tb-usage-with-large-intermediate-checkpoints-and-hf-caches">3. Tianhe3 cluster storage approaching capacity (1.6TB+ usage) with large intermediate checkpoints and HF caches.<a hidden class="anchor" aria-hidden="true" href="#3-tianhe3-cluster-storage-approaching-capacity-16tb-usage-with-large-intermediate-checkpoints-and-hf-caches">#</a></h4>
+<p><strong>Solution:</strong> Audited disk usage via parallel agents; identified redundant LoRA checkpoints and inactive artifacts. Executed targeted cleanup/archival scripts to reclaim ~247GB+.</p>
+<p><strong>Key Insight:</strong> High-frequency checkpointing in training runs creates massive redundancy. Automated prunning strategies must be implemented early in pipeline design.</p>
+<h4 id="4-cursor-latencystuttering-on-windows-desktop-despite-low-cpudpc-loads">4. Cursor latency/stuttering on Windows desktop despite low CPU/DPC loads.<a hidden class="anchor" aria-hidden="true" href="#4-cursor-latencystuttering-on-windows-desktop-despite-low-cpudpc-loads">#</a></h4>
+<p><strong>Solution:</strong> Diagnosed as RF interference from USB 3.0 SuperSpeed signals leaking into the 2.4GHz band used by wireless mice. Verified by observing latency cessation when receiver port was changed.</p>
+<p><strong>Key Insight:</strong> Input device latency issues on Windows should first investigate electromagnetic interference (USB 3.0 spectral leakage) before exploring driver/DPC optimizations.</p>
+<h4 id="5-rebutbench-audit-reported-01360-human-demos-as-qualified-suggesting-severe-data-failure">5. RebutBench audit reported 0/1360 human demos as qualified, suggesting severe data failure.<a hidden class="anchor" aria-hidden="true" href="#5-rebutbench-audit-reported-01360-human-demos-as-qualified-suggesting-severe-data-failure">#</a></h4>
+<p><strong>Solution:</strong> Root-caused the issue to a harness bug where outdated indices pointed to previously deleted scene files (FileNotFound). The actual demo data was healthy.</p>
+<p><strong>Key Insight:</strong> Audit failures in benchmarks may stem from infrastructure/indexing bugs rather than data quality issues; always verify test harness integrity first.</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="6-mihd-hd-qformer-fusion-failed-with-cuda-oom-on-full-slides-due-to-self-attention-memory-scaling-with-sequence-length">6. MIHD HD QFormer fusion failed with CUDA OOM on full slides due to self-attention memory scaling with sequence length.<a hidden class="anchor" aria-hidden="true" href="#6-mihd-hd-qformer-fusion-failed-with-cuda-oom-on-full-slides-due-to-self-attention-memory-scaling-with-sequence-length">#</a></h4>
+<p><strong>Solution:</strong> Implemented spot-chunking in QFormerFusion.py to process spots in batches (e.g., 4096), reducing peak memory usage while maintaining embedding dimensions.</p>
+<p><strong>Key Insight:</strong> Transformer-based models on high-density spatial data require chunked inference strategies to fit within GPU memory constraints.</p>
+<h4 id="7-pi05-accuracy-matrix-failed-due-to-no-space-left-on-device-caused-by-aimet-onnx-export-leaving-large-temporary-files-in-tmpdir">7. pi0.5 accuracy matrix failed due to &lsquo;No space left on device&rsquo; caused by AIMET ONNX export leaving large temporary files in TMPDIR.<a hidden class="anchor" aria-hidden="true" href="#7-pi05-accuracy-matrix-failed-due-to-no-space-left-on-device-caused-by-aimet-onnx-export-leaving-large-temporary-files-in-tmpdir">#</a></h4>
+<p><strong>Solution:</strong> Identified the leak of ~7GB temp files per task. Fixed pipeline scripts with explicit cleanup traps and verified sufficient disk space before launching long-running matrices.</p>
+<p><strong>Key Insight:</strong> Shared HPC environments are volatile; pipelines must explicitly manage local temp files rather than relying on OS auto-cleanup.</p>
+<h4 id="8-windows-specific-path-separators-and-acl-permissions-caused-unit-test-failures-and-temp-directory-access-denied-errors-in-errorrecoverybenchmark">8. Windows-specific path separators and ACL permissions caused unit test failures and temp directory access denied errors in ErrorRecoveryBenchmark.<a hidden class="anchor" aria-hidden="true" href="#8-windows-specific-path-separators-and-acl-permissions-caused-unit-test-failures-and-temp-directory-access-denied-errors-in-errorrecoverybenchmark">#</a></h4>
+<p><strong>Solution:</strong> Updated scripts to use platform-aware path logic (os.path) and configured pytest to use repo-local ignored directories for temp storage to bypass ACL restrictions.</p>
+<p><strong>Key Insight:</strong> Cross-platform compatibility requires explicit handling of OS-specific paths and strict adherence to Windows permission models in testing frameworks.</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-decision-making-phd--release-plans">Strategic Decision Making (PhD &amp; Release Plans)<a hidden class="anchor" aria-hidden="true" href="#strategic-decision-making-phd--release-plans">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>User prioritized long-term PhD strategy over short-term panic, deciding to retain &lsquo;48.6%&rsquo; headline for consistency despite data discrepancies. Directed dual-version release plan for ErrorRecoveryBenchmark.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI pivoted focus from immediate barriers (expired TOEFL) to structural risks (professor affiliations). Provided technical execution for dual-track releases and audit verification.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> User defined the strategic context and acceptance criteria (consistency &gt; precision, long-term planning); AI provided the mechanistic proof and technical scaffolding to execute these high-level decisions safely.</p>
+<h3 id="technical-diagnosis--verification">Technical Diagnosis &amp; Verification<a hidden class="anchor" aria-hidden="true" href="#technical-diagnosis--verification">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>User identified discrepancies in quantization results (W4 collapse) and suggested using vendor CLI (<code>claude -p</code>) for monitoring, correcting AI assumptions about CLI capabilities.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI performed systematic variable isolation (AIMET defaults, channel destruction stats), verified the viability of the user&rsquo;s CLI suggestion, and implemented the robust <code>claude_cli.rs</code> module.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> User provided critical strategic shortcuts and identified high-level failure points; AI supplied the deep technical validation and implementation details to confirm and execute the solution.</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<ul>
+<li>Git diff tools initially over-reported changes by including untracked binaries (~29k lines vs 1.7k actual code changes), requiring manual filtering for accurate code review metrics.</li>
+<li>AI initially underestimated pi0.5 matrix runtime (~15h vs actual ~40h) and relied on memory for professor affiliations before verifying, risking outdated outreach targets.</li>
+<li>AI struggled to distinguish one-slide vs. two-slide feature spaces in MIHD query metrics initially, leading to ambiguous comparisons that required user correction.</li>
+</ul>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<ul>
+<li>RMSNorm/LayerNorm scales are highly sensitive to quantization; always enforce FP or &gt;=16-bit bitwidth for multiplicative norm parameters in AIMET pipelines.</li>
+<li>Monitoring IDE/Agent usage should prioritize local CLI output or statuslines over public APIs to avoid rate-limit conflicts and simplify authentication flows.</li>
+<li>Admissions policies regarding &rsquo;expired&rsquo; TOEFL scores are nuanced; applicants with US degrees may still qualify via PDF uploads even if official validity has passed.</li>
+<li>Chunked forward passes are essential for scaling transformer models to high-density spatial transcriptomics data (HD) without OOM errors.</li>
+<li>Fair evaluation of foundation models requires strict control over feature spaces; ignoring alignment between methods (e.g., HVG vs Transformers) leads to misleading baselines.</li>
+</ul>
+<h3 id="practical-learnings">Practical Learnings<a hidden class="anchor" aria-hidden="true" href="#practical-learnings">#</a></h3>
+<ul>
+<li>USB 3.0 signals generate harmonics in the 2.4GHz band; placing wireless receivers near USB3 ports is a common source of input latency that often mimics software issues.</li>
+</ul>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<h3 id="qualcomm-gr00t-vla">Qualcomm-GR00T-VLA<a hidden class="anchor" aria-hidden="true" href="#qualcomm-gr00t-vla">#</a></h3>
+<p><strong>• RMSNorm Quantization Fix &amp; Deployability Validation</strong>
+<em>18:04:08.207 | claude_code</em>
+Resolved critical W4 quantization collapse in GR00T by identifying that RMSNorm scales were incorrectly quantized to int4. Fixed by setting norm_bw=16 or preserving FP. Extensive validation across 3 GPUs confirmed 16-bit norm yields equivalent accuracy (~97-99%) compared to FP norms, establishing a deployable W4A16 path.</p>
+<h3 id="phd-application-strategy">PhD-Application-Strategy<a hidden class="anchor" aria-hidden="true" href="#phd-application-strategy">#</a></h3>
+<p><strong>• CS/Robotics PhD Plan &amp; Policy Audit</strong>
+<em>18:46:31.363 | claude_code</em>
+Developed a comprehensive 17-week application plan for 2027 Fall CS/Robotics PhD. Audited TOEFL waiver rules (noting CMU accepts expired scores for US degree holders), verified professor affiliations via WebSearch, and generated email templates to mitigate strategic risks.</p>
+<h3 id="mihd-progress-report">MIHD Progress Report<a hidden class="anchor" aria-hidden="true" href="#mihd-progress-report">#</a></h3>
+<p><strong>• Multi-agent Campaign for Report Overhaul &amp; Clustering</strong>
+<em>10:00:00-04:00 | cursor</em>
+Executed a comprehensive campaign to finalize the MIHD progress report. Completed HD full-slide clustering (43 tiles), refined fair query protocols (FUCR/SLPT) to distinguish one/two-slide gene spaces, and restructured documentation with verified claim evidence ledgers.</p>
+<h3 id="tokenmonitor">TokenMonitor<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor">#</a></h3>
+<p><strong>• Rate-Limit Ban Fix &amp; Architecture Simplification</strong>
+<em>18:36:52.309 | claude_code</em>
+Resolved vanishing Claude usage data in TokenMonitor caused by self-inflicted API rate limits. Refactored to use <code>claude -p '/usage'</code> CLI, eliminating rate-limit exposure. Simultaneously removed ~1,400 lines of macOS Keychain dependency code to simplify cross-platform support.</p>
+<h3 id="errorrecoverybenchmark">ErrorRecoveryBenchmark<a hidden class="anchor" aria-hidden="true" href="#errorrecoverybenchmark">#</a></h3>
+<p><strong>• Repository Audit &amp; Thematic Committing</strong>
+<em>02:53:30.875 | codex</em>
+Performed deep audit of ErrorRecoveryBenchmark repo, categorizing uncommitted changes into five themes (Eval Protocol, GR00T, OpenVLA, etc.). Executed focused git commits for each theme, fixed Windows-specific test suite issues, and updated .gitignore to exclude internal artifacts.</p>
+<h3 id="hpc-disk-management">HPC Disk Management<a hidden class="anchor" aria-hidden="true" href="#hpc-disk-management">#</a></h3>
+<p><strong>• Multi-TB Storage Audit &amp; Cleanup Strategy</strong>
+<em>15:09:00-04:00 | cursor</em>
+Orchestrated parallel agents to scan 1.9TB of storage on Tianhe3 and local directories. Identified redundant checkpoints and caches, proposing safe deletion strategies to reclaim ~247GB+ and prevent Lustre pool exhaustion.</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-08-05</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$191.96</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>130M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>1M</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>93.4%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $189</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $3</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (98.6%), Codex (1.4%)">
+          <span style="width:98.6%; background:var(--usage-cost-main)"></span>
+          <span style="width:1.4%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 93.4%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 6.6%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (93.4%), active tokens (6.6%)">
+          <span style="width:93.4%; background:var(--usage-cache)"></span>
+          <span style="width:6.6%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:65e493a91b058f72 -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 This entry was generated by AI from conversation logs and may contain errors.
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
