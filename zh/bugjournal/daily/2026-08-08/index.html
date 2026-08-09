@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-08-08 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="实现了 LiveCaption 和 TokenMonitor 的关键修复，发布了 EyeCareAmber v1.0.0 版本；通过对抗性多智能体评审完成了 MIHD 论文的结果分析；验证了 OpenVLA 故障基线；并完成了带有视觉轨迹优化的 RoboMemory 第一阶段评估。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-08/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-08-08/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-08/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-08/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-08-08">
+  <meta property="og:description" content="实现了 LiveCaption 和 TokenMonitor 的关键修复，发布了 EyeCareAmber v1.0.0 版本；通过对抗性多智能体评审完成了 MIHD 论文的结果分析；验证了 OpenVLA 故障基线；并完成了带有视觉轨迹优化的 RoboMemory 第一阶段评估。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-08-08T00:00:00-05:00">
+    <meta property="article:modified_time" content="2026-08-08T00:00:00-05:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-08-08">
+  <meta name="twitter:description" content="实现了 LiveCaption 和 TokenMonitor 的关键修复，发布了 EyeCareAmber v1.0.0 版本；通过对抗性多智能体评审完成了 MIHD 论文的结果分析；验证了 OpenVLA 故障基线；并完成了带有视觉轨迹优化的 RoboMemory 第一阶段评估。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-08-08",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-08/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-08-08",
+  "name": "Bug Journal 2026-08-08",
+  "description": "实现了 LiveCaption 和 TokenMonitor 的关键修复，发布了 EyeCareAmber v1.0.0 版本；通过对抗性多智能体评审完成了 MIHD 论文的结果分析；验证了 OpenVLA 故障基线；并完成了带有视觉轨迹优化的 RoboMemory 第一阶段评估。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-08-08 日常概述 完成事项： 完成了多个活跃项目的核心功能开发：解决了 LiveCaption 的音频门控和 GPU 加速问题，修复了 TokenMonitor 中的速率限制解析和 OAuth 回退机制，通过自动化 CI/CD 发布了 EyeCareAmber，使用多智能体验证完成了 MIHD 论文结果部分，验证了 OpenVLA 的标称故障基线，并最终确定了 RoboMemory 第一阶段结果。管理了远程 pi0.5 量化工作，并对 Amber 进行了竞争分析。 实现方式： 部署了 Python/Swift/Rust 修复方案以处理本地化、解析和硬件加速问题；利用复杂的 bash/Python 工作流进行多智能体审查和集群监控；通过严格的自测和统计分析来验证科学基线。 影响： 恢复了桌面应用程序的可用性，建立了可复现的发布流程，验证了 VRL 模型的结构限制，并准备了高质量的学术内容和演示材料。 MacOS 完成事项： 管理了 LiveCaption 自动源模式、MPS 加速和配置加载；发布了包含本地化修复和 CI/CD 设置的 EyeCareAmber v1.0.0；对 Amber 应用进行了竞争分析；最终完成了 TokenMonitor 的速率限制和钥匙链修复。 实现方式： 重构了 Swift/Python 宿主程序，修补了不区分大小写的 Localization.swift 代码，更新了 GitHub Actions，用 Rust 重写了 Claude CLI 解析器，并进行了颜色引擎自测。 影响： 解决了关键的 UX 故障（静默字幕、空速率限制），建立了具有本地化完整性检查的稳健自动化发布流程。 TzJsDesktop 完成事项： 在远程基础设施上管理 pi0.5 量化工作；在 tianhe3 集群上执行 OpenVLA 控制实验；最终完成了 RoboMemory 第一阶段评估并实现了窗口式路径可视化。 实现方式： 将滞后的 CPU 密集型任务转向空闲 GPU，部署了 SCP 脚本进行集群评估，修补了 robosuite 依赖项，并实现了轨迹叠加的渐进式窗口渲染。 影响： 利用 GPU 资源加快了量化时间线，确认了 OpenVLA 在精确任务中的视觉瓶颈，解决了机器人策略评估中的可视化杂乱问题。 完成了 LiveCaption 和 TokenMonitor 的关键修复，发布了 EyeCareAmber v1.0.0，通过多智能体对抗审查最终完成了 MIHD 论文结果部分，验证了 OpenVLA 的故障基线，并通过视觉轨迹优化完成了 RoboMemory 第一阶段评估。\n任务 架构与策略 ✅ EyeCareAmber v1.0.0 发布 — 通过自动化 CI/CD 将 EyeCareAmber 发布到 GitHub，修复了关键的通用构建本地化错误（zh-Hans vs zh-hans），并添加了 README 一致性检查。 ✅ LiveCaption 功能实现与优化 — 实现了带有 RMS 门控的“自动”源模式，启用了 MPS GPU 加速以加快约 9 倍推理速度，修复了 macOS config.json 加载问题，解决了 Swift 和 Python 宿主程序中的语言自动检测错误。 ✅ TokenMonitor 关键修复 — 修复了新 CLI 格式下的速率限制解析问题，恢复了 macOS 钥匙链 OAuth 回退机制，更新了托盘提供器利用逻辑，并同步了 TokenMonitor 分支。 ✅ MIHD 论文结果部分最终完成 — 使用 PaperSpine 工具生成了完整的 Results 草稿，进行了两轮 24 智能体对抗审查以纠正统计错误和过度修正，并通过原始 CSV 数据验证。 ✅ OpenVLA 基线验证 — 在 tianhe3 上重新运行了 stack_three_nominal 评估以确认 SR 为 0.08，验证了本地 Windows 集合工具包，分析了模态限制（视觉与基于状态输入）。 ✅ RoboMemory 第一阶段最终完成与可视化 — 最终完成了第一阶段结果（绘图与文本预言器），实现了轨迹叠加的渐进式窗口可视化，并准备了教师演示材料。 ✅ Amber 应用竞争分析 — 分析了 BlinkMore、SafeEyes、Stretchly 等程序的源代码，验证了 Amber 颜色引擎计算和文档本地化策略。 实现与修复 🔄 pi0.5 量化监控与优化 — 监控远程量化任务，发现 action_expert 校准中的 CPU 瓶颈，并将任务迁移到空闲 GPU 以加快完成速度。 问题与解决方案 关键问题 1. MacOS 字幕失败由静默 CPU 延迟和被忽略的 config.json 导致；本地化中文字符串在通用构建中因不区分大小写的包布局差异（SwiftPM vs xcbuild）而失败。 解决方案： 启用 MPS GPU 加速，修复了 Swift 宿主程序的配置解析问题，实现了不区分大小写的资源 URL 解析以进行本地化。对于 TokenMonitor，修复了带动态 ID 的速率限制解析问题并恢复了钥匙链回退机制。\n关键洞察： 性能瓶颈通常表现为功能故障；特定平台的构建工具可能掩盖只能通过实际产物测试才能解决的错误。\n2. 尽管成功运行 BC-RNN，OpenVLA 的标称得分为零；MIHD 草稿中包含伪造的统计声明和 DLPFC 比较中的过度修正。 解决方案： 对于 OpenVLA，确认了精确任务中的仅视觉输入瓶颈。对于 MIHD，通过多智能体对抗审查识别了与原始 CSV 数据相比的虚假显著性，并修正了论文和源 README 中的错误。\n关键洞察： 模态限制（视觉与基于状态）导致性能差异；上游文档错误若未通过原始数据来源验证，可能传播到分析中。\n3. TokenMonitor 中的速率限制显示失败由空重置和冲突的窗口 ID 导致；Git 推送因大数据集文件而失败。 解决方案： 重构了解析器以处理动态 CLI 格式并过滤无效 API 池。更新了 .gitignore 并重新结构化了提交历史以排除大型二进制文件。\n关键洞察： 动态派生方法对于应对变化的外部 API 的弹性解析至关重要；严格排除非代码资产对仓库健康非常重要。\n4. pi0.5 量化工作因 CPU 密集型 action_expert 校准而停滞超过 30 小时；RoboMemory 可视化中重叠箭头导致轨迹难以识别。 解决方案： 发现空闲 GPU 并将任务迁移到 CUDA_VISIBLE_DEVICES，实现了仅显示当前臂位置前路径段的渐进式窗口渲染逻辑。\n关键洞察： 如果忽略环境变化，基于上下文的优化（如在 OOM 时采用 CPU 回退）会成为反模式；动态、上下文感知的可视化对于复杂轨迹更为优越。\n人类与人工智能方法 战略层面 科学工作流程中的战略与战术适应| 角色 | 方法 | |——|——| | 人类 | 用户提供了战略方向（例如验证黑斑敏感度，突破“不可完整生成”规则以使用 AI 草稿，质疑 OpenVLA 零分矛盾）及上下文修正（例如 pi0.5 停顿时间）。 | | AI | AI 负责战术执行：实施 RMS 门控逻辑，调度 24 个智能体多审核流程，解析复杂的 CLI 输出，并制定动态资源分配策略。 |\n差异分析： 人类明确了关键的科学/功能约束和现实环境（环境状态、生物指标）；AI 则在这些约束下设计出稳健的架构方案并自动执行验证流程。\n复杂数据的可视化设计 角色 方法 人类 用户发现静态完整路径覆盖在 RoboMemory 轨迹任务中会导致视觉混乱，于是提出了动态窗口处理方案。 AI AI 实现了坐标映射和状态跟踪逻辑，从而实现渐进式窗口渲染，解决了可读性问题。 差异分析： 人类提出了解决清晰度问题的高级 UX 原则（动态 vs 静态）；AI 则负责复杂的实现细节。\nAI 局限性 关键局限性 最初未能发现特定平台的配置问题（Swift 忽略 config.json，macOS Keychain 与文件假设不同）以及构建断言剥离问题，导致诊断延迟。 针对技术障碍提出了次优解决方案，例如使用静态本地化路径而非不区分大小写的匹配，基于 sed 的正则表达式导致误报，以及减少样本数量而非解决 CPU/GPU 瓶颈。 一般局限性 生成的初始 MIHD 草稿包含伪造的统计声明，需要大量对抗性修正；在 GitHub API 查询中处理复杂的 jq 正则表达式也存在困难。 经验教训 关键经验 始终验证特定平台的配置路径和构建产物布局（例如 APFS 不区分大小写与 CI 区分大小写）；优化对实时 UX 性能至关重要。 多智能体对抗性审核对于发现学术写作中的细微逻辑错误和数据不匹配非常有效，而单轮生成无法做到这一点。 外部 CLI/API 格式变化频繁；解析器必须具有弹性或采用动态推导方式。随着环境变化，应重新评估资源分配决策，以避免长期存在的反模式。 对话总结 LiveCaption ✅ 自动源模式、MPS 加速及配置修复 2026-08-08_to_2026-08-09 | claude_code 在 macOS/Windows 上实现了带 RMS 门控的“自动”源模式用于 LiveCaption，启用 MPS GPU 加速以解决 CPU 延迟问题，修复了 Swift 主机中 config.json 加载问题，并修正了语言自动检测错误。\nEyeCareAmber ✅ 公开版本 v1.0.0 及 CI/CD 设置 2026-08-08 | claude_code 发布了 v1.0.0 的 EyeCareAmber，采用自动化的 GitHub Actions 流程，修复了关键的通用构建本地化错误（zh-Hans 目录命名）并通过强大的验证脚本确保发布产物的完整性。\nTokenMonitor ✅ 速率限制解析及 Keychain 回退恢复 2026-08-09 | claude_code 通过更新 Rust 解析器以支持新的 CLI 格式，动态生成窗口 ID，并恢复 macOS Keychain OAuth 回退机制，修复了 TokenMonitor 中损坏的速率限制显示问题。清理了 Git 分支。\nMIHD 论文写作 ✅ 结果部分草稿撰写及对抗性审查 2026-08-08 | claude_code 使用 PaperSpine 生成 MIHD 论文结果部分，执行了 24 个智能体的对抗性审核流程。修正了错误的统计声明，调整了 DLPFC 比较中的过度修正，并针对原始 CSV 文件验证数据。\nErrorRecoveryBenchmark / OpenVLA ✅ 控制实验执行及基线验证 2026-08-08 | claude_code 在 tianhe3 集群上验证了 OpenVLA 正常故障情况（SR 0.08），确认了精确任务中的仅视觉模式瓶颈，并验证了本地 Windows 收集工具包的可用性。\nRoboMemory ✅ 第一阶段最终确定及动态路径可视化 2026-08-08 | claude_code 完成了第一阶段结果（图形与文本预言器），实现了渐进式窗口可视化以简化轨迹覆盖的混乱情况，并准备教师演示材料。\npi0.5 量化实验 • 资源分配优化 2026-08-08_to_2026-08-09 | claude_code 监控远程量化任务，发现 action_expert 校准中的 CPU 瓶颈，并将任务迁移到空闲 GPU 以加速完成。\nAmber 应用研究 ✅ 竞争分析及颜色引擎验证 2026-08-08 | codex/cursor 分析了竞争对手的眼部护理应用（BlinkMore、SafeEyes 等）的架构特点，并通过自测验证了 Amber 的颜色引擎计算。重构了文档以支持双语功能。\n令牌使用 AI Usage · 2026-08-08\rClaude Code\rTotal cost$89.52\rTotal tokens45M\rOutput tokens226K\rCache read95.5%\rToken character\rCache reads 95.5% ·\rActive 4.5%\rMost token volume came from cache reads.\r",
+  "wordCount" : "535",
+  "inLanguage": "zh",
+  "datePublished": "2026-08-08T00:00:00-05:00",
+  "dateModified": "2026-08-08T00:00:00-05:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-08/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="lang-sep">|</span>
+                    <button id="lang-toggle" accesskey="l" title="(Alt + L)" aria-label="Toggle language"
+                        data-current-lang="zh"
+                        data-translation-url="https://tzj2006.github.io/bugjournal/daily/2026-08-08/">EN
+                    </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-08-08
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-08-08 00:00:00 -0500 -0500'>2026年8月8日</span>&nbsp;·&nbsp;<span>3 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-08-08">每日报告 — 2026-08-08<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-08-08">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>完成事项：</strong> 完成了多个活跃项目的核心功能开发：解决了 LiveCaption 的音频门控和 GPU 加速问题，修复了 TokenMonitor 中的速率限制解析和 OAuth 回退机制，通过自动化 CI/CD 发布了 EyeCareAmber，使用多智能体验证完成了 MIHD 论文结果部分，验证了 OpenVLA 的标称故障基线，并最终确定了 RoboMemory 第一阶段结果。管理了远程 pi0.5 量化工作，并对 Amber 进行了竞争分析。</li>
+<li><strong>实现方式：</strong> 部署了 Python/Swift/Rust 修复方案以处理本地化、解析和硬件加速问题；利用复杂的 bash/Python 工作流进行多智能体审查和集群监控；通过严格的自测和统计分析来验证科学基线。</li>
+<li><strong>影响：</strong> 恢复了桌面应用程序的可用性，建立了可复现的发布流程，验证了 VRL 模型的结构限制，并准备了高质量的学术内容和演示材料。</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>完成事项：</strong> 管理了 LiveCaption 自动源模式、MPS 加速和配置加载；发布了包含本地化修复和 CI/CD 设置的 EyeCareAmber v1.0.0；对 Amber 应用进行了竞争分析；最终完成了 TokenMonitor 的速率限制和钥匙链修复。</li>
+<li><strong>实现方式：</strong> 重构了 Swift/Python 宿主程序，修补了不区分大小写的 Localization.swift 代码，更新了 GitHub Actions，用 Rust 重写了 Claude CLI 解析器，并进行了颜色引擎自测。</li>
+<li><strong>影响：</strong> 解决了关键的 UX 故障（静默字幕、空速率限制），建立了具有本地化完整性检查的稳健自动化发布流程。</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>完成事项：</strong> 在远程基础设施上管理 pi0.5 量化工作；在 tianhe3 集群上执行 OpenVLA 控制实验；最终完成了 RoboMemory 第一阶段评估并实现了窗口式路径可视化。</li>
+<li><strong>实现方式：</strong> 将滞后的 CPU 密集型任务转向空闲 GPU，部署了 SCP 脚本进行集群评估，修补了 robosuite 依赖项，并实现了轨迹叠加的渐进式窗口渲染。</li>
+<li><strong>影响：</strong> 利用 GPU 资源加快了量化时间线，确认了 OpenVLA 在精确任务中的视觉瓶颈，解决了机器人策略评估中的可视化杂乱问题。</li>
+</ul>
+<blockquote>
+<p>完成了 LiveCaption 和 TokenMonitor 的关键修复，发布了 EyeCareAmber v1.0.0，通过多智能体对抗审查最终完成了 MIHD 论文结果部分，验证了 OpenVLA 的故障基线，并通过视觉轨迹优化完成了 RoboMemory 第一阶段评估。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>✅ <strong>EyeCareAmber v1.0.0 发布</strong> — 通过自动化 CI/CD 将 EyeCareAmber 发布到 GitHub，修复了关键的通用构建本地化错误（zh-Hans vs zh-hans），并添加了 README 一致性检查。</li>
+<li>✅ <strong>LiveCaption 功能实现与优化</strong> — 实现了带有 RMS 门控的“自动”源模式，启用了 MPS GPU 加速以加快约 9 倍推理速度，修复了 macOS config.json 加载问题，解决了 Swift 和 Python 宿主程序中的语言自动检测错误。</li>
+<li>✅ <strong>TokenMonitor 关键修复</strong> — 修复了新 CLI 格式下的速率限制解析问题，恢复了 macOS 钥匙链 OAuth 回退机制，更新了托盘提供器利用逻辑，并同步了 TokenMonitor 分支。</li>
+<li>✅ <strong>MIHD 论文结果部分最终完成</strong> — 使用 PaperSpine 工具生成了完整的 Results 草稿，进行了两轮 24 智能体对抗审查以纠正统计错误和过度修正，并通过原始 CSV 数据验证。</li>
+<li>✅ <strong>OpenVLA 基线验证</strong> — 在 tianhe3 上重新运行了 stack_three_nominal 评估以确认 SR 为 0.08，验证了本地 Windows 集合工具包，分析了模态限制（视觉与基于状态输入）。</li>
+<li>✅ <strong>RoboMemory 第一阶段最终完成与可视化</strong> — 最终完成了第一阶段结果（绘图与文本预言器），实现了轨迹叠加的渐进式窗口可视化，并准备了教师演示材料。</li>
+<li>✅ <strong>Amber 应用竞争分析</strong> — 分析了 BlinkMore、SafeEyes、Stretchly 等程序的源代码，验证了 Amber 颜色引擎计算和文档本地化策略。</li>
+</ul>
+<h3 id="实现与修复">实现与修复<a hidden class="anchor" aria-hidden="true" href="#实现与修复">#</a></h3>
+<ul>
+<li>🔄 <strong>pi0.5 量化监控与优化</strong> — 监控远程量化任务，发现 action_expert 校准中的 CPU 瓶颈，并将任务迁移到空闲 GPU 以加快完成速度。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-macos-字幕失败由静默-cpu-延迟和被忽略的-configjson-导致本地化中文字符串在通用构建中因不区分大小写的包布局差异swiftpm-vs-xcbuild而失败">1. MacOS 字幕失败由静默 CPU 延迟和被忽略的 config.json 导致；本地化中文字符串在通用构建中因不区分大小写的包布局差异（SwiftPM vs xcbuild）而失败。<a hidden class="anchor" aria-hidden="true" href="#1-macos-字幕失败由静默-cpu-延迟和被忽略的-configjson-导致本地化中文字符串在通用构建中因不区分大小写的包布局差异swiftpm-vs-xcbuild而失败">#</a></h4>
+<p><strong>解决方案：</strong> 启用 MPS GPU 加速，修复了 Swift 宿主程序的配置解析问题，实现了不区分大小写的资源 URL 解析以进行本地化。对于 TokenMonitor，修复了带动态 ID 的速率限制解析问题并恢复了钥匙链回退机制。</p>
+<p><strong>关键洞察：</strong> 性能瓶颈通常表现为功能故障；特定平台的构建工具可能掩盖只能通过实际产物测试才能解决的错误。</p>
+<h4 id="2-尽管成功运行-bc-rnnopenvla-的标称得分为零mihd-草稿中包含伪造的统计声明和-dlpfc-比较中的过度修正">2. 尽管成功运行 BC-RNN，OpenVLA 的标称得分为零；MIHD 草稿中包含伪造的统计声明和 DLPFC 比较中的过度修正。<a hidden class="anchor" aria-hidden="true" href="#2-尽管成功运行-bc-rnnopenvla-的标称得分为零mihd-草稿中包含伪造的统计声明和-dlpfc-比较中的过度修正">#</a></h4>
+<p><strong>解决方案：</strong> 对于 OpenVLA，确认了精确任务中的仅视觉输入瓶颈。对于 MIHD，通过多智能体对抗审查识别了与原始 CSV 数据相比的虚假显著性，并修正了论文和源 README 中的错误。</p>
+<p><strong>关键洞察：</strong> 模态限制（视觉与基于状态）导致性能差异；上游文档错误若未通过原始数据来源验证，可能传播到分析中。</p>
+<h4 id="3-tokenmonitor-中的速率限制显示失败由空重置和冲突的窗口-id-导致git-推送因大数据集文件而失败">3. TokenMonitor 中的速率限制显示失败由空重置和冲突的窗口 ID 导致；Git 推送因大数据集文件而失败。<a hidden class="anchor" aria-hidden="true" href="#3-tokenmonitor-中的速率限制显示失败由空重置和冲突的窗口-id-导致git-推送因大数据集文件而失败">#</a></h4>
+<p><strong>解决方案：</strong> 重构了解析器以处理动态 CLI 格式并过滤无效 API 池。更新了 .gitignore 并重新结构化了提交历史以排除大型二进制文件。</p>
+<p><strong>关键洞察：</strong> 动态派生方法对于应对变化的外部 API 的弹性解析至关重要；严格排除非代码资产对仓库健康非常重要。</p>
+<h4 id="4-pi05-量化工作因-cpu-密集型-action_expert-校准而停滞超过-30-小时robomemory-可视化中重叠箭头导致轨迹难以识别">4. pi0.5 量化工作因 CPU 密集型 action_expert 校准而停滞超过 30 小时；RoboMemory 可视化中重叠箭头导致轨迹难以识别。<a hidden class="anchor" aria-hidden="true" href="#4-pi05-量化工作因-cpu-密集型-action_expert-校准而停滞超过-30-小时robomemory-可视化中重叠箭头导致轨迹难以识别">#</a></h4>
+<p><strong>解决方案：</strong> 发现空闲 GPU 并将任务迁移到 CUDA_VISIBLE_DEVICES，实现了仅显示当前臂位置前路径段的渐进式窗口渲染逻辑。</p>
+<p><strong>关键洞察：</strong> 如果忽略环境变化，基于上下文的优化（如在 OOM 时采用 CPU 回退）会成为反模式；动态、上下文感知的可视化对于复杂轨迹更为优越。</p>
+<h2 id="人类与人工智能方法">人类与人工智能方法<a hidden class="anchor" aria-hidden="true" href="#人类与人工智能方法">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="科学工作流程中的战略与战术适应-角色--方法-">科学工作流程中的战略与战术适应| 角色 | 方法 |<a hidden class="anchor" aria-hidden="true" href="#科学工作流程中的战略与战术适应-角色--方法-">#</a></h4>
+<p>|&mdash;&mdash;|&mdash;&mdash;|
+| 人类 | 用户提供了战略方向（例如验证黑斑敏感度，突破“不可完整生成”规则以使用 AI 草稿，质疑 OpenVLA 零分矛盾）及上下文修正（例如 pi0.5 停顿时间）。 |
+| AI   | AI 负责战术执行：实施 RMS 门控逻辑，调度 24 个智能体多审核流程，解析复杂的 CLI 输出，并制定动态资源分配策略。 |</p>
+<p><strong>差异分析：</strong> 人类明确了关键的科学/功能约束和现实环境（环境状态、生物指标）；AI 则在这些约束下设计出稳健的架构方案并自动执行验证流程。</p>
+<h4 id="复杂数据的可视化设计">复杂数据的可视化设计<a hidden class="anchor" aria-hidden="true" href="#复杂数据的可视化设计">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户发现静态完整路径覆盖在 RoboMemory 轨迹任务中会导致视觉混乱，于是提出了动态窗口处理方案。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI 实现了坐标映射和状态跟踪逻辑，从而实现渐进式窗口渲染，解决了可读性问题。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类提出了解决清晰度问题的高级 UX 原则（动态 vs 静态）；AI 则负责复杂的实现细节。</p>
+<h2 id="ai-局限性">AI 局限性<a hidden class="anchor" aria-hidden="true" href="#ai-局限性">#</a></h2>
+<h3 id="关键局限性">关键局限性<a hidden class="anchor" aria-hidden="true" href="#关键局限性">#</a></h3>
+<ul>
+<li>最初未能发现特定平台的配置问题（Swift 忽略 config.json，macOS Keychain 与文件假设不同）以及构建断言剥离问题，导致诊断延迟。</li>
+<li>针对技术障碍提出了次优解决方案，例如使用静态本地化路径而非不区分大小写的匹配，基于 sed 的正则表达式导致误报，以及减少样本数量而非解决 CPU/GPU 瓶颈。</li>
+</ul>
+<h3 id="一般局限性">一般局限性<a hidden class="anchor" aria-hidden="true" href="#一般局限性">#</a></h3>
+<ul>
+<li>生成的初始 MIHD 草稿包含伪造的统计声明，需要大量对抗性修正；在 GitHub API 查询中处理复杂的 jq 正则表达式也存在困难。</li>
+</ul>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="关键经验">关键经验<a hidden class="anchor" aria-hidden="true" href="#关键经验">#</a></h3>
+<ul>
+<li>始终验证特定平台的配置路径和构建产物布局（例如 APFS 不区分大小写与 CI 区分大小写）；优化对实时 UX 性能至关重要。</li>
+<li>多智能体对抗性审核对于发现学术写作中的细微逻辑错误和数据不匹配非常有效，而单轮生成无法做到这一点。</li>
+<li>外部 CLI/API 格式变化频繁；解析器必须具有弹性或采用动态推导方式。随着环境变化，应重新评估资源分配决策，以避免长期存在的反模式。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<h3 id="livecaption">LiveCaption<a hidden class="anchor" aria-hidden="true" href="#livecaption">#</a></h3>
+<p><strong>✅ 自动源模式、MPS 加速及配置修复</strong>
+<em>2026-08-08_to_2026-08-09 | claude_code</em>
+在 macOS/Windows 上实现了带 RMS 门控的“自动”源模式用于 LiveCaption，启用 MPS GPU 加速以解决 CPU 延迟问题，修复了 Swift 主机中 config.json 加载问题，并修正了语言自动检测错误。</p>
+<h3 id="eyecareamber">EyeCareAmber<a hidden class="anchor" aria-hidden="true" href="#eyecareamber">#</a></h3>
+<p><strong>✅ 公开版本 v1.0.0 及 CI/CD 设置</strong>
+<em>2026-08-08 | claude_code</em>
+发布了 v1.0.0 的 EyeCareAmber，采用自动化的 GitHub Actions 流程，修复了关键的通用构建本地化错误（zh-Hans 目录命名）并通过强大的验证脚本确保发布产物的完整性。</p>
+<h3 id="tokenmonitor">TokenMonitor<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor">#</a></h3>
+<p><strong>✅ 速率限制解析及 Keychain 回退恢复</strong>
+<em>2026-08-09 | claude_code</em>
+通过更新 Rust 解析器以支持新的 CLI 格式，动态生成窗口 ID，并恢复 macOS Keychain OAuth 回退机制，修复了 TokenMonitor 中损坏的速率限制显示问题。清理了 Git 分支。</p>
+<h3 id="mihd-论文写作">MIHD 论文写作<a hidden class="anchor" aria-hidden="true" href="#mihd-论文写作">#</a></h3>
+<p><strong>✅ 结果部分草稿撰写及对抗性审查</strong>
+<em>2026-08-08 | claude_code</em>
+使用 PaperSpine 生成 MIHD 论文结果部分，执行了 24 个智能体的对抗性审核流程。修正了错误的统计声明，调整了 DLPFC 比较中的过度修正，并针对原始 CSV 文件验证数据。</p>
+<h3 id="errorrecoverybenchmark--openvla">ErrorRecoveryBenchmark / OpenVLA<a hidden class="anchor" aria-hidden="true" href="#errorrecoverybenchmark--openvla">#</a></h3>
+<p><strong>✅ 控制实验执行及基线验证</strong>
+<em>2026-08-08 | claude_code</em>
+在 tianhe3 集群上验证了 OpenVLA 正常故障情况（SR 0.08），确认了精确任务中的仅视觉模式瓶颈，并验证了本地 Windows 收集工具包的可用性。</p>
+<h3 id="robomemory">RoboMemory<a hidden class="anchor" aria-hidden="true" href="#robomemory">#</a></h3>
+<p><strong>✅ 第一阶段最终确定及动态路径可视化</strong>
+<em>2026-08-08 | claude_code</em>
+完成了第一阶段结果（图形与文本预言器），实现了渐进式窗口可视化以简化轨迹覆盖的混乱情况，并准备教师演示材料。</p>
+<h3 id="pi05-量化实验">pi0.5 量化实验<a hidden class="anchor" aria-hidden="true" href="#pi05-量化实验">#</a></h3>
+<p><strong>• 资源分配优化</strong>
+<em>2026-08-08_to_2026-08-09 | claude_code</em>
+监控远程量化任务，发现 action_expert 校准中的 CPU 瓶颈，并将任务迁移到空闲 GPU 以加速完成。</p>
+<h3 id="amber-应用研究">Amber 应用研究<a hidden class="anchor" aria-hidden="true" href="#amber-应用研究">#</a></h3>
+<p><strong>✅ 竞争分析及颜色引擎验证</strong>
+<em>2026-08-08 | codex/cursor</em>
+分析了竞争对手的眼部护理应用（BlinkMore、SafeEyes 等）的架构特点，并通过自测验证了 Amber 的颜色引擎计算。重构了文档以支持双语功能。</p>
+<h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-08-08</span>
+        <span class="usage-card__source">Claude Code</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$89.52</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>45M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>226K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>95.5%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 95.5%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 4.5%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (95.5%), active tokens (4.5%)">
+          <span style="width:95.5%; background:var(--usage-cache)"></span>
+          <span style="width:4.5%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:a60c0806929b3ade -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var el = document.getElementById("lang-toggle");
+    if (!el) return;
+    el.addEventListener("click", function() {
+        var current = this.getAttribute("data-current-lang");
+        var url = this.getAttribute("data-translation-url");
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch(e) {}
+        if (url) {
+            window.location.href = url;
+        } else {
+            window.location.href = window.location.origin + (newLang === "zh" ? "/zh/" : "/");
+        }
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
