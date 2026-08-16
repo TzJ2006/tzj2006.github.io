@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-08-10 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="Resolved critical low-bit quantization blockers for pi0.5 and clarified SpinQuant mechanics through deep code analysis, finalized MIHD paper structure with corrected factual claims, released Amber v1.1.0 with night preset revisions, and audited RoboMemory Stage 2 results revealing unexpected baseline performance.">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/bugjournal/daily/2026-08-10/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-08-10/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-10/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/bugjournal/daily/2026-08-10/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-08-10">
+  <meta property="og:description" content="Resolved critical low-bit quantization blockers for pi0.5 and clarified SpinQuant mechanics through deep code analysis, finalized MIHD paper structure with corrected factual claims, released Amber v1.1.0 with night preset revisions, and audited RoboMemory Stage 2 results revealing unexpected baseline performance.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-08-10T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-08-10T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-08-10">
+  <meta name="twitter:description" content="Resolved critical low-bit quantization blockers for pi0.5 and clarified SpinQuant mechanics through deep code analysis, finalized MIHD paper structure with corrected factual claims, released Amber v1.1.0 with night preset revisions, and audited RoboMemory Stage 2 results revealing unexpected baseline performance.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-08-10",
+      "item": "https://tzj2006.github.io/bugjournal/daily/2026-08-10/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-08-10",
+  "name": "Bug Journal 2026-08-10",
+  "description": "Resolved critical low-bit quantization blockers for pi0.5 and clarified SpinQuant mechanics through deep code analysis, finalized MIHD paper structure with corrected factual claims, released Amber v1.1.0 with night preset revisions, and audited RoboMemory Stage 2 results revealing unexpected baseline performance.",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-08-10 Daily Overview What was done: Conducted comprehensive audits and bug fixes across machine learning quantization (pi0.5/GR00T), academic paper drafting (MIHD), macOS application development (Amber), and research validation (RoboMemory). Key activities included fixing zero-success rates in W4A8/A8 quantization by overriding softmax precision, consolidating MIHD results into ‘Structure B’, updating night presets for Amber v1.1.0, and verifying experimental baselines for RoboMemory. How it was done: Utilized multi-agent workflows, encodings inspection, source code analysis of aimet-onnx/SpinQuant, direct file verification for MIHD data, local pre-builds for Amber release, and SSH probes to Tianhe3 for RoboMemory validation. Also implemented ALS diagnostic tools for macOS. Impact: Restored viability for low-bit pi0.5 experiments, ensured scientific accuracy in MIHD deliverables by correcting false claims, delivered a stable Amber v1.1.0 release with updated sleep science parameters, and prevented misreporting of RoboMemory results by identifying unexpected baseline strengths. lighthouse What was done: Diagnosed pi0.5 W4A8 zero-success bug (attention mask saturation), implemented 16-bit softmax override, audited quantize-MVP project status (GR00T/pi0.5 results), analyzed SpinQuant R1-R4 mechanics, verified upstream fork commits, and checked action_expert encodings. How it was done: Used Bash for file system exploration, python scripts for encoding validation, Claude Code workflows for codebase analysis, git history inspection, and SSH probes to check GPU memory and result files. Impact: Resolved critical deployment blockers for low-bit models, clarified technical constraints of SpinQuant rotations (R3/R4 online costs), and validated the integrity of project artifacts and upstream synchronization status. MacOS What was done: Released Amber v1.1.0 with revised night presets (2700K) and backlight reading logic; investigated macOS system auto-brightness APIs and implemented an Ambient Light Sensor (ALS) diagnostic probe. How it was done: Executed git tag pushes, local universal builds, C/Swift probes for DisplayServices/IOKit frameworks, and verified CI workflows. Also fixed non-deterministic PCA in MIHD pipeline by pinning svd_solver=‘full’. Impact: Delivered a valid Amber release fixing sleep science parameters and confirmed the technical feasibility of reading ambient light without modifying display behavior, laying groundwork for future adaptive features. TzJsDesktop What was done: Audited RoboMemory Stage 2 results on Tianhe3, identified factual errors in MIHD draft (fusion method claims), and reviewed SpinQuant implementation details. How it was done: Executed SSH commands to check CUDA/MEM states and file trees on remote clusters; performed cross-document verification workflows for MIHD planning documents; used Claude Code for code inspection. Impact: Corrected narrative drift in MIHD paper by enforcing ‘Structure B’ and fixing data inaccuracies; prevented misreporting in RoboMemory by discovering text-oracle baseline performance was significantly higher than anticipated. Resolved critical low-bit quantization blockers for pi0.5 and clarified SpinQuant mechanics through deep code analysis, finalized MIHD paper structure with corrected factual claims, released Amber v1.1.0 with night preset revisions, and audited RoboMemory Stage 2 results revealing unexpected baseline performance.\nTasks Architecture \u0026 Strategy ✅ Fix pi0.5 W4A8/A8 Zero Success Bug — Identified that -1e4 attention mask saturated quantization range; implemented _set_softmax_io_to_16b override to force 16-bit precision, verifying encodings and restoring viability for low-bit experiments. ✅ Finalize MIHD Paper Structure and Correct Claims — Consolidated results into ‘Structure B’, corrected DLPFC cluster counts (k=5/7) and falsified fusion advantage claims, pivoting narrative to ‘Task Decoupling’. ✅ Release Amber v1.1.0 — Updated night presets to 2700K with backlight reading, updated README, performed local universal build (x86_64/arm64), pushed git tag v1.1.0, and verified CI release integrity. ✅ Audit RoboMemory Stage 2 Results — Verified 16-cell result table on Tianhe3; discovered text-oracle baseline SR=67 (vs assumed low), triggering adversarial audit for leakage/confounds. ✅ Clarify SpinQuant R1-R4 Mechanics — Analyzed aimet-onnx source to define rotation types, confirming R1/R2 are foldable (zero-cost) while R3/R4 incur online MatMul costs, explaining upstream decisions to drop R3/R4. ✅ Fix MIHD PCA Non-Determinism — Switched sklearn PCA to svd_solver='full' at all call sites to ensure bitwise reproducibility of cross-slide retrieval metrics. Implementation \u0026 Fixes 🔄 Draft Reply to Upstream Maintainer — Prepared documentation for Jinhee regarding bug discoveries (load_encodings_to_sim, silent downgrades) and technical findings. ✅ Update CLAUDE.md Documentation — Added architectural notes, AI Hub submission commands, PCA determinism fixes, and pi0.5 mask bug diagnosis to repository guidelines to prevent future recurrence. ✅ Implement Amber ALS Diagnostic Probe — Developed --ambient Swift tool to read raw ALS levels and brightness notifications, confirming API accessibility without calibration or display modification. Problems \u0026 Solutions Critical Issues 1. pi0.5 W4A8/A8 experiments resulted in 0/50 success due to -1e4 attention mask dominating min-max range, collapsing activations. Solution: Implemented a hardcoded override to force 16-bit quantization on softmax inputs/outputs in model.py, bypassing the low-bit range saturation; verified via encoding inspection.\nKey Insight: Control flow constants (like masks) sharing quantizers with data can saturate dynamic range; isolating or preserving precision for such tensors is critical.\n2. Silent downgrade of W4A8/W4A4 to W8A8 in aimet_quant_types masked true low-bit performance. Solution: Detected via log/directory inspection; corrected local mapping logic and documented the issue for upstream fix.\nKey Insight: Libraries with silent fallbacks can hide critical errors; proactive verification of output shapes and configs is essential to trust results.\n3. MIHD draft contained false claims (fusion superiority, uniform k=7) due to lack of raw data verification. Solution: Audited against result_report.md and ground_truth.npz; corrected narrative to ‘Task Decoupling’; synchronized six planning documents.\nKey Insight: Scientific narratives must be grounded in raw data; negative or marginal results can be strong findings if correctly framed.\n4. RoboMemory text-oracle baseline performed significantly better than expected (67 SR), invalidating initial assumptions. Solution: Launched adversarial audit to check for leakage or confounds before reporting; prevented premature narrative commitment.\nKey Insight: Theoretical task difficulty often diverges from empirical baseline performance; always verify baselines with actual logs.\n5. RMSNorm scales quantized to int4 caused 98% channel zeroing in W4 experiments, mistaken for method limit. Solution: Isolated RMSNorm from default_param_bw=4; confirmed true SpinQuant benefit is minimal at W4.\nKey Insight: Numerical stability issues often mask implementation bugs; verify intermediate states before concluding method limitations.\n6. Non-reproducible PCA results in MIHD due to randomized SVD. Solution: Pinned svd_solver='full' and added regression tests for bitwise identity.\nKey Insight: Diagnostic arms require deterministic algorithms; random seeds are insufficient for exact reproducibility.\nGeneral Issues 7. Amber night presets lacked backlight context, causing over-dimming. Solution: Implemented backlight reading to stop extra dimming when screen is already sufficient; updated color temp to 2700K based on literature.\nKey Insight: Environmental adaptation requires feedback loops (backlight/ALS) to avoid redundant or excessive adjustments.\nHuman vs AI Approaches Strategic Level Root Cause of Low-Bit Failure \u0026 Fix Strategy Role Approach Human Identified pattern (A16 works, A8 fails) and directed investigation at attention mask; mandated verification against raw data for MIHD claims. AI Validated hypothesis via encoding analysis, implemented code overrides, and clarified SpinQuant algebra; provided benchmarks for PCA solvers. Difference Analysis: Human drove the diagnostic direction and strategic corrections (MIHD structure, baseline skepticism); AI provided precise mathematical proof, code implementation, and technical clarifications.\nScientific Rigor in Documentation and Research Role Approach Human Insisted on fixing false MIHD claims, rejecting uncalibrated lux values for AMS, and verifying RoboMemory baselines empirically. AI Initially hallucinated fusion advantage or missing oracle results; corrected upon human direction and data inspection. Difference Analysis: Human enforced strict empirical grounding and scientific integrity; AI facilitated verification but required explicit correction to avoid common pitfalls (hallucination, silent assumptions).\nAI Limitations Critical Limitations AI failed to detect silent W4-\u003eW8 downgrades in aimet_quant_types during initial code review, relying on standard library behavior assumptions rather than probing outputs. AI proposed false claims about MIHD fusion benefits and missed RoboMemory oracle subdirectory until explicitly directed to verify raw files. General Limitations AI suggested uncalibrated lux values for ALS data, requiring correction to emphasize physical calibration necessity. Learnings Key Learnings In low-bit quantization, control flow constants (e.g., -1e4 masks) can saturate min-max ranges; forcing native precision (16-bit) on softmax paths is a standard and effective fix. Scientific narratives must be grounded in raw data verification; assumptions about baseline performance or minor differences often fail against empirical evidence. Silent fallbacks in quantization libraries can mask critical errors; always verify actual execution parameters against configurations via logs and outputs. SpinQuant R3/R4 rotations incur online compute costs on NPUs despite theoretical equivalence; zero-cost assumptions are unsafe in edge deployment. Practical Learnings Documentation (e.g., CLAUDE.md) is critical for AI-assisted workflows; updating it with bug patterns and architectural constraints prevents recurring errors in future sessions. Conversation Summaries pi0.5 Quantization \u0026 SpinQuant Analysis ✅ Fixing zero-success bugs and clarifying rotation mechanics 22:00:52.074 | claude_code Resolved pi0.5 W4A8/A8 zero-success bug by identifying -1e4 attention mask saturation and implementing a 16-bit softmax override. Audited quantize-MVP project, clarifying SpinQuant R1-R4 mechanics (foldable vs. online costs) and confirming upstream fixes for silent downgrades. Verified action_expert encodings integrity.\nMIHD Paper Drafting \u0026 Validation ✅ Consolidating Structure B and correcting results 20:33:25.451 | claude_code Finalized MIHD paper using ‘Structure B’ (Dataset × Task), correcting DLPFC cluster counts (k=5/7) and falsified fusion advantage claims by pivoting to ‘Task Decoupling’. Fixed non-deterministic PCA for reproducible metrics. Synchronized six planning documents.\nEyeCareAmber (macOS) ✅ v1.1.0 Release and ALS Diagnostic Probe 22:14:01.274 | codex/claude_code Released Amber v1.1.0 with 2700K night presets and backlight reading logic. Investigated macOS auto-brightness APIs and implemented an --ambient diagnostic tool to read raw ALS levels, confirming feasibility without calibration or display modification.\nRoboMemory Research 🔍 Stage 2 Result Audit 18:51:52.703 | claude_code Audited Stage 2 results on Tianhe3, discovering text-oracle baseline SR=67 (higher than expected), invalidating initial narratives. Launched adversarial audit to check for leakage before final reporting.\nToken Usage AI Usage · 2026-08-10\rClaude Code\rTotal cost$4.76\rTotal tokens2M\rOutput tokens32K\rCache read79.6%\rToken character\rCache reads 79.6% ·\rActive 20.4%\rMost token volume came from cache reads.\r",
+  "wordCount" : "1587",
+  "inLanguage": "en",
+  "datePublished": "2026-08-10T00:00:00-04:00",
+  "dateModified": "2026-08-10T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/bugjournal/daily/2026-08-10/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/zh/" title="中文"
+                                aria-label="中文">中文</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-08-10
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-08-10 00:00:00 -0400 EDT'>August 10, 2026</span>&nbsp;·&nbsp;<span>8 min</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-08-10">Daily Report — 2026-08-10<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-08-10">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>What was done:</strong> Conducted comprehensive audits and bug fixes across machine learning quantization (pi0.5/GR00T), academic paper drafting (MIHD), macOS application development (Amber), and research validation (RoboMemory). Key activities included fixing zero-success rates in W4A8/A8 quantization by overriding softmax precision, consolidating MIHD results into &lsquo;Structure B&rsquo;, updating night presets for Amber v1.1.0, and verifying experimental baselines for RoboMemory.</li>
+<li><strong>How it was done:</strong> Utilized multi-agent workflows, encodings inspection, source code analysis of aimet-onnx/SpinQuant, direct file verification for MIHD data, local pre-builds for Amber release, and SSH probes to Tianhe3 for RoboMemory validation. Also implemented ALS diagnostic tools for macOS.</li>
+<li><strong>Impact:</strong> Restored viability for low-bit pi0.5 experiments, ensured scientific accuracy in MIHD deliverables by correcting false claims, delivered a stable Amber v1.1.0 release with updated sleep science parameters, and prevented misreporting of RoboMemory results by identifying unexpected baseline strengths.</li>
+</ul>
+<h3 id="lighthouse">lighthouse<a hidden class="anchor" aria-hidden="true" href="#lighthouse">#</a></h3>
+<ul>
+<li><strong>What was done:</strong> Diagnosed pi0.5 W4A8 zero-success bug (attention mask saturation), implemented 16-bit softmax override, audited quantize-MVP project status (GR00T/pi0.5 results), analyzed SpinQuant R1-R4 mechanics, verified upstream fork commits, and checked action_expert encodings.</li>
+<li><strong>How it was done:</strong> Used Bash for file system exploration, python scripts for encoding validation, Claude Code workflows for codebase analysis, git history inspection, and SSH probes to check GPU memory and result files.</li>
+<li><strong>Impact:</strong> Resolved critical deployment blockers for low-bit models, clarified technical constraints of SpinQuant rotations (R3/R4 online costs), and validated the integrity of project artifacts and upstream synchronization status.</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>What was done:</strong> Released Amber v1.1.0 with revised night presets (2700K) and backlight reading logic; investigated macOS system auto-brightness APIs and implemented an Ambient Light Sensor (ALS) diagnostic probe.</li>
+<li><strong>How it was done:</strong> Executed git tag pushes, local universal builds, C/Swift probes for DisplayServices/IOKit frameworks, and verified CI workflows. Also fixed non-deterministic PCA in MIHD pipeline by pinning svd_solver=&lsquo;full&rsquo;.</li>
+<li><strong>Impact:</strong> Delivered a valid Amber release fixing sleep science parameters and confirmed the technical feasibility of reading ambient light without modifying display behavior, laying groundwork for future adaptive features.</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>What was done:</strong> Audited RoboMemory Stage 2 results on Tianhe3, identified factual errors in MIHD draft (fusion method claims), and reviewed SpinQuant implementation details.</li>
+<li><strong>How it was done:</strong> Executed SSH commands to check CUDA/MEM states and file trees on remote clusters; performed cross-document verification workflows for MIHD planning documents; used Claude Code for code inspection.</li>
+<li><strong>Impact:</strong> Corrected narrative drift in MIHD paper by enforcing &lsquo;Structure B&rsquo; and fixing data inaccuracies; prevented misreporting in RoboMemory by discovering text-oracle baseline performance was significantly higher than anticipated.</li>
+</ul>
+<blockquote>
+<p>Resolved critical low-bit quantization blockers for pi0.5 and clarified SpinQuant mechanics through deep code analysis, finalized MIHD paper structure with corrected factual claims, released Amber v1.1.0 with night preset revisions, and audited RoboMemory Stage 2 results revealing unexpected baseline performance.</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<ul>
+<li>✅ <strong>Fix pi0.5 W4A8/A8 Zero Success Bug</strong> — Identified that -1e4 attention mask saturated quantization range; implemented <code>_set_softmax_io_to_16b</code> override to force 16-bit precision, verifying encodings and restoring viability for low-bit experiments.</li>
+<li>✅ <strong>Finalize MIHD Paper Structure and Correct Claims</strong> — Consolidated results into &lsquo;Structure B&rsquo;, corrected DLPFC cluster counts (k=5/7) and falsified fusion advantage claims, pivoting narrative to &lsquo;Task Decoupling&rsquo;.</li>
+<li>✅ <strong>Release Amber v1.1.0</strong> — Updated night presets to 2700K with backlight reading, updated README, performed local universal build (x86_64/arm64), pushed git tag v1.1.0, and verified CI release integrity.</li>
+<li>✅ <strong>Audit RoboMemory Stage 2 Results</strong> — Verified 16-cell result table on Tianhe3; discovered text-oracle baseline SR=67 (vs assumed low), triggering adversarial audit for leakage/confounds.</li>
+<li>✅ <strong>Clarify SpinQuant R1-R4 Mechanics</strong> — Analyzed aimet-onnx source to define rotation types, confirming R1/R2 are foldable (zero-cost) while R3/R4 incur online MatMul costs, explaining upstream decisions to drop R3/R4.</li>
+<li>✅ <strong>Fix MIHD PCA Non-Determinism</strong> — Switched sklearn PCA to <code>svd_solver='full'</code> at all call sites to ensure bitwise reproducibility of cross-slide retrieval metrics.</li>
+</ul>
+<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<ul>
+<li>🔄 <strong>Draft Reply to Upstream Maintainer</strong> — Prepared documentation for Jinhee regarding bug discoveries (load_encodings_to_sim, silent downgrades) and technical findings.</li>
+<li>✅ <strong>Update CLAUDE.md Documentation</strong> — Added architectural notes, AI Hub submission commands, PCA determinism fixes, and pi0.5 mask bug diagnosis to repository guidelines to prevent future recurrence.</li>
+<li>✅ <strong>Implement Amber ALS Diagnostic Probe</strong> — Developed <code>--ambient</code> Swift tool to read raw ALS levels and brightness notifications, confirming API accessibility without calibration or display modification.</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-pi05-w4a8a8-experiments-resulted-in-050-success-due-to--1e4-attention-mask-dominating-min-max-range-collapsing-activations">1. pi0.5 W4A8/A8 experiments resulted in 0/50 success due to -1e4 attention mask dominating min-max range, collapsing activations.<a hidden class="anchor" aria-hidden="true" href="#1-pi05-w4a8a8-experiments-resulted-in-050-success-due-to--1e4-attention-mask-dominating-min-max-range-collapsing-activations">#</a></h4>
+<p><strong>Solution:</strong> Implemented a hardcoded override to force 16-bit quantization on softmax inputs/outputs in <code>model.py</code>, bypassing the low-bit range saturation; verified via encoding inspection.</p>
+<p><strong>Key Insight:</strong> Control flow constants (like masks) sharing quantizers with data can saturate dynamic range; isolating or preserving precision for such tensors is critical.</p>
+<h4 id="2-silent-downgrade-of-w4a8w4a4-to-w8a8-in-aimet_quant_types-masked-true-low-bit-performance">2. Silent downgrade of W4A8/W4A4 to W8A8 in aimet_quant_types masked true low-bit performance.<a hidden class="anchor" aria-hidden="true" href="#2-silent-downgrade-of-w4a8w4a4-to-w8a8-in-aimet_quant_types-masked-true-low-bit-performance">#</a></h4>
+<p><strong>Solution:</strong> Detected via log/directory inspection; corrected local mapping logic and documented the issue for upstream fix.</p>
+<p><strong>Key Insight:</strong> Libraries with silent fallbacks can hide critical errors; proactive verification of output shapes and configs is essential to trust results.</p>
+<h4 id="3-mihd-draft-contained-false-claims-fusion-superiority-uniform-k7-due-to-lack-of-raw-data-verification">3. MIHD draft contained false claims (fusion superiority, uniform k=7) due to lack of raw data verification.<a hidden class="anchor" aria-hidden="true" href="#3-mihd-draft-contained-false-claims-fusion-superiority-uniform-k7-due-to-lack-of-raw-data-verification">#</a></h4>
+<p><strong>Solution:</strong> Audited against <code>result_report.md</code> and <code>ground_truth.npz</code>; corrected narrative to &lsquo;Task Decoupling&rsquo;; synchronized six planning documents.</p>
+<p><strong>Key Insight:</strong> Scientific narratives must be grounded in raw data; negative or marginal results can be strong findings if correctly framed.</p>
+<h4 id="4-robomemory-text-oracle-baseline-performed-significantly-better-than-expected-67-sr-invalidating-initial-assumptions">4. RoboMemory text-oracle baseline performed significantly better than expected (67 SR), invalidating initial assumptions.<a hidden class="anchor" aria-hidden="true" href="#4-robomemory-text-oracle-baseline-performed-significantly-better-than-expected-67-sr-invalidating-initial-assumptions">#</a></h4>
+<p><strong>Solution:</strong> Launched adversarial audit to check for leakage or confounds before reporting; prevented premature narrative commitment.</p>
+<p><strong>Key Insight:</strong> Theoretical task difficulty often diverges from empirical baseline performance; always verify baselines with actual logs.</p>
+<h4 id="5-rmsnorm-scales-quantized-to-int4-caused-98-channel-zeroing-in-w4-experiments-mistaken-for-method-limit">5. RMSNorm scales quantized to int4 caused 98% channel zeroing in W4 experiments, mistaken for method limit.<a hidden class="anchor" aria-hidden="true" href="#5-rmsnorm-scales-quantized-to-int4-caused-98-channel-zeroing-in-w4-experiments-mistaken-for-method-limit">#</a></h4>
+<p><strong>Solution:</strong> Isolated RMSNorm from default_param_bw=4; confirmed true SpinQuant benefit is minimal at W4.</p>
+<p><strong>Key Insight:</strong> Numerical stability issues often mask implementation bugs; verify intermediate states before concluding method limitations.</p>
+<h4 id="6-non-reproducible-pca-results-in-mihd-due-to-randomized-svd">6. Non-reproducible PCA results in MIHD due to randomized SVD.<a hidden class="anchor" aria-hidden="true" href="#6-non-reproducible-pca-results-in-mihd-due-to-randomized-svd">#</a></h4>
+<p><strong>Solution:</strong> Pinned <code>svd_solver='full'</code> and added regression tests for bitwise identity.</p>
+<p><strong>Key Insight:</strong> Diagnostic arms require deterministic algorithms; random seeds are insufficient for exact reproducibility.</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="7-amber-night-presets-lacked-backlight-context-causing-over-dimming">7. Amber night presets lacked backlight context, causing over-dimming.<a hidden class="anchor" aria-hidden="true" href="#7-amber-night-presets-lacked-backlight-context-causing-over-dimming">#</a></h4>
+<p><strong>Solution:</strong> Implemented backlight reading to stop extra dimming when screen is already sufficient; updated color temp to 2700K based on literature.</p>
+<p><strong>Key Insight:</strong> Environmental adaptation requires feedback loops (backlight/ALS) to avoid redundant or excessive adjustments.</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="root-cause-of-low-bit-failure--fix-strategy">Root Cause of Low-Bit Failure &amp; Fix Strategy<a hidden class="anchor" aria-hidden="true" href="#root-cause-of-low-bit-failure--fix-strategy">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>Identified pattern (A16 works, A8 fails) and directed investigation at attention mask; mandated verification against raw data for MIHD claims.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>Validated hypothesis via encoding analysis, implemented code overrides, and clarified SpinQuant algebra; provided benchmarks for PCA solvers.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human drove the diagnostic direction and strategic corrections (MIHD structure, baseline skepticism); AI provided precise mathematical proof, code implementation, and technical clarifications.</p>
+<h4 id="scientific-rigor-in-documentation-and-research">Scientific Rigor in Documentation and Research<a hidden class="anchor" aria-hidden="true" href="#scientific-rigor-in-documentation-and-research">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>Insisted on fixing false MIHD claims, rejecting uncalibrated lux values for AMS, and verifying RoboMemory baselines empirically.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>Initially hallucinated fusion advantage or missing oracle results; corrected upon human direction and data inspection.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human enforced strict empirical grounding and scientific integrity; AI facilitated verification but required explicit correction to avoid common pitfalls (hallucination, silent assumptions).</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
+<ul>
+<li>AI failed to detect silent W4-&gt;W8 downgrades in aimet_quant_types during initial code review, relying on standard library behavior assumptions rather than probing outputs.</li>
+<li>AI proposed false claims about MIHD fusion benefits and missed RoboMemory oracle subdirectory until explicitly directed to verify raw files.</li>
+</ul>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<ul>
+<li>AI suggested uncalibrated lux values for ALS data, requiring correction to emphasize physical calibration necessity.</li>
+</ul>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<ul>
+<li>In low-bit quantization, control flow constants (e.g., -1e4 masks) can saturate min-max ranges; forcing native precision (16-bit) on softmax paths is a standard and effective fix.</li>
+<li>Scientific narratives must be grounded in raw data verification; assumptions about baseline performance or minor differences often fail against empirical evidence.</li>
+<li>Silent fallbacks in quantization libraries can mask critical errors; always verify actual execution parameters against configurations via logs and outputs.</li>
+<li>SpinQuant R3/R4 rotations incur online compute costs on NPUs despite theoretical equivalence; zero-cost assumptions are unsafe in edge deployment.</li>
+</ul>
+<h3 id="practical-learnings">Practical Learnings<a hidden class="anchor" aria-hidden="true" href="#practical-learnings">#</a></h3>
+<ul>
+<li>Documentation (e.g., CLAUDE.md) is critical for AI-assisted workflows; updating it with bug patterns and architectural constraints prevents recurring errors in future sessions.</li>
+</ul>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<h3 id="pi05-quantization--spinquant-analysis">pi0.5 Quantization &amp; SpinQuant Analysis<a hidden class="anchor" aria-hidden="true" href="#pi05-quantization--spinquant-analysis">#</a></h3>
+<p><strong>✅ Fixing zero-success bugs and clarifying rotation mechanics</strong>
+<em>22:00:52.074 | claude_code</em>
+Resolved pi0.5 W4A8/A8 zero-success bug by identifying -1e4 attention mask saturation and implementing a 16-bit softmax override. Audited quantize-MVP project, clarifying SpinQuant R1-R4 mechanics (foldable vs. online costs) and confirming upstream fixes for silent downgrades. Verified action_expert encodings integrity.</p>
+<h3 id="mihd-paper-drafting--validation">MIHD Paper Drafting &amp; Validation<a hidden class="anchor" aria-hidden="true" href="#mihd-paper-drafting--validation">#</a></h3>
+<p><strong>✅ Consolidating Structure B and correcting results</strong>
+<em>20:33:25.451 | claude_code</em>
+Finalized MIHD paper using &lsquo;Structure B&rsquo; (Dataset × Task), correcting DLPFC cluster counts (k=5/7) and falsified fusion advantage claims by pivoting to &lsquo;Task Decoupling&rsquo;. Fixed non-deterministic PCA for reproducible metrics. Synchronized six planning documents.</p>
+<h3 id="eyecareamber-macos">EyeCareAmber (macOS)<a hidden class="anchor" aria-hidden="true" href="#eyecareamber-macos">#</a></h3>
+<p><strong>✅ v1.1.0 Release and ALS Diagnostic Probe</strong>
+<em>22:14:01.274 | codex/claude_code</em>
+Released Amber v1.1.0 with 2700K night presets and backlight reading logic. Investigated macOS auto-brightness APIs and implemented an <code>--ambient</code> diagnostic tool to read raw ALS levels, confirming feasibility without calibration or display modification.</p>
+<h3 id="robomemory-research">RoboMemory Research<a hidden class="anchor" aria-hidden="true" href="#robomemory-research">#</a></h3>
+<p><strong>🔍 Stage 2 Result Audit</strong>
+<em>18:51:52.703 | claude_code</em>
+Audited Stage 2 results on Tianhe3, discovering text-oracle baseline SR=67 (higher than expected), invalidating initial narratives. Launched adversarial audit to check for leakage before final reporting.</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-08-10</span>
+        <span class="usage-card__source">Claude Code</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$4.76</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>2M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>32K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>79.6%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 79.6%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 20.4%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (79.6%), active tokens (20.4%)">
+          <span style="width:79.6%; background:var(--usage-cache)"></span>
+          <span style="width:20.4%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:4e677fe76253d7cf -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 This entry was generated by AI from conversation logs and may contain errors.
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

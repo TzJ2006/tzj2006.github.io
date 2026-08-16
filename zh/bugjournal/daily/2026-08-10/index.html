@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-08-10 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="解决了 pi0.5 中关键的低比特量化阻塞问题，通过深入代码分析澄清了 SpinQuant 机制，完成了 MIHD 论文结构并修正了事实陈述，发布了经过夜间预设修订的 Amber v1.1.0，以及审核了 RoboMemory Stage 2 结果，揭示了意外的基线性能。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-10/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-08-10/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-10/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-10/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-08-10">
+  <meta property="og:description" content="解决了 pi0.5 中关键的低比特量化阻塞问题，通过深入代码分析澄清了 SpinQuant 机制，完成了 MIHD 论文结构并修正了事实陈述，发布了经过夜间预设修订的 Amber v1.1.0，以及审核了 RoboMemory Stage 2 结果，揭示了意外的基线性能。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-08-10T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-08-10T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-08-10">
+  <meta name="twitter:description" content="解决了 pi0.5 中关键的低比特量化阻塞问题，通过深入代码分析澄清了 SpinQuant 机制，完成了 MIHD 论文结构并修正了事实陈述，发布了经过夜间预设修订的 Amber v1.1.0，以及审核了 RoboMemory Stage 2 结果，揭示了意外的基线性能。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-08-10",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-10/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-08-10",
+  "name": "Bug Journal 2026-08-10",
+  "description": "解决了 pi0.5 中关键的低比特量化阻塞问题，通过深入代码分析澄清了 SpinQuant 机制，完成了 MIHD 论文结构并修正了事实陈述，发布了经过夜间预设修订的 Amber v1.1.0，以及审核了 RoboMemory Stage 2 结果，揭示了意外的基线性能。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-08-10 日常概述 已完成工作： 对机器学习量化（pi0.5/GR00T）、学术论文撰写（MIHD）、macOS应用程序开发（Amber）以及研究验证（RoboMemory）进行了全面审计和漏洞修复。主要工作包括通过覆盖softmax精度来解决W4A8/A8量化中的零成功率问题，将MIHD结果整合为“结构B”，更新Amber v1.1.0的夜间预设，并验证RoboMemory的实验基线。 实施方式： 使用多智能体工作流，检查编码格式，分析aimet-onnx/SpinQuant的源代码，对MIHD数据进行文件直接验证，为Amber发布进行本地预构建，通过SSH probes将RoboMemory验证发送至Tianhe3。同时为macOS实现了ALS诊断工具。 影响： 恢复了低位pi0.5实验的可行性，通过纠正错误说法确保MIHD交付成果的科学准确性，发布了更新了睡眠科学参数的稳定Amber v1.1.0版本，并通过识别意外的基线优势防止了RoboMemory结果的误报。 lighthouse 已完成工作： 诊断出pi0.5 W4A8零成功漏洞（注意力掩码饱和），实施16位softmax覆盖，审计quantize-MVP项目状态（GR00T/pi0.5结果），分析SpinQuant R1-R4机制，验证上游分支提交，检查action_expert编码格式。 实施方式： 使用Bash进行文件系统探索，使用python脚本进行编码验证，使用Claude Code工作流分析代码库，通过git历史检查，通过SSH probes检查GPU内存和结果文件。 影响： 解决了低位模型的关键部署障碍，明确了SpinQuant旋转的技术限制（R3/R4在线成本），验证了项目工件和上游同步状态的完整性。 MacOS 已完成工作： 发布Amber v1.1.0，更新了夜间预设（2700K）和背光读取逻辑；调查macOS系统自动亮度API，并实现了环境光传感器（ALS）诊断探针。 实施方式： 执行git标签推送，进行本地通用构建，使用C/Swift probes检查DisplayServices/IOKit框架，验证CI工作流。还通过固定svd_solver=‘full’解决了MIHD管道中的非确定性PCA问题。 影响： 发布了修复了睡眠科学参数且确认了无需修改显示行为即可读取环境光的技术可行的有效Amber版本，为未来自适应功能奠定了基础。 TzJsDesktop 已完成工作： 在Tianhe3上审计RoboMemory第二阶段结果，发现MIHD草稿中的事实错误（融合方法声明），并审查SpinQuant实现细节。 实施方式： 通过SSH命令检查远程集群上的CUDA/MEM状态和文件树；对MIHD规划文档进行跨文档验证工作流；使用Claude Code进行代码检查。 影响： 通过执行“结构B”纠正了MIHD论文中的叙述偏差，修正了数据不准确性；通过发现文本 oracle基线性能远高于预期，防止了RoboMemory的误报。 解决了pi0.5低位量化的关键障碍，通过深度代码分析明确了SpinQuant机制，最终确定了修正了事实声明的MIHD论文结构，发布了更新了夜间预设的Amber v1.1.0版本，并审计了揭示出意外基线性能的RoboMemory第二阶段结果。\n任务 架构与策略 ✅ 修复pi0.5 W4A8/A8零成功漏洞 — 发现-1e4注意力掩码使量化范围饱和；实施_set_softmax_io_to_16b覆盖以强制16位精度，通过编码检查验证并恢复了低位实验的可行性。 ✅ 确定MIHD论文结构并修正声明 — 将结果整合为“结构B”，修正了DLPFC簇计数（k=5/7）和融合优势声明，将叙述转向“任务解耦”。 ✅ 发布Amber v1.1.0 — 更新了带有背光读取的2700K夜间预设，更新了README，进行了本地通用构建（x86_64/arm64），推送了git tag v1.1.0，验证了CI发布的完整性。 ✅ 审计RoboMemory第二阶段结果 — 在Tianhe3上验证了16个单元格结果表；发现文本 oracle基线SR=67（低于预期），触发了对泄漏/混淆的对抗性审计。 ✅ 明确SpinQuant R1-R4机制 — 分析aimet-onnx源代码以定义旋转类型，确认R1/R2是可折叠的（零成本），而R3/R4产生在线MatMul成本，解释了为何放弃R3/R4的 upstream决策。 ✅ 修复MIHD PCA非确定性 — 在所有调用点将sklearn PCA替换为svd_solver='full'，以确保跨滑动检索指标的位级可重复性。 实施与修复 🔄 回复上游维护者的草稿 — 为Jinhee准备关于漏洞发现（load_encodings_to_sim、静默降级）和技术发现的文档。 ✅ 更新CLAUDE.md文档 — 在仓库指南中添加了架构说明、AI Hub提交命令、PCA确定性修复以及pi0.5掩码漏洞诊断，以防止未来复发。 ✅ 实现Amber ALS诊断探针 — 开发了--ambient Swift工具以读取原始ALS水平和亮度通知，确认API可访问性无需校准或显示修改。 问题与解决方案 关键问题 1. pi0.5 W4A8/A8实验因-1e4注意力掩码占据最大最小值范围导致0/50成功率，使激活值崩溃。 解决方案： 在model.py中实施硬编码覆盖，强制softmax输入/输出使用16位量化，绕过低位范围饱和；通过编码检查验证。\n关键洞察： 与数据共享量化的控制流常量（如掩码）可能会饱和动态范围；隔离或保留此类张量的精度至关重要。\n2. aimet_quant_types中W4A8/W4A4到W8A8的静默降级掩盖了真正的低位性能。 解决方案： 通过日志/目录检查发现，修正了本地映射逻辑并记录问题以供上游修复。\n关键洞察： 具有静默回退的库可能隐藏关键错误；主动验证输出形状和配置对于信任结果至关重要。\n3. MIHD草稿包含错误声明（融合优势、统一k=7）因为缺乏原始数据验证。 解决方案： 与result_report.md和ground_truth.npz对比审计；修正叙述为“任务解耦”；同步了六份规划文档。\n关键洞察： 科学叙述必须基于原始数据；负面或边缘结果如果正确表述也可以成为重要发现。\n4. RoboMemory文本 oracle基线性能显著优于预期（67 SR），推翻了初始假设。解决方案： 在报告前开展对抗性审计以检查泄漏或干扰因素；避免过早确定结论。 关键洞察： 理论任务难度往往与实际基线性能不同；始终需通过实际日志验证基线表现。\n5. RMSNorm 量化为 int4 后，在 W4 实验中导致 98% 的通道归零，被误认为是方法限制。 解决方案： 将 RMSNorm 与 default_param_bw=4 分离；确认 SpinQuant 的真正优势在 W4 下微乎其微。\n关键洞察： 数值稳定性问题往往掩盖了实现缺陷；在断定方法限制前需验证中间状态。\n6. MIHD 中不可复现的 PCA 结果源于随机化的 SVD。 解决方案： 固定 svd_solver='full' 并添加位级一致性的回归测试。\n关键洞察： 诊断步骤需要确定性算法；随机种子不足以实现精确可复现。\n一般问题 7. Amber 夜间预设缺乏背光上下文，导致过暗。 解决方案： 实现背光读取功能，避免屏幕已足够亮时仍过度变暗；根据文献将颜色温度调整为 2700K。\n关键洞察： 环境适应需要反馈循环（背光/ALS）以避免重复或过度调整。\n人类与 AI 方法 战略层面 低位错误根源与修复策略 角色 方法 人类 识别模式（A16 有效，A8 无效）并针对注意力掩码展开调查；对 MIHD 声明要求基于原始数据验证。 AI 通过编码分析验证假设，实施代码覆盖，阐明 SpinQuant 代数原理；提供 PCA 求解器基准测试。 差异分析： 人类指导诊断方向及战略修正（MIHD 结构、基线怀疑）；AI 提供精确的数学证明、代码实现和技术说明。\n文档与研究的科学严谨性 角色 方法 人类 坚持修复错误的 MIHD 声明，拒绝使用未校准的 lux 值进行 AMS 分析，通过实验验证 RoboMemory 基线。 AI 最初误认为融合优势或缺失预言器结果；在人类指导和数据检查后修正。 差异分析： 人类确保严格的经验基础与科学严谨性；AI 辅助验证但需明确修正以避免常见错误（幻觉、隐含假设）。\nAI 限制 关键限制 AI 在初始代码审查中未能检测到 aimet_quant_types 中的隐性 W4-\u003eW8 降级，依赖标准库行为假设而非输出分析。 AI 提出关于 MIHD 融合优势的虚假声明，未发现 RoboMemory 预言器子目录，直到明确指示验证原始文件。 一般限制 AI 建议 ALS 数据使用未校准的 lux 值，需修正以强调物理校准必要性。 经验教训 关键经验 在低位量化中，控制流常量（如 -1e4 掩码）可能使最小值-最大值范围饱和；强制 softmax 路径使用原生精度（16 位）是标准且有效的修复方法。 科学叙述必须基于原始数据验证；关于基线性能或细微差异的假设往往无法经经验证据验证。 量化库中的隐性回退机制可能掩盖关键错误；始终通过日志和输出验证实际执行参数与配置是否一致。 SpinQuant R3/R4 旋转在 NPU 上产生在线计算成本，尽管理论上等价；零成本假设在边缘部署中不安全。 实用经验 文档（如 CLAUDE.md）对 AI 辅助工作流至关重要；更新其中的错误模式和架构约束可防止未来会话重复出现错误。 对话总结 pi0.5 量化与 SpinQuant 分析 ✅ 修复零成功错误并明确旋转机制 22:00:52.074 | claude_code 通过识别 -1e4 注意力掩码饱和并实施 16 位 softmax 覆盖，解决了 pi0.5 W4A8/A8 零成功错误。审核了 quantize-MVP 项目，明确了 SpinQuant R1-R4 机制（可折叠与在线成本），并确认上游对隐性降级的修复。验证了 action_expert 编码的完整性。\nMIHD 论文撰写与验证 ✅ 整合结构 B 并修正结果 20:33:25.451 | claude_code 使用“结构 B”（数据集×任务）完成 MIHD 论文撰写，修正了 DLPFC 簇计数（k=5/7），通过转向“任务解耦”来否定融合优势声明。修复了不可复现的 PCA。同步了六份规划文档。\nEyeCareAmber (macOS) ✅ v1.1.0 发布与 ALS 诊断探针 22:14:01.274 | codex/claude_code 发布 Amber v1.1.0，包含 2700K 夜间预设和背光读取逻辑。研究 macOS 自动亮度 API，实现 --ambient 诊断工具以读取原始 ALS 水平，确认无需校准或显示修改即可实现。\nRoboMemory 研究 🔍 第二阶段结果审计 18:51:52.703 | claude_code 在 Tianhe3 上审计第二阶段结果，发现文本预言器基线 SR=67（高于预期），推翻了初始叙述。开展对抗性审计以在最终报告前检查泄漏情况。\n令牌使用 AI Usage · 2026-08-10\rClaude Code\rTotal cost$4.76\rTotal tokens2M\rOutput tokens32K\rCache read79.6%\rToken character\rCache reads 79.6% ·\rActive 20.4%\rMost token volume came from cache reads.\r",
+  "wordCount" : "354",
+  "inLanguage": "zh",
+  "datePublished": "2026-08-10T00:00:00-04:00",
+  "dateModified": "2026-08-10T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-10/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-08-10
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-08-10 00:00:00 -0400 EDT'>2026年8月10日</span>&nbsp;·&nbsp;<span>2 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-08-10">每日报告 — 2026-08-10<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-08-10">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>已完成工作：</strong> 对机器学习量化（pi0.5/GR00T）、学术论文撰写（MIHD）、macOS应用程序开发（Amber）以及研究验证（RoboMemory）进行了全面审计和漏洞修复。主要工作包括通过覆盖softmax精度来解决W4A8/A8量化中的零成功率问题，将MIHD结果整合为“结构B”，更新Amber v1.1.0的夜间预设，并验证RoboMemory的实验基线。</li>
+<li><strong>实施方式：</strong> 使用多智能体工作流，检查编码格式，分析aimet-onnx/SpinQuant的源代码，对MIHD数据进行文件直接验证，为Amber发布进行本地预构建，通过SSH probes将RoboMemory验证发送至Tianhe3。同时为macOS实现了ALS诊断工具。</li>
+<li><strong>影响：</strong> 恢复了低位pi0.5实验的可行性，通过纠正错误说法确保MIHD交付成果的科学准确性，发布了更新了睡眠科学参数的稳定Amber v1.1.0版本，并通过识别意外的基线优势防止了RoboMemory结果的误报。</li>
+</ul>
+<h3 id="lighthouse">lighthouse<a hidden class="anchor" aria-hidden="true" href="#lighthouse">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 诊断出pi0.5 W4A8零成功漏洞（注意力掩码饱和），实施16位softmax覆盖，审计quantize-MVP项目状态（GR00T/pi0.5结果），分析SpinQuant R1-R4机制，验证上游分支提交，检查action_expert编码格式。</li>
+<li><strong>实施方式：</strong> 使用Bash进行文件系统探索，使用python脚本进行编码验证，使用Claude Code工作流分析代码库，通过git历史检查，通过SSH probes检查GPU内存和结果文件。</li>
+<li><strong>影响：</strong> 解决了低位模型的关键部署障碍，明确了SpinQuant旋转的技术限制（R3/R4在线成本），验证了项目工件和上游同步状态的完整性。</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 发布Amber v1.1.0，更新了夜间预设（2700K）和背光读取逻辑；调查macOS系统自动亮度API，并实现了环境光传感器（ALS）诊断探针。</li>
+<li><strong>实施方式：</strong> 执行git标签推送，进行本地通用构建，使用C/Swift probes检查DisplayServices/IOKit框架，验证CI工作流。还通过固定svd_solver=&lsquo;full&rsquo;解决了MIHD管道中的非确定性PCA问题。</li>
+<li><strong>影响：</strong> 发布了修复了睡眠科学参数且确认了无需修改显示行为即可读取环境光的技术可行的有效Amber版本，为未来自适应功能奠定了基础。</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 在Tianhe3上审计RoboMemory第二阶段结果，发现MIHD草稿中的事实错误（融合方法声明），并审查SpinQuant实现细节。</li>
+<li><strong>实施方式：</strong> 通过SSH命令检查远程集群上的CUDA/MEM状态和文件树；对MIHD规划文档进行跨文档验证工作流；使用Claude Code进行代码检查。</li>
+<li><strong>影响：</strong> 通过执行“结构B”纠正了MIHD论文中的叙述偏差，修正了数据不准确性；通过发现文本 oracle基线性能远高于预期，防止了RoboMemory的误报。</li>
+</ul>
+<blockquote>
+<p>解决了pi0.5低位量化的关键障碍，通过深度代码分析明确了SpinQuant机制，最终确定了修正了事实声明的MIHD论文结构，发布了更新了夜间预设的Amber v1.1.0版本，并审计了揭示出意外基线性能的RoboMemory第二阶段结果。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>✅ <strong>修复pi0.5 W4A8/A8零成功漏洞</strong> — 发现-1e4注意力掩码使量化范围饱和；实施<code>_set_softmax_io_to_16b</code>覆盖以强制16位精度，通过编码检查验证并恢复了低位实验的可行性。</li>
+<li>✅ <strong>确定MIHD论文结构并修正声明</strong> — 将结果整合为“结构B”，修正了DLPFC簇计数（k=5/7）和融合优势声明，将叙述转向“任务解耦”。</li>
+<li>✅ <strong>发布Amber v1.1.0</strong> — 更新了带有背光读取的2700K夜间预设，更新了README，进行了本地通用构建（x86_64/arm64），推送了git tag v1.1.0，验证了CI发布的完整性。</li>
+<li>✅ <strong>审计RoboMemory第二阶段结果</strong> — 在Tianhe3上验证了16个单元格结果表；发现文本 oracle基线SR=67（低于预期），触发了对泄漏/混淆的对抗性审计。</li>
+<li>✅ <strong>明确SpinQuant R1-R4机制</strong> — 分析aimet-onnx源代码以定义旋转类型，确认R1/R2是可折叠的（零成本），而R3/R4产生在线MatMul成本，解释了为何放弃R3/R4的 upstream决策。</li>
+<li>✅ <strong>修复MIHD PCA非确定性</strong> — 在所有调用点将sklearn PCA替换为<code>svd_solver='full'</code>，以确保跨滑动检索指标的位级可重复性。</li>
+</ul>
+<h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
+<ul>
+<li>🔄 <strong>回复上游维护者的草稿</strong> — 为Jinhee准备关于漏洞发现（load_encodings_to_sim、静默降级）和技术发现的文档。</li>
+<li>✅ <strong>更新CLAUDE.md文档</strong> — 在仓库指南中添加了架构说明、AI Hub提交命令、PCA确定性修复以及pi0.5掩码漏洞诊断，以防止未来复发。</li>
+<li>✅ <strong>实现Amber ALS诊断探针</strong> — 开发了<code>--ambient</code> Swift工具以读取原始ALS水平和亮度通知，确认API可访问性无需校准或显示修改。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-pi05-w4a8a8实验因-1e4注意力掩码占据最大最小值范围导致050成功率使激活值崩溃">1. pi0.5 W4A8/A8实验因-1e4注意力掩码占据最大最小值范围导致0/50成功率，使激活值崩溃。<a hidden class="anchor" aria-hidden="true" href="#1-pi05-w4a8a8实验因-1e4注意力掩码占据最大最小值范围导致050成功率使激活值崩溃">#</a></h4>
+<p><strong>解决方案：</strong> 在<code>model.py</code>中实施硬编码覆盖，强制softmax输入/输出使用16位量化，绕过低位范围饱和；通过编码检查验证。</p>
+<p><strong>关键洞察：</strong> 与数据共享量化的控制流常量（如掩码）可能会饱和动态范围；隔离或保留此类张量的精度至关重要。</p>
+<h4 id="2-aimet_quant_types中w4a8w4a4到w8a8的静默降级掩盖了真正的低位性能">2. aimet_quant_types中W4A8/W4A4到W8A8的静默降级掩盖了真正的低位性能。<a hidden class="anchor" aria-hidden="true" href="#2-aimet_quant_types中w4a8w4a4到w8a8的静默降级掩盖了真正的低位性能">#</a></h4>
+<p><strong>解决方案：</strong> 通过日志/目录检查发现，修正了本地映射逻辑并记录问题以供上游修复。</p>
+<p><strong>关键洞察：</strong> 具有静默回退的库可能隐藏关键错误；主动验证输出形状和配置对于信任结果至关重要。</p>
+<h4 id="3-mihd草稿包含错误声明融合优势统一k7因为缺乏原始数据验证">3. MIHD草稿包含错误声明（融合优势、统一k=7）因为缺乏原始数据验证。<a hidden class="anchor" aria-hidden="true" href="#3-mihd草稿包含错误声明融合优势统一k7因为缺乏原始数据验证">#</a></h4>
+<p><strong>解决方案：</strong> 与<code>result_report.md</code>和<code>ground_truth.npz</code>对比审计；修正叙述为“任务解耦”；同步了六份规划文档。</p>
+<p><strong>关键洞察：</strong> 科学叙述必须基于原始数据；负面或边缘结果如果正确表述也可以成为重要发现。</p>
+<h4 id="4-robomemory文本-oracle基线性能显著优于预期67-sr推翻了初始假设解决方案-在报告前开展对抗性审计以检查泄漏或干扰因素避免过早确定结论">4. RoboMemory文本 oracle基线性能显著优于预期（67 SR），推翻了初始假设。<strong>解决方案：</strong> 在报告前开展对抗性审计以检查泄漏或干扰因素；避免过早确定结论。<a hidden class="anchor" aria-hidden="true" href="#4-robomemory文本-oracle基线性能显著优于预期67-sr推翻了初始假设解决方案-在报告前开展对抗性审计以检查泄漏或干扰因素避免过早确定结论">#</a></h4>
+<p><strong>关键洞察：</strong> 理论任务难度往往与实际基线性能不同；始终需通过实际日志验证基线表现。</p>
+<h4 id="5-rmsnorm-量化为-int4-后在-w4-实验中导致-98-的通道归零被误认为是方法限制">5. RMSNorm 量化为 int4 后，在 W4 实验中导致 98% 的通道归零，被误认为是方法限制。<a hidden class="anchor" aria-hidden="true" href="#5-rmsnorm-量化为-int4-后在-w4-实验中导致-98-的通道归零被误认为是方法限制">#</a></h4>
+<p><strong>解决方案：</strong> 将 RMSNorm 与 default_param_bw=4 分离；确认 SpinQuant 的真正优势在 W4 下微乎其微。</p>
+<p><strong>关键洞察：</strong> 数值稳定性问题往往掩盖了实现缺陷；在断定方法限制前需验证中间状态。</p>
+<h4 id="6-mihd-中不可复现的-pca-结果源于随机化的-svd">6. MIHD 中不可复现的 PCA 结果源于随机化的 SVD。<a hidden class="anchor" aria-hidden="true" href="#6-mihd-中不可复现的-pca-结果源于随机化的-svd">#</a></h4>
+<p><strong>解决方案：</strong> 固定 <code>svd_solver='full'</code> 并添加位级一致性的回归测试。</p>
+<p><strong>关键洞察：</strong> 诊断步骤需要确定性算法；随机种子不足以实现精确可复现。</p>
+<h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
+<h4 id="7-amber-夜间预设缺乏背光上下文导致过暗">7. Amber 夜间预设缺乏背光上下文，导致过暗。<a hidden class="anchor" aria-hidden="true" href="#7-amber-夜间预设缺乏背光上下文导致过暗">#</a></h4>
+<p><strong>解决方案：</strong> 实现背光读取功能，避免屏幕已足够亮时仍过度变暗；根据文献将颜色温度调整为 2700K。</p>
+<p><strong>关键洞察：</strong> 环境适应需要反馈循环（背光/ALS）以避免重复或过度调整。</p>
+<h2 id="人类与-ai-方法">人类与 AI 方法<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="低位错误根源与修复策略">低位错误根源与修复策略<a hidden class="anchor" aria-hidden="true" href="#低位错误根源与修复策略">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>识别模式（A16 有效，A8 无效）并针对注意力掩码展开调查；对 MIHD 声明要求基于原始数据验证。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>通过编码分析验证假设，实施代码覆盖，阐明 SpinQuant 代数原理；提供 PCA 求解器基准测试。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类指导诊断方向及战略修正（MIHD 结构、基线怀疑）；AI 提供精确的数学证明、代码实现和技术说明。</p>
+<h4 id="文档与研究的科学严谨性">文档与研究的科学严谨性<a hidden class="anchor" aria-hidden="true" href="#文档与研究的科学严谨性">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>坚持修复错误的 MIHD 声明，拒绝使用未校准的 lux 值进行 AMS 分析，通过实验验证 RoboMemory 基线。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初误认为融合优势或缺失预言器结果；在人类指导和数据检查后修正。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类确保严格的经验基础与科学严谨性；AI 辅助验证但需明确修正以避免常见错误（幻觉、隐含假设）。</p>
+<h2 id="ai-限制">AI 限制<a hidden class="anchor" aria-hidden="true" href="#ai-限制">#</a></h2>
+<h3 id="关键限制">关键限制<a hidden class="anchor" aria-hidden="true" href="#关键限制">#</a></h3>
+<ul>
+<li>AI 在初始代码审查中未能检测到 aimet_quant_types 中的隐性 W4-&gt;W8 降级，依赖标准库行为假设而非输出分析。</li>
+<li>AI 提出关于 MIHD 融合优势的虚假声明，未发现 RoboMemory 预言器子目录，直到明确指示验证原始文件。</li>
+</ul>
+<h3 id="一般限制">一般限制<a hidden class="anchor" aria-hidden="true" href="#一般限制">#</a></h3>
+<ul>
+<li>AI 建议 ALS 数据使用未校准的 lux 值，需修正以强调物理校准必要性。</li>
+</ul>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="关键经验">关键经验<a hidden class="anchor" aria-hidden="true" href="#关键经验">#</a></h3>
+<ul>
+<li>在低位量化中，控制流常量（如 -1e4 掩码）可能使最小值-最大值范围饱和；强制 softmax 路径使用原生精度（16 位）是标准且有效的修复方法。</li>
+<li>科学叙述必须基于原始数据验证；关于基线性能或细微差异的假设往往无法经经验证据验证。</li>
+<li>量化库中的隐性回退机制可能掩盖关键错误；始终通过日志和输出验证实际执行参数与配置是否一致。</li>
+<li>SpinQuant R3/R4 旋转在 NPU 上产生在线计算成本，尽管理论上等价；零成本假设在边缘部署中不安全。</li>
+</ul>
+<h3 id="实用经验">实用经验<a hidden class="anchor" aria-hidden="true" href="#实用经验">#</a></h3>
+<ul>
+<li>文档（如 CLAUDE.md）对 AI 辅助工作流至关重要；更新其中的错误模式和架构约束可防止未来会话重复出现错误。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<h3 id="pi05-量化与-spinquant-分析">pi0.5 量化与 SpinQuant 分析<a hidden class="anchor" aria-hidden="true" href="#pi05-量化与-spinquant-分析">#</a></h3>
+<p><strong>✅ 修复零成功错误并明确旋转机制</strong>
+<em>22:00:52.074 | claude_code</em>
+通过识别 -1e4 注意力掩码饱和并实施 16 位 softmax 覆盖，解决了 pi0.5 W4A8/A8 零成功错误。审核了 quantize-MVP 项目，明确了 SpinQuant R1-R4 机制（可折叠与在线成本），并确认上游对隐性降级的修复。验证了 action_expert 编码的完整性。</p>
+<h3 id="mihd-论文撰写与验证">MIHD 论文撰写与验证<a hidden class="anchor" aria-hidden="true" href="#mihd-论文撰写与验证">#</a></h3>
+<p><strong>✅ 整合结构 B 并修正结果</strong>
+<em>20:33:25.451 | claude_code</em>
+使用“结构 B”（数据集×任务）完成 MIHD 论文撰写，修正了 DLPFC 簇计数（k=5/7），通过转向“任务解耦”来否定融合优势声明。修复了不可复现的 PCA。同步了六份规划文档。</p>
+<h3 id="eyecareamber-macos">EyeCareAmber (macOS)<a hidden class="anchor" aria-hidden="true" href="#eyecareamber-macos">#</a></h3>
+<p><strong>✅ v1.1.0 发布与 ALS 诊断探针</strong>
+<em>22:14:01.274 | codex/claude_code</em>
+发布 Amber v1.1.0，包含 2700K 夜间预设和背光读取逻辑。研究 macOS 自动亮度 API，实现 <code>--ambient</code> 诊断工具以读取原始 ALS 水平，确认无需校准或显示修改即可实现。</p>
+<h3 id="robomemory-研究">RoboMemory 研究<a hidden class="anchor" aria-hidden="true" href="#robomemory-研究">#</a></h3>
+<p><strong>🔍 第二阶段结果审计</strong>
+<em>18:51:52.703 | claude_code</em>
+在 Tianhe3 上审计第二阶段结果，发现文本预言器基线 SR=67（高于预期），推翻了初始叙述。开展对抗性审计以在最终报告前检查泄漏情况。</p>
+<h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-08-10</span>
+        <span class="usage-card__source">Claude Code</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$4.76</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>2M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>32K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>79.6%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 79.6%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 20.4%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (79.6%), active tokens (20.4%)">
+          <span style="width:79.6%; background:var(--usage-cache)"></span>
+          <span style="width:20.4%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:4e677fe76253d7cf -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
