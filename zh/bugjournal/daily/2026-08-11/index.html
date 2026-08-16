@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-08-11 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="解决了 QWOP RL、MIHD Benchmarking、TokenMonitor 和 Amber 项目中的关键基础设施及代码稳定性问题，同时为 Nature Methods 建立了规范的科学写作框架。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-11/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-08-11/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-11/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-11/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-08-11">
+  <meta property="og:description" content="解决了 QWOP RL、MIHD Benchmarking、TokenMonitor 和 Amber 项目中的关键基础设施及代码稳定性问题，同时为 Nature Methods 建立了规范的科学写作框架。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-08-11T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-08-11T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-08-11">
+  <meta name="twitter:description" content="解决了 QWOP RL、MIHD Benchmarking、TokenMonitor 和 Amber 项目中的关键基础设施及代码稳定性问题，同时为 Nature Methods 建立了规范的科学写作框架。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-08-11",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-11/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-08-11",
+  "name": "Bug Journal 2026-08-11",
+  "description": "解决了 QWOP RL、MIHD Benchmarking、TokenMonitor 和 Amber 项目中的关键基础设施及代码稳定性问题，同时为 Nature Methods 建立了规范的科学写作框架。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-08-11 日常概述 已完成工作： 修正了 QWOP RL 环境中的基本奖励定义错误，完成了 RoboMemory 第二阶段结果确认；通过解决 rpy2 死锁问题，解除了 MIHD 基准测试流程的阻塞，并根据顾问建议调整了论文结构；通过修复 AppKit 崩溃和时区测试问题，稳定了 TokenMonitor 桌面客户端；发布修正了背光传感器逻辑的 Amber v1.1.1 版本；为 Nature Methods 撰写了经过对抗性验证的写作技巧。 实现方式： 在 QWOP 中实现了正交初始化和观测归一化；重构 MIHD 以避开 rpy2 多进程阻塞问题，将图表结构从任务导向调整为数据集导向；修复了 TokenMonitor 中的跨线程 AppKit 交互和日历同步刷新计时器问题；在 BacklightReader IORegistry 调用中添加了活性检测机制；利用代理式工作流对 50 篇 Nature Methods 论文进行了整理和验证。 影响： 使 QWOP 能够进行有效的强化学习训练；通过识别算法干扰和数据缺口，确保了 MIHD 论文的实证有效性；消除了 TokenMonitor 中的无限重试故障；保证了 Amber 硬件读数的准确性；提供了用于科学论文生成的稳定、可复用的工具链。 MacOS 已完成工作： 诊断并修复了 BacklightReader 静态数据错误，发布 Amber v1.1.1 版本；验证了关于亮度标准的学术文献；诊断了 MIHD 流程阻塞问题并调整了论文图表；修复了 TokenMonitor 中的 AppKit 崩溃和时区测试问题。 实现方式： 执行 IOReport 探针测试，进行文献验证的 PDF 解析，对 MIHD 数据缺口进行 Python 审计，对 Tauri 主线程安全性进行 Rust 重构，利用代理式脚本构建写作框架。 影响： 发布了稳定的 Amber 版本；通过修正统计解释防止了 MIHD 论文中的误导性陈述；建立了严格的科学写作基础。 TzJsDesktop 已完成工作： 管理 Tianhe3 上的远程基础设施，清理闲置 GPU 进程；完成 RoboMemory 第二阶段结果和模式分析；参加 MIHD Resource 论文的战略会议。 实现方式： 使用 SSH 进行进程管理，使用 Python 进行结果汇总，利用转录工具从顾问会议中提取指令。 影响： 为 QWOP 训练释放了宝贵的 GPU 资源；明确了 drawn memory 在几何任务中表现更优，而文本在符号任务中表现更好；使 MIHD 论文结构符合 ‘Resource’ 期刊标准。 lighthouse 已完成工作： 在 QNN 上进行了 AI Hub 延迟基准测试；对 HD 全页 PCA 确定性进行了审计。 实现方式： 编写了用于多单元配置测试的 Bash/tmux 驱动程序；对组织样本进行了 ANOVA 方差分解分析。 影响： 建立了 W4A8 量化操作的 247.1 ms 基准延迟；修正了图 2c 的解释，显示的是瓦片差异而非方法等价性。 解决了 QWOP RL、MIHD 基准测试、TokenMonitor 和 Amber 项目中的关键基础设施和代码稳定性问题，同时为 Nature Methods 建立了经过验证的科学写作框架。\n任务 架构与策略 ✅ QWOP RL 目标修正与部署 — 发现 PPO 由于奖励函数不敏感且 gamma 低，实际上是在优化距离而非时间，因此重新编写了奖励函数和训练配置，并部署在 RTX 5090 上。 ✅ Nature Methods 写作框架构建 — 构建了包含 50 篇论文的技能目录，整理出七种核心写作技巧，并通过对抗性验证修正了频率相关说法。 ✅ MIHD 流程解阻塞与论文重构 — 解决了 DLPFC 种子矩阵中的 rpy2/multiprocessing 阻塞问题；审计了算法干扰（mclust vs KMeans）；根据顾问建议将结果章节从任务导向调整为数据集导向。 ✅ TokenMonitor 稳定性提升 — 通过主线程调度修复了 TrayIcon 的 AppKit 崩溃问题；使用确定性固定参数解决了时区测试问题；修复了带有失败冷却标记的无限重试循环。 ✅ Amber v1.1.1 发布 — 修正了 BacklightReader 对静态数据返回 nil 的情况；更新了具有三种状态的 UI；验证了亮度相关文献；构建并部署了通用二进制文件。 ✅ RoboMemory 第二阶段完成 — 编译出最终结果，显示 drawn memory 在几何任务中更优，在符号任务中文本更优；清理了 Tianhe3 的闲置进程。 🔄 QNN 延迟基准测试 — 启动了 10 单元矩阵进行 AI Hub 延迟测试；获得了 W4A8 norm8 的首次有效测量值（247.1 ms）；识别了 Flash Attention 数据类型限制。 ✅ MIHD 图表故事板与统计修正 — 生成了图 M1-5 的最终 HTML 故事板；修正了图 2c，显示的是瓦片差异（67% 方差）而非方法差异；修复了 PCA 确定性错误。 问题与解决方案 关键问题 1. QWOP PPO 由于奖励函数不敏感和 gamma 低，实际上是在优化距离而非时间，导致“随机”行为。 解决方案： 重新编写 C++ 奖励函数以严重惩罚时间；将 gamma 提升至 0.999；添加观测归一化和正交初始化以稳定训练。\n关键洞察： 算法无法修复定义错误的目标；在调整算法之前，奖励设计必须与真实目标一致。强化学习中的梯度流动对奖励规模非常敏感。\n2. MIHD DLPFC 种子矩阵在仅使用基因的基准上因 rpy2/multiprocessing 阻塞而静默卡死 5 天。 解决方案： 隔离问题以安全使用 rpy2 绑定；在 SLURM 级别使用数组并行化将工作线程设置为 1；审计了算法干扰问题。\n关键洞察： 静默的 HPC 卡死会不可见地消耗资源；监控输出增长比检查任务状态更可靠。rpy2 不安全的使用线程/fork。\n3. TokenMonitor 因非主异步线程上的 NSStatusItem 销毁和失败获取导致的无限重试循环而随机崩溃。 解决方案： 重构 TrayIcon 以使用主线程调度；在解析器中添加失败冷却状态标记，避免冷却期间再次触发。\n关键洞察： Tauri 中 Rc 包装的资源在关闭时不可线程安全。在异步架构中，错误路径必须明确管理状态以避免故障。\n4. BacklightReader 自启动以来一直返回静态 IORegistry 值（381.8 nits），破坏了自动亮度逻辑。 解决方案： 实现活性检测机制，在观察到动态变化前返回 nil；更新 UI 显示验证/未验证/不可读状态。\n关键洞察： 类似 Apple Silicon 的硬件 API 如 IORegistry 可能在启动时缓存值；更新 UI 以显示验证/未验证/不可读状态。在信任绝对读数之前，务必通过刺激测试验证系统的活性状态。\n5. 写作框架推导过程中存在幻觉性的频率统计和未经验证的启发式方法。解决方案： 实施了对抗性验证代理对原始语料中的术语进行重新计数；修正了 SKILL.md 中“we recommend”分布及形容词规则。 关键洞察： 由 LLM 主导的蒸馏需要针对原始数据进行独立统计验证，以防止错误传播。\n6. 最初的 MIHD 结果包含误导性的统计声明：图 2c 掩盖了 tiles 异质性带来的方差（67%）；文本 oracle 被误认为是手动启发式方法。 解决方案： 执行 ANOVA 以识别正确的方差驱动因素；审核源代码以证明文本 oracle 是自动状态输出；更新图注以区分中位数与最大值参数。\n关键洞察： 汇总图中的大范围视觉特征可能掩盖真实的方法等效性。比较中的公平性需要审计信号泄露并使用稳健的统计指标。\n7. RoboMemory 第二阶段结果未能清晰说明“drawn”与“text”模式在任务中的表现差异原因。 解决方案： 分析架构优势：drawn 内存在连续几何任务中表现更好（RouteStick），而文本在离散符号任务中更优（PatternLock）。\n关键洞察： 记忆任务性能对模式与信息结构之间的匹配度非常敏感。离散/符号型 -\u003e 文本；连续/几何型 -\u003e drawn。\n人类与 AI 方法 科学叙事策略与执行 角色 方法 人类 顾问（Yi）指导高级叙事调整：将 MIHD 定位为“资源”平台，按数据集而非任务组织图表，严格限制 AI 的角色仅限于文本润色，而非生成逻辑。 AI AI 专注于执行视觉输出（fig_storyboard.py），对照 CSV 验证数据点，并撰写图注文本。在缺乏上下文的情况下，它难以从嘈杂的音频转录中推断具体的指标变化。 差异分析： 人类根据评审者的心理驱动叙事脉络和约束条件；AI 负责数据验证和视觉构建。这种协作确保了战略合理性与技术准确性。\n硬件/传感器数据的诊断逻辑 角色 方法 人类 用户要求 BacklightReader 进行长时间测试（60秒），挑战 AI 在仅部分尺度变化时过早终止的行为。还假设了 RoboMemory 第三阶段的架构变更。 AI 最初配置的测试在第一个阳性信号时停止，遗漏了静态 nits 读数。后来验证了文本 oracle 来源，评估了 Qwen-VL 的可行性，发现其新颖性与现有工作存在重叠。 差异分析： 人类发现“响应”在不同机制中并不统一，并为新模块提供战略方向；AI 提供了代码级别的详细验证和现有技术分析，以纠正新颖性声明。\nRL 目标与算法选择 角色 方法 人类 用户对 RL 性能表示不满，建议“更强的方法”。 AI AI 确定根本原因是目标定义错误（距离 vs 时间），而非算法缺陷，提议重写奖励函数而非改变 PPO 架构。 差异分析： 人类关注结果质量；AI 提供了数据驱动的诊断，揭示“失败”实际上是对错误奖励函数的最优行为。\nAI 局限性 关键局限性 对写作框架的初步验证包含不准确的频率声明和幻觉约束，需要通过独立代理进行大量修正。 AI 最初未能识别 rpy2 与多进程的不兼容问题，导致多日诊断工作。它也难以区分磁盘使用分析中的本地缓存与符号链接。 一般局限性 AI 在无需自定义 CSS 技巧的情况下难以将复杂的 ASCII 面板图转化为 HTML，并且在明确询问前将图 2c 的方差误归因于方法。 经验教训 关键经验 在具有重放的确定性环境中，直接搜索/规划可能优于 RL；RL 仅在泛化或延迟方面必要。奖励设计必须在算法调整之前进行。 报告聚类稳定性时，始终将“种子噪声”与“重新训练噪声”分开。始终验证统计参数（均值与最大值），因为它们可能改变定性结论。 HPC 阵列任务中的静默失败会消耗大量资源；监控逻辑应检测输出增长。硬件 API 可能在启动时缓存值，需要存活检查。 单页编码器的跨幻灯片查询性能严重依赖于切片对相关性。始终验证底层算法架构以避免基准测试中的混淆。 对话总结 Qualcomm AI Hub / QWOP RL / RoboMemory ✅ AI 基准测试与强化学习优化 01:00:00.000 | claude_code 在 QNN 上执行 AI Hub 延迟矩阵测试，为 W4A8 量化获得了 247.1 ms 基线。通过重写奖励函数以优先最小化时间而非距离激活来修正 QWOP RL 目标，在 RTX 5090 上部署标准化 PPO 配置。最终确定 RoboMemory 第二阶段结果，证明 drawn 内存在几何任务中更优，文本在符号任务中更优，同时清理了 Tianhe3 GPU 资源。\nMIHD 基准测试项目 ✅ 管道疏通、统计修正和论文重构 10:00:00.000 | claude_code 解决了由 rpy2/multiprocessing 死锁引起的 MIHD DLPFC 种子矩阵5天静默失败问题。进行深度统计审计，修正图 2c 中的误导性声明（将 tiles 异质性视为主要方差驱动因素）和 PCA 确定性问题。根据顾问反馈，从按任务为主到按数据集为主的格式重构结果章节，用于“资源”类期刊投稿，最终完成图表故事板。\nTokenMonitor ✅ 桌面客户端稳定性与测试可靠性 12:00:00.000 | claude_code 通过强制主线程分发修复了 Tauri 托盘图标的关键 AppKit 崩溃问题。使用与查询日期一致的确定性固定值解决 Rust 中依赖时区的不稳定测试问题。通过实现失败冷却状态标记解决无限后台重试循环问题，确保对 API 停机具有鲁棒性。\nAmber (EyeCareApp) ✅ 传感器逻辑修正与文献验证 14:00:00.000 | claude_code 诊断出 BacklightReader 返回静态 IORegistry 值而非实时数据。实现了一个存活门，对于静态读数返回 nil，更新 UI 以反映此状态。验证了关于亮度标准的学术文献，通过分析回归截距与测量最优解之间的关系解决了 Zhou 2021 与 Kim 2017 之间的明显矛盾。发布 v1.1.1 版本。\nNature Methods 写作框架 ✅ 写作框架**✅ 智能代理式精炼与科学写作对抗性验证** 16:00:00.000 | claude_code 通过收集50篇论文，提炼核心写作技巧并构建体裁映射表，从而打造出《Nature Methods》所需的综合写作能力。通过实施对抗性验证代理，对原始语料中的所有声明进行事实核查，纠正了虚假的频率统计和误读的形容词规则。最终生成了经过验证的SKILL.md文件，有效避免了诸如自我否定限制等常见错误。\n标记使用情况 AI Usage · 2026-08-11\rClaude Code\rTotal cost$146.78\rTotal tokens110M\rOutput tokens2M\rCache read91.6%\rToken character\rCache reads 91.6% ·\rActive 8.4%\rMost token volume came from cache reads.\r",
+  "wordCount" : "592",
+  "inLanguage": "zh",
+  "datePublished": "2026-08-11T00:00:00-04:00",
+  "dateModified": "2026-08-11T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-11/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-08-11
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-08-11 00:00:00 -0400 EDT'>2026年8月11日</span>&nbsp;·&nbsp;<span>3 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-08-11">每日报告 — 2026-08-11<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-08-11">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>已完成工作：</strong> 修正了 QWOP RL 环境中的基本奖励定义错误，完成了 RoboMemory 第二阶段结果确认；通过解决 rpy2 死锁问题，解除了 MIHD 基准测试流程的阻塞，并根据顾问建议调整了论文结构；通过修复 AppKit 崩溃和时区测试问题，稳定了 TokenMonitor 桌面客户端；发布修正了背光传感器逻辑的 Amber v1.1.1 版本；为 Nature Methods 撰写了经过对抗性验证的写作技巧。</li>
+<li><strong>实现方式：</strong> 在 QWOP 中实现了正交初始化和观测归一化；重构 MIHD 以避开 rpy2 多进程阻塞问题，将图表结构从任务导向调整为数据集导向；修复了 TokenMonitor 中的跨线程 AppKit 交互和日历同步刷新计时器问题；在 BacklightReader IORegistry 调用中添加了活性检测机制；利用代理式工作流对 50 篇 Nature Methods 论文进行了整理和验证。</li>
+<li><strong>影响：</strong> 使 QWOP 能够进行有效的强化学习训练；通过识别算法干扰和数据缺口，确保了 MIHD 论文的实证有效性；消除了 TokenMonitor 中的无限重试故障；保证了 Amber 硬件读数的准确性；提供了用于科学论文生成的稳定、可复用的工具链。</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 诊断并修复了 BacklightReader 静态数据错误，发布 Amber v1.1.1 版本；验证了关于亮度标准的学术文献；诊断了 MIHD 流程阻塞问题并调整了论文图表；修复了 TokenMonitor 中的 AppKit 崩溃和时区测试问题。</li>
+<li><strong>实现方式：</strong> 执行 IOReport 探针测试，进行文献验证的 PDF 解析，对 MIHD 数据缺口进行 Python 审计，对 Tauri 主线程安全性进行 Rust 重构，利用代理式脚本构建写作框架。</li>
+<li><strong>影响：</strong> 发布了稳定的 Amber 版本；通过修正统计解释防止了 MIHD 论文中的误导性陈述；建立了严格的科学写作基础。</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 管理 Tianhe3 上的远程基础设施，清理闲置 GPU 进程；完成 RoboMemory 第二阶段结果和模式分析；参加 MIHD Resource 论文的战略会议。</li>
+<li><strong>实现方式：</strong> 使用 SSH 进行进程管理，使用 Python 进行结果汇总，利用转录工具从顾问会议中提取指令。</li>
+<li><strong>影响：</strong> 为 QWOP 训练释放了宝贵的 GPU 资源；明确了 drawn memory 在几何任务中表现更优，而文本在符号任务中表现更好；使 MIHD 论文结构符合 ‘Resource’ 期刊标准。</li>
+</ul>
+<h3 id="lighthouse">lighthouse<a hidden class="anchor" aria-hidden="true" href="#lighthouse">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 在 QNN 上进行了 AI Hub 延迟基准测试；对 HD 全页 PCA 确定性进行了审计。</li>
+<li><strong>实现方式：</strong> 编写了用于多单元配置测试的 Bash/tmux 驱动程序；对组织样本进行了 ANOVA 方差分解分析。</li>
+<li><strong>影响：</strong> 建立了 W4A8 量化操作的 247.1 ms 基准延迟；修正了图 2c 的解释，显示的是瓦片差异而非方法等价性。</li>
+</ul>
+<blockquote>
+<p>解决了 QWOP RL、MIHD 基准测试、TokenMonitor 和 Amber 项目中的关键基础设施和代码稳定性问题，同时为 Nature Methods 建立了经过验证的科学写作框架。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>✅ <strong>QWOP RL 目标修正与部署</strong> — 发现 PPO 由于奖励函数不敏感且 gamma 低，实际上是在优化距离而非时间，因此重新编写了奖励函数和训练配置，并部署在 RTX 5090 上。</li>
+<li>✅ <strong>Nature Methods 写作框架构建</strong> — 构建了包含 50 篇论文的技能目录，整理出七种核心写作技巧，并通过对抗性验证修正了频率相关说法。</li>
+<li>✅ <strong>MIHD 流程解阻塞与论文重构</strong> — 解决了 DLPFC 种子矩阵中的 rpy2/multiprocessing 阻塞问题；审计了算法干扰（mclust vs KMeans）；根据顾问建议将结果章节从任务导向调整为数据集导向。</li>
+<li>✅ <strong>TokenMonitor 稳定性提升</strong> — 通过主线程调度修复了 TrayIcon 的 AppKit 崩溃问题；使用确定性固定参数解决了时区测试问题；修复了带有失败冷却标记的无限重试循环。</li>
+<li>✅ <strong>Amber v1.1.1 发布</strong> — 修正了 BacklightReader 对静态数据返回 nil 的情况；更新了具有三种状态的 UI；验证了亮度相关文献；构建并部署了通用二进制文件。</li>
+<li>✅ <strong>RoboMemory 第二阶段完成</strong> — 编译出最终结果，显示 drawn memory 在几何任务中更优，在符号任务中文本更优；清理了 Tianhe3 的闲置进程。</li>
+<li>🔄 <strong>QNN 延迟基准测试</strong> — 启动了 10 单元矩阵进行 AI Hub 延迟测试；获得了 W4A8 norm8 的首次有效测量值（247.1 ms）；识别了 Flash Attention 数据类型限制。</li>
+<li>✅ <strong>MIHD 图表故事板与统计修正</strong> — 生成了图 M1-5 的最终 HTML 故事板；修正了图 2c，显示的是瓦片差异（67% 方差）而非方法差异；修复了 PCA 确定性错误。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-qwop-ppo-由于奖励函数不敏感和-gamma-低实际上是在优化距离而非时间导致随机行为">1. QWOP PPO 由于奖励函数不敏感和 gamma 低，实际上是在优化距离而非时间，导致“随机”行为。<a hidden class="anchor" aria-hidden="true" href="#1-qwop-ppo-由于奖励函数不敏感和-gamma-低实际上是在优化距离而非时间导致随机行为">#</a></h4>
+<p><strong>解决方案：</strong> 重新编写 C++ 奖励函数以严重惩罚时间；将 gamma 提升至 0.999；添加观测归一化和正交初始化以稳定训练。</p>
+<p><strong>关键洞察：</strong> 算法无法修复定义错误的目标；在调整算法之前，奖励设计必须与真实目标一致。强化学习中的梯度流动对奖励规模非常敏感。</p>
+<h4 id="2-mihd-dlpfc-种子矩阵在仅使用基因的基准上因-rpy2multiprocessing-阻塞而静默卡死-5-天">2. MIHD DLPFC 种子矩阵在仅使用基因的基准上因 rpy2/multiprocessing 阻塞而静默卡死 5 天。<a hidden class="anchor" aria-hidden="true" href="#2-mihd-dlpfc-种子矩阵在仅使用基因的基准上因-rpy2multiprocessing-阻塞而静默卡死-5-天">#</a></h4>
+<p><strong>解决方案：</strong> 隔离问题以安全使用 rpy2 绑定；在 SLURM 级别使用数组并行化将工作线程设置为 1；审计了算法干扰问题。</p>
+<p><strong>关键洞察：</strong> 静默的 HPC 卡死会不可见地消耗资源；监控输出增长比检查任务状态更可靠。rpy2 不安全的使用线程/fork。</p>
+<h4 id="3-tokenmonitor-因非主异步线程上的-nsstatusitem-销毁和失败获取导致的无限重试循环而随机崩溃">3. TokenMonitor 因非主异步线程上的 NSStatusItem 销毁和失败获取导致的无限重试循环而随机崩溃。<a hidden class="anchor" aria-hidden="true" href="#3-tokenmonitor-因非主异步线程上的-nsstatusitem-销毁和失败获取导致的无限重试循环而随机崩溃">#</a></h4>
+<p><strong>解决方案：</strong> 重构 TrayIcon 以使用主线程调度；在解析器中添加失败冷却状态标记，避免冷却期间再次触发。</p>
+<p><strong>关键洞察：</strong> Tauri 中 Rc 包装的资源在关闭时不可线程安全。在异步架构中，错误路径必须明确管理状态以避免故障。</p>
+<h4 id="4-backlightreader-自启动以来一直返回静态-ioregistry-值3818-nits破坏了自动亮度逻辑">4. BacklightReader 自启动以来一直返回静态 IORegistry 值（381.8 nits），破坏了自动亮度逻辑。<a hidden class="anchor" aria-hidden="true" href="#4-backlightreader-自启动以来一直返回静态-ioregistry-值3818-nits破坏了自动亮度逻辑">#</a></h4>
+<p><strong>解决方案：</strong> 实现活性检测机制，在观察到动态变化前返回 nil；更新 UI 显示验证/未验证/不可读状态。</p>
+<p><strong>关键洞察：</strong> 类似 Apple Silicon 的硬件 API 如 IORegistry 可能在启动时缓存值；更新 UI 以显示验证/未验证/不可读状态。在信任绝对读数之前，务必通过刺激测试验证系统的活性状态。</p>
+<h4 id="5-写作框架推导过程中存在幻觉性的频率统计和未经验证的启发式方法解决方案-实施了对抗性验证代理对原始语料中的术语进行重新计数修正了-skillmd-中we-recommend分布及形容词规则">5. 写作框架推导过程中存在幻觉性的频率统计和未经验证的启发式方法。<strong>解决方案：</strong> 实施了对抗性验证代理对原始语料中的术语进行重新计数；修正了 SKILL.md 中“we recommend”分布及形容词规则。<a hidden class="anchor" aria-hidden="true" href="#5-写作框架推导过程中存在幻觉性的频率统计和未经验证的启发式方法解决方案-实施了对抗性验证代理对原始语料中的术语进行重新计数修正了-skillmd-中we-recommend分布及形容词规则">#</a></h4>
+<p><strong>关键洞察：</strong> 由 LLM 主导的蒸馏需要针对原始数据进行独立统计验证，以防止错误传播。</p>
+<h4 id="6-最初的-mihd-结果包含误导性的统计声明图-2c-掩盖了-tiles-异质性带来的方差67文本-oracle-被误认为是手动启发式方法">6. 最初的 MIHD 结果包含误导性的统计声明：图 2c 掩盖了 tiles 异质性带来的方差（67%）；文本 oracle 被误认为是手动启发式方法。<a hidden class="anchor" aria-hidden="true" href="#6-最初的-mihd-结果包含误导性的统计声明图-2c-掩盖了-tiles-异质性带来的方差67文本-oracle-被误认为是手动启发式方法">#</a></h4>
+<p><strong>解决方案：</strong> 执行 ANOVA 以识别正确的方差驱动因素；审核源代码以证明文本 oracle 是自动状态输出；更新图注以区分中位数与最大值参数。</p>
+<p><strong>关键洞察：</strong> 汇总图中的大范围视觉特征可能掩盖真实的方法等效性。比较中的公平性需要审计信号泄露并使用稳健的统计指标。</p>
+<h4 id="7-robomemory-第二阶段结果未能清晰说明drawn与text模式在任务中的表现差异原因">7. RoboMemory 第二阶段结果未能清晰说明“drawn”与“text”模式在任务中的表现差异原因。<a hidden class="anchor" aria-hidden="true" href="#7-robomemory-第二阶段结果未能清晰说明drawn与text模式在任务中的表现差异原因">#</a></h4>
+<p><strong>解决方案：</strong> 分析架构优势：drawn 内存在连续几何任务中表现更好（RouteStick），而文本在离散符号任务中更优（PatternLock）。</p>
+<p><strong>关键洞察：</strong> 记忆任务性能对模式与信息结构之间的匹配度非常敏感。离散/符号型 -&gt; 文本；连续/几何型 -&gt; drawn。</p>
+<h2 id="人类与-ai-方法">人类与 AI 方法<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法">#</a></h2>
+<h3 id="科学叙事策略与执行">科学叙事策略与执行<a hidden class="anchor" aria-hidden="true" href="#科学叙事策略与执行">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>顾问（Yi）指导高级叙事调整：将 MIHD 定位为“资源”平台，按数据集而非任务组织图表，严格限制 AI 的角色仅限于文本润色，而非生成逻辑。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI 专注于执行视觉输出（fig_storyboard.py），对照 CSV 验证数据点，并撰写图注文本。在缺乏上下文的情况下，它难以从嘈杂的音频转录中推断具体的指标变化。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类根据评审者的心理驱动<em>叙事脉络</em>和<em>约束条件</em>；AI 负责<em>数据验证</em>和<em>视觉构建</em>。这种协作确保了战略合理性与技术准确性。</p>
+<h3 id="硬件传感器数据的诊断逻辑">硬件/传感器数据的诊断逻辑<a hidden class="anchor" aria-hidden="true" href="#硬件传感器数据的诊断逻辑">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户要求 BacklightReader 进行长时间测试（60秒），挑战 AI 在仅部分尺度变化时过早终止的行为。还假设了 RoboMemory 第三阶段的架构变更。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初配置的测试在第一个阳性信号时停止，遗漏了静态 nits 读数。后来验证了文本 oracle 来源，评估了 Qwen-VL 的可行性，发现其新颖性与现有工作存在重叠。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类发现“响应”在不同机制中并不统一，并为新模块提供战略方向；AI 提供了代码级别的详细验证和现有技术分析，以纠正新颖性声明。</p>
+<h3 id="rl-目标与算法选择">RL 目标与算法选择<a hidden class="anchor" aria-hidden="true" href="#rl-目标与算法选择">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户对 RL 性能表示不满，建议“更强的方法”。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI 确定根本原因是目标定义错误（距离 vs 时间），而非算法缺陷，提议重写奖励函数而非改变 PPO 架构。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类关注结果质量；AI 提供了数据驱动的诊断，揭示“失败”实际上是对错误奖励函数的最优行为。</p>
+<h2 id="ai-局限性">AI 局限性<a hidden class="anchor" aria-hidden="true" href="#ai-局限性">#</a></h2>
+<h3 id="关键局限性">关键局限性<a hidden class="anchor" aria-hidden="true" href="#关键局限性">#</a></h3>
+<ul>
+<li>对写作框架的初步验证包含不准确的频率声明和幻觉约束，需要通过独立代理进行大量修正。</li>
+<li>AI 最初未能识别 rpy2 与多进程的不兼容问题，导致多日诊断工作。它也难以区分磁盘使用分析中的本地缓存与符号链接。</li>
+</ul>
+<h3 id="一般局限性">一般局限性<a hidden class="anchor" aria-hidden="true" href="#一般局限性">#</a></h3>
+<ul>
+<li>AI 在无需自定义 CSS 技巧的情况下难以将复杂的 ASCII 面板图转化为 HTML，并且在明确询问前将图 2c 的方差误归因于方法。</li>
+</ul>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="关键经验">关键经验<a hidden class="anchor" aria-hidden="true" href="#关键经验">#</a></h3>
+<ul>
+<li>在具有重放的确定性环境中，直接搜索/规划可能优于 RL；RL 仅在泛化或延迟方面必要。奖励设计必须在算法调整之前进行。</li>
+<li>报告聚类稳定性时，始终将“种子噪声”与“重新训练噪声”分开。始终验证统计参数（均值与最大值），因为它们可能改变定性结论。</li>
+<li>HPC 阵列任务中的静默失败会消耗大量资源；监控逻辑应检测输出增长。硬件 API 可能在启动时缓存值，需要存活检查。</li>
+<li>单页编码器的跨幻灯片查询性能严重依赖于切片对相关性。始终验证底层算法架构以避免基准测试中的混淆。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<h3 id="qualcomm-ai-hub--qwop-rl--robomemory">Qualcomm AI Hub / QWOP RL / RoboMemory<a hidden class="anchor" aria-hidden="true" href="#qualcomm-ai-hub--qwop-rl--robomemory">#</a></h3>
+<p><strong>✅ AI 基准测试与强化学习优化</strong>
+<em>01:00:00.000 | claude_code</em>
+在 QNN 上执行 AI Hub 延迟矩阵测试，为 W4A8 量化获得了 247.1 ms 基线。通过重写奖励函数以优先最小化时间而非距离激活来修正 QWOP RL 目标，在 RTX 5090 上部署标准化 PPO 配置。最终确定 RoboMemory 第二阶段结果，证明 drawn 内存在几何任务中更优，文本在符号任务中更优，同时清理了 Tianhe3 GPU 资源。</p>
+<h3 id="mihd-基准测试项目">MIHD 基准测试项目<a hidden class="anchor" aria-hidden="true" href="#mihd-基准测试项目">#</a></h3>
+<p><strong>✅ 管道疏通、统计修正和论文重构</strong>
+<em>10:00:00.000 | claude_code</em>
+解决了由 rpy2/multiprocessing 死锁引起的 MIHD DLPFC 种子矩阵5天静默失败问题。进行深度统计审计，修正图 2c 中的误导性声明（将 tiles 异质性视为主要方差驱动因素）和 PCA 确定性问题。根据顾问反馈，从按任务为主到按数据集为主的格式重构结果章节，用于“资源”类期刊投稿，最终完成图表故事板。</p>
+<h3 id="tokenmonitor">TokenMonitor<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor">#</a></h3>
+<p><strong>✅ 桌面客户端稳定性与测试可靠性</strong>
+<em>12:00:00.000 | claude_code</em>
+通过强制主线程分发修复了 Tauri 托盘图标的关键 AppKit 崩溃问题。使用与查询日期一致的确定性固定值解决 Rust 中依赖时区的不稳定测试问题。通过实现失败冷却状态标记解决无限后台重试循环问题，确保对 API 停机具有鲁棒性。</p>
+<h3 id="amber-eyecareapp">Amber (EyeCareApp)<a hidden class="anchor" aria-hidden="true" href="#amber-eyecareapp">#</a></h3>
+<p><strong>✅ 传感器逻辑修正与文献验证</strong>
+<em>14:00:00.000 | claude_code</em>
+诊断出 BacklightReader 返回静态 IORegistry 值而非实时数据。实现了一个存活门，对于静态读数返回 nil，更新 UI 以反映此状态。验证了关于亮度标准的学术文献，通过分析回归截距与测量最优解之间的关系解决了 Zhou 2021 与 Kim 2017 之间的明显矛盾。发布 v1.1.1 版本。</p>
+<h3 id="nature-methods-写作框架">Nature Methods 写作框架<a hidden class="anchor" aria-hidden="true" href="#nature-methods-写作框架">#</a></h3>
+<p><strong>✅ 写作框架</strong>**✅ 智能代理式精炼与科学写作对抗性验证**
+<em>16:00:00.000 | claude_code</em>
+通过收集50篇论文，提炼核心写作技巧并构建体裁映射表，从而打造出《Nature Methods》所需的综合写作能力。通过实施对抗性验证代理，对原始语料中的所有声明进行事实核查，纠正了虚假的频率统计和误读的形容词规则。最终生成了经过验证的SKILL.md文件，有效避免了诸如自我否定限制等常见错误。</p>
+<h2 id="标记使用情况">标记使用情况<a hidden class="anchor" aria-hidden="true" href="#标记使用情况">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-08-11</span>
+        <span class="usage-card__source">Claude Code</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$146.78</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>110M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>2M</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>91.6%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 91.6%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 8.4%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (91.6%), active tokens (8.4%)">
+          <span style="width:91.6%; background:var(--usage-cache)"></span>
+          <span style="width:8.4%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:9fdd2cb95f36ba69 -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

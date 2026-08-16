@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-08-14 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="在 TokenMonitor、Gadget 和 LifeCopilot 代码库中执行了全面的审计与安全修复，在 QWOP RL（突破 45s 瓶颈）和 RoboMemory（通过符号化锚定）中实现了显著的性能突破，解决了关键的 Pi0.5 量化失败问题，并完成了 HD P2 spatial omics 基准测试可视化。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-14/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-08-14/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-14/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-14/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-08-14">
+  <meta property="og:description" content="在 TokenMonitor、Gadget 和 LifeCopilot 代码库中执行了全面的审计与安全修复，在 QWOP RL（突破 45s 瓶颈）和 RoboMemory（通过符号化锚定）中实现了显著的性能突破，解决了关键的 Pi0.5 量化失败问题，并完成了 HD P2 spatial omics 基准测试可视化。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-08-14T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-08-14T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-08-14">
+  <meta name="twitter:description" content="在 TokenMonitor、Gadget 和 LifeCopilot 代码库中执行了全面的审计与安全修复，在 QWOP RL（突破 45s 瓶颈）和 RoboMemory（通过符号化锚定）中实现了显著的性能突破，解决了关键的 Pi0.5 量化失败问题，并完成了 HD P2 spatial omics 基准测试可视化。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-08-14",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-14/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-08-14",
+  "name": "Bug Journal 2026-08-14",
+  "description": "在 TokenMonitor、Gadget 和 LifeCopilot 代码库中执行了全面的审计与安全修复，在 QWOP RL（突破 45s 瓶颈）和 RoboMemory（通过符号化锚定）中实现了显著的性能突破，解决了关键的 Pi0.5 量化失败问题，并完成了 HD P2 spatial omics 基准测试可视化。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-08-14 日常概述 完成工作： 对 TokenMonitor、Gadget 和 LifeCopilot 仓库进行了全栈审计，发现了并修复了关键安全漏洞（API 密钥）、计费逻辑错误以及架构债务。通过优化动作频率解决了 QWOP 中 RL 智能体的性能瓶颈；通过符号路径规划解决了 RoboMemory 中的问题；最终确定了 Pi0.5 的 Qualcomm VLA 量化策略。 实施方法： 利用并行 AI 子智能体对 8-32 个实例进行多维代码审计和重构；利用排行榜幽灵解码识别 RL 智能体的结构限制；实施 softmax 精度保留机制进行量化，使用匈牙利匹配进行空间指标拼接。 影响： 消除了生产工具中的关键安全漏洞和计费错误；突破了长期存在的性能瓶颈（QWOP \u003c45 秒，RoboMemory SR \u003e30%），验证了新的算法假设；为 VLA 模型提供了可行的低位部署路径。 MacOS 完成工作： 进行了最终的 MIHD 管道分析和论文结构对齐；验证了 Amber Lighting Tool 的科学引用。 实施方法： 将代码遍历结果与图计划进行对比，纠正了文档中错误的亮度引用（Yu \u0026 Akita 2019），并评估了 LiveCaption 的 ASR 模型升级（Qwen3/GLM-ASR-Nano）。 影响： 确保了软件文档的科学准确性；在准备最终可视化生成的同时保持了基准测试进展。 TzJsDesktop 完成工作： 作为审计、RL 训练和量化修复的主要执行中心。解决了 TokenMonitor 中的 API 密钥泄露问题，重新授权 Gadget 单仓库，修复了 QWOP 动作带宽限制，并实现了 RoboMemory 的符号基础。 实施方法： 使用 Cursor IDE 和并行智能体生成进行同步审计和重构；执行 PPO/Go-Explore 训练管道；分离 softmax 组件以进行量化调试。 影响： 实现了接近最优的 RL 性能，保护了生产代码库免受凭证盗窃，验证了在 VLA 任务中符号方法优于几何方法。 lighthouse 完成工作： 没有记录到重要活动。 实施方法： 无需说明。 影响： 无影响。 对 TokenMonitor、Gadget 和 LifeCopilot 进行了全面的代码库审计和安全修复，在 QWOP RL 中实现了显著的性能突破（突破 45 秒限制），通过符号基础在 RoboMemory 中取得了显著性能提升，解决了 Pi0.5 量化中的关键问题，并完成了 HD P2 空间 omics 基准测试可视化。\n任务 架构与策略 ✅ TokenMonitor 关键漏洞修复与架构重构 — 解决了 API 密钥明文泄露、因缓存键过期导致的计费少计以及重复使用记录问题。进行了三阶段架构重构以打破循环依赖并提升模块化程度。 ✅ Gadget 和 LifeCopilot 仓库审计 — 进行了全面审计，发现许可证不匹配、文档过时以及基于历史数据的凭证泄露问题。将 Gadget 重新授权为 GPL-3，合并文档；对 LifeCopilot 标记了强制的密钥轮换要求。 ✅ QWOP RL 智能体优化 — 通过排行榜幽灵解码诊断了动作重复瓶颈；将 action_repeat 降低至突破 45 秒限制（达到 43.43 秒）。验证了在确定性物理环境中 MCTS 优于 Q-learning。 ✅ RoboMemory RouteStick 符号基础 — 用符号提示 v3（目标/缠绕方向）替换几何绘制，成功率从 16% 提升至 34%。实现了路径验证的拓扑门。 ✅ Pi0.5 激活量化修复 — 分离出 softmax 输入/输出敏感性是低位配置下准确率为零的原因；保留 16 位精度用于这些张量，恢复了 W4A8 的成功率至 50/50。 ✅ HD P2 空间 omics 基准测试 — 使用匈牙利匹配将每个 tile 的聚类标签拼接成全局全页视图。生成 ARI/NMI 指标和可视化画廊，明确了 tile 拼接与每个 tile 指标的范围限制。 实施与修复 ✅ Amber 应用科学验证 — 纠正了文档中错误归因的亮度数据，用已验证来源替换错误引用，确保学术严谨性。 问题与解决方案 关键问题 1. TokenMonitor 因缓存键过期和跨设备错误的合并逻辑，出现了关键的 API 密钥明文存储和计费错误。 解决方案： 重写配置处理，仅使用操作系统密钥环；更新缓存键以包含版本依赖关系；对 Cursor 使用数据实施按小时最大快照的全局合并策略。\n关键洞察： 静态缓存键会导致动态配置中的隐性过期读取；计费范围因供应商而异（账户与设备），需要不同的处理策略。\n2. QWOP 智能体在超参数调优后仍停留在 45 秒水平，而其他智能体达到约 33 秒；MCTS 被认为更优但实现复杂。 解决方案： 通过排行榜重放发现动作保持时间约为 2.64 帧，而智能体的限制为 4 帧。将 action_repeat 降低至 2，有效频率提高，时间降至 43.43 秒。\n关键洞察： 动作解析的架构约束（带宽）可能比策略能力更为限制；MCTS 的优势源于确定性 ragdoll 物理环境中的搜索分辨率限制。\n3. RoboMemory RouteStick 轨迹失败是由于缠绕方向错误，尽管几何精度足够。 解决方案： 从几何回归改为符号基础（v3 提示），LLM 输出离散的缠绕符号由代码合成为路径，并通过拓扑门验证。\n关键洞察： 对于具有严格拓扑约束的任务，符号表示比几何回归对 VLA 模型更稳健。\n4. Pi0.5 低位激活量化（A8/A4）在加法注意力掩码下导致 softmax 敏感性，因此成功率为 0。 解决方案： 发现最小-最大缩放在与负无穷掩码共享时将真实分数压缩为零。保持 Softmax 输入/输出为 16 位精度，恢复可行性。\n关键洞察： 加法注意力掩码会导致 softmax 预激活的灾难性量化失败；保持这些张量的更高精度对于低位精度至关重要。\n人类与 AI 方法 战略层面 RoboMemory 路径表示（符号 vs. 几何）| 角色 | 方法 | |——|——| | 人类 | 建议让 VLM 识别目标与弯曲方向，而非绘制像素点，从而减少输出空间。 | | AI | 最初专注于改进几何提示（v1/v2）。在获得人类见解后采用符号化方法，开发了一种代码合成路径生成器，使成功率提高一倍。 |\n差异分析： 人类发现离散选择能够缓解 LLM 在连续几何中无法捕捉拓扑精度的问题。\nQWOP 算法的适用性（RL 与搜索） 角色 方法 人类 用户质疑 Q 学习能否超越 MCTS，暗示策略优化是缺失的关键点。 AI AI 证明对于连续 ragdoll 物理模型而言，Q 表不可行，瓶颈在于搜索分辨率，而非策略泛化能力。验证表明对现有策略的改进与搜索比从头开始使用 PPO 更有效。 差异分析： 人类寻求基于策略的改进；AI 指出环境的确定性特性天然有利于基于搜索的求解器而非价值函数学习器。\n实施层面 科学引用验证 角色 方法 人类 用户要求验证亮度引用的准确性，指出 Yu \u0026 Akita (2019) 可能存在差异。 AI AI 检索了摘要，发现引用的值指的是环境室内光，而非屏幕亮度，从而纠正了软件的科学表述。 差异分析： 人类通过双重检查“显而易见”的引用来避免基于错误科学观点的工程建议中的基础错误。\n计费逻辑与缓存架构 角色 方法 人类 用户提供了特定供应商 API 细节（例如推理令牌的包含情况），并要求与 /cost 端点保持一致，认为简单代码更新即可。 AI AI 最初尝试通用 JSONL 解析。经过修正后，深入缓存层发现静态缓存键在配置变更时无法失效，需要版本化键策略。 差异分析： 人类拥有特定领域的 API 知识；AI 识别了配置版本与运行时状态键之间的架构耦合关系。\nAI 局限性 AI 最初由于上下文漂移，对公共 GitHub 仓库（GrassskyR/LifeCopilot）进行审计，而非本地 Monorepo，需要手动路径锚定。 最初的 QWOP 分析基于错误的回合长度假设（3600 步 vs 1000 步）错误地排除了 MCTS 的可行性。 AI 在 Gadget 重构期间大量文件移动后，难以处理并行导入修复，需要最终集成验证来发现被单个代理遗漏的损坏导入问题。 最初无法解释 Yu \u0026 Akita (2019) 的实验具体条件，需要多次验证步骤才能区分环境光与自发光。 经验教训 在确定性物理游戏中，降低动作粒度（例如帧保持时间）通常是突破性能障碍的关键步骤，因为架构带宽限制可能超过策略改进。 对于具有拓扑约束的 VLA 内存任务，符号化基础（离散选择）比几何回归（连续坐标预测）具有更高的鲁棒性。 并行审计有效，但需要严格的集成后验证；当代理独立运行时，跨组件导入错误很常见。 安全审计必须验证运行时行为和 UI 状态，而不仅仅是静态代码；即使后端密钥被加密或存储在密钥环中，明文暴露仍可能存在。 由于命名空间隔离，Tile-stitched 空间 omics 指标（ARI/NMI）本质上低于每个 tile 的中位数；任何分析都必须包含明确的范围限制。 对话总结 TokenMonitor ✅ 关键错误修复、计费逻辑和架构重构 10:50:00-04:00 | cursor/claude_code 进行了多代理审计，发现 API 密钥泄露、计费不匹配（Grok 4.6/N/A 错误）和重复使用记录。通过强制使用操作系统密钥环和版本化缓存键解决了关键安全问题。执行了三阶段架构重构，打破了使用/命令/托盘模块之间的循环依赖。\nGadget 与 LifeCopilot ✅ Monorepo 审计、许可和文档整合 10:38:00-04:00 | cursor 对 Gadget Monorepo 和 LifeCopilot 分支进行了审计。将 Gadget 重新授权为 GPL-3，修复了 Hugo 管道脚本，并整合了文档。在 LifeCopilot 的 git 历史中发现了 Google Calendar OAuth 密钥，要求立即更换凭证。\nQWOP RL 训练 ✅ 通过动作带宽分析优化性能 14:03:13.410 | claude_code/cursor 通过解码排行榜中的“幽灵”数据，诊断出 QWOP 代理的 45 秒平台期，发现 action_repeat=4 的带宽限制为 7.5 动作/秒，而领导者为 11.38/s。将重复次数降低至 2，达到 43.43 秒。分析了为什么 MCTS 在确定性 ragdoll 物理中优于 Q 学习。\nRoboMemory ✅ 通过符号化基础修复 RouteStick 弯曲问题 14:25:46.206 | claude_code 通过从几何绘制切换到符号化提示（v3），解决了 RouteStick 的弯曲方向错误。实现了带有拓扑门的代码合成路径生成器，成功率从 16% 提高至 34%。\nQualcomm VLA 量化（Pi0.5） ✅ 修复低位激活量化中的 Softmax 敏感性 14:15:26.047 | claude_code/cursor 发现 softmax 输入/输出敏感性导致在 W4A8/A4 量化中 0% 成功率，原因是加法式注意力掩码。保持这些张量为 16 位精度，恢复 50/50 成功率。最终确定了 SpinQuant 旋转策略。\nMIHD 空间 omics 基准测试 ✅ 全页聚类拼接和可视化 15:54:03.891 | claude_code 使用匈牙利匹配将 43 个每个 tile 的中位数标签拼接成全局全页视图。生成 ARI/NMI 指标和图集，表明拼接后的指标与每个 tile 中位数不同。\nAmber 照明工具 ✅ 科学引用验证和纠正 _14:41:55.633 | claude_code/\nLiveCaption ASR 模型选择 ✅ 评估 Qwen3/GLM-ASR 在混合语言会议中的表现 _15:32:09.989 | claude_code/\n评估将 ASR 升级为 Qwen3-ASR-1.7B 或 GLM-ASR-Nano 在中文/英文混合场景中的准确性。建议采用双层策略：Nemotron 用于流媒体，Qwen3 用于离线后处理。\n令牌使用 AI Usage · 2026-08-14\rClaude Code\rTotal cost$97.17\rTotal tokens62M\rOutput tokens447K\rCache read93.7%\rToken character\rCache reads 93.7% ·\rActive 6.3%\rMost token volume came from cache reads.\r",
+  "wordCount" : "564",
+  "inLanguage": "zh",
+  "datePublished": "2026-08-14T00:00:00-04:00",
+  "dateModified": "2026-08-14T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-14/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-08-14
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-08-14 00:00:00 -0400 EDT'>2026年8月14日</span>&nbsp;·&nbsp;<span>3 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-08-14">每日报告 — 2026-08-14<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-08-14">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>完成工作：</strong> 对 TokenMonitor、Gadget 和 LifeCopilot 仓库进行了全栈审计，发现了并修复了关键安全漏洞（API 密钥）、计费逻辑错误以及架构债务。通过优化动作频率解决了 QWOP 中 RL 智能体的性能瓶颈；通过符号路径规划解决了 RoboMemory 中的问题；最终确定了 Pi0.5 的 Qualcomm VLA 量化策略。</li>
+<li><strong>实施方法：</strong> 利用并行 AI 子智能体对 8-32 个实例进行多维代码审计和重构；利用排行榜幽灵解码识别 RL 智能体的结构限制；实施 softmax 精度保留机制进行量化，使用匈牙利匹配进行空间指标拼接。</li>
+<li><strong>影响：</strong> 消除了生产工具中的关键安全漏洞和计费错误；突破了长期存在的性能瓶颈（QWOP &lt;45 秒，RoboMemory SR &gt;30%），验证了新的算法假设；为 VLA 模型提供了可行的低位部署路径。</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>完成工作：</strong> 进行了最终的 MIHD 管道分析和论文结构对齐；验证了 Amber Lighting Tool 的科学引用。</li>
+<li><strong>实施方法：</strong> 将代码遍历结果与图计划进行对比，纠正了文档中错误的亮度引用（Yu &amp; Akita 2019），并评估了 LiveCaption 的 ASR 模型升级（Qwen3/GLM-ASR-Nano）。</li>
+<li><strong>影响：</strong> 确保了软件文档的科学准确性；在准备最终可视化生成的同时保持了基准测试进展。</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>完成工作：</strong> 作为审计、RL 训练和量化修复的主要执行中心。解决了 TokenMonitor 中的 API 密钥泄露问题，重新授权 Gadget 单仓库，修复了 QWOP 动作带宽限制，并实现了 RoboMemory 的符号基础。</li>
+<li><strong>实施方法：</strong> 使用 Cursor IDE 和并行智能体生成进行同步审计和重构；执行 PPO/Go-Explore 训练管道；分离 softmax 组件以进行量化调试。</li>
+<li><strong>影响：</strong> 实现了接近最优的 RL 性能，保护了生产代码库免受凭证盗窃，验证了在 VLA 任务中符号方法优于几何方法。</li>
+</ul>
+<h3 id="lighthouse">lighthouse<a hidden class="anchor" aria-hidden="true" href="#lighthouse">#</a></h3>
+<ul>
+<li><strong>完成工作：</strong> 没有记录到重要活动。</li>
+<li><strong>实施方法：</strong> 无需说明。</li>
+<li><strong>影响：</strong> 无影响。</li>
+</ul>
+<blockquote>
+<p>对 TokenMonitor、Gadget 和 LifeCopilot 进行了全面的代码库审计和安全修复，在 QWOP RL 中实现了显著的性能突破（突破 45 秒限制），通过符号基础在 RoboMemory 中取得了显著性能提升，解决了 Pi0.5 量化中的关键问题，并完成了 HD P2 空间 omics 基准测试可视化。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>✅ <strong>TokenMonitor 关键漏洞修复与架构重构</strong> — 解决了 API 密钥明文泄露、因缓存键过期导致的计费少计以及重复使用记录问题。进行了三阶段架构重构以打破循环依赖并提升模块化程度。</li>
+<li>✅ <strong>Gadget 和 LifeCopilot 仓库审计</strong> — 进行了全面审计，发现许可证不匹配、文档过时以及基于历史数据的凭证泄露问题。将 Gadget 重新授权为 GPL-3，合并文档；对 LifeCopilot 标记了强制的密钥轮换要求。</li>
+<li>✅ <strong>QWOP RL 智能体优化</strong> — 通过排行榜幽灵解码诊断了动作重复瓶颈；将 <code>action_repeat</code> 降低至突破 45 秒限制（达到 43.43 秒）。验证了在确定性物理环境中 MCTS 优于 Q-learning。</li>
+<li>✅ <strong>RoboMemory RouteStick 符号基础</strong> — 用符号提示 v3（目标/缠绕方向）替换几何绘制，成功率从 16% 提升至 34%。实现了路径验证的拓扑门。</li>
+<li>✅ <strong>Pi0.5 激活量化修复</strong> — 分离出 softmax 输入/输出敏感性是低位配置下准确率为零的原因；保留 16 位精度用于这些张量，恢复了 W4A8 的成功率至 50/50。</li>
+<li>✅ <strong>HD P2 空间 omics 基准测试</strong> — 使用匈牙利匹配将每个 tile 的聚类标签拼接成全局全页视图。生成 ARI/NMI 指标和可视化画廊，明确了 tile 拼接与每个 tile 指标的范围限制。</li>
+</ul>
+<h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
+<ul>
+<li>✅ <strong>Amber 应用科学验证</strong> — 纠正了文档中错误归因的亮度数据，用已验证来源替换错误引用，确保学术严谨性。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-tokenmonitor-因缓存键过期和跨设备错误的合并逻辑出现了关键的-api-密钥明文存储和计费错误">1. TokenMonitor 因缓存键过期和跨设备错误的合并逻辑，出现了关键的 API 密钥明文存储和计费错误。<a hidden class="anchor" aria-hidden="true" href="#1-tokenmonitor-因缓存键过期和跨设备错误的合并逻辑出现了关键的-api-密钥明文存储和计费错误">#</a></h4>
+<p><strong>解决方案：</strong> 重写配置处理，仅使用操作系统密钥环；更新缓存键以包含版本依赖关系；对 Cursor 使用数据实施按小时最大快照的全局合并策略。</p>
+<p><strong>关键洞察：</strong> 静态缓存键会导致动态配置中的隐性过期读取；计费范围因供应商而异（账户与设备），需要不同的处理策略。</p>
+<h4 id="2-qwop-智能体在超参数调优后仍停留在-45-秒水平而其他智能体达到约-33-秒mcts-被认为更优但实现复杂">2. QWOP 智能体在超参数调优后仍停留在 45 秒水平，而其他智能体达到约 33 秒；MCTS 被认为更优但实现复杂。<a hidden class="anchor" aria-hidden="true" href="#2-qwop-智能体在超参数调优后仍停留在-45-秒水平而其他智能体达到约-33-秒mcts-被认为更优但实现复杂">#</a></h4>
+<p><strong>解决方案：</strong> 通过排行榜重放发现动作保持时间约为 2.64 帧，而智能体的限制为 4 帧。将 <code>action_repeat</code> 降低至 2，有效频率提高，时间降至 43.43 秒。</p>
+<p><strong>关键洞察：</strong> 动作解析的架构约束（带宽）可能比策略能力更为限制；MCTS 的优势源于确定性 ragdoll 物理环境中的搜索分辨率限制。</p>
+<h4 id="3-robomemory-routestick-轨迹失败是由于缠绕方向错误尽管几何精度足够">3. RoboMemory RouteStick 轨迹失败是由于缠绕方向错误，尽管几何精度足够。<a hidden class="anchor" aria-hidden="true" href="#3-robomemory-routestick-轨迹失败是由于缠绕方向错误尽管几何精度足够">#</a></h4>
+<p><strong>解决方案：</strong> 从几何回归改为符号基础（v3 提示），LLM 输出离散的缠绕符号由代码合成为路径，并通过拓扑门验证。</p>
+<p><strong>关键洞察：</strong> 对于具有严格拓扑约束的任务，符号表示比几何回归对 VLA 模型更稳健。</p>
+<h4 id="4-pi05-低位激活量化a8a4在加法注意力掩码下导致-softmax-敏感性因此成功率为-0">4. Pi0.5 低位激活量化（A8/A4）在加法注意力掩码下导致 softmax 敏感性，因此成功率为 0。<a hidden class="anchor" aria-hidden="true" href="#4-pi05-低位激活量化a8a4在加法注意力掩码下导致-softmax-敏感性因此成功率为-0">#</a></h4>
+<p><strong>解决方案：</strong> 发现最小-最大缩放在与负无穷掩码共享时将真实分数压缩为零。保持 Softmax 输入/输出为 16 位精度，恢复可行性。</p>
+<p><strong>关键洞察：</strong> 加法注意力掩码会导致 softmax 预激活的灾难性量化失败；保持这些张量的更高精度对于低位精度至关重要。</p>
+<h2 id="人类与-ai-方法">人类与 AI 方法<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="robomemory-路径表示符号-vs-几何-角色--方法-">RoboMemory 路径表示（符号 vs. 几何）| 角色 | 方法 |<a hidden class="anchor" aria-hidden="true" href="#robomemory-路径表示符号-vs-几何-角色--方法-">#</a></h4>
+<p>|&mdash;&mdash;|&mdash;&mdash;|
+| 人类 | 建议让 VLM 识别目标与弯曲方向，而非绘制像素点，从而减少输出空间。 |
+| AI   | 最初专注于改进几何提示（v1/v2）。在获得人类见解后采用符号化方法，开发了一种代码合成路径生成器，使成功率提高一倍。 |</p>
+<p><strong>差异分析：</strong> 人类发现离散选择能够缓解 LLM 在连续几何中无法捕捉拓扑精度的问题。</p>
+<h4 id="qwop-算法的适用性rl-与搜索">QWOP 算法的适用性（RL 与搜索）<a hidden class="anchor" aria-hidden="true" href="#qwop-算法的适用性rl-与搜索">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户质疑 Q 学习能否超越 MCTS，暗示策略优化是缺失的关键点。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI 证明对于连续 ragdoll 物理模型而言，Q 表不可行，瓶颈在于搜索分辨率，而非策略泛化能力。验证表明对现有策略的改进与搜索比从头开始使用 PPO 更有效。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类寻求基于策略的改进；AI 指出环境的确定性特性天然有利于基于搜索的求解器而非价值函数学习器。</p>
+<h3 id="实施层面">实施层面<a hidden class="anchor" aria-hidden="true" href="#实施层面">#</a></h3>
+<h4 id="科学引用验证">科学引用验证<a hidden class="anchor" aria-hidden="true" href="#科学引用验证">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户要求验证亮度引用的准确性，指出 Yu &amp; Akita (2019) 可能存在差异。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI 检索了摘要，发现引用的值指的是环境室内光，而非屏幕亮度，从而纠正了软件的科学表述。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类通过双重检查“显而易见”的引用来避免基于错误科学观点的工程建议中的基础错误。</p>
+<h4 id="计费逻辑与缓存架构">计费逻辑与缓存架构<a hidden class="anchor" aria-hidden="true" href="#计费逻辑与缓存架构">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户提供了特定供应商 API 细节（例如推理令牌的包含情况），并要求与 /cost 端点保持一致，认为简单代码更新即可。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI 最初尝试通用 JSONL 解析。经过修正后，深入缓存层发现静态缓存键在配置变更时无法失效，需要版本化键策略。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类拥有特定领域的 API 知识；AI 识别了配置版本与运行时状态键之间的架构耦合关系。</p>
+<h2 id="ai-局限性">AI 局限性<a hidden class="anchor" aria-hidden="true" href="#ai-局限性">#</a></h2>
+<ul>
+<li>AI 最初由于上下文漂移，对公共 GitHub 仓库（GrassskyR/LifeCopilot）进行审计，而非本地 Monorepo，需要手动路径锚定。</li>
+<li>最初的 QWOP 分析基于错误的回合长度假设（3600 步 vs 1000 步）错误地排除了 MCTS 的可行性。</li>
+<li>AI 在 Gadget 重构期间大量文件移动后，难以处理并行导入修复，需要最终集成验证来发现被单个代理遗漏的损坏导入问题。</li>
+<li>最初无法解释 Yu &amp; Akita (2019) 的实验具体条件，需要多次验证步骤才能区分环境光与自发光。</li>
+</ul>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<ul>
+<li>在确定性物理游戏中，降低动作粒度（例如帧保持时间）通常是突破性能障碍的关键步骤，因为架构带宽限制可能超过策略改进。</li>
+<li>对于具有拓扑约束的 VLA 内存任务，符号化基础（离散选择）比几何回归（连续坐标预测）具有更高的鲁棒性。</li>
+<li>并行审计有效，但需要严格的集成后验证；当代理独立运行时，跨组件导入错误很常见。</li>
+<li>安全审计必须验证运行时行为和 UI 状态，而不仅仅是静态代码；即使后端密钥被加密或存储在密钥环中，明文暴露仍可能存在。</li>
+<li>由于命名空间隔离，Tile-stitched 空间 omics 指标（ARI/NMI）本质上低于每个 tile 的中位数；任何分析都必须包含明确的范围限制。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<h3 id="tokenmonitor">TokenMonitor<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor">#</a></h3>
+<p><strong>✅ 关键错误修复、计费逻辑和架构重构</strong>
+<em>10:50:00-04:00 | cursor/claude_code</em>
+进行了多代理审计，发现 API 密钥泄露、计费不匹配（Grok 4.6/N/A 错误）和重复使用记录。通过强制使用操作系统密钥环和版本化缓存键解决了关键安全问题。执行了三阶段架构重构，打破了使用/命令/托盘模块之间的循环依赖。</p>
+<h3 id="gadget-与-lifecopilot">Gadget 与 LifeCopilot<a hidden class="anchor" aria-hidden="true" href="#gadget-与-lifecopilot">#</a></h3>
+<p><strong>✅ Monorepo 审计、许可和文档整合</strong>
+<em>10:38:00-04:00 | cursor</em>
+对 Gadget Monorepo 和 LifeCopilot 分支进行了审计。将 Gadget 重新授权为 GPL-3，修复了 Hugo 管道脚本，并整合了文档。在 LifeCopilot 的 git 历史中发现了 Google Calendar OAuth 密钥，要求立即更换凭证。</p>
+<h3 id="qwop-rl-训练">QWOP RL 训练<a hidden class="anchor" aria-hidden="true" href="#qwop-rl-训练">#</a></h3>
+<p><strong>✅ 通过动作带宽分析优化性能</strong>
+<em>14:03:13.410 | claude_code/cursor</em>
+通过解码排行榜中的“幽灵”数据，诊断出 QWOP 代理的 45 秒平台期，发现 <code>action_repeat=4</code> 的带宽限制为 7.5 动作/秒，而领导者为 11.38/s。将重复次数降低至 2，达到 43.43 秒。分析了为什么 MCTS 在确定性 ragdoll 物理中优于 Q 学习。</p>
+<h3 id="robomemory">RoboMemory<a hidden class="anchor" aria-hidden="true" href="#robomemory">#</a></h3>
+<p><strong>✅ 通过符号化基础修复 RouteStick 弯曲问题</strong>
+<em>14:25:46.206 | claude_code</em>
+通过从几何绘制切换到符号化提示（v3），解决了 RouteStick 的弯曲方向错误。实现了带有拓扑门的代码合成路径生成器，成功率从 16% 提高至 34%。</p>
+<h3 id="qualcomm-vla-量化pi05">Qualcomm VLA 量化（Pi0.5）<a hidden class="anchor" aria-hidden="true" href="#qualcomm-vla-量化pi05">#</a></h3>
+<p><strong>✅ 修复低位激活量化中的 Softmax 敏感性</strong>
+<em>14:15:26.047 | claude_code/cursor</em>
+发现 softmax 输入/输出敏感性导致在 W4A8/A4 量化中 0% 成功率，原因是加法式注意力掩码。保持这些张量为 16 位精度，恢复 50/50 成功率。最终确定了 SpinQuant 旋转策略。</p>
+<h3 id="mihd-空间-omics-基准测试">MIHD 空间 omics 基准测试<a hidden class="anchor" aria-hidden="true" href="#mihd-空间-omics-基准测试">#</a></h3>
+<p><strong>✅ 全页聚类拼接和可视化</strong>
+<em>15:54:03.891 | claude_code</em>
+使用匈牙利匹配将 43 个每个 tile 的中位数标签拼接成全局全页视图。生成 ARI/NMI 指标和图集，表明拼接后的指标与每个 tile 中位数不同。</p>
+<h3 id="amber-照明工具">Amber 照明工具<a hidden class="anchor" aria-hidden="true" href="#amber-照明工具">#</a></h3>
+<p><strong>✅ 科学引用验证和纠正</strong>
+_14:41:55.633 | claude_code/</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"></code></pre></div><h3 id="livecaption-asr-模型选择">LiveCaption ASR 模型选择<a hidden class="anchor" aria-hidden="true" href="#livecaption-asr-模型选择">#</a></h3>
+<p><strong>✅ 评估 Qwen3/GLM-ASR 在混合语言会议中的表现</strong>
+_15:32:09.989 | claude_code/</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"></code></pre></div><p>评估将 ASR 升级为 Qwen3-ASR-1.7B 或 GLM-ASR-Nano 在中文/英文混合场景中的准确性。建议采用双层策略：Nemotron 用于流媒体，Qwen3 用于离线后处理。</p>
+<h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-08-14</span>
+        <span class="usage-card__source">Claude Code</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$97.17</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>62M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>447K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>93.7%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 93.7%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 6.3%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (93.7%), active tokens (6.3%)">
+          <span style="width:93.7%; background:var(--usage-cache)"></span>
+          <span style="width:6.3%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:7683ed9894cd50cd -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
