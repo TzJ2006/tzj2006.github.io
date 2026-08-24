@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-08-23 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="在五个不同领域取得了全面进展：完成了 Pi0.5/W4A8 量化基准测试（352.9ms，100% 成功率）并证明 W4A4 不可行；完成了 AI Companion 的八阶段审计与修复；为 LifeCopilot 实施了与 Plane 集成的任务管理界面；验证了 RoboMemory“绘制记忆”通道对视觉噪声的鲁棒性，并诊断出 Qwen3-VL-2B 在定位（grounding）与推理方面的局限性；此外还执行了重要的软件维护工作，包括 macOS 亮度校准诊断、MIHD 代码走查准备以及严格的 Git 仓库卫生维护。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-23/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-08-23/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-23/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-23/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-08-23">
+  <meta property="og:description" content="在五个不同领域取得了全面进展：完成了 Pi0.5/W4A8 量化基准测试（352.9ms，100% 成功率）并证明 W4A4 不可行；完成了 AI Companion 的八阶段审计与修复；为 LifeCopilot 实施了与 Plane 集成的任务管理界面；验证了 RoboMemory“绘制记忆”通道对视觉噪声的鲁棒性，并诊断出 Qwen3-VL-2B 在定位（grounding）与推理方面的局限性；此外还执行了重要的软件维护工作，包括 macOS 亮度校准诊断、MIHD 代码走查准备以及严格的 Git 仓库卫生维护。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-08-23T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-08-23T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-08-23">
+  <meta name="twitter:description" content="在五个不同领域取得了全面进展：完成了 Pi0.5/W4A8 量化基准测试（352.9ms，100% 成功率）并证明 W4A4 不可行；完成了 AI Companion 的八阶段审计与修复；为 LifeCopilot 实施了与 Plane 集成的任务管理界面；验证了 RoboMemory“绘制记忆”通道对视觉噪声的鲁棒性，并诊断出 Qwen3-VL-2B 在定位（grounding）与推理方面的局限性；此外还执行了重要的软件维护工作，包括 macOS 亮度校准诊断、MIHD 代码走查准备以及严格的 Git 仓库卫生维护。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-08-23",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-23/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-08-23",
+  "name": "Bug Journal 2026-08-23",
+  "description": "在五个不同领域取得了全面进展：完成了 Pi0.5/W4A8 量化基准测试（352.9ms，100% 成功率）并证明 W4A4 不可行；完成了 AI Companion 的八阶段审计与修复；为 LifeCopilot 实施了与 Plane 集成的任务管理界面；验证了 RoboMemory“绘制记忆”通道对视觉噪声的鲁棒性，并诊断出 Qwen3-VL-2B 在定位（grounding）与推理方面的局限性；此外还执行了重要的软件维护工作，包括 macOS 亮度校准诊断、MIHD 代码走查准备以及严格的 Git 仓库卫生维护。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-08-23 日常概述 已完成工作： 在硬件部署（Pi0.5）、软件架构（AI Companion、LifeCopilot）和研究验证（RoboMemory、MIHD）方面同时取得进展，最终实现了低延迟推理的50/50成功基线、经过全面审计且安全可靠的代码库、功能完善的跨平台任务管理器，以及针对VLM微调策略的明确通过/不通过决策。 实现方式： 利用软件渲染回退方案（Mesa/llvmpipe）绕过GPU驱动限制，通过多智能体对抗审计检测细微的状态和逻辑错误，采用基于符号链接的分布式聚合技术处理共享环境，使用并行HPC流水线（Tianhe3）进行大规模数据集处理和预处理。 影响： 为Pi0.5确定了明确的部署路径（W4A8），消除了AI Companion中的关键安全与性能瓶颈，为LifeCopilot提供了可生产使用的任务管理工具，并证明VLM性能受限源于内在推理缺陷而非视觉感知问题，从而推动向LoRA微调的转变。 MacOS 已完成工作： 作为macOS屏幕亮度校准逻辑的主要诊断中心，以及RoboMemory模块重构和远程部署管理的协调中心。 实现方式： 对820多个亮度样本进行经验性对数斜率分析以推翻面板尼特值的假设，利用Python将‘E0’不变量从远程服务器回退到本地代码库。 影响： 发现亮度模块中的关键错误需要重新架构设计，确保RoboMemory分布式开发环境中的代码一致性。 TzJsDesktop 已完成工作： 作为AI Companion审计、Gadget功能扩展、LifeCopilot UI实现和MIHD仓库整合的中心开发与基础设施中心。 实现方式： 执行了8智能体的多维审计，采用SSH基于的日志聚合，使用Plan Agents构建UI架构，并通过分支卫生检查进行快速合并。 影响： 提供了包含关键安全修复的干净、已提交的代码库，实现了跨机器数据无缝聚合，并优化了多个项目的仓库结构。 lighthouse 已完成工作： 作为主要评估与推理节点，解决了LIBERO的无头EGL渲染问题，执行了Pi0.5量化基准测试，复现了Qwen3-VL-2B失败模式。 实现方式： 使用Mesa/llvmpipe软件渲染绕过NVIDIA用户空间库缺失错误，进行并行W4A4/W4A8评估，部署独立vLLM环境以进行高分辨率探测。 影响： 解除了本地评估流程的障碍，为W4A4提供了明确的“负面结果”，验证了VLM的符号推理失败属于内在缺陷而非环境特定问题。 在五个不同领域取得了全面进展：最终确定了Pi0.5/W4A8量化基准测试（352.9ms，100%成功），证明W4A4不可行；完成了AI Companion的8阶段审计与修复；为LifeCopilot实现了稳健的Plane集成任务管理UI；验证了RoboMemory“drawn-memory”通道对视觉噪声的鲁棒性，并诊断了Qwen3-VL-2B的 grounding/推理限制；进行了重要的软件维护工作，包括macOS亮度校准诊断、MIHD代码审查准备以及严格的Git仓库维护。\n任务 架构与策略 ✅ 验证与优化Pi0.5量化（W4A8 vs W4A4） — 在LIBERO和Qualcomm AI Hub上评估了W4A8和W4A4配置。W4A8实现了50/50的成功率，延迟为352.9ms。由于QAIRT工具链对混合位宽激活的限制以及注意力掩码精度损失，W4A4被证明不可行（0/50成功）。这确立了W4A8为最佳可部署基线。 ✅ 实现LifeCopilot的Plane任务管理面板 — 设计并实现了LifeCopilot中类似Plane的UI用于任务/项目管理。添加了新的REST API用于CRUD操作，增加了本地存储功能用于难度/时长估计，并将这些估计值集成到WSJF调度器中。完成了严格的对抗性审查，修复了16个缺陷，包括僵尸数据行和XSS风险。 ✅ AI Companion 8智能体审计与修复 — 进行了全面的审计，识别并修复了Claude Code钩子合约中的关键错误（退出代码/stderr使用）、异步Python解析和测试递归问题。删除了约7MB的死代码，合并了重复测试（从1790减少到1055），并同步了过时的文档。 ✅ 分析与解决RoboMemory视觉grounding与推理问题 — 执行了“Probe A”抖动扫描，验证drawn-memory策略对约15px注释错误的鲁棒性。诊断了RouteStick任务中Qwen3-VL-2B的失败原因；分辨率扫描测试显示高分辨率下（3.7px误差）的grounding准确率很高，但在符号序列推理方面因“模式幻觉”导致完全失败。 ✅ 解决LIBERO/MuJoCo的无头EGL渲染问题 — 解决了由于缺少NVIDIA用户空间库导致的/dev/dri/renderD*上的“权限拒绝”错误。使用Mesa/llvmpipe实现了无根软件渲染回退，修改了ICD搜索路径并将LIBGL_ALWAYS_SOFTWARE设置为1。此外，为IT支持生成了可复现的诊断脚本。 ✅ 实现SSH日志聚合（Gadget） — 添加了ssh_pull.py模块以将daily export命令分发到远程主机并集中合并日志。实现了 onboarding步骤，在远程服务器上创建标准化的~/.gadget符号链接，确保在共享环境中获得私密且一致的访问权限。 🔄 诊断macOS亮度校准逻辑 — 通过经验性测试显示屏幕亮度滑块与线性值之间的关系。发现最小的非零线性值意味着更大的全范围范围，远高于当前586尼特估计值（可能为700-1000尼特）。更新了校准脚本以处理零值和自动亮度干扰。 实施与修复 ✅ RoboMemory数据集导入与MIHD仓库整合 — 将约42GB的H5数据传输到Tianhe3并验证，同时启动了16个并行预处理任务。对于MIHD，通过6次独特的提交快速合并主分支，删除了多余的本地/远程分支，并修复了融合流程中的过时黄金测试断言。 问题与解决方案 关键问题 1. W4A4量化Pi0.5在LIBERO上成功率为0%，尽管进行了权重调整，导致部署不可行。解决方案： 认为 W4A4 不可行，原因是 QAIRT 工具链对混合位宽激活的限制，以及注意力掩码所需的动态范围超过 4 位精度。选择 W4A8 作为最小可行配置（352.9ms，100% 成功）。 2. Qwen3-VL-2B 在零样本符号推理任务（RouteStick）中产生退化、不可用的输出，无法整合空间-时间序列。 解决方案： 通过分辨率扫描探针隔离了问题，证明模型能够在高分辨率下识别物体（3.7px 误差），但在逻辑排序方面失败。这种“模式幻觉”是模型能力限制，而非视觉感知或环境问题，需要通过 LoRA 微调而非提示词调整来解决。\n3. 无头 EGL 渲染在 GPU 渲染节点上因缺少 NVIDIA 用户空间库和缺乏 root 访问权限而出现“权限被拒绝”错误。 解决方案： 在隔离的 conda 环境中使用 Mesa/llvmpipe 实现软件渲染回退。通过 __EGL_VENDOR_LIBRARY_FILENAMES 覆盖 ICD 搜索路径，并将 LIBGL_ALWAYS_SOFTWARE=1 设置为绕过驱动特定的断言。\n4. AI Companion 预工具使用保护机制未能阻止编辑操作，因为它使用退出代码 1/stdout，而 Claude Code 契约要求退出代码为 2/stderr。 解决方案： 更新了保护逻辑，使其写入 stderr 并以代码 2 退出。扩展匹配器以包含 Bash 命令，覆盖破坏性操作，确保严格的阻断执行。\n5. LifeCopilot 界面在服务器端删除后出现“僵尸”本地镜像行，且在 PATCH 操作期间有覆盖富文本的风险。 解决方案： 实现 PlaneTaskNotFound 处理程序将 404 视为成功并清除本地镜像行。添加“正在编辑”保护标志以防止编辑期间重新渲染，采用基于差异的 PATCH 方法仅发送更改字段。\n一般问题 6. macOS 亮度校准失败是由于除以零（线性值 0.0）和自动亮度压缩范围导致，进而产生错误的 nits 假设。 解决方案： 更新校准脚本，使用最小的非零线性值进行全尺度计算，并添加对自动亮度状态的检查。确定真实全尺度可能高于基于经验数据之前的估计。\n人类与 AI 方法 战略层面 W4A4 可行性与 EGL 复杂性 角色 方法 人类 N/A AI N/A 差异分析： N/A\n调度启发式与数据状态管理 角色 方法 人类 N/A AI N/A 差异分析： N/A\n审计范围、深度与任务优先级 角色 方法 人类 N/A AI N/A 差异分析： N/A\nAI 限制 关键限制 最初将 VLM 符号推理中的稳健失败误认为是环境或视觉感知问题，直到通过详细探测才意识到“模式幻觉”是模型固有的限制，需要微调。 将 Tianhe3 上缓慢的网络传输误诊为硬 IP 阻塞或防火墙问题，实际上是由于 PyPI 索引配置错误；在观察到极慢速度之前没有考虑区域镜像（清华大学）。 一般限制 在通过 Bash 编写 Python 代码时，难以处理 shell 逃逸和 heredoc 解析，导致语法错误，需要使用 chr() 函数进行变通。 没有预料到当特定环境变量未设置时，Robosuite/MuJoCo 会回退到 CUDA_VISIBLE_DEVICES 用于 EGL 设备选择，需要手动识别该库行为。 经验教训 关键经验 对于小型 VLMs（2B 规模）在细粒度机器人任务中，输入分辨率是实现准确识别的最关键因素；需要放大到 768px+ 才能实现小于 10px 的定位精度。 W4A8 是 Pi0.5 部署的最小可行位宽；W4A4 根本不可行，因为注意力掩码的 4 位动态范围限制和工具链对混合位宽激活的限制。 RoboMemory 中的“drawn-memory”通道对中等噪声具有鲁棒性，即使有 9-15px 的注释错误，也仍能保持约 90% 的成功率，显著降低了 VLM 编写者的精度要求。 Claude Code 钩子严格要求退出代码为 2 和 stderr 才能执行阻断操作；使用 stdout 或退出代码 1 将悄悄导致工具无法被阻断。 对抗性多智能体代码审查在发现微妙的状态管理漏洞（如僵尸行）和逻辑缺陷方面比标准单元测试更有效。 软件渲染（Mesa/llvmpipe）是 HPC 集群上无头 GPU 模拟的可行、无需 root 的回退方案，前提是缺少 NVIDIA 用户空间库，但会带来 3-4 倍的速度损失。 对话总结 Qualcomm Pi0.5 量化 • W4A4 不可行，W4A8 验证与 EGL 修复 使用软件渲染回退解决了 LIBERO 无头 EGL 渲染障碍。进行了全面评估，证明由于工具链和精度限制，W4A4 不可行（0/50 成功），同时确定 W4A8 为最佳可部署配置（352.9ms，50/50 成功）。生成诊断脚本供 IT 支持使用，以识别用户空间库故障。\nRoboMemory • Drawn-Memory 鲁棒性及 VLM 识别/推理失败分析 验证了 drawn-memory 策略对视觉噪声的鲁棒性（15px 误差容忍度）。诊断出 Qwen3-VL-2B 在 RouteStick 符号推理中的失败是模型固有的“模式幻觉”问题，而非视觉感知缺陷。确定高分辨率输入（768px+）对于小于 10px 的识别至关重要，从而指导策略向 LoRA 微调转向以提升推理能力。\nAI Companion 与 Gadget • 8-Agent 审计修复与分布式日志聚合 对 AI Companion 执行了 8 阶段审计，修复了钩子合同、解析逻辑和测试递归中的关键安全漏洞，并删除了死代码。在 Gadget 中实现基于 SSH 的日志聚合，通过标准化的 ~/.gadget symlink 引导，确保在共享服务器环境中具有一致、安全的访问。\nLifeCopilot • 平面集成任务管理界面与对抗性审查 在 LifeCopilot 界面中设计和实现了完整的平面集成任务管理器，添加 CRUD API 和集成到调度器的本地估计字段。进行了严格的对抗性审查，识别并修复了 16 个关键缺陷，包括数据一致性问题和 XSS 漏洞，确保具备强大的生产级功能。\n显示亮度校准与 MIHD 研究 • 显示亮度校准与 MIHD 研究**• macOS尼特校准与仓库/代码一致性** 发现了macOS亮度校准中的关键逻辑错误，表明当前模型中对全量尼特的估计不足。同时完成了MIHD代码流程的准备工作，修复了黄金测试故障，并通过快速推进主分支以及清理多余的本地/远程分支，使研究仓库更加整洁且同步，从而建立了一个干净、一致的基准环境。\n标记使用说明 AI Usage · 2026-08-23\rClaude Code\rTotal cost$234.22\rTotal tokens200M\rOutput tokens1M\rCache read96.6%\rToken character\rCache reads 96.6% ·\rActive 3.4%\rMost token volume came from cache reads.\r",
+  "wordCount" : "392",
+  "inLanguage": "zh",
+  "datePublished": "2026-08-23T00:00:00-04:00",
+  "dateModified": "2026-08-23T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-23/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-08-23
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-08-23 00:00:00 -0400 EDT'>2026年8月23日</span>&nbsp;·&nbsp;<span>2 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-08-23">每日报告 — 2026-08-23<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-08-23">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>已完成工作：</strong> 在硬件部署（Pi0.5）、软件架构（AI Companion、LifeCopilot）和研究验证（RoboMemory、MIHD）方面同时取得进展，最终实现了低延迟推理的50/50成功基线、经过全面审计且安全可靠的代码库、功能完善的跨平台任务管理器，以及针对VLM微调策略的明确通过/不通过决策。</li>
+<li><strong>实现方式：</strong> 利用软件渲染回退方案（Mesa/llvmpipe）绕过GPU驱动限制，通过多智能体对抗审计检测细微的状态和逻辑错误，采用基于符号链接的分布式聚合技术处理共享环境，使用并行HPC流水线（Tianhe3）进行大规模数据集处理和预处理。</li>
+<li><strong>影响：</strong> 为Pi0.5确定了明确的部署路径（W4A8），消除了AI Companion中的关键安全与性能瓶颈，为LifeCopilot提供了可生产使用的任务管理工具，并证明VLM性能受限源于内在推理缺陷而非视觉感知问题，从而推动向LoRA微调的转变。</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 作为macOS屏幕亮度校准逻辑的主要诊断中心，以及RoboMemory模块重构和远程部署管理的协调中心。</li>
+<li><strong>实现方式：</strong> 对820多个亮度样本进行经验性对数斜率分析以推翻面板尼特值的假设，利用Python将‘E0’不变量从远程服务器回退到本地代码库。</li>
+<li><strong>影响：</strong> 发现亮度模块中的关键错误需要重新架构设计，确保RoboMemory分布式开发环境中的代码一致性。</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 作为AI Companion审计、Gadget功能扩展、LifeCopilot UI实现和MIHD仓库整合的中心开发与基础设施中心。</li>
+<li><strong>实现方式：</strong> 执行了8智能体的多维审计，采用SSH基于的日志聚合，使用Plan Agents构建UI架构，并通过分支卫生检查进行快速合并。</li>
+<li><strong>影响：</strong> 提供了包含关键安全修复的干净、已提交的代码库，实现了跨机器数据无缝聚合，并优化了多个项目的仓库结构。</li>
+</ul>
+<h3 id="lighthouse">lighthouse<a hidden class="anchor" aria-hidden="true" href="#lighthouse">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 作为主要评估与推理节点，解决了LIBERO的无头EGL渲染问题，执行了Pi0.5量化基准测试，复现了Qwen3-VL-2B失败模式。</li>
+<li><strong>实现方式：</strong> 使用Mesa/llvmpipe软件渲染绕过NVIDIA用户空间库缺失错误，进行并行W4A4/W4A8评估，部署独立vLLM环境以进行高分辨率探测。</li>
+<li><strong>影响：</strong> 解除了本地评估流程的障碍，为W4A4提供了明确的“负面结果”，验证了VLM的符号推理失败属于内在缺陷而非环境特定问题。</li>
+</ul>
+<blockquote>
+<p>在五个不同领域取得了全面进展：最终确定了Pi0.5/W4A8量化基准测试（352.9ms，100%成功），证明W4A4不可行；完成了AI Companion的8阶段审计与修复；为LifeCopilot实现了稳健的Plane集成任务管理UI；验证了RoboMemory“drawn-memory”通道对视觉噪声的鲁棒性，并诊断了Qwen3-VL-2B的 grounding/推理限制；进行了重要的软件维护工作，包括macOS亮度校准诊断、MIHD代码审查准备以及严格的Git仓库维护。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>✅ <strong>验证与优化Pi0.5量化（W4A8 vs W4A4）</strong> — 在LIBERO和Qualcomm AI Hub上评估了W4A8和W4A4配置。W4A8实现了50/50的成功率，延迟为352.9ms。由于QAIRT工具链对混合位宽激活的限制以及注意力掩码精度损失，W4A4被证明不可行（0/50成功）。这确立了W4A8为最佳可部署基线。</li>
+<li>✅ <strong>实现LifeCopilot的Plane任务管理面板</strong> — 设计并实现了LifeCopilot中类似Plane的UI用于任务/项目管理。添加了新的REST API用于CRUD操作，增加了本地存储功能用于难度/时长估计，并将这些估计值集成到WSJF调度器中。完成了严格的对抗性审查，修复了16个缺陷，包括僵尸数据行和XSS风险。</li>
+<li>✅ <strong>AI Companion 8智能体审计与修复</strong> — 进行了全面的审计，识别并修复了Claude Code钩子合约中的关键错误（退出代码/stderr使用）、异步Python解析和测试递归问题。删除了约7MB的死代码，合并了重复测试（从1790减少到1055），并同步了过时的文档。</li>
+<li>✅ <strong>分析与解决RoboMemory视觉grounding与推理问题</strong> — 执行了“Probe A”抖动扫描，验证drawn-memory策略对约15px注释错误的鲁棒性。诊断了RouteStick任务中Qwen3-VL-2B的失败原因；分辨率扫描测试显示高分辨率下（3.7px误差）的grounding准确率很高，但在符号序列推理方面因“模式幻觉”导致完全失败。</li>
+<li>✅ <strong>解决LIBERO/MuJoCo的无头EGL渲染问题</strong> — 解决了由于缺少NVIDIA用户空间库导致的/dev/dri/renderD*上的“权限拒绝”错误。使用Mesa/llvmpipe实现了无根软件渲染回退，修改了ICD搜索路径并将LIBGL_ALWAYS_SOFTWARE设置为1。此外，为IT支持生成了可复现的诊断脚本。</li>
+<li>✅ <strong>实现SSH日志聚合（Gadget）</strong> — 添加了<code>ssh_pull.py</code>模块以将<code>daily export</code>命令分发到远程主机并集中合并日志。实现了 onboarding步骤，在远程服务器上创建标准化的<code>~/.gadget</code>符号链接，确保在共享环境中获得私密且一致的访问权限。</li>
+<li>🔄 <strong>诊断macOS亮度校准逻辑</strong> — 通过经验性测试显示屏幕亮度滑块与线性值之间的关系。发现最小的非零线性值意味着更大的全范围范围，远高于当前586尼特估计值（可能为700-1000尼特）。更新了校准脚本以处理零值和自动亮度干扰。</li>
+</ul>
+<h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
+<ul>
+<li>✅ <strong>RoboMemory数据集导入与MIHD仓库整合</strong> — 将约42GB的H5数据传输到Tianhe3并验证，同时启动了16个并行预处理任务。对于MIHD，通过6次独特的提交快速合并主分支，删除了多余的本地/远程分支，并修复了融合流程中的过时黄金测试断言。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-w4a4量化pi05在libero上成功率为0尽管进行了权重调整导致部署不可行解决方案-认为-w4a4-不可行原因是-qairt-工具链对混合位宽激活的限制以及注意力掩码所需的动态范围超过-4-位精度选择-w4a8-作为最小可行配置3529ms100-成功">1. W4A4量化Pi0.5在LIBERO上成功率为0%，尽管进行了权重调整，导致部署不可行。<strong>解决方案：</strong> 认为 W4A4 不可行，原因是 QAIRT 工具链对混合位宽激活的限制，以及注意力掩码所需的动态范围超过 4 位精度。选择 W4A8 作为最小可行配置（352.9ms，100% 成功）。<a hidden class="anchor" aria-hidden="true" href="#1-w4a4量化pi05在libero上成功率为0尽管进行了权重调整导致部署不可行解决方案-认为-w4a4-不可行原因是-qairt-工具链对混合位宽激活的限制以及注意力掩码所需的动态范围超过-4-位精度选择-w4a8-作为最小可行配置3529ms100-成功">#</a></h4>
+<h4 id="2-qwen3-vl-2b-在零样本符号推理任务routestick中产生退化不可用的输出无法整合空间-时间序列">2. Qwen3-VL-2B 在零样本符号推理任务（RouteStick）中产生退化、不可用的输出，无法整合空间-时间序列。<a hidden class="anchor" aria-hidden="true" href="#2-qwen3-vl-2b-在零样本符号推理任务routestick中产生退化不可用的输出无法整合空间-时间序列">#</a></h4>
+<p><strong>解决方案：</strong> 通过分辨率扫描探针隔离了问题，证明模型能够在高分辨率下识别物体（3.7px 误差），但在逻辑排序方面失败。这种“模式幻觉”是模型能力限制，而非视觉感知或环境问题，需要通过 LoRA 微调而非提示词调整来解决。</p>
+<h4 id="3-无头-egl-渲染在-gpu-渲染节点上因缺少-nvidia-用户空间库和缺乏-root-访问权限而出现权限被拒绝错误">3. 无头 EGL 渲染在 GPU 渲染节点上因缺少 NVIDIA 用户空间库和缺乏 root 访问权限而出现“权限被拒绝”错误。<a hidden class="anchor" aria-hidden="true" href="#3-无头-egl-渲染在-gpu-渲染节点上因缺少-nvidia-用户空间库和缺乏-root-访问权限而出现权限被拒绝错误">#</a></h4>
+<p><strong>解决方案：</strong> 在隔离的 conda 环境中使用 Mesa/llvmpipe 实现软件渲染回退。通过 <code>__EGL_VENDOR_LIBRARY_FILENAMES</code> 覆盖 ICD 搜索路径，并将 <code>LIBGL_ALWAYS_SOFTWARE=1</code> 设置为绕过驱动特定的断言。</p>
+<h4 id="4-ai-companion-预工具使用保护机制未能阻止编辑操作因为它使用退出代码-1stdout而-claude-code-契约要求退出代码为-2stderr">4. AI Companion 预工具使用保护机制未能阻止编辑操作，因为它使用退出代码 1/stdout，而 Claude Code 契约要求退出代码为 2/stderr。<a hidden class="anchor" aria-hidden="true" href="#4-ai-companion-预工具使用保护机制未能阻止编辑操作因为它使用退出代码-1stdout而-claude-code-契约要求退出代码为-2stderr">#</a></h4>
+<p><strong>解决方案：</strong> 更新了保护逻辑，使其写入 stderr 并以代码 2 退出。扩展匹配器以包含 Bash 命令，覆盖破坏性操作，确保严格的阻断执行。</p>
+<h4 id="5-lifecopilot-界面在服务器端删除后出现僵尸本地镜像行且在-patch-操作期间有覆盖富文本的风险">5. LifeCopilot 界面在服务器端删除后出现“僵尸”本地镜像行，且在 PATCH 操作期间有覆盖富文本的风险。<a hidden class="anchor" aria-hidden="true" href="#5-lifecopilot-界面在服务器端删除后出现僵尸本地镜像行且在-patch-操作期间有覆盖富文本的风险">#</a></h4>
+<p><strong>解决方案：</strong> 实现 <code>PlaneTaskNotFound</code> 处理程序将 404 视为成功并清除本地镜像行。添加“正在编辑”保护标志以防止编辑期间重新渲染，采用基于差异的 PATCH 方法仅发送更改字段。</p>
+<h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
+<h4 id="6-macos-亮度校准失败是由于除以零线性值-00和自动亮度压缩范围导致进而产生错误的-nits-假设">6. macOS 亮度校准失败是由于除以零（线性值 0.0）和自动亮度压缩范围导致，进而产生错误的 nits 假设。<a hidden class="anchor" aria-hidden="true" href="#6-macos-亮度校准失败是由于除以零线性值-00和自动亮度压缩范围导致进而产生错误的-nits-假设">#</a></h4>
+<p><strong>解决方案：</strong> 更新校准脚本，使用最小的<em>非零</em>线性值进行全尺度计算，并添加对自动亮度状态的检查。确定真实全尺度可能高于基于经验数据之前的估计。</p>
+<h2 id="人类与-ai-方法">人类与 AI 方法<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="w4a4-可行性与-egl-复杂性">W4A4 可行性与 EGL 复杂性<a hidden class="anchor" aria-hidden="true" href="#w4a4-可行性与-egl-复杂性">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>N/A</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>N/A</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> N/A</p>
+<h4 id="调度启发式与数据状态管理">调度启发式与数据状态管理<a hidden class="anchor" aria-hidden="true" href="#调度启发式与数据状态管理">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>N/A</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>N/A</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> N/A</p>
+<h4 id="审计范围深度与任务优先级">审计范围、深度与任务优先级<a hidden class="anchor" aria-hidden="true" href="#审计范围深度与任务优先级">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>N/A</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>N/A</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> N/A</p>
+<h2 id="ai-限制">AI 限制<a hidden class="anchor" aria-hidden="true" href="#ai-限制">#</a></h2>
+<h3 id="关键限制">关键限制<a hidden class="anchor" aria-hidden="true" href="#关键限制">#</a></h3>
+<ul>
+<li>最初将 VLM 符号推理中的稳健失败误认为是环境或视觉感知问题，直到通过详细探测才意识到“模式幻觉”是模型固有的限制，需要微调。</li>
+<li>将 Tianhe3 上缓慢的网络传输误诊为硬 IP 阻塞或防火墙问题，实际上是由于 PyPI 索引配置错误；在观察到极慢速度之前没有考虑区域镜像（清华大学）。</li>
+</ul>
+<h3 id="一般限制">一般限制<a hidden class="anchor" aria-hidden="true" href="#一般限制">#</a></h3>
+<ul>
+<li>在通过 Bash 编写 Python 代码时，难以处理 shell 逃逸和 heredoc 解析，导致语法错误，需要使用 <code>chr()</code> 函数进行变通。</li>
+<li>没有预料到当特定环境变量未设置时，Robosuite/MuJoCo 会回退到 CUDA_VISIBLE_DEVICES 用于 EGL 设备选择，需要手动识别该库行为。</li>
+</ul>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="关键经验">关键经验<a hidden class="anchor" aria-hidden="true" href="#关键经验">#</a></h3>
+<ul>
+<li>对于小型 VLMs（2B 规模）在细粒度机器人任务中，输入分辨率是实现准确识别的最关键因素；需要放大到 768px+ 才能实现小于 10px 的定位精度。</li>
+<li>W4A8 是 Pi0.5 部署的最小可行位宽；W4A4 根本不可行，因为注意力掩码的 4 位动态范围限制和工具链对混合位宽激活的限制。</li>
+<li>RoboMemory 中的“drawn-memory”通道对中等噪声具有鲁棒性，即使有 9-15px 的注释错误，也仍能保持约 90% 的成功率，显著降低了 VLM 编写者的精度要求。</li>
+<li>Claude Code 钩子严格要求退出代码为 2 和 stderr 才能执行阻断操作；使用 stdout 或退出代码 1 将悄悄导致工具无法被阻断。</li>
+<li>对抗性多智能体代码审查在发现微妙的状态管理漏洞（如僵尸行）和逻辑缺陷方面比标准单元测试更有效。</li>
+<li>软件渲染（Mesa/llvmpipe）是 HPC 集群上无头 GPU 模拟的可行、无需 root 的回退方案，前提是缺少 NVIDIA 用户空间库，但会带来 3-4 倍的速度损失。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<h3 id="qualcomm-pi05-量化">Qualcomm Pi0.5 量化<a hidden class="anchor" aria-hidden="true" href="#qualcomm-pi05-量化">#</a></h3>
+<p><strong>• W4A4 不可行，W4A8 验证与 EGL 修复</strong>
+使用软件渲染回退解决了 LIBERO 无头 EGL 渲染障碍。进行了全面评估，证明由于工具链和精度限制，W4A4 不可行（0/50 成功），同时确定 W4A8 为最佳可部署配置（352.9ms，50/50 成功）。生成诊断脚本供 IT 支持使用，以识别用户空间库故障。</p>
+<h3 id="robomemory">RoboMemory<a hidden class="anchor" aria-hidden="true" href="#robomemory">#</a></h3>
+<p><strong>• Drawn-Memory 鲁棒性及 VLM 识别/推理失败分析</strong>
+验证了 drawn-memory 策略对视觉噪声的鲁棒性（15px 误差容忍度）。诊断出 Qwen3-VL-2B 在 RouteStick 符号推理中的失败是模型固有的“模式幻觉”问题，而非视觉感知缺陷。确定高分辨率输入（768px+）对于小于 10px 的识别至关重要，从而指导策略向 LoRA 微调转向以提升推理能力。</p>
+<h3 id="ai-companion-与-gadget">AI Companion 与 Gadget<a hidden class="anchor" aria-hidden="true" href="#ai-companion-与-gadget">#</a></h3>
+<p><strong>• 8-Agent 审计修复与分布式日志聚合</strong>
+对 AI Companion 执行了 8 阶段审计，修复了钩子合同、解析逻辑和测试递归中的关键安全漏洞，并删除了死代码。在 Gadget 中实现基于 SSH 的日志聚合，通过标准化的 <code>~/.gadget</code> symlink 引导，确保在共享服务器环境中具有一致、安全的访问。</p>
+<h3 id="lifecopilot">LifeCopilot<a hidden class="anchor" aria-hidden="true" href="#lifecopilot">#</a></h3>
+<p><strong>• 平面集成任务管理界面与对抗性审查</strong>
+在 LifeCopilot 界面中设计和实现了完整的平面集成任务管理器，添加 CRUD API 和集成到调度器的本地估计字段。进行了严格的对抗性审查，识别并修复了 16 个关键缺陷，包括数据一致性问题和 XSS 漏洞，确保具备强大的生产级功能。</p>
+<h3 id="显示亮度校准与-mihd-研究">显示亮度校准与 MIHD 研究<a hidden class="anchor" aria-hidden="true" href="#显示亮度校准与-mihd-研究">#</a></h3>
+<p><strong>• 显示亮度校准与 MIHD 研究</strong>**• macOS尼特校准与仓库/代码一致性**
+发现了macOS亮度校准中的关键逻辑错误，表明当前模型中对全量尼特的估计不足。同时完成了MIHD代码流程的准备工作，修复了黄金测试故障，并通过快速推进主分支以及清理多余的本地/远程分支，使研究仓库更加整洁且同步，从而建立了一个干净、一致的基准环境。</p>
+<h2 id="标记使用说明">标记使用说明<a hidden class="anchor" aria-hidden="true" href="#标记使用说明">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-08-23</span>
+        <span class="usage-card__source">Claude Code</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$234.22</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>200M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>1M</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>96.6%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 96.6%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 3.4%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (96.6%), active tokens (3.4%)">
+          <span style="width:96.6%; background:var(--usage-cache)"></span>
+          <span style="width:3.4%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:66590c31b8d13a0b -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

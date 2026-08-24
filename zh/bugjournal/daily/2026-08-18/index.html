@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-08-18 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="通过QAIRT编译器探针明确排除了W4A4混合激活方案在pi0.5/GR00T场景下的应用，转而采用统一位宽和参数级精度调优策略；完成了RoboMemory消融研究，证明“Writer”（VLM）是“Channel”环节的主要瓶颈；对Amber的显示逻辑进行了与文献对比验证，以实现环境驱动的控制机制；同时更新了MIHD空间组学基准测试报告，纳入了具有严格统计意义的结果，并实现了LifeCopilot环境的自动化配置。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-18/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-08-18/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-18/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-18/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-08-18">
+  <meta property="og:description" content="通过QAIRT编译器探针明确排除了W4A4混合激活方案在pi0.5/GR00T场景下的应用，转而采用统一位宽和参数级精度调优策略；完成了RoboMemory消融研究，证明“Writer”（VLM）是“Channel”环节的主要瓶颈；对Amber的显示逻辑进行了与文献对比验证，以实现环境驱动的控制机制；同时更新了MIHD空间组学基准测试报告，纳入了具有严格统计意义的结果，并实现了LifeCopilot环境的自动化配置。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-08-18T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-08-18T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-08-18">
+  <meta name="twitter:description" content="通过QAIRT编译器探针明确排除了W4A4混合激活方案在pi0.5/GR00T场景下的应用，转而采用统一位宽和参数级精度调优策略；完成了RoboMemory消融研究，证明“Writer”（VLM）是“Channel”环节的主要瓶颈；对Amber的显示逻辑进行了与文献对比验证，以实现环境驱动的控制机制；同时更新了MIHD空间组学基准测试报告，纳入了具有严格统计意义的结果，并实现了LifeCopilot环境的自动化配置。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-08-18",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-18/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-08-18",
+  "name": "Bug Journal 2026-08-18",
+  "description": "通过QAIRT编译器探针明确排除了W4A4混合激活方案在pi0.5/GR00T场景下的应用，转而采用统一位宽和参数级精度调优策略；完成了RoboMemory消融研究，证明“Writer”（VLM）是“Channel”环节的主要瓶颈；对Amber的显示逻辑进行了与文献对比验证，以实现环境驱动的控制机制；同时更新了MIHD空间组学基准测试报告，纳入了具有严格统计意义的结果，并实现了LifeCopilot环境的自动化配置。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-08-18 日常概述 已完成工作： 通过识别 pi0.5/GR00T 模型的严格 QAIRT 激活约束，开展高级硬件量化研究；完成 RoboMemory 的严格消融实验，以分离 VLM 写入性能与通道效应；对 Amber 显示应用进行科学文献审核；更新了修正后的 MIHD 空间 omics 基准测试报告；自动化了 LifeCopilot 开发环境。 实施方法： 利用受控云编译作业确定工具链边界，执行并行代理工作流以深度验证和交叉引用文献，针对 RoboMemory 进行受控变量隔离实验（相同写入器，不同通道），使用 Holm 校正后的测试重新计算 MIHD 指标，并实施干净安装测试（uv/conda）以解决依赖冲突。 影响： 通过取消混合精度激活策略，修正了低比特部署的技术路线图；将 RoboMemory 的研发重点从渲染通道转向 VLM 感知；将 Amber 的核心算法从基于时间的模式转变为基于环境光模式；确保 MIHD 发现的统计可靠性；通过稳定开发环境，解决了 LifeCopilot 中“在我机器上能运行”的问题。 MacOS 已完成工作： 对 Amber 应用的科学基础进行深度审核，依据12篇关键论文进行验证，并修复了 TokenMonitor 中的 Rust 死代码警告。 实施方法： 启动并行验证工作流检查文献中的主张，提取特定生理指标（黑眼圈 EDI）与应用设置进行比较；重构 Rust 结构体以移除未使用的字段，同时保留前端契约。 影响： 发现 Amber 当前基于时间的亮度模型与支持环境控制的证据矛盾，并发现晚间预设被任意设置；解决了可能隐藏未来代码问题的构建警告。 lighthouse 已完成工作： 确定 Qualcomm AI Hub 上 pi0.5/GR00T 模型的 W4A4 量化编译约束。 实施方法： 提交具有相同 ONNX 图但不同编码方式的受控测试作业，分析编译器日志以识别不支持的位宽转换（4-\u003e8 和 4-\u003e16）。 影响： 证明“混合精度”激活异常无法在 QAIRT 上部署，迫使转向统一的 W4A4 或 W4A8 策略，并否定了关于激活异常值的先前假设。 TzJsDesktop 已完成工作： 对 RoboMemory 进行主要研究分析（写入器/通道消融），管理 Qualcomm 量化调试，更新 MIHD 基准测试报告，自动化 LifeCopilot 环境设置。 实施方法： 创建支持 uv/conda 的 setup.sh 支持工具，分析 VLM 输出质量（绕线方向精度）以解释性能提升，使用 Holm 校正重新计算 MIHD 指标，通过 CLI 管理 AI Hub 作业提交。 影响： 消除 LifeCopilot 中的依赖冲突；提供定量证据表明视觉记忆通道无损失，但 VLM 是瓶颈；为 RoboMemory 的通道优势建立明确逻辑；确保 MIHD 报告与权威统计测试一致。 通过 QAIRT 编译器探测明确排除 W4A4 混合激活在 pi0.5/GR00T 上的部署，转向统一位宽和参数级精度调整策略；最终确定 RoboMemory 消融研究证明“写入器”（VLM）是主要瓶颈而非“通道”；通过文献验证 Amber 的显示逻辑以强制环境控制；并且通过自动化 LifeCopilot 环境配置，全面更新了 MIHD 空间组学基准报告，其中结果具有严格的统计严谨性。\n任务 架构与策略 ❌ pi0.5/GR00T W4A4 部署约束分析与修复 — 尝试在 Qualcomm NPU 上部署量化的 pi0.5/GR00T 模型。发现 QAIRT 不允许将激活位宽从 4 位转换为 8 位或 16 位。实现了将 RMSNorm 增益强制设置为 8 位（可作为参数部署），但由于工具链限制，放弃了 RoPE 激活修复方案。策略调整为统一使用 A4/A8 或按参数级别调整精度。 ✅ Amber 科学文献验证与模型修正 — 验证了 Amber README 中引用的 12 篇研究论文。发现亮度应跟随环境光（勒克斯）而非时钟时间，且当前夜间预设并未得到所引用证据的支持。指出‘K’（CCT）作为褪黑激素效果的代理指标，相比绝对亮度而言效果较弱。 ✅ RoboMemory Writer 与通道消除研究 — 通过保持 VLM 写入器恒定（官方提示词），分离了“视觉绘图”通道与“文本”通道的效果。确认视觉通道是一个无损放大器，但 VLM 正确识别拓扑/绕线方向的能力是主要性能瓶颈。建立了写入准确性与成功率之间的剂量-反应关系。 ✅ MIHD 空间组学基准报告更新 — 更新了 EN/ZH 进展报告，以反映 A7（11 个部分）的权威结果。添加了 KMeans 控制（A8）、全页联合聚类（B5）以及瓦片级查询结果（Q4b）。用 Holm 修正的 Wilcoxon 统计指标替代过时的显著性声明，确保研究结果能够抵抗不同运行中的噪声。 实施与修复 ✅ LifeCopilot 环境自动化与依赖项稳定化 — 创建了 setup.sh 以一键创建环境（uv/conda）。修复了 pyproject.toml（列表部分），将 mcp 固定在 \u003c2.0.0，以防止 fastmcp 导入出现破坏性变更，并添加了缺失的 tzdata。所有 944 次测试在干净环境中均通过。 ✅ TokenMonitor Rust 警告修复 — 从 Rust Ops 结构中移除 plan_tier_costs_usd，因为它属于死代码（仅通过 JSON 导入由前端使用），从而修复了 dead_code 警告，同时保持了 JSON 合约的测试覆盖率。 问题与解决方案 关键问题 1. QAIRT 编译器在构建 pi0.5/GR00T 时失败，错误为：‘激活位宽从 4 位转换为 8 位不受支持。’ 解决方案： 使用相同的 ONNX 图进行边界探测（统一 A4 与混合 A4）。确认在 A4 模型中，激活张量不能具有混合位宽，而 参数 张量可以。策略从“混合精度异常”改为“统一使用 A4/A8 + 参数精度调整（例如 Norm 增益）”。\n关键洞察： 量化工具链通常对参数和激活的位宽灵活性有不同的处理方式。许多 NPU 架构中，激活严格保持统一位宽，而参数可以混合。精度修复必须针对参数或源数据，而非中间激活。\n2. Amber 的夜间亮度系数（0.55）被感知为过低/暗淡，但底层模型存在缺陷。解决方案： 通过零推导将 0.55 值追溯到初始提交版本。相关文献表明，亮度应取决于环境照度（300-500 lx → 130-200 nits），而非时间。确认 Amber 的时间曲线在经验上不正确，且缺乏环境光感知功能。 关键洞察： 人类视觉舒适度由与环境光的对比度决定。一个不感知环境光的应用从根本上存在限制，无论是否有用户可调整的预设。\n3. RoboMemory 结果中的困惑：‘绘制’通道似乎不一致（PatternLock 表现良好，RouteStick 无成效）。 解决方案： 使用官方（较弱）写入器进行控制性消融实验。结果表明，对于 PatternLock，该通道能够保留部分正确的信号；对于 RouteStick，写入器只是随机猜测，因此没有信号可供通道放大。建立了‘剂量-反应’曲线：写入器准确性 → 成功率。\n关键洞察： 记忆通道效率与写入器准确性相互关联。只有良好的通道才能帮助，前提是写入器提供某些信息。通道可以放大信号，但无法创造信号。\n4. π0.5 范数权重选择器的静默失败是由于 QuantSim 将初始化器重命名为 _qdq 而非 _updated。 解决方案： 自检查测试发现该选择器在玩具图结构上返回空值。修复代码以去除 _qdq 后缀。为进入 RMSNormalization 节点的 ONNX 融合添加备用方案。\n关键洞察： QuantSim 的图重写对张量名称不具有幂等性。图分析代码必须能够应对量化仿真层的特定重命名规则。\n5. RoboMemory 的 AI 审计错误假设 tokenizer max_len 的值为 48，导致关于令牌预算限制的错误结论。 解决方案： 追踪实际配置流程以找到 max_token_len = 64（对于符号化扩展至 128），并发现 AI 读取了默认参数而非实例化的配置值。\n关键洞察： 当默认参数与生产环境配置覆盖值不同时，静态代码分析可能会产生误导。始终在运行时验证“实时”值。\n一般问题 6. LifeCopilot 在干净环境中无法安装，原因是 ModuleNotFoundError: mcp.server.fastmcp 和缺少 tzdata。 解决方案： 在 requirements 和 pyproject.toml 中固定 mcp\u003e=1.2.0,\u003c2.0.0，为 Windows/Lean Linux 兼容性添加 tzdata，并修复 pyproject.toml 和 where 字段为列表。通过干净的 uv 和 conda 安装验证。\n关键洞察： 对于关键 SDK 不使用上限版本号的做法是危险的。 major 版本间的依赖漂移（1.x 到 2.x）可能会悄无声息地破坏导入，且在本地开发环境中往往被掩盖。\n人类与 AI 方法 战略层面 Pi0.5/GR00T 量化策略 角色 方法 人类 假设“混合精度”（保留部分激活值的高位）适用于 A4 模型，因为这在软件模拟中很常见。 AI 通过编译器日志发现，硬件编译器（QAIRT）对激活位宽的转换有严格限制，而软件模拟器可能不强制执行或无法近似这些限制。 差异分析： 人类依赖高层架构概念（混合精度），这些概念在理论上是有效的，但被特定硬件工具所排斥。AI 提供了工具链中的真实约束。\nAmber 亮度模型 角色 方法 人类 试图调整“夜间”系数以减少黑暗程度，将问题视为参数调优问题。 AI 发现“夜间”参数是任意的，模型本身（基于时间的）也是错误的。提出输入应为环境光而非时钟时间。 差异分析： 人类是在优化变量；AI 则质疑变量的存在性和模型结构。AI 的修正是根本性的（输入变化），而人类的则是调整性的。\nRoboMemory 性能瓶颈 角色 方法 人类 最初认为“视觉绘制”通道是关键创新，但任务结果不一致（PatternLock 与 RouteStick）令其困惑。 AI 通过消融实验证明该通道是无损放大器，但“写入器”（VLM）质量才是瓶颈。解释称“绘制”只有在写入器提供正确的拓扑信息（例如缠绕方向）时才有效。 差异分析： 人类将成功归因于传输机制；AI 证明成功取决于源质量（写入器）。这使研发重点从渲染转向 VLM 感知和拓扑理解。\nMIHD 报告权威性和统计严谨性 角色 方法 人类 要求新的进展报告，并特别指出 HD P2 全页聚类已经完成，要求提供结果。暗示对之前报告的过时状态不满。 AI 从冻结的 CSV 中重新计算所有指标。发现“A7”（11 部分）数据才是真正的权威，而非单部分“A2”。更新报告以优先处理 A7，添加 KMeans 控制（A8）以分离算法贡献，并修正显著性声明以使用 Holm 校正。 差异分析： 人类作为项目经理检查交付物，而 AI 作为分析师确保数据不仅存在且具有统计可行性（例如区分“描述性”和“显著性”差异）。\nAI 局限性 关键局限 最初假设“混合精度”异常（如 16 位 softmax 或 RoPE 激活）可在 W4A4 图中使用。直到出现严重的编译失败并后续排查才发现工具链限制。 一般局限 在 RoboMemory 分析中将“默认参数值”与“生产配置值”混为一谈，最初得出错误的令牌预算约束。 在 Amber 分析中，最初将文献数据视为“竞争性建议”，未意识到它们来自不同的实验端点（舒适度 vs 疲劳度 vs 睡眠）。 通过聊天界面向用户传递大文件（20MB HTML）困难。不得不回退到创建 zip 文件并提供 scp 说明，当预览/传输失败时。 经验教训 关键经验- 硬件编译器约束（如QAIRT的激活位宽规则）是无法通过软件量化技巧绕过的硬性限制。在NPU量化中，激活位宽必须在整个图结构中保持一致，而参数位宽则可以混合使用。务必尽早使用目标硬件编译器验证混合精度策略。 对于显示健康应用而言，“时间段”并非衡量“环境光”的良好指标。大量证据支持由环境光驱动的亮度控制方式。基于时间的曲线可能对个人用户来说效果不佳，且缺乏科学依据。\n在视觉记忆流程中，“通道”（信息呈现方式）不如“提取器”（信息提取方式）重要。通道是一种无损放大器，需要提取器提供正确的拓扑/感知信号。如果提取过程错误或缺乏拓扑意识（例如缠绕方向），通道无法挽救结果。应首先提高提取器的准确性。\n在评估空间组学方法时，“每块数据”的精度可能会掩盖“全幻灯片”的一致性。全幻灯片聚类往往能揭示那些能更好地保持空间上下文的方法，而非仅优化局部块精度的方法。统计严谨性（例如Holm校正）对于区分真正的算法优势与每次运行产生的噪声至关重要。\n实用经验 清洁安装测试（uv/conda）对项目可复现性至关重要。它能发现开发者本地环境中被隐藏的依赖项（tzdata）和版本冲突（mcp）。 对话总结 pi0.5 Qualcomm NPU / GR00T量化 ✅ W4A4编译约束、Norm/RoPE精度修复及工具链限制 21:15:06.237 | claude_code 研究了W4A4 action_expert的编译失败问题。通过探究QAIRT工具链发现混合激活位宽不受支持。确认“norm gain”修复方案可实施（参数位宽灵活），但“rope”激活修复不可行。发现QuantSim重命名问题（_qdq后缀）影响权重选择器。确定W4A8或统一A4是唯一可行的路径，策略从激活异常处理转向参数/掩码处理。\nAmber ✅ 文献审查、环境光发现及预设修正 21:09:46.612 | claude_code 审查了12篇论文以验证Amber的预设。发现亮度应跟随环境勒克斯（300-500lx -\u003e 130-200 nits），而非时间。确认Amber的夜间预设（0.55）是任意的，与证据矛盾。指出“K”（CCT）是褪黑激素效应的弱指标；绝对亮度和时间才是更重要的驱动因素。纠正了团队对“夜间”与“夜晚”预设的理解以及环境控制的需求。\nRoboMemory ✅ 提取器/通道消除、VLM分析及FrameSamp比较 02:39:52.494 | claude_code 执行并分析了修复VLM提取器的实验，以分离“绘制”与“文本”通道的效果。比较了四种提取器版本（v1 draw、v2 gated、v3 symbols、官方词汇）及其失败模式（例如v1几何正确但拓扑错误）。得出结论：“绘制”通道是一种无损放大器，只有在提取器提供正确拓扑信息时才有效。建立了提取器准确性与任务成功率之间的明确剂量-反应关系。还讨论了FrameSamp基线，以将RoboMemory的事件驱动覆盖与均匀采样间隙进行对比。\nMIHD_Benchmark ✅ 进度报告更新、统计校正及聚类结果 20:00:00.000 | claude_code 更新了双语进度报告（EN/ZH），反映完成的A7（11个部分）实验。添加了KMeans控制（A8）和全幻灯片联合聚类（B5）的新表格。修正了之前的显著性声明，使用Holm校正的Wilcoxon检验。发现TEDDY+UNI2+NCL在全幻灯片一致性方面表现最佳（0.419），因为它保持了块级方法丢失的空间上下文。确保报告结果在每次运行噪声下具有统计稳健性。\nLifeCopilot ✅ 一键设置、依赖修复及环境自动化 21:11:04.381 | claude_code 创建setup.sh来自动化环境设置（uv/conda）。修复了由pyproject.toml语法和mcp版本漂移引起的安装失败问题。识别并解决了Windows上缺失的tzdata依赖项。确认所有944次测试在清洁环境中均通过，消除了“在我的机器上能工作”的问题，确保了测试的可复现性。\nTokenMonitor ✅ Rust死代码修复 03:27:20.075 | claude_code 通过从Rust结构体中移除plan_tier_costs_usd，解决了ops.rs中的dead_code警告，因为该结构体仅通过直接JSON导入由前端使用。确保JSON契约的测试覆盖率保持不变。\n令牌使用 AI Usage · 2026-08-18\rClaude Code\rTotal cost$87.48\rTotal tokens57M\rOutput tokens123K\rCache read95.8%\rToken character\rCache reads 95.8% ·\rActive 4.2%\rMost token volume came from cache reads.\r",
+  "wordCount" : "555",
+  "inLanguage": "zh",
+  "datePublished": "2026-08-18T00:00:00-04:00",
+  "dateModified": "2026-08-18T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-18/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-08-18
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-08-18 00:00:00 -0400 EDT'>2026年8月18日</span>&nbsp;·&nbsp;<span>3 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-08-18">每日报告 — 2026-08-18<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-08-18">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>已完成工作：</strong> 通过识别 pi0.5/GR00T 模型的严格 QAIRT 激活约束，开展高级硬件量化研究；完成 RoboMemory 的严格消融实验，以分离 VLM 写入性能与通道效应；对 Amber 显示应用进行科学文献审核；更新了修正后的 MIHD 空间 omics 基准测试报告；自动化了 LifeCopilot 开发环境。</li>
+<li><strong>实施方法：</strong> 利用受控云编译作业确定工具链边界，执行并行代理工作流以深度验证和交叉引用文献，针对 RoboMemory 进行受控变量隔离实验（相同写入器，不同通道），使用 Holm 校正后的测试重新计算 MIHD 指标，并实施干净安装测试（uv/conda）以解决依赖冲突。</li>
+<li><strong>影响：</strong> 通过取消混合精度激活策略，修正了低比特部署的技术路线图；将 RoboMemory 的研发重点从渲染通道转向 VLM 感知；将 Amber 的核心算法从基于时间的模式转变为基于环境光模式；确保 MIHD 发现的统计可靠性；通过稳定开发环境，解决了 LifeCopilot 中“在我机器上能运行”的问题。</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 对 Amber 应用的科学基础进行深度审核，依据12篇关键论文进行验证，并修复了 TokenMonitor 中的 Rust 死代码警告。</li>
+<li><strong>实施方法：</strong> 启动并行验证工作流检查文献中的主张，提取特定生理指标（黑眼圈 EDI）与应用设置进行比较；重构 Rust 结构体以移除未使用的字段，同时保留前端契约。</li>
+<li><strong>影响：</strong> 发现 Amber 当前基于时间的亮度模型与支持环境控制的证据矛盾，并发现晚间预设被任意设置；解决了可能隐藏未来代码问题的构建警告。</li>
+</ul>
+<h3 id="lighthouse">lighthouse<a hidden class="anchor" aria-hidden="true" href="#lighthouse">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 确定 Qualcomm AI Hub 上 pi0.5/GR00T 模型的 W4A4 量化编译约束。</li>
+<li><strong>实施方法：</strong> 提交具有相同 ONNX 图但不同编码方式的受控测试作业，分析编译器日志以识别不支持的位宽转换（4-&gt;8 和 4-&gt;16）。</li>
+<li><strong>影响：</strong> 证明“混合精度”激活异常无法在 QAIRT 上部署，迫使转向统一的 W4A4 或 W4A8 策略，并否定了关于激活异常值的先前假设。</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 对 RoboMemory 进行主要研究分析（写入器/通道消融），管理 Qualcomm 量化调试，更新 MIHD 基准测试报告，自动化 LifeCopilot 环境设置。</li>
+<li><strong>实施方法：</strong> 创建支持 uv/conda 的 <code>setup.sh</code> 支持工具，分析 VLM 输出质量（绕线方向精度）以解释性能提升，使用 Holm 校正重新计算 MIHD 指标，通过 CLI 管理 AI Hub 作业提交。</li>
+<li><strong>影响：</strong> 消除 LifeCopilot 中的依赖冲突；提供定量证据表明视觉记忆通道无损失，但 VLM 是瓶颈；为 RoboMemory 的通道优势建立明确逻辑；确保 MIHD 报告与权威统计测试一致。</li>
+</ul>
+<blockquote>
+<p>通过 QAIRT 编译器探测明确排除 W4A4 混合激活在 pi0.5/GR00T 上的部署，转向统一位宽和参数级精度调整策略；最终确定 RoboMemory 消融研究证明“写入器”（VLM）是主要瓶颈而非“通道”；通过文献验证 Amber 的显示逻辑以强制环境控制；并且通过自动化 LifeCopilot 环境配置，全面更新了 MIHD 空间组学基准报告，其中结果具有严格的统计严谨性。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>❌ <strong>pi0.5/GR00T W4A4 部署约束分析与修复</strong> — 尝试在 Qualcomm NPU 上部署量化的 pi0.5/GR00T 模型。发现 QAIRT 不允许将激活位宽从 4 位转换为 8 位或 16 位。实现了将 RMSNorm 增益强制设置为 8 位（可作为参数部署），但由于工具链限制，放弃了 RoPE 激活修复方案。策略调整为统一使用 A4/A8 或按参数级别调整精度。</li>
+<li>✅ <strong>Amber 科学文献验证与模型修正</strong> — 验证了 Amber README 中引用的 12 篇研究论文。发现亮度应跟随环境光（勒克斯）而非时钟时间，且当前夜间预设并未得到所引用证据的支持。指出‘K’（CCT）作为褪黑激素效果的代理指标，相比绝对亮度而言效果较弱。</li>
+<li>✅ <strong>RoboMemory Writer 与通道消除研究</strong> — 通过保持 VLM 写入器恒定（官方提示词），分离了“视觉绘图”通道与“文本”通道的效果。确认视觉通道是一个无损放大器，但 VLM 正确识别拓扑/绕线方向的能力是主要性能瓶颈。建立了写入准确性与成功率之间的剂量-反应关系。</li>
+<li>✅ <strong>MIHD 空间组学基准报告更新</strong> — 更新了 EN/ZH 进展报告，以反映 A7（11 个部分）的权威结果。添加了 KMeans 控制（A8）、全页联合聚类（B5）以及瓦片级查询结果（Q4b）。用 Holm 修正的 Wilcoxon 统计指标替代过时的显著性声明，确保研究结果能够抵抗不同运行中的噪声。</li>
+</ul>
+<h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
+<ul>
+<li>✅ <strong>LifeCopilot 环境自动化与依赖项稳定化</strong> — 创建了 <code>setup.sh</code> 以一键创建环境（uv/conda）。修复了 <code>pyproject.toml</code>（列表部分），将 <code>mcp</code> 固定在 &lt;2.0.0，以防止 <code>fastmcp</code> 导入出现破坏性变更，并添加了缺失的 <code>tzdata</code>。所有 944 次测试在干净环境中均通过。</li>
+<li>✅ <strong>TokenMonitor Rust 警告修复</strong> — 从 Rust <code>Ops</code> 结构中移除 <code>plan_tier_costs_usd</code>，因为它属于死代码（仅通过 JSON 导入由前端使用），从而修复了 <code>dead_code</code> 警告，同时保持了 JSON 合约的测试覆盖率。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-qairt-编译器在构建-pi05gr00t-时失败错误为激活位宽从-4-位转换为-8-位不受支持">1. QAIRT 编译器在构建 pi0.5/GR00T 时失败，错误为：‘激活位宽从 4 位转换为 8 位不受支持。’<a hidden class="anchor" aria-hidden="true" href="#1-qairt-编译器在构建-pi05gr00t-时失败错误为激活位宽从-4-位转换为-8-位不受支持">#</a></h4>
+<p><strong>解决方案：</strong> 使用相同的 ONNX 图进行边界探测（统一 A4 与混合 A4）。确认在 A4 模型中，<em>激活</em>张量不能具有混合位宽，而 <em>参数</em> 张量可以。策略从“混合精度异常”改为“统一使用 A4/A8 + 参数精度调整（例如 Norm 增益）”。</p>
+<p><strong>关键洞察：</strong> 量化工具链通常对参数和激活的位宽灵活性有不同的处理方式。许多 NPU 架构中，激活严格保持统一位宽，而参数可以混合。精度修复必须针对参数或源数据，而非中间激活。</p>
+<h4 id="2-amber-的夜间亮度系数055被感知为过低暗淡但底层模型存在缺陷解决方案-通过零推导将-055-值追溯到初始提交版本相关文献表明亮度应取决于环境照度300-500-lx--130-200-nits而非时间确认-amber-的时间曲线在经验上不正确且缺乏环境光感知功能">2. Amber 的夜间亮度系数（0.55）被感知为过低/暗淡，但底层模型存在缺陷。<strong>解决方案：</strong> 通过零推导将 0.55 值追溯到初始提交版本。相关文献表明，亮度应取决于环境照度（300-500 lx → 130-200 nits），而非时间。确认 Amber 的时间曲线在经验上不正确，且缺乏环境光感知功能。<a hidden class="anchor" aria-hidden="true" href="#2-amber-的夜间亮度系数055被感知为过低暗淡但底层模型存在缺陷解决方案-通过零推导将-055-值追溯到初始提交版本相关文献表明亮度应取决于环境照度300-500-lx--130-200-nits而非时间确认-amber-的时间曲线在经验上不正确且缺乏环境光感知功能">#</a></h4>
+<p><strong>关键洞察：</strong> 人类视觉舒适度由与环境光的对比度决定。一个不感知环境光的应用从根本上存在限制，无论是否有用户可调整的预设。</p>
+<h4 id="3-robomemory-结果中的困惑绘制通道似乎不一致patternlock-表现良好routestick-无成效">3. RoboMemory 结果中的困惑：‘绘制’通道似乎不一致（PatternLock 表现良好，RouteStick 无成效）。<a hidden class="anchor" aria-hidden="true" href="#3-robomemory-结果中的困惑绘制通道似乎不一致patternlock-表现良好routestick-无成效">#</a></h4>
+<p><strong>解决方案：</strong> 使用<em>官方</em>（较弱）写入器进行控制性消融实验。结果表明，对于 PatternLock，该通道能够保留部分正确的信号；对于 RouteStick，写入器只是随机猜测，因此没有信号可供通道放大。建立了‘剂量-反应’曲线：写入器准确性 → 成功率。</p>
+<p><strong>关键洞察：</strong> 记忆通道效率与写入器准确性相互关联。只有良好的通道才能帮助，前提是写入器提供某些信息。通道可以放大信号，但无法创造信号。</p>
+<h4 id="4-π05-范数权重选择器的静默失败是由于-quantsim-将初始化器重命名为-_qdq-而非-_updated">4. π0.5 范数权重选择器的静默失败是由于 QuantSim 将初始化器重命名为 <code>_qdq</code> 而非 <code>_updated</code>。<a hidden class="anchor" aria-hidden="true" href="#4-π05-范数权重选择器的静默失败是由于-quantsim-将初始化器重命名为-_qdq-而非-_updated">#</a></h4>
+<p><strong>解决方案：</strong> 自检查测试发现该选择器在玩具图结构上返回空值。修复代码以去除 <code>_qdq</code> 后缀。为进入 <code>RMSNormalization</code> 节点的 ONNX 融合添加备用方案。</p>
+<p><strong>关键洞察：</strong> QuantSim 的图重写对张量名称不具有幂等性。图分析代码必须能够应对量化仿真层的特定重命名规则。</p>
+<h4 id="5-robomemory-的-ai-审计错误假设-tokenizer-max_len-的值为-48导致关于令牌预算限制的错误结论">5. RoboMemory 的 AI 审计错误假设 tokenizer <code>max_len</code> 的值为 48，导致关于令牌预算限制的错误结论。<a hidden class="anchor" aria-hidden="true" href="#5-robomemory-的-ai-审计错误假设-tokenizer-max_len-的值为-48导致关于令牌预算限制的错误结论">#</a></h4>
+<p><strong>解决方案：</strong> 追踪实际配置流程以找到 <code>max_token_len = 64</code>（对于符号化扩展至 128），并发现 AI 读取了默认参数而非实例化的配置值。</p>
+<p><strong>关键洞察：</strong> 当默认参数与生产环境配置覆盖值不同时，静态代码分析可能会产生误导。始终在运行时验证“实时”值。</p>
+<h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
+<h4 id="6-lifecopilot-在干净环境中无法安装原因是-modulenotfounderror-mcpserverfastmcp-和缺少-tzdata">6. LifeCopilot 在干净环境中无法安装，原因是 <code>ModuleNotFoundError: mcp.server.fastmcp</code> 和缺少 <code>tzdata</code>。<a hidden class="anchor" aria-hidden="true" href="#6-lifecopilot-在干净环境中无法安装原因是-modulenotfounderror-mcpserverfastmcp-和缺少-tzdata">#</a></h4>
+<p><strong>解决方案：</strong> 在 requirements 和 pyproject.toml 中固定 <code>mcp&gt;=1.2.0,&lt;2.0.0</code>，为 Windows/Lean Linux 兼容性添加 <code>tzdata</code>，并修复 <code>pyproject.toml</code> 和 <code>where</code> 字段为列表。通过干净的 uv 和 conda 安装验证。</p>
+<p><strong>关键洞察：</strong> 对于关键 SDK 不使用上限版本号的做法是危险的。 major 版本间的依赖漂移（1.x 到 2.x）可能会悄无声息地破坏导入，且在本地开发环境中往往被掩盖。</p>
+<h2 id="人类与-ai-方法">人类与 AI 方法<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="pi05gr00t-量化策略">Pi0.5/GR00T 量化策略<a hidden class="anchor" aria-hidden="true" href="#pi05gr00t-量化策略">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>假设“混合精度”（保留部分激活值的高位）适用于 A4 模型，因为这在软件模拟中很常见。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>通过编译器日志发现，硬件编译器（QAIRT）对激活位宽的转换有严格限制，而软件模拟器可能不强制执行或无法近似这些限制。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类依赖高层架构概念（混合精度），这些概念在理论上是有效的，但被特定硬件工具所排斥。AI 提供了工具链中的真实约束。</p>
+<h4 id="amber-亮度模型">Amber 亮度模型<a hidden class="anchor" aria-hidden="true" href="#amber-亮度模型">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>试图调整“夜间”系数以减少黑暗程度，将问题视为参数调优问题。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>发现“夜间”参数是任意的，模型本身（基于时间的）也是错误的。提出输入应为环境光而非时钟时间。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类是在优化变量；AI 则质疑变量的存在性和模型结构。AI 的修正是根本性的（输入变化），而人类的则是调整性的。</p>
+<h4 id="robomemory-性能瓶颈">RoboMemory 性能瓶颈<a hidden class="anchor" aria-hidden="true" href="#robomemory-性能瓶颈">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>最初认为“视觉绘制”通道是关键创新，但任务结果不一致（PatternLock 与 RouteStick）令其困惑。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>通过消融实验证明该通道是无损放大器，但“写入器”（VLM）质量才是瓶颈。解释称“绘制”只有在写入器提供正确的拓扑信息（例如缠绕方向）时才有效。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类将成功归因于传输机制；AI 证明成功取决于源质量（写入器）。这使研发重点从渲染转向 VLM 感知和拓扑理解。</p>
+<h4 id="mihd-报告权威性和统计严谨性">MIHD 报告权威性和统计严谨性<a hidden class="anchor" aria-hidden="true" href="#mihd-报告权威性和统计严谨性">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>要求新的进展报告，并特别指出 HD P2 全页聚类已经完成，要求提供结果。暗示对之前报告的过时状态不满。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>从冻结的 CSV 中重新计算所有指标。发现“A7”（11 部分）数据才是真正的权威，而非单部分“A2”。更新报告以优先处理 A7，添加 KMeans 控制（A8）以分离算法贡献，并修正显著性声明以使用 Holm 校正。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类作为项目经理检查交付物，而 AI 作为分析师确保数据不仅存在且具有统计可行性（例如区分“描述性”和“显著性”差异）。</p>
+<h2 id="ai-局限性">AI 局限性<a hidden class="anchor" aria-hidden="true" href="#ai-局限性">#</a></h2>
+<h3 id="关键局限">关键局限<a hidden class="anchor" aria-hidden="true" href="#关键局限">#</a></h3>
+<ul>
+<li>最初假设“混合精度”异常（如 16 位 softmax 或 RoPE 激活）可在 W4A4 图中使用。直到出现严重的编译失败并后续排查才发现工具链限制。</li>
+</ul>
+<h3 id="一般局限">一般局限<a hidden class="anchor" aria-hidden="true" href="#一般局限">#</a></h3>
+<ul>
+<li>在 RoboMemory 分析中将“默认参数值”与“生产配置值”混为一谈，最初得出错误的令牌预算约束。</li>
+<li>在 Amber 分析中，最初将文献数据视为“竞争性建议”，未意识到它们来自不同的实验端点（舒适度 vs 疲劳度 vs 睡眠）。</li>
+<li>通过聊天界面向用户传递大文件（20MB HTML）困难。不得不回退到创建 zip 文件并提供 <code>scp</code> 说明，当预览/传输失败时。</li>
+</ul>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="关键经验--硬件编译器约束如qairt的激活位宽规则是无法通过软件量化技巧绕过的硬性限制在npu量化中激活位宽必须在整个图结构中保持一致而参数位宽则可以混合使用务必尽早使用目标硬件编译器验证混合精度策略">关键经验- 硬件编译器约束（如QAIRT的激活位宽规则）是无法通过软件量化技巧绕过的硬性限制。在NPU量化中，激活位宽必须在整个图结构中保持一致，而参数位宽则可以混合使用。务必尽早使用目标硬件编译器验证混合精度策略。<a hidden class="anchor" aria-hidden="true" href="#关键经验--硬件编译器约束如qairt的激活位宽规则是无法通过软件量化技巧绕过的硬性限制在npu量化中激活位宽必须在整个图结构中保持一致而参数位宽则可以混合使用务必尽早使用目标硬件编译器验证混合精度策略">#</a></h3>
+<ul>
+<li>
+<p>对于显示健康应用而言，“时间段”并非衡量“环境光”的良好指标。大量证据支持由环境光驱动的亮度控制方式。基于时间的曲线可能对个人用户来说效果不佳，且缺乏科学依据。</p>
+</li>
+<li>
+<p>在视觉记忆流程中，“通道”（信息呈现方式）不如“提取器”（信息提取方式）重要。通道是一种无损放大器，需要提取器提供正确的拓扑/感知信号。如果提取过程错误或缺乏拓扑意识（例如缠绕方向），通道无法挽救结果。应首先提高提取器的准确性。</p>
+</li>
+<li>
+<p>在评估空间组学方法时，“每块数据”的精度可能会掩盖“全幻灯片”的一致性。全幻灯片聚类往往能揭示那些能更好地保持空间上下文的方法，而非仅优化局部块精度的方法。统计严谨性（例如Holm校正）对于区分真正的算法优势与每次运行产生的噪声至关重要。</p>
+</li>
+</ul>
+<h3 id="实用经验">实用经验<a hidden class="anchor" aria-hidden="true" href="#实用经验">#</a></h3>
+<ul>
+<li>清洁安装测试（uv/conda）对项目可复现性至关重要。它能发现开发者本地环境中被隐藏的依赖项（tzdata）和版本冲突（mcp）。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<h3 id="pi05-qualcomm-npu--gr00t量化">pi0.5 Qualcomm NPU / GR00T量化<a hidden class="anchor" aria-hidden="true" href="#pi05-qualcomm-npu--gr00t量化">#</a></h3>
+<p><strong>✅ W4A4编译约束、Norm/RoPE精度修复及工具链限制</strong>
+<em>21:15:06.237 | claude_code</em>
+研究了W4A4 action_expert的编译失败问题。通过探究QAIRT工具链发现混合激活位宽不受支持。确认“norm gain”修复方案可实施（参数位宽灵活），但“rope”激活修复不可行。发现QuantSim重命名问题（_qdq后缀）影响权重选择器。确定W4A8或统一A4是唯一可行的路径，策略从激活异常处理转向参数/掩码处理。</p>
+<h3 id="amber">Amber<a hidden class="anchor" aria-hidden="true" href="#amber">#</a></h3>
+<p><strong>✅ 文献审查、环境光发现及预设修正</strong>
+<em>21:09:46.612 | claude_code</em>
+审查了12篇论文以验证Amber的预设。发现亮度应跟随环境勒克斯（300-500lx -&gt; 130-200 nits），而非时间。确认Amber的夜间预设（0.55）是任意的，与证据矛盾。指出“K”（CCT）是褪黑激素效应的弱指标；绝对亮度和时间才是更重要的驱动因素。纠正了团队对“夜间”与“夜晚”预设的理解以及环境控制的需求。</p>
+<h3 id="robomemory">RoboMemory<a hidden class="anchor" aria-hidden="true" href="#robomemory">#</a></h3>
+<p><strong>✅ 提取器/通道消除、VLM分析及FrameSamp比较</strong>
+<em>02:39:52.494 | claude_code</em>
+执行并分析了修复VLM提取器的实验，以分离“绘制”与“文本”通道的效果。比较了四种提取器版本（v1 draw、v2 gated、v3 symbols、官方词汇）及其失败模式（例如v1几何正确但拓扑错误）。得出结论：“绘制”通道是一种无损放大器，只有在提取器提供正确拓扑信息时才有效。建立了提取器准确性与任务成功率之间的明确剂量-反应关系。还讨论了FrameSamp基线，以将RoboMemory的事件驱动覆盖与均匀采样间隙进行对比。</p>
+<h3 id="mihd_benchmark">MIHD_Benchmark<a hidden class="anchor" aria-hidden="true" href="#mihd_benchmark">#</a></h3>
+<p><strong>✅ 进度报告更新、统计校正及聚类结果</strong>
+<em>20:00:00.000 | claude_code</em>
+更新了双语进度报告（EN/ZH），反映完成的A7（11个部分）实验。添加了KMeans控制（A8）和全幻灯片联合聚类（B5）的新表格。修正了之前的显著性声明，使用Holm校正的Wilcoxon检验。发现TEDDY+UNI2+NCL在全幻灯片一致性方面表现最佳（0.419），因为它保持了块级方法丢失的空间上下文。确保报告结果在每次运行噪声下具有统计稳健性。</p>
+<h3 id="lifecopilot">LifeCopilot<a hidden class="anchor" aria-hidden="true" href="#lifecopilot">#</a></h3>
+<p><strong>✅ 一键设置、依赖修复及环境自动化</strong>
+<em>21:11:04.381 | claude_code</em>
+创建<code>setup.sh</code>来自动化环境设置（uv/conda）。修复了由<code>pyproject.toml</code>语法和<code>mcp</code>版本漂移引起的安装失败问题。识别并解决了Windows上缺失的<code>tzdata</code>依赖项。确认所有944次测试在清洁环境中均通过，消除了“在我的机器上能工作”的问题，确保了测试的可复现性。</p>
+<h3 id="tokenmonitor">TokenMonitor<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor">#</a></h3>
+<p><strong>✅ Rust死代码修复</strong>
+<em>03:27:20.075 | claude_code</em>
+通过从Rust结构体中移除<code>plan_tier_costs_usd</code>，解决了<code>ops.rs</code>中的<code>dead_code</code>警告，因为该结构体仅通过直接JSON导入由前端使用。确保JSON契约的测试覆盖率保持不变。</p>
+<h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-08-18</span>
+        <span class="usage-card__source">Claude Code</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$87.48</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>57M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>123K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>95.8%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 95.8%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 4.2%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (95.8%), active tokens (4.2%)">
+          <span style="width:95.8%; background:var(--usage-cache)"></span>
+          <span style="width:4.2%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:60da59d0aaed8383 -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

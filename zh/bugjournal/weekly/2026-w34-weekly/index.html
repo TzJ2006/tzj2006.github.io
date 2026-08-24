@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Weekly Summary 2026-W34 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal, Weekly Summary">
+<meta name="description" content="本周在硬件量化和视觉记忆机器人技术方面取得了重要进展。Pi0.5模型在W4A8环境下实现了稳定的50/50成功率（延迟为352.9毫秒），此前因关键注意力掩码量化问题而未能使用W4A4，这主要是由于工具链限制所致。在RoboMemory项目中，严格的消融研究表明，VLM“写入器”功能才是主要瓶颈，而非视觉通道；同时发现了一种关键的评估偏差（重置尾部伪影），该偏差导致基线结果失真。此外，AI Companion仓库通过8个智能体的审计工作完成了可靠性全面优化，LifeCopilot图形界面和任务管理界面也已完成开发，MIHD空间生物标志物基准测试也得到了统计验证。本周的结束意味着有了明确的12周规划用于开发潜在世界模型写入器，以及经过验证的低比特数NPU推理部署路径。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w34-weekly/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/weekly/2026-w34-weekly/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w34-weekly/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w34-weekly/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Weekly Summary 2026-W34">
+  <meta property="og:description" content="本周在硬件量化和视觉记忆机器人技术方面取得了重要进展。Pi0.5模型在W4A8环境下实现了稳定的50/50成功率（延迟为352.9毫秒），此前因关键注意力掩码量化问题而未能使用W4A4，这主要是由于工具链限制所致。在RoboMemory项目中，严格的消融研究表明，VLM“写入器”功能才是主要瓶颈，而非视觉通道；同时发现了一种关键的评估偏差（重置尾部伪影），该偏差导致基线结果失真。此外，AI Companion仓库通过8个智能体的审计工作完成了可靠性全面优化，LifeCopilot图形界面和任务管理界面也已完成开发，MIHD空间生物标志物基准测试也得到了统计验证。本周的结束意味着有了明确的12周规划用于开发潜在世界模型写入器，以及经过验证的低比特数NPU推理部署路径。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-08-23T23:59:00-04:00">
+    <meta property="article:modified_time" content="2026-08-23T23:59:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Weekly Summary 2026-W34">
+  <meta name="twitter:description" content="本周在硬件量化和视觉记忆机器人技术方面取得了重要进展。Pi0.5模型在W4A8环境下实现了稳定的50/50成功率（延迟为352.9毫秒），此前因关键注意力掩码量化问题而未能使用W4A4，这主要是由于工具链限制所致。在RoboMemory项目中，严格的消融研究表明，VLM“写入器”功能才是主要瓶颈，而非视觉通道；同时发现了一种关键的评估偏差（重置尾部伪影），该偏差导致基线结果失真。此外，AI Companion仓库通过8个智能体的审计工作完成了可靠性全面优化，LifeCopilot图形界面和任务管理界面也已完成开发，MIHD空间生物标志物基准测试也得到了统计验证。本周的结束意味着有了明确的12周规划用于开发潜在世界模型写入器，以及经过验证的低比特数NPU推理部署路径。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Weekly Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/weekly/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Weekly Summary 2026-W34",
+      "item": "https://tzj2006.github.io/zh/bugjournal/weekly/2026-w34-weekly/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Weekly Summary 2026-W34",
+  "name": "Weekly Summary 2026-W34",
+  "description": "本周在硬件量化和视觉记忆机器人技术方面取得了重要进展。Pi0.5模型在W4A8环境下实现了稳定的50/50成功率（延迟为352.9毫秒），此前因关键注意力掩码量化问题而未能使用W4A4，这主要是由于工具链限制所致。在RoboMemory项目中，严格的消融研究表明，VLM“写入器”功能才是主要瓶颈，而非视觉通道；同时发现了一种关键的评估偏差（重置尾部伪影），该偏差导致基线结果失真。此外，AI Companion仓库通过8个智能体的审计工作完成了可靠性全面优化，LifeCopilot图形界面和任务管理界面也已完成开发，MIHD空间生物标志物基准测试也得到了统计验证。本周的结束意味着有了明确的12周规划用于开发潜在世界模型写入器，以及经过验证的低比特数NPU推理部署路径。",
+  "keywords": [
+    "Bug Journal", "Weekly Summary"
+  ],
+  "articleBody": "每周报告 — 2026-W34 (2026-08-17 ~ 2026-08-23) 本周在硬件量化与视觉记忆机器人领域取得了重要进展。Pi0.5模型在W4A8环境下实现了稳定的50/50成功率（延迟为352.9ms），解决了关键的注意力掩码量化冲突问题，因此因工具链限制而排除W4A4部署。在RoboMemory项目中，严格的消融研究证明VLM“写入器”性能是主要瓶颈，而非视觉通道问题，并发现了导致基线结果偏差的关键评估偏差（重置尾部伪象）。此外，AI Companion仓库经过8个智能体的审计，LifeCopilot图形界面与任务管理界面已完成开发，MIHD空间组学基准测试也通过统计验证。本周末明确了潜在世界模型写入器的12周路线图，并确认了低比特数NPU推理的部署路径。\n每周概述 指标 数值 日期范围 2026-08-17 ~ 2026-08-23 活跃天数 6 / 7 总对话数 25 项目数 18 完成任务数 22 进行中任务数 4 总标记数 774,620,729 总成本 $935.13 Claude代码标记数 690,089,587 Claude代码成本 $881.81 Codex标记数 84,531,142 Codex成本 $53.32 每日平均成本 $187.03 项目进展 RoboMemory视觉通道与写入器架构（4天活跃） — 🔄 活跃 成果：\n验证了E0非神谕状态并解决了关键评估偏差（重置尾部伪象）。 证明“符号到像素”写入器架构优于直接像素生成。 建立了VLM写入器精度与任务成功之间的剂量-反应关系。 完成了潜在世界模型写入器的12周路线图（SigLIP + 时间变换器）。 优化了42GB数据集的数据传输管道（8路并行SCP）。 阻碍：\n⚠️ 需要实施LoRA微调以解决Qwen3-VL的符号推理失败问题。 Pi0.5/GR00T低比特量化与部署（3天活跃） — 🔄 活跃 成果：\n在Qualcomm NPU上实现了50/50成功率，延迟为352.9ms的W4A8环境。 识别并解决了-1e4注意力掩码量化冲突问题。 因QAIRT激活位宽限制而排除W4A4部署。 通过100% NPU计算测试验证了softmax-16位修复的可部署性。 阻碍：\n⚠️ 本地节点上NVIDIA EGL驱动问题阻碍了R3/R4 SpinQuant旋转评估（尽管已实现软件渲染备用方案）。 AI Companion可靠性与安全性（2天活跃） — ✅ 完成 成果：\n完成了全面的8智能体审计，发现了P1漏洞（配置丢失、保护失败）。 实现了跨进程锁定、路径安全与原子日志功能。 修复了Claude Code钩子契约问题（退出代码/stderr合规性）。 删除了约7MB死代码并去重了测试数据（1790至1055条）。 LifeCopilot图形界面与任务管理（3天活跃） — 🔄 活跃 成果：\n开发了支持WebSocket通知的跨平台桌面图形界面（pywebview/pystray）。 实现了带有CRUD API的平面集成任务管理界面。 修复了任务界面中的“僵尸”本地镜像行与XSS漏洞。 自动化环境配置（uv/conda）并解决了依赖冲突问题。 MIHD空间组学与组织学聚类（2天活跃） — ✅ 完成 成果：\n完成了联合聚类评估，确定TEDDY_UNI2_NCL为最佳表现者。 实施了KMeans控制以验证方法优势并消除算法伪影。 使用Holm校正后的Wilcoxon统计方法更新了基准测试报告。 解决了融合管道中的旧金标准断言问题。 Amber显示亮度与设备基础设施（3天活跃） — 🔄 活跃 成果：\n验证了科学文献依据，将模型从基于时间的照明方式改为基于环境光的方式。 分析了10k+传感器行以优化macOS亮度动态范围处理。 实现了用于远程主机遥测的SSH日志聚合模块。 阻碍：\n⚠️ 由于自动亮度干扰，macOS亮度校准逻辑仍在进行中。 关键任务 ✅ Pi0.5 W4A8量化验证 — 通过解决注意力掩码量化问题并验证NPU可部署性，实现了352.9ms延迟下的稳定50/50成功率，确立了W4A8为最佳可部署基线。 ✅ RoboMemory神谕基线偏差修复 — 诊断并解决了导致神谕基线性能低于Gemini VLM的“重置尾部”伪象，恢复了基准测试结果的有效性。 ✅ AI Companion8智能体审计与修复 — 执行了多维度审计，修复了关键安全/并发漏洞，删除了死代码，并确保严格遵循Claude Code钩子契约。 ✅ VLM写入器架构决策 — 验证了“基于符号”的写入器优于像素生成，发现Qwen3-VL在符号推理方面的内在限制，需要LoRA微调而非提示词调整。 ✅ LifeCopilot任务管理界面 — 实现了具有强大状态管理的平面集成界面，修复了僵尸数据行并防止了并发编辑时的覆盖问题。 问题与解决方案 1. Pi0.5 W4A8/W8A8闭环精度为0/50，尽管存在旋转现象。[Pi0.5/GR00T低比特量化] 解决方案： 根本原因是-1e4注意力掩码与真实分数共享同一个张量量化器。修复方法：将掩码/分数路径隔离到16位量化器。\n2. QAIRT编译器因激活位宽转换限制而失败W4A4构建。[Pi0.5/GR00T低比特量化] 解决方案： 确认激活值必须保持统一位宽，调整策略为统一的W4A8 + 参数级精度调优（例如Norm增益）。\n3. 神谕基线在PatternLock中的性能低于Gemini VLM（50% vs 60%）。[RoboMemory视觉通道] 解决方案： 诊断出训练/评估不匹配问题：评估数据包含最终“返回家乡”帧（重置尾部）。修复future_path.py以检测并删除该片段。\n4. AI Companion HistoryStore存在并发写入损坏和路径逃逸漏洞。[AI Companion可靠性] 解决方案： 实现仅使用stdlib的独占锁文件、规范存储根验证以及带不可变快照的原子日志功能。\n5. Qwen3-VL-2B在符号推理任务中产生退化输出（RouteStick）。[RoboMemory视觉通道] 解决方案： 通过修复扫描探针隔离问题，证明高基础精度但在逻辑序列上失败（“模式幻觉”）。结论为需要LoRA微调。\n6. 无头EGL渲染因缺少NVIDIA用户空间库在远程服务器上失败。[Pi0.5/RoboMemory基础设施] 解决方案： 实现仅使用stdlib的独占锁文件、规范存储根验证以及带不可变快照的原子日志功能。解决方案： 使用 Mesa/llvmpipe 和 LIBGL_ALWAYS_SOFTWARE=1 实现软件渲染备用方案，以绕过特定驱动程序的断言。\n7. LifeCopilot UI 在服务器端删除后出现“僵尸”本地镜像行问题。[LifeCopilot GUI] 解决方案： 实现 PlaneTaskNotFound 处理程序以清除本地镜像，并添加基于差异的 PATCH 方法以防止富文本被覆盖。\n经验教训 架构 (architecture) 在视觉记忆管道中，“Writer”（VLM 提取）是主要瓶颈，而非“Channel”（传输）。Channel 是一种无损放大器；如果 Writer 缺乏拓扑意识，Channel 无法弥补。 对于低延迟 VLA 内存任务，基于功能的架构（冻结视觉编码器 + 小型时间头）比微调大型 VLMs 更优，因为受令牌限制和延迟约束限制。 “模型生成符号，代码绘制像素”的方法比“模型直接生成像素”更适合视觉提示，因为它避免场景漂移和幻觉。 调试 (debugging) 每个张量的量化对异常值非常敏感（如 -1e4 掩码）。将易产生异常的张量隔离到更高位宽对于低位 LLM 稳定性至关重要。 Claude Code 钩子严格要求退出代码为 2 且 stderr 才能触发阻塞操作；使用 stdout 或退出代码 1 会静默失败，无法阻止工具运行。 工具 (tools) 硬件编译器约束（QAIRT）对参数和激活值采用不同处理方式：激活值通常必须统一为固定位宽，而参数可以混合。务必尽早使用目标硬件编译器验证混合精度策略。 干净安装测试（uv/conda）对于项目可复现性至关重要，能够发现本地开发环境中被掩盖的隐藏依赖项（tzdata）和版本冲突（mcp）。 领域知识 (domain) 对于用于精细机器人任务的小型 VLMs（2B 规模），输入分辨率是确保基准准确性的最关键因素；为了实现亚 10px 定位，需要将其放大至 768px+。 AI 使用说明 有效模式：\n✓ 多智能体对抗审计用于识别细微的状态管理和安全漏洞。 ✓ 对 ONNX 图和 AIMET 编码进行法医分析，以确定位宽下降机制。 ✓ 并行数据传输流（8 路 SCP）以绕过受限网络上的带宽限制。 ✓ 软件渲染备用方案（Mesa/llvmpipe）将进度与损坏的 GPU 驱动环境分离。 限制：\n✗ 倾向于将默认参数值与生产配置值混为一谈，导致预算约束错误。 ✗ 在复杂的实验矩阵中难以区分“必要”和“足够”条件，除非有明确的人体消融设计。 ✗ 在测试中对模拟工具过度依赖，可能掩盖真实的操作系统级问题（Windows EPERM、路径规范化），除非明确要求真实环境合同测试。 ✗ 将 VLM 推理中的稳健失败误认为环境问题而非模型内在限制，需要详细测试以解决。 下周计划 优先实现 LoRA 微调用于 Qwen3-VL，以解决 RouteStick 任务中发现的符号推理失败问题。开始 12 周的计划，先开发冻结的 SigLIP + 时间变换器架构，进而开发潜在世界模型生成器。继续 MIHD 代码探索工作，并完善空间 omics 基准报告的统计严谨性。解决剩余的 macOS 亮度校准问题，以稳定 Amber 应用。最后，在类似生产环境中对新 AI 伴侣保护逻辑的稳健性进行验证，确保修复措施在负载下仍然有效。\n令牌使用统计 AI Usage · 2026-W34\rClaude Code + Codex\rTotal cost$935.13\rTotal tokens775M\rOutput tokens5M\rCache read96.0%\rCost split\rClaude Code $882 ·\rCodex $53\rToken character\rCache reads 96.0% ·\rActive 4.0%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r高峰日： 2026-08-17 — $467.41 / 375.0M 令牌\n每日平均： $187.03\n",
+  "wordCount" : "344",
+  "inLanguage": "zh",
+  "datePublished": "2026-08-23T23:59:00-04:00",
+  "dateModified": "2026-08-23T23:59:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/weekly/2026-w34-weekly/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span>bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">Weekly Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Weekly Summary 2026-W34
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-08-23 23:59:00 -0400 EDT'>2026年8月23日</span>&nbsp;·&nbsp;<span>2 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每周报告--2026-w34-2026-08-17--2026-08-23">每周报告 — 2026-W34 (2026-08-17 ~ 2026-08-23)<a hidden class="anchor" aria-hidden="true" href="#每周报告--2026-w34-2026-08-17--2026-08-23">#</a></h1>
+<blockquote>
+<p>本周在硬件量化与视觉记忆机器人领域取得了重要进展。Pi0.5模型在W4A8环境下实现了稳定的50/50成功率（延迟为352.9ms），解决了关键的注意力掩码量化冲突问题，因此因工具链限制而排除W4A4部署。在RoboMemory项目中，严格的消融研究证明VLM“写入器”性能是主要瓶颈，而非视觉通道问题，并发现了导致基线结果偏差的关键评估偏差（重置尾部伪象）。此外，AI Companion仓库经过8个智能体的审计，LifeCopilot图形界面与任务管理界面已完成开发，MIHD空间组学基准测试也通过统计验证。本周末明确了潜在世界模型写入器的12周路线图，并确认了低比特数NPU推理的部署路径。</p>
+</blockquote>
+<h2 id="每周概述">每周概述<a hidden class="anchor" aria-hidden="true" href="#每周概述">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>指标</th>
+          <th>数值</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>日期范围</td>
+          <td>2026-08-17 ~ 2026-08-23</td>
+      </tr>
+      <tr>
+          <td>活跃天数</td>
+          <td>6 / 7</td>
+      </tr>
+      <tr>
+          <td>总对话数</td>
+          <td>25</td>
+      </tr>
+      <tr>
+          <td>项目数</td>
+          <td>18</td>
+      </tr>
+      <tr>
+          <td>完成任务数</td>
+          <td>22</td>
+      </tr>
+      <tr>
+          <td>进行中任务数</td>
+          <td>4</td>
+      </tr>
+      <tr>
+          <td>总标记数</td>
+          <td>774,620,729</td>
+      </tr>
+      <tr>
+          <td>总成本</td>
+          <td>$935.13</td>
+      </tr>
+      <tr>
+          <td>Claude代码标记数</td>
+          <td>690,089,587</td>
+      </tr>
+      <tr>
+          <td>Claude代码成本</td>
+          <td>$881.81</td>
+      </tr>
+      <tr>
+          <td>Codex标记数</td>
+          <td>84,531,142</td>
+      </tr>
+      <tr>
+          <td>Codex成本</td>
+          <td>$53.32</td>
+      </tr>
+      <tr>
+          <td>每日平均成本</td>
+          <td>$187.03</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="项目进展">项目进展<a hidden class="anchor" aria-hidden="true" href="#项目进展">#</a></h2>
+<h3 id="robomemory视觉通道与写入器架构4天活跃---活跃">RoboMemory视觉通道与写入器架构（4天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#robomemory视觉通道与写入器架构4天活跃---活跃">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>验证了E0非神谕状态并解决了关键评估偏差（重置尾部伪象）。</li>
+<li>证明“符号到像素”写入器架构优于直接像素生成。</li>
+<li>建立了VLM写入器精度与任务成功之间的剂量-反应关系。</li>
+<li>完成了潜在世界模型写入器的12周路线图（SigLIP + 时间变换器）。</li>
+<li>优化了42GB数据集的数据传输管道（8路并行SCP）。</li>
+</ul>
+<p><strong>阻碍：</strong></p>
+<ul>
+<li>⚠️ 需要实施LoRA微调以解决Qwen3-VL的符号推理失败问题。</li>
+</ul>
+<h3 id="pi05gr00t低比特量化与部署3天活跃---活跃">Pi0.5/GR00T低比特量化与部署（3天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#pi05gr00t低比特量化与部署3天活跃---活跃">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>在Qualcomm NPU上实现了50/50成功率，延迟为352.9ms的W4A8环境。</li>
+<li>识别并解决了-1e4注意力掩码量化冲突问题。</li>
+<li>因QAIRT激活位宽限制而排除W4A4部署。</li>
+<li>通过100% NPU计算测试验证了softmax-16位修复的可部署性。</li>
+</ul>
+<p><strong>阻碍：</strong></p>
+<ul>
+<li>⚠️ 本地节点上NVIDIA EGL驱动问题阻碍了R3/R4 SpinQuant旋转评估（尽管已实现软件渲染备用方案）。</li>
+</ul>
+<h3 id="ai-companion可靠性与安全性2天活跃---完成">AI Companion可靠性与安全性（2天活跃） — ✅ 完成<a hidden class="anchor" aria-hidden="true" href="#ai-companion可靠性与安全性2天活跃---完成">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>完成了全面的8智能体审计，发现了P1漏洞（配置丢失、保护失败）。</li>
+<li>实现了跨进程锁定、路径安全与原子日志功能。</li>
+<li>修复了Claude Code钩子契约问题（退出代码/stderr合规性）。</li>
+<li>删除了约7MB死代码并去重了测试数据（1790至1055条）。</li>
+</ul>
+<h3 id="lifecopilot图形界面与任务管理3天活跃---活跃">LifeCopilot图形界面与任务管理（3天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#lifecopilot图形界面与任务管理3天活跃---活跃">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>开发了支持WebSocket通知的跨平台桌面图形界面（pywebview/pystray）。</li>
+<li>实现了带有CRUD API的平面集成任务管理界面。</li>
+<li>修复了任务界面中的“僵尸”本地镜像行与XSS漏洞。</li>
+<li>自动化环境配置（uv/conda）并解决了依赖冲突问题。</li>
+</ul>
+<h3 id="mihd空间组学与组织学聚类2天活跃---完成">MIHD空间组学与组织学聚类（2天活跃） — ✅ 完成<a hidden class="anchor" aria-hidden="true" href="#mihd空间组学与组织学聚类2天活跃---完成">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>完成了联合聚类评估，确定TEDDY_UNI2_NCL为最佳表现者。</li>
+<li>实施了KMeans控制以验证方法优势并消除算法伪影。</li>
+<li>使用Holm校正后的Wilcoxon统计方法更新了基准测试报告。</li>
+<li>解决了融合管道中的旧金标准断言问题。</li>
+</ul>
+<h3 id="amber显示亮度与设备基础设施3天活跃---活跃">Amber显示亮度与设备基础设施（3天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#amber显示亮度与设备基础设施3天活跃---活跃">#</a></h3>
+<p><strong>成果：</strong></p>
+<ul>
+<li>验证了科学文献依据，将模型从基于时间的照明方式改为基于环境光的方式。</li>
+<li>分析了10k+传感器行以优化macOS亮度动态范围处理。</li>
+<li>实现了用于远程主机遥测的SSH日志聚合模块。</li>
+</ul>
+<p><strong>阻碍：</strong></p>
+<ul>
+<li>⚠️ 由于自动亮度干扰，macOS亮度校准逻辑仍在进行中。</li>
+</ul>
+<h2 id="关键任务">关键任务<a hidden class="anchor" aria-hidden="true" href="#关键任务">#</a></h2>
+<ul>
+<li>✅ <strong>Pi0.5 W4A8量化验证</strong> — 通过解决注意力掩码量化问题并验证NPU可部署性，实现了352.9ms延迟下的稳定50/50成功率，确立了W4A8为最佳可部署基线。</li>
+<li>✅ <strong>RoboMemory神谕基线偏差修复</strong> — 诊断并解决了导致神谕基线性能低于Gemini VLM的“重置尾部”伪象，恢复了基准测试结果的有效性。</li>
+<li>✅ <strong>AI Companion8智能体审计与修复</strong> — 执行了多维度审计，修复了关键安全/并发漏洞，删除了死代码，并确保严格遵循Claude Code钩子契约。</li>
+<li>✅ <strong>VLM写入器架构决策</strong> — 验证了“基于符号”的写入器优于像素生成，发现Qwen3-VL在符号推理方面的内在限制，需要LoRA微调而非提示词调整。</li>
+<li>✅ <strong>LifeCopilot任务管理界面</strong> — 实现了具有强大状态管理的平面集成界面，修复了僵尸数据行并防止了并发编辑时的覆盖问题。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="1-pi05-w4a8w8a8闭环精度为050尽管存在旋转现象pi05gr00t低比特量化">1. Pi0.5 W4A8/W8A8闭环精度为0/50，尽管存在旋转现象。[Pi0.5/GR00T低比特量化]<a hidden class="anchor" aria-hidden="true" href="#1-pi05-w4a8w8a8闭环精度为050尽管存在旋转现象pi05gr00t低比特量化">#</a></h3>
+<p><strong>解决方案：</strong> 根本原因是-1e4注意力掩码与真实分数共享同一个张量量化器。修复方法：将掩码/分数路径隔离到16位量化器。</p>
+<h3 id="2-qairt编译器因激活位宽转换限制而失败w4a4构建pi05gr00t低比特量化">2. QAIRT编译器因激活位宽转换限制而失败W4A4构建。[Pi0.5/GR00T低比特量化]<a hidden class="anchor" aria-hidden="true" href="#2-qairt编译器因激活位宽转换限制而失败w4a4构建pi05gr00t低比特量化">#</a></h3>
+<p><strong>解决方案：</strong> 确认激活值必须保持统一位宽，调整策略为统一的W4A8 + 参数级精度调优（例如Norm增益）。</p>
+<h3 id="3-神谕基线在patternlock中的性能低于gemini-vlm50-vs-60robomemory视觉通道">3. 神谕基线在PatternLock中的性能低于Gemini VLM（50% vs 60%）。[RoboMemory视觉通道]<a hidden class="anchor" aria-hidden="true" href="#3-神谕基线在patternlock中的性能低于gemini-vlm50-vs-60robomemory视觉通道">#</a></h3>
+<p><strong>解决方案：</strong> 诊断出训练/评估不匹配问题：评估数据包含最终“返回家乡”帧（重置尾部）。修复<code>future_path.py</code>以检测并删除该片段。</p>
+<h3 id="4-ai-companion-historystore存在并发写入损坏和路径逃逸漏洞ai-companion可靠性">4. AI Companion HistoryStore存在并发写入损坏和路径逃逸漏洞。[AI Companion可靠性]<a hidden class="anchor" aria-hidden="true" href="#4-ai-companion-historystore存在并发写入损坏和路径逃逸漏洞ai-companion可靠性">#</a></h3>
+<p><strong>解决方案：</strong> 实现仅使用stdlib的独占锁文件、规范存储根验证以及带不可变快照的原子日志功能。</p>
+<h3 id="5-qwen3-vl-2b在符号推理任务中产生退化输出routestickrobomemory视觉通道">5. Qwen3-VL-2B在符号推理任务中产生退化输出（RouteStick）。[RoboMemory视觉通道]<a hidden class="anchor" aria-hidden="true" href="#5-qwen3-vl-2b在符号推理任务中产生退化输出routestickrobomemory视觉通道">#</a></h3>
+<p><strong>解决方案：</strong> 通过修复扫描探针隔离问题，证明高基础精度但在逻辑序列上失败（“模式幻觉”）。结论为需要LoRA微调。</p>
+<h3 id="6-无头egl渲染因缺少nvidia用户空间库在远程服务器上失败pi05robomemory基础设施">6. 无头EGL渲染因缺少NVIDIA用户空间库在远程服务器上失败。[Pi0.5/RoboMemory基础设施]<a hidden class="anchor" aria-hidden="true" href="#6-无头egl渲染因缺少nvidia用户空间库在远程服务器上失败pi05robomemory基础设施">#</a></h3>
+<p><strong>解决方案：</strong> 实现仅使用stdlib的独占锁文件、规范存储根验证以及带不可变快照的原子日志功能。<strong>解决方案：</strong> 使用 Mesa/llvmpipe 和 <code>LIBGL_ALWAYS_SOFTWARE=1</code> 实现软件渲染备用方案，以绕过特定驱动程序的断言。</p>
+<h3 id="7-lifecopilot-ui-在服务器端删除后出现僵尸本地镜像行问题lifecopilot-gui">7. LifeCopilot UI 在服务器端删除后出现“僵尸”本地镜像行问题。[LifeCopilot GUI]<a hidden class="anchor" aria-hidden="true" href="#7-lifecopilot-ui-在服务器端删除后出现僵尸本地镜像行问题lifecopilot-gui">#</a></h3>
+<p><strong>解决方案：</strong> 实现 <code>PlaneTaskNotFound</code> 处理程序以清除本地镜像，并添加基于差异的 PATCH 方法以防止富文本被覆盖。</p>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="架构-architecture">架构 (architecture)<a hidden class="anchor" aria-hidden="true" href="#架构-architecture">#</a></h3>
+<ul>
+<li>在视觉记忆管道中，“Writer”（VLM 提取）是主要瓶颈，而非“Channel”（传输）。Channel 是一种无损放大器；如果 Writer 缺乏拓扑意识，Channel 无法弥补。</li>
+<li>对于低延迟 VLA 内存任务，基于功能的架构（冻结视觉编码器 + 小型时间头）比微调大型 VLMs 更优，因为受令牌限制和延迟约束限制。</li>
+<li>“模型生成符号，代码绘制像素”的方法比“模型直接生成像素”更适合视觉提示，因为它避免场景漂移和幻觉。</li>
+</ul>
+<h3 id="调试-debugging">调试 (debugging)<a hidden class="anchor" aria-hidden="true" href="#调试-debugging">#</a></h3>
+<ul>
+<li>每个张量的量化对异常值非常敏感（如 -1e4 掩码）。将易产生异常的张量隔离到更高位宽对于低位 LLM 稳定性至关重要。</li>
+<li>Claude Code 钩子严格要求退出代码为 2 且 stderr 才能触发阻塞操作；使用 stdout 或退出代码 1 会静默失败，无法阻止工具运行。</li>
+</ul>
+<h3 id="工具-tools">工具 (tools)<a hidden class="anchor" aria-hidden="true" href="#工具-tools">#</a></h3>
+<ul>
+<li>硬件编译器约束（QAIRT）对参数和激活值采用不同处理方式：激活值通常必须统一为固定位宽，而参数可以混合。务必尽早使用目标硬件编译器验证混合精度策略。</li>
+<li>干净安装测试（uv/conda）对于项目可复现性至关重要，能够发现本地开发环境中被掩盖的隐藏依赖项（tzdata）和版本冲突（mcp）。</li>
+</ul>
+<h3 id="领域知识-domain">领域知识 (domain)<a hidden class="anchor" aria-hidden="true" href="#领域知识-domain">#</a></h3>
+<ul>
+<li>对于用于精细机器人任务的小型 VLMs（2B 规模），输入分辨率是确保基准准确性的最关键因素；为了实现亚 10px 定位，需要将其放大至 768px+。</li>
+</ul>
+<h2 id="ai-使用说明">AI 使用说明<a hidden class="anchor" aria-hidden="true" href="#ai-使用说明">#</a></h2>
+<p><strong>有效模式：</strong></p>
+<ul>
+<li>✓ 多智能体对抗审计用于识别细微的状态管理和安全漏洞。</li>
+<li>✓ 对 ONNX 图和 AIMET 编码进行法医分析，以确定位宽下降机制。</li>
+<li>✓ 并行数据传输流（8 路 SCP）以绕过受限网络上的带宽限制。</li>
+<li>✓ 软件渲染备用方案（Mesa/llvmpipe）将进度与损坏的 GPU 驱动环境分离。</li>
+</ul>
+<p><strong>限制：</strong></p>
+<ul>
+<li>✗ 倾向于将默认参数值与生产配置值混为一谈，导致预算约束错误。</li>
+<li>✗ 在复杂的实验矩阵中难以区分“必要”和“足够”条件，除非有明确的人体消融设计。</li>
+<li>✗ 在测试中对模拟工具过度依赖，可能掩盖真实的操作系统级问题（Windows EPERM、路径规范化），除非明确要求真实环境合同测试。</li>
+<li>✗ 将 VLM 推理中的稳健失败误认为环境问题而非模型内在限制，需要详细测试以解决。</li>
+</ul>
+<h2 id="下周计划">下周计划<a hidden class="anchor" aria-hidden="true" href="#下周计划">#</a></h2>
+<p>优先实现 LoRA 微调用于 Qwen3-VL，以解决 RouteStick 任务中发现的符号推理失败问题。开始 12 周的计划，先开发冻结的 SigLIP + 时间变换器架构，进而开发潜在世界模型生成器。继续 MIHD 代码探索工作，并完善空间 omics 基准报告的统计严谨性。解决剩余的 macOS 亮度校准问题，以稳定 Amber 应用。最后，在类似生产环境中对新 AI 伴侣保护逻辑的稳健性进行验证，确保修复措施在负载下仍然有效。</p>
+<h2 id="令牌使用统计">令牌使用统计<a hidden class="anchor" aria-hidden="true" href="#令牌使用统计">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-W34</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$935.13</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>775M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>5M</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>96.0%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $882</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $53</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (94.3%), Codex (5.7%)">
+          <span style="width:94.3%; background:var(--usage-cost-main)"></span>
+          <span style="width:5.7%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 96.0%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 4.0%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (96.0%), active tokens (4.0%)">
+          <span style="width:96.0%; background:var(--usage-cache)"></span>
+          <span style="width:4.0%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<p><strong>高峰日：</strong> 2026-08-17 — $467.41 / 375.0M 令牌</p>
+<p><strong>每日平均：</strong> $187.03</p>
+<!-- gadget:src-hash:v2:245c6b800ba3dbcc -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

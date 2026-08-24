@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-08-22 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="对RoboMemory视觉提示生成流程进行了全面审计与优化，发现了并修复了关键的评估偏差问题，验证了“符号到像素”生成架构优于直接像素生成方式，解决了数据传输瓶颈问题，并根据用户战略要求制定了为期12周的实施计划。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-22/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-08-22/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-22/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-22/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-08-22">
+  <meta property="og:description" content="对RoboMemory视觉提示生成流程进行了全面审计与优化，发现了并修复了关键的评估偏差问题，验证了“符号到像素”生成架构优于直接像素生成方式，解决了数据传输瓶颈问题，并根据用户战略要求制定了为期12周的实施计划。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-08-22T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-08-22T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-08-22">
+  <meta name="twitter:description" content="对RoboMemory视觉提示生成流程进行了全面审计与优化，发现了并修复了关键的评估偏差问题，验证了“符号到像素”生成架构优于直接像素生成方式，解决了数据传输瓶颈问题，并根据用户战略要求制定了为期12周的实施计划。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-08-22",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-22/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-08-22",
+  "name": "Bug Journal 2026-08-22",
+  "description": "对RoboMemory视觉提示生成流程进行了全面审计与优化，发现了并修复了关键的评估偏差问题，验证了“符号到像素”生成架构优于直接像素生成方式，解决了数据传输瓶颈问题，并根据用户战略要求制定了为期12周的实施计划。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-08-22 日常概述 完成工作： 在 RoboMemory 基准测试中诊断并修复了关键的训练/评估不一致问题（重置尾部伪影），验证了“基于符号”的视觉提示生成方法相较于像素生成方法的优势，解决了数据传输和远程部署的基础设施瓶颈，并制定了开发潜在世界模型生成器的12周战略计划。 实施方法： 采用统计分析（McNemar检验）和几何路径检查来识别评估偏差；实现了最小化的 MLP 框架和 GPT-image-2 测试；通过并行 SCP 流优化网络吞吐量；使用自修复脚本管理复杂的远程部署；并整合了用户定义的里程碑和架构约束的研究路线图。 影响： 恢复了 Oracle 基线结果的有效性，找到了视觉提示生成的最优低延迟架构（基于特征而非 VLM 微调），通过解决数据和网络问题实现了可行的12周时间表，并确定了 Qualcomm 精度评估的具体基础设施障碍。 MacOS 完成工作： 没有记录具体的活动。 实施方法： 不适用 影响： 不适用 TzJsDesktop 完成工作： 执行了核心实验工作流：实现了最小化 MLP 生成器框架，运行了图像生成测试，对评估结果进行了深入的统计和几何分析，开发了并测试了重置尾部的修复方案，管理了42GB数据到远程服务器的传输流程，并完善了12周项目计划。 实施方法： 使用本地 Python 环境进行训练和分析脚本，管理后台 SSH/SCP 进程以实现数据同步，进行本地代码编辑和补丁更新，根据用户反馈迭代规划文档，利用网络抓取进行架构研究。 影响： 产生了“符号到像素”方法优于其他方法的定量证据，识别并修复了关键评估偏差，通过优化数据管道为 GPU 训练铺平道路，使项目范围与战略目标一致，解决了“Gemini 与 Oracle”性能异常问题。 lighthouse 完成工作： 作为远程计算和数据存储中心（tianhe3）：8x A800 GPU 集群的托管平台，数据传输的目的地，训练 smoke 测试和验证评估的执行环境，以及部署稳定的场所。 实施方法： 托管了 H5 提取和预处理流程，执行了修正后的 Oracle 基线评估（s2_wintail_correct_PatternLock），为策略 smoke 测试提供计算资源，并在部署差异后恢复状态。 影响： 使得训练循环的验证成为可能，确认了硬件/网络限制对部署策略的影响，提供了进行公平基准比较所需的稳定环境。 对 RoboMemory 视觉提示流程进行了全面审计和优化，识别并修复了关键评估偏差（重置尾部伪影），验证了“符号到像素”生成器架构优于直接像素生成，解决了数据传输瓶颈，并根据用户战略指令最终确定了12周路线图。\n任务 架构与策略 ✅ 诊断并修复 Oracle 基线评估偏差 — 分析性地发现了 Gemini VLM 基线在 PatternLock 任务中优于 Oracle 基线（50% vs 60%）的原因。发现评估数据中存在“重置尾部”伪影（额外的返回家乡帧），导致误导性的视觉提示。在 future_path.py 中修复了此问题，添加了自检查工具，并通过解决破坏 eval.py 的分支同步问题稳定了远程部署。 🔄 启动验证评估与数据传输优化 — 在 tianhe3（GPU 4）上启动了修正后的 Oracle 基线评估（s2_wintail_correct_PatternLock），同时通过本地下载42GB缺失数据集并通过8路并行 SCP上传来绕过代理限制，将传输时间从约25小时缩短至约3小时。 ✅ 实现并验证最小化 MLP 生成器框架 — 构建了 tiny_writer.py，用于在演示帧上训练小型 MLP 以输出路径多段线，验证了完整的数据输入、训练和评估流程，证明“模型生成符号，代码绘制像素”优于直接像素生成，尽管小数据集导致过拟合，进一步强调了预训练特征的重要性。 ✅ 确定12周战略计划 — 制定了与用户定义的6步里程碑一致的高层次12周计划，从自定义轻量级架构转向“潜在世界模型”生成器（SigLIP + 时间变换器），以满足低延迟和全帧读取要求，并结合了关于 Qwen3-VL 使用和数据可用性的见解。 ✅ 测试图像生成生成器能力 — 评估了 GPT-image-2 对视觉提示的直接像素渲染能力，实现了坐标提取逻辑，发现由于“场景漂移”导致高错误率（35-90px），确认视觉生成模型在精度任务中不如基于代码的栅格化方法。 实施与修复 ❌ Qualcomm NPU 部署审计与 EGL 分辨率尝试 — 对 Qualcomm NPU 精度评估进行了系统级诊断，发现部署指标已就绪，但精度测试因远程服务器缺少 NVIDIA EGL ICD 驱动而受阻。确定了所需的管理员操作以解除限制。 问题与解决方案 关键问题 1. Oracle 基线在 PatternLock 任务中的表现不如 Gemini VLM（50% vs 60%），与对真实方法的预期相悖。 解决方案： 诊断为训练/评估不匹配：评估数据中包含训练中不存在的最终“返回家乡”帧，导致绘制路径中出现长直线“尾部”。Oracle 策略将其视为噪声。在 future_path.py 中实现了修复方案，在渲染前检测并移除该段。\n2. 由于 Squid 代理，远程服务器（tianhe3）无法被 HuggingFace 访问；单流 SCP 对于42GB数据集来说太慢。 解决方案： 制定了替代方案：在本地机器（TzJsDesktop）下载数据集，通过8路并行 SCP上传。这将总吞吐量提高到约4.14MB/s，显著减少了传输时间，解决了关键路径瓶颈。\n3. 部署到 tianhe3 导致 eval.py 损坏（重复块），并因本地 main 与远程 e0-remove-eval-oracle 分支不匹配而回退到 oracle_writer.py。**解决方案：**通过备份和来自正确分支的 git show 恢复正确的文件状态。更新 deploy_drawn_memory.sh 以检查补丁标记，防止重复执行失败。调查过期的 .pyc 文件以确认运行进程状态。 4. ‘writer’ 定义和架构选择的模糊性（VLM 微调与自定义架构）。 **解决方案：**明确 ‘writer’ 必须输出可栅格化的格式代码。从标准 VLM 微调（有限帧令牌）转向基于特征的“潜像世界模型”（Frozen SigLIP + 时间变换器），以满足低延迟和完整剧集历史约束。\n5. 小型 MLP 对训练数据过拟合，无法泛化；图像生成模型产生几何漂移路径。 **解决方案：**诊断出小数据集下的“记忆与泛化”问题以及生成模型中的“场景漂移”问题。认为从零开始使用 40 个样本不足，且“符号式”方法（模型输出坐标，代码绘制像素）比“像素生成”在精确操控任务中更稳健、更准确。\n人类与 AI 方法 战略层面 Writer 架构与模型选择策略 角色 方法 人类 要求使用“简单”模型验证流程，然后要求采用高层次的 6 步计划，需要小型模型以低延迟读取所有视频帧。拒绝自定义轻量级架构，倾向于利用现有的预训练组件。 AI 最初提出简单的 MLP 用于管道测试，然后提出“潜像世界模型”（Frozen SigLIP + 时间变换器）以满足“读取所有帧”和“低延迟”约束，因令牌限制而拒绝标准 VLM 微调。承认“符号式”输出优于像素生成。 **差异分析：**人类的严格延迟和数据效率要求迫使 AI 从标准 VLM 范式转向高效利用令牌的基于特征的架构，符合用户关于可扩展性和精确性的战略目标。\n性能差距的根本原因分析 角色 方法 人类 质疑 Gemini VLM 基线为何优于 Oracle 基线，怀疑是评估设置问题而非模型能力问题。 AI 最初将差距归因于模型限制，然后进行深入的几何和统计分析以识别“重置尾部”数据伪影。实施修复并管理复杂的部署以验证修正效果。 差异分析： AI 的初始假设被用户的直觉纠正，导致成功的调试过程，提高了基准测试的完整性，并展示了严格数据管道审计的价值。\nAI 限制 关键限制 最初将 Oracle 与 Gemini 性能差距归因于模型能力，忽视了数据预处理/训练评估不一致问题，直到进行更深入的几何分析。 在部署前未能注意到本地和远程环境之间的分支差异，导致远程状态损坏，需要手动修复评估基础设施。 一般限制 最初提出自定义轻量级架构，无法满足用户的延迟约束；遇到 Windows 特定shell脚本问题（heredocs、curl 标志），不得不回退到 Python 脚本进行 API 调用和文件操作。 经验教训 关键经验 “模型输出符号，代码绘制像素”方法比“模型直接生成像素”在视觉提示的操控任务中更稳健、更准确，因为它避免场景漂移和幻觉错误。 在机器人 VLM 评估中，“Oracle”基线仅取决于数据管道；演示数据与评估数据处理的细微差异（如重置帧尾随）可能造成重大偏差和误导结果。 对于低延迟 VLA 内存任务，基于特征的架构（冻结视觉编码器 + 小型时间变换器）比微调大型 VLMs 更合适，因为它能在小参数预算下处理完整剧集历史同时保持速度。 数据传输是关键路径瓶颈；并行化网络流（例如 8 路 SCP）对于受限或带宽有限的设置下的大规模数据集管理至关重要，可提供数量级的加速。 在部署补丁前始终验证本地和远程环境之间的分支同步，尤其是在使用 patch -N 时，它可能会悄悄重新应用编辑片段或导致状态损坏。 几何分析（倒角距离、段长度分布）是诊断视觉提示失败的强大工具，证明“如何”绘制与“什么”绘制同样重要。 对话总结 RoboMemory • 视觉提示管道验证与 Oracle 偏差修复 通过实现最小 MLP writer 并与图像生成模型对比，验证了端到端的视觉提示工作流程，得出结论“符号式”渲染更优。诊断并修复了对 Oracle 基线不公平的关键“重置尾部”评估偏差，稳定了远程部署基础设施，并启动了修正验证运行。此会议还涉及解决数据传输瓶颈和调查停滞的评估，以确保基准测试结果的完整性。\n• 战略 12 周计划与架构定义 基于用户定义的 6 步里程碑制定全面的 12 周研究计划。从自定义模型转向“潜像世界模型” writer（SigLIP + 时间变换器），以满足低延迟和完整帧处理要求。进行详细的案例研究比较文本与视觉提示，明确视觉提示提供确定的空间基础，减少 VLA 的认知负荷。确定即将到来的训练阶段的具体数据可用性限制和 GPU 资源需求。\nQualcomm-Proj (Pi0.5/GR00T) • EGL 精度评估阻塞 调查了 Qualcomm NPU 的 W4A8/W4A4 量化评估状态。确认部署指标已准备就绪，但精度评估因远程服务器缺少 NVIDIA EGL 驱动程序（ICD json）而受阻。确定所需的具体管理操作以解除剩余实验的阻塞并恢复完整评估能力。\n令牌使用 AI Usage · 2026-08-22\rClaude Code + Codex\rTotal cost$124.24\rTotal tokens113M\rOutput tokens856K\rCache read95.4%\rCost split\rClaude Code $121 ·\rCodex $3\rToken character\rCache reads 95.4% ·\rActive 4.6%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "372",
+  "inLanguage": "zh",
+  "datePublished": "2026-08-22T00:00:00-04:00",
+  "dateModified": "2026-08-22T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-22/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-08-22
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-08-22 00:00:00 -0400 EDT'>2026年8月22日</span>&nbsp;·&nbsp;<span>2 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-08-22">每日报告 — 2026-08-22<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-08-22">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>完成工作：</strong> 在 RoboMemory 基准测试中诊断并修复了关键的训练/评估不一致问题（重置尾部伪影），验证了“基于符号”的视觉提示生成方法相较于像素生成方法的优势，解决了数据传输和远程部署的基础设施瓶颈，并制定了开发潜在世界模型生成器的12周战略计划。</li>
+<li><strong>实施方法：</strong> 采用统计分析（McNemar检验）和几何路径检查来识别评估偏差；实现了最小化的 MLP 框架和 GPT-image-2 测试；通过并行 SCP 流优化网络吞吐量；使用自修复脚本管理复杂的远程部署；并整合了用户定义的里程碑和架构约束的研究路线图。</li>
+<li><strong>影响：</strong> 恢复了 Oracle 基线结果的有效性，找到了视觉提示生成的最优低延迟架构（基于特征而非 VLM 微调），通过解决数据和网络问题实现了可行的12周时间表，并确定了 Qualcomm 精度评估的具体基础设施障碍。</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>完成工作：</strong> 没有记录具体的活动。</li>
+<li><strong>实施方法：</strong> 不适用</li>
+<li><strong>影响：</strong> 不适用</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>完成工作：</strong> 执行了核心实验工作流：实现了最小化 MLP 生成器框架，运行了图像生成测试，对评估结果进行了深入的统计和几何分析，开发了并测试了重置尾部的修复方案，管理了42GB数据到远程服务器的传输流程，并完善了12周项目计划。</li>
+<li><strong>实施方法：</strong> 使用本地 Python 环境进行训练和分析脚本，管理后台 SSH/SCP 进程以实现数据同步，进行本地代码编辑和补丁更新，根据用户反馈迭代规划文档，利用网络抓取进行架构研究。</li>
+<li><strong>影响：</strong> 产生了“符号到像素”方法优于其他方法的定量证据，识别并修复了关键评估偏差，通过优化数据管道为 GPU 训练铺平道路，使项目范围与战略目标一致，解决了“Gemini 与 Oracle”性能异常问题。</li>
+</ul>
+<h3 id="lighthouse">lighthouse<a hidden class="anchor" aria-hidden="true" href="#lighthouse">#</a></h3>
+<ul>
+<li><strong>完成工作：</strong> 作为远程计算和数据存储中心（tianhe3）：8x A800 GPU 集群的托管平台，数据传输的目的地，训练 smoke 测试和验证评估的执行环境，以及部署稳定的场所。</li>
+<li><strong>实施方法：</strong> 托管了 H5 提取和预处理流程，执行了修正后的 Oracle 基线评估（<code>s2_wintail_correct_PatternLock</code>），为策略 smoke 测试提供计算资源，并在部署差异后恢复状态。</li>
+<li><strong>影响：</strong> 使得训练循环的验证成为可能，确认了硬件/网络限制对部署策略的影响，提供了进行公平基准比较所需的稳定环境。</li>
+</ul>
+<blockquote>
+<p>对 RoboMemory 视觉提示流程进行了全面审计和优化，识别并修复了关键评估偏差（重置尾部伪影），验证了“符号到像素”生成器架构优于直接像素生成，解决了数据传输瓶颈，并根据用户战略指令最终确定了12周路线图。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>✅ <strong>诊断并修复 Oracle 基线评估偏差</strong> — 分析性地发现了 Gemini VLM 基线在 PatternLock 任务中优于 Oracle 基线（50% vs 60%）的原因。发现评估数据中存在“重置尾部”伪影（额外的返回家乡帧），导致误导性的视觉提示。在 <code>future_path.py</code> 中修复了此问题，添加了自检查工具，并通过解决破坏 <code>eval.py</code> 的分支同步问题稳定了远程部署。</li>
+<li>🔄 <strong>启动验证评估与数据传输优化</strong> — 在 tianhe3（GPU 4）上启动了修正后的 Oracle 基线评估（<code>s2_wintail_correct_PatternLock</code>），同时通过本地下载42GB缺失数据集并通过8路并行 SCP上传来绕过代理限制，将传输时间从约25小时缩短至约3小时。</li>
+<li>✅ <strong>实现并验证最小化 MLP 生成器框架</strong> — 构建了 <code>tiny_writer.py</code>，用于在演示帧上训练小型 MLP 以输出路径多段线，验证了完整的数据输入、训练和评估流程，证明“模型生成符号，代码绘制像素”优于直接像素生成，尽管小数据集导致过拟合，进一步强调了预训练特征的重要性。</li>
+<li>✅ <strong>确定12周战略计划</strong> — 制定了与用户定义的6步里程碑一致的高层次12周计划，从自定义轻量级架构转向“潜在世界模型”生成器（SigLIP + 时间变换器），以满足低延迟和全帧读取要求，并结合了关于 Qwen3-VL 使用和数据可用性的见解。</li>
+<li>✅ <strong>测试图像生成生成器能力</strong> — 评估了 GPT-image-2 对视觉提示的直接像素渲染能力，实现了坐标提取逻辑，发现由于“场景漂移”导致高错误率（35-90px），确认视觉生成模型在精度任务中不如基于代码的栅格化方法。</li>
+</ul>
+<h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
+<ul>
+<li>❌ <strong>Qualcomm NPU 部署审计与 EGL 分辨率尝试</strong> — 对 Qualcomm NPU 精度评估进行了系统级诊断，发现部署指标已就绪，但精度测试因远程服务器缺少 NVIDIA EGL ICD 驱动而受阻。确定了所需的管理员操作以解除限制。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-oracle-基线在-patternlock-任务中的表现不如-gemini-vlm50-vs-60与对真实方法的预期相悖">1. Oracle 基线在 PatternLock 任务中的表现不如 Gemini VLM（50% vs 60%），与对真实方法的预期相悖。<a hidden class="anchor" aria-hidden="true" href="#1-oracle-基线在-patternlock-任务中的表现不如-gemini-vlm50-vs-60与对真实方法的预期相悖">#</a></h4>
+<p><strong>解决方案：</strong> 诊断为训练/评估不匹配：评估数据中包含训练中不存在的最终“返回家乡”帧，导致绘制路径中出现长直线“尾部”。Oracle 策略将其视为噪声。在 <code>future_path.py</code> 中实现了修复方案，在渲染前检测并移除该段。</p>
+<h4 id="2-由于-squid-代理远程服务器tianhe3无法被-huggingface-访问单流-scp-对于42gb数据集来说太慢">2. 由于 Squid 代理，远程服务器（tianhe3）无法被 HuggingFace 访问；单流 SCP 对于42GB数据集来说太慢。<a hidden class="anchor" aria-hidden="true" href="#2-由于-squid-代理远程服务器tianhe3无法被-huggingface-访问单流-scp-对于42gb数据集来说太慢">#</a></h4>
+<p><strong>解决方案：</strong> 制定了替代方案：在本地机器（TzJsDesktop）下载数据集，通过8路并行 SCP上传。这将总吞吐量提高到约4.14MB/s，显著减少了传输时间，解决了关键路径瓶颈。</p>
+<h4 id="3-部署到-tianhe3-导致-evalpy-损坏重复块并因本地-main-与远程-e0-remove-eval-oracle-分支不匹配而回退到-oracle_writerpy解决方案通过备份和来自正确分支的-git-show-恢复正确的文件状态更新-deploy_drawn_memorysh-以检查补丁标记防止重复执行失败调查过期的-pyc-文件以确认运行进程状态">3. 部署到 tianhe3 导致 <code>eval.py</code> 损坏（重复块），并因本地 <code>main</code> 与远程 <code>e0-remove-eval-oracle</code> 分支不匹配而回退到 <code>oracle_writer.py</code>。**解决方案：**通过备份和来自正确分支的 <code>git show</code> 恢复正确的文件状态。更新 <code>deploy_drawn_memory.sh</code> 以检查补丁标记，防止重复执行失败。调查过期的 <code>.pyc</code> 文件以确认运行进程状态。<a hidden class="anchor" aria-hidden="true" href="#3-部署到-tianhe3-导致-evalpy-损坏重复块并因本地-main-与远程-e0-remove-eval-oracle-分支不匹配而回退到-oracle_writerpy解决方案通过备份和来自正确分支的-git-show-恢复正确的文件状态更新-deploy_drawn_memorysh-以检查补丁标记防止重复执行失败调查过期的-pyc-文件以确认运行进程状态">#</a></h4>
+<h4 id="4-writer-定义和架构选择的模糊性vlm-微调与自定义架构">4. ‘writer’ 定义和架构选择的模糊性（VLM 微调与自定义架构）。<a hidden class="anchor" aria-hidden="true" href="#4-writer-定义和架构选择的模糊性vlm-微调与自定义架构">#</a></h4>
+<p>**解决方案：**明确 ‘writer’ 必须输出可栅格化的格式代码。从标准 VLM 微调（有限帧令牌）转向基于特征的“潜像世界模型”（Frozen SigLIP + 时间变换器），以满足低延迟和完整剧集历史约束。</p>
+<h4 id="5-小型-mlp-对训练数据过拟合无法泛化图像生成模型产生几何漂移路径">5. 小型 MLP 对训练数据过拟合，无法泛化；图像生成模型产生几何漂移路径。<a hidden class="anchor" aria-hidden="true" href="#5-小型-mlp-对训练数据过拟合无法泛化图像生成模型产生几何漂移路径">#</a></h4>
+<p>**解决方案：**诊断出小数据集下的“记忆与泛化”问题以及生成模型中的“场景漂移”问题。认为从零开始使用 40 个样本不足，且“符号式”方法（模型输出坐标，代码绘制像素）比“像素生成”在精确操控任务中更稳健、更准确。</p>
+<h2 id="人类与-ai-方法">人类与 AI 方法<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="writer-架构与模型选择策略">Writer 架构与模型选择策略<a hidden class="anchor" aria-hidden="true" href="#writer-架构与模型选择策略">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>要求使用“简单”模型验证流程，然后要求采用高层次的 6 步计划，需要小型模型以低延迟读取所有视频帧。拒绝自定义轻量级架构，倾向于利用现有的预训练组件。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初提出简单的 MLP 用于管道测试，然后提出“潜像世界模型”（Frozen SigLIP + 时间变换器）以满足“读取所有帧”和“低延迟”约束，因令牌限制而拒绝标准 VLM 微调。承认“符号式”输出优于像素生成。</td>
+      </tr>
+  </tbody>
+</table>
+<p>**差异分析：**人类的严格延迟和数据效率要求迫使 AI 从标准 VLM 范式转向高效利用令牌的基于特征的架构，符合用户关于可扩展性和精确性的战略目标。</p>
+<h4 id="性能差距的根本原因分析">性能差距的根本原因分析<a hidden class="anchor" aria-hidden="true" href="#性能差距的根本原因分析">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>质疑 Gemini VLM 基线为何优于 Oracle 基线，怀疑是评估设置问题而非模型能力问题。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初将差距归因于模型限制，然后进行深入的几何和统计分析以识别“重置尾部”数据伪影。实施修复并管理复杂的部署以验证修正效果。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> AI 的初始假设被用户的直觉纠正，导致成功的调试过程，提高了基准测试的完整性，并展示了严格数据管道审计的价值。</p>
+<h2 id="ai-限制">AI 限制<a hidden class="anchor" aria-hidden="true" href="#ai-限制">#</a></h2>
+<h3 id="关键限制">关键限制<a hidden class="anchor" aria-hidden="true" href="#关键限制">#</a></h3>
+<ul>
+<li>最初将 Oracle 与 Gemini 性能差距归因于模型能力，忽视了数据预处理/训练评估不一致问题，直到进行更深入的几何分析。</li>
+<li>在部署前未能注意到本地和远程环境之间的分支差异，导致远程状态损坏，需要手动修复评估基础设施。</li>
+</ul>
+<h3 id="一般限制">一般限制<a hidden class="anchor" aria-hidden="true" href="#一般限制">#</a></h3>
+<ul>
+<li>最初提出自定义轻量级架构，无法满足用户的延迟约束；遇到 Windows 特定shell脚本问题（heredocs、curl 标志），不得不回退到 Python 脚本进行 API 调用和文件操作。</li>
+</ul>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="关键经验">关键经验<a hidden class="anchor" aria-hidden="true" href="#关键经验">#</a></h3>
+<ul>
+<li>“模型输出符号，代码绘制像素”方法比“模型直接生成像素”在视觉提示的操控任务中更稳健、更准确，因为它避免场景漂移和幻觉错误。</li>
+<li>在机器人 VLM 评估中，“Oracle”基线仅取决于数据管道；演示数据与评估数据处理的细微差异（如重置帧尾随）可能造成重大偏差和误导结果。</li>
+<li>对于低延迟 VLA 内存任务，基于特征的架构（冻结视觉编码器 + 小型时间变换器）比微调大型 VLMs 更合适，因为它能在小参数预算下处理完整剧集历史同时保持速度。</li>
+<li>数据传输是关键路径瓶颈；并行化网络流（例如 8 路 SCP）对于受限或带宽有限的设置下的大规模数据集管理至关重要，可提供数量级的加速。</li>
+<li>在部署补丁前始终验证本地和远程环境之间的分支同步，尤其是在使用 <code>patch -N</code> 时，它可能会悄悄重新应用编辑片段或导致状态损坏。</li>
+<li>几何分析（倒角距离、段长度分布）是诊断视觉提示失败的强大工具，证明“如何”绘制与“什么”绘制同样重要。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<h3 id="robomemory">RoboMemory<a hidden class="anchor" aria-hidden="true" href="#robomemory">#</a></h3>
+<p><strong>• 视觉提示管道验证与 Oracle 偏差修复</strong>
+通过实现最小 MLP writer 并与图像生成模型对比，验证了端到端的视觉提示工作流程，得出结论“符号式”渲染更优。诊断并修复了对 Oracle 基线不公平的关键“重置尾部”评估偏差，稳定了远程部署基础设施，并启动了修正验证运行。此会议还涉及解决数据传输瓶颈和调查停滞的评估，以确保基准测试结果的完整性。</p>
+<p><strong>• 战略 12 周计划与架构定义</strong>
+基于用户定义的 6 步里程碑制定全面的 12 周研究计划。从自定义模型转向“潜像世界模型” writer（SigLIP + 时间变换器），以满足低延迟和完整帧处理要求。进行详细的案例研究比较文本与视觉提示，明确视觉提示提供确定的空间基础，减少 VLA 的认知负荷。确定即将到来的训练阶段的具体数据可用性限制和 GPU 资源需求。</p>
+<h3 id="qualcomm-proj-pi05gr00t">Qualcomm-Proj (Pi0.5/GR00T)<a hidden class="anchor" aria-hidden="true" href="#qualcomm-proj-pi05gr00t">#</a></h3>
+<p><strong>• EGL 精度评估阻塞</strong>
+调查了 Qualcomm NPU 的 W4A8/W4A4 量化评估状态。确认部署指标已准备就绪，但精度评估因远程服务器缺少 NVIDIA EGL 驱动程序（ICD json）而受阻。确定所需的具体管理操作以解除剩余实验的阻塞并恢复完整评估能力。</p>
+<h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-08-22</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$124.24</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>113M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>856K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>95.4%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $121</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $3</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (97.3%), Codex (2.7%)">
+          <span style="width:97.3%; background:var(--usage-cost-main)"></span>
+          <span style="width:2.7%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 95.4%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 4.6%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (95.4%), active tokens (4.6%)">
+          <span style="width:95.4%; background:var(--usage-cache)"></span>
+          <span style="width:4.6%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:d1ef546e2af540ac -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
