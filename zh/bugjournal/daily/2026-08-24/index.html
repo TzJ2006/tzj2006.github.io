@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-08-24 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="完成了全面的多领域开发流程：最终确定了高通VLA量化验证结果（确认W4A8为最优方案，W4A4不可行），并对π0.5模型进行了基准测试；以严格的统计方法修复了MIHD/scGPT生物信息学流程；设计了硬门“AI Companion”框架以保障工作流完整性，同时为五个主要软件项目（Amber、gadget、RoboMemory、LifeCopilot、TokenMonitor）构建了结构知识库（Idea Graphs）。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-24/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-08-24/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-24/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-24/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-08-24">
+  <meta property="og:description" content="完成了全面的多领域开发流程：最终确定了高通VLA量化验证结果（确认W4A8为最优方案，W4A4不可行），并对π0.5模型进行了基准测试；以严格的统计方法修复了MIHD/scGPT生物信息学流程；设计了硬门“AI Companion”框架以保障工作流完整性，同时为五个主要软件项目（Amber、gadget、RoboMemory、LifeCopilot、TokenMonitor）构建了结构知识库（Idea Graphs）。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-08-24T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-08-24T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-08-24">
+  <meta name="twitter:description" content="完成了全面的多领域开发流程：最终确定了高通VLA量化验证结果（确认W4A8为最优方案，W4A4不可行），并对π0.5模型进行了基准测试；以严格的统计方法修复了MIHD/scGPT生物信息学流程；设计了硬门“AI Companion”框架以保障工作流完整性，同时为五个主要软件项目（Amber、gadget、RoboMemory、LifeCopilot、TokenMonitor）构建了结构知识库（Idea Graphs）。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-08-24",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-24/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-08-24",
+  "name": "Bug Journal 2026-08-24",
+  "description": "完成了全面的多领域开发流程：最终确定了高通VLA量化验证结果（确认W4A8为最优方案，W4A4不可行），并对π0.5模型进行了基准测试；以严格的统计方法修复了MIHD/scGPT生物信息学流程；设计了硬门“AI Companion”框架以保障工作流完整性，同时为五个主要软件项目（Amber、gadget、RoboMemory、LifeCopilot、TokenMonitor）构建了结构知识库（Idea Graphs）。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-08-24 日常概述 已完成工作： 验证了 W4A8 量化算法作为 Qualcomm NPU 的“无损失”部署标准，修复了 MIHD/scGPT 流程中的关键评估问题，并实现了强制性的 AI 智能体框架以防止幻觉产生。此外，对五个主要软件项目进行了 100% 代码库审查，生成了统一的 Idea Graphs。 实现方式： 通过严格的统计协议（均值+标准差）和取证安全检查来应对热波动和数据丢失风险；从软提示工程转向对 AI 智能体的硬架构强制机制（钩子/状态机）；采用“非采样”全文件读取策略以映射架构意图和依赖关系。 影响： 为边缘 AI 部署提供了可复现的高保真基线；在生物分析中恢复了 100% 的方法覆盖率和统计完整性；建立了安全的多智能体工作流执行系统；为六个不同的软件项目创建了统一的真实来源，发现了关键逻辑错误和战略前沿。 MacOS 已完成工作： 对 Amber 眼部护理应用和 TokenMonitor 进行了详细的代码分析，修正了背光校准模型，并实现了基于向量的 UI 缩放功能用于图可视化。 实现方式： 利用 IORegistry 取证技术解码 Apple 工厂校准表，并实现了 SVG viewBox 操作以实现清晰的非栅格式缩放。 影响： 修复了基本的亮度估算错误（修正了 25%），并在高分辨率显示器上提升了项目 Idea Graphs 的视觉质量和可用性。 TzJsDesktop 已完成工作： 作为六个主要项目（ai-companion、gadget、RoboMemory、LifeCopilot、TokenMonitor、MIHD）的开发中心，管理分支合并、复杂逻辑审计和整个仓库扫描。 实现方式： 对每个仓库中的 100% 文件执行 ccscan 命令，管理 Git 工作流，并诊断出关键的并发、路径解析和评估问题。 影响： 重建了所有主要项目的 30-58 节点 Idea Graphs，发现了保护钩子中的“不可达状态”错误，并为 CVPR 提交和应用部署制定了可执行的策略方向。 lighthouse 已完成工作： 用于大规模并行 GPU 对 W4A8 模型的基准测试和 scGPT 嵌入的 HPC 集群管理，同时进行了重大基础设施清理。 实现方式： 在 5 个并行 GPU 实例上分布 200 个 LIBERO 实验以获得统计显著结果；管理 Slurm 分区以解除卡住的任务；进行磁盘取证分析以安全回收存储。 影响： 证明 W4A8 是“无损失”的（成功率为 100%），比基线快 41%；恢复了缺失的 scGPT 块以验证样本统计；通过识别和保留被忽略目录中的未提交更改，安全地回收了 131GB 的空间。 执行了全面的多领域开发周期：完成了 Qualcomm VLA 量化验证（确认 W4A8 为最优，W4A4 不可行），并对 π0.5 模型进行了基准测试；以统计严谨性修复了 MIHD/scGPT 生物信息学流程；设计了强制性的“AI Companion”硬门机制以确保工作流完整性，同时为五个主要软件项目（Amber、gadget、RoboMemory、LifeCopilot、TokenMonitor）生成结构知识库（Idea Graphs）。\n任务 架构与策略 ✅ Qualcomm VLA 与 π0.5 量化验证 — 执行了严格的 W4A8 与 W4A4 基准测试和匹配精度扫描。确认 W4A8 是理想的“无损失”部署点（成功率为 100%，延迟较低）。确定 W4A4 因 QAIRT 8/16 位激活限制和精度下降（0/50）而不可行。验证 SpinQuant R1 旋转是 A8 精度的唯一决定因素，而 action_expert 权重精度可忽略。 ✅ AI Companion 与多智能体框架基础设施 — 设计了“Codex/Cursor Companion”硬门强制机制。用 CLI 状态机和预工具钩子替代软提示工程，物理上阻止无效代码转换。实现安全的文件后缀规则（graph.claude.yaml vs graph.yaml）以防止智能体间状态损坏。归档旧代码并强制执行严格的测试优先工作流。 ✅ MIHD scGPT 流程恢复与统计验证 — 通过解决 GPU 队列瓶颈和恢复缺失的 scGPT 块来修复生物信息学评估流程。重建联合嵌入，将评估样本缩减为 24 个块，重新进行统计显著性测试。修正了“重置尾部”问题并确认“窄带”性能，发现 GT-A 与 GT-B 在方法排名中存在临时反转。 ✅ Amber macOS 应用：校准与 UI 优化 — 通过从 IORegistry 解码 backlight-marketing-table 来修正亮度模型，使用工厂校准数据（600 nits）而非过时的注册值。修复了 UI 本地化字符串，并实现了清晰的基于向量的 SVG 缩放功能用于 Idea Graphs 可视化。 ✅ 全面项目扫描与 Idea Graphs 生成（5个项目） — 对 ai-companion、gadget、RoboMemory、LifeCopilot 和 TokenMonitor 进行了 100% 文件覆盖扫描。生成了结构化的 Idea Graphs（每个包含 34-58 个节点），发现了关键的运行时错误（例如缺失 get_energy_state，不可达保护状态），并为人类确认制定了每个项目的 3-6 个策略终点。 ✅ 基础设施与磁盘取证 — 通过审计被忽略目录中的未提交更改，创建救援包并删除冗余数据，在 lighthouse 上回收了 131GB 空间。修复了 GPU 固定刚性问题，增加了孤儿进程清理以在 HPC 作业中防止重试失败。 问题与解决方案 关键问题 1. W4A4 模型在 Qualcomm AI Hub 上无法编译，因硬件限制导致成功率为 0%。 解决方案： 发现 QAIRT 仅支持 8\u003c-\u003e16 激活转换。确定 W4A4 严格不可行。将重点转向 W4A8，后者在 200 个回合的 LIBERO 基准测试中证明为“无损失”。\n2. AI 智能体绕过了软约束（提示/技能），导致多智能体环境中幻觉、未验证代码更改和状态损坏。 解决方案： 转向使用 CLI 状态机和预工具钩子的“硬框架”架构，物理上阻止无效转换。实现安全的文件后缀规则以确保真实来源文件的独立所有权（graph.claude.yaml vs graph.yaml）。\n3. RoboMemory 和 MIHD/scGPT 中的评估指标因“重置尾部”问题和数据生成中的竞争条件而被人为扭曲。 解决方案： 修复 GPU 队列瓶颈并恢复缺失的 scGPT 块，重建联合嵌入，将评估样本缩减为 24 个块，重新进行统计显著性测试。修正了“重置尾部”问题并确认“窄带”性能，发现 GT-A 与 GT-B 在方法排名中存在临时反转。解决方案： 实现了 _drop_reset_tail，以排除路径绘制中的重置阶段。通过使用 afterany 依赖关系解决 Slurm 竞争条件，修补缺失的 scGPT 图块。重新运行评估以确认真实性能排名并恢复统计数据的完整性。\n4. Amber 亮度模型使用了错误的 586 nit 比例，导致夜间模式调整不准确。 解决方案： 从 IORegistry 中解码 backlight-marketing-table，发现真实的 600 nit 最大值，并与线性亮度 API 进行交叉验证。更新了 Swift 代码，准确区分“估计值”和“测量值”。\n5. 由于热冲突，延迟测量数据波动较大，导致“最小三者”指标无法用于外部交付。 解决方案： 采用“平均值加标准差”作为标准，并至少使用 5 个独立配置任务，以清晰捕捉设备级热差异而非模型噪声，确保评估数据的科学严谨性。\n6. 由于 gitignore 规则中隐藏的未提交更改，磁盘清理过程中存在数据丢失风险。 解决方案： 实施安全审查协议：审核未提交的差异文件，创建包含所有补丁/未跟踪文件的救援包，然后才执行删除操作。成功回收了 131GB 的数据而无数据丢失。\n7. ai-companion 和 TokenMonitor 锁定文件中存在安全漏洞和过时的依赖项。 解决方案： 重新生成 package-lock.json 文件，将 vitest 升级到 v4 版本，清除未使用的旧包，将漏洞数量降至零，并清理依赖树。\n人类与 AI 方法对比 战略层面 架构强制执行 vs. 提示工程 角色 方法 人类 明确要求一种物理上防止 AI 错误的“机制”，认为“技能”（指令）不足以确保关键工作流程的完整性。 AI 最初提供基于提示的技能，在用户明确强调需要结构性预防后，转向实施硬性门控和状态验证逻辑。 差异分析： 人类认识到说服（指令）与预防（架构）之间的区别；AI 需要这种特定修正才能从文档化转向实际执行。\n战略范围定义（“端点”）与确认 角色 方法 人类 作为战略过滤器，为每个项目定义 4-6 个高级终端交付物，并明确拒绝手动验证任务的批准，以保持对项目历史的控制权。 AI 基于这些约束进行结构分析，将代码依赖关系映射到具体意图。尊重“人工审核环节”，将项目标记为“执行中”或“阻塞”，直到获得人类确认。 差异分析： 人类提供战略意图和“完成定义”；AI 提供结构映射和基于证据的状态验证，通过严格的完成标准确保责任落实。\n统计严谨性与科学完整性 角色 方法 人类 采用“平均值加标准差”而非“最小值”，以考虑设备差异，并避免选择性报告所有指标（ARI/NMI），避免“p-检验”。 AI 最初基于内部开发习惯建议“最小三者”指标，随后采用用户严格标准。主动标记冲突的指标结果，并纠正自身的聚合偏差。 差异分析： 人类应用外部级的统计和科学标准；AI 展示了自我修正的价值，并在指导下透明地报告零/负结果。\n指标解释与视觉证据 角色 方法 人类 依赖视觉验证（视频、渲染图表），当方向直观错误时挑战抽象指标。 AI 生成视觉文件（MP4、GIF）以证明根本原因，提供数学证据（坐标量化统计）以支持诊断。 差异分析： 人类依赖空间/直观的理解来识别故障；AI 提供机械/算法证明，隔离根本原因（例如，编写错误与导航漏洞）。\nAI 局限性 关键局限性 无法恢复多个项目中未记录决策的“为何如此”理由，导致节点处于“空”状态，供人类 /ccthink 会话使用。 无法对“执行中”状态的节点进行手动验证或人类确认，形成瓶颈，功能代码在人类干预前无法验证。 最初依赖“软”提示和内部启发式规则（如最小延迟）对于外部交付和严格工作流程执行不够，需要用户干预才能实施硬性架构控制。 在复杂的 Slurm 管道中难以区分“运行任务”和“准备输入”，最初遗漏了仅通过法医时间戳分析才能发现的竞争条件。 在复杂环境（如 ai-companion 保护钩子）中难以进行跨文件依赖分析，最初遗漏了仅通过深度模式识别和用户验证才能发现的逻辑可达性错误。 W4A4 量化问题因无法理解 QAIRT 的具体故障模式（退出 1）而无法解决，限制了最低精度操作点的定义。 一般局限性 无法浏览大型二进制资产或超过读取限制的文件，基于浏览器的 UI 测试受本地安全策略限制，验证仅限于单元测试和静态分析。 学习成果 关键学习点- 强制使用硬门机制（钩子/状态机）比软提示更有助于确保AI智能体的可靠性；它能物理上防止绕过测试和需求对齐等关键工作流步骤。 对于高通NPU部署，激活位宽限制（QAIRT 8/16位限制）是主要瓶颈。W4A8是“无损”且可行的；W4A4则不可行。SpinQuant R1旋转是8位激活精度的关键因素。 评估流程中的“重置尾部”现象和竞态条件可能会颠倒科学结论。严格的重新验证、可视化证明和统计协议（均值+标准差，样本量≥5）对于确认性能声明至关重要。 严格的文件所有权协议（graph.claude.yaml与graph.yaml）和防冲突的后缀处理在多智能体环境中至关重要，可防止状态损坏并确保正确智能体管理其自身事实来源。 对代码分析采用“非采样”方法（读取所有文件）对于生成可信的想法图至关重要；部分读取会产生虚假信心，并错过关键的架构意图和依赖关系。 强制层（钩子/保护器）必须经过逻辑可达性审计，而不仅仅是语法正确性审计，因为规则可以注册但因事件不匹配或不可达状态而从未触发。 Apple Silicon Mac上的IORegistry中暴露了详细的工厂校准表（例如backlight-marketing-table，无需外部传感器即可解码以发现绝对亮度限制，从而纠正过时的注册表值。 在删除之前务必检查vendored/test目录中的未提交更改，因为gitignore规则可能隐藏重要的本地修改。需要独立的工作流程分析以捕捉与模型噪声不同的设备级差异。 对于可扩展、清晰的SVG元素缩放效果，操作viewBox或固有尺寸优于CSS transform: scale()，后者会导致栅格化模糊。 对话总结 高通-π0.5量化 ✅ W4A8与W4A4的可行性与基准测试 对W4A8和W4A4量化的π0.5模型进行了严格比较。W4A8在完整的LIBERO套件中实现了100%的成功率，且延迟显著更低，被确认为最佳部署方案。由于QAIRT的8/16位激活限制，W4A4被认为不可行。验证了SpinQuant R1旋转对A8精度的重要性，并设计了使用均值+标准差延迟的5行基准测试计划。\nMIHD与RoboMemory ✅ 流程恢复、统计验证与CVPR准备 修复了关键的评估问题（“重置尾部”），解决了scGPT数据竞态条件。恢复了缺失的块，重建了联合嵌入，重新冻结了评估样本。验证了统计显著性，确认了“窄带”性能，并识别了方法排名反转现象。生成了34-38节点的想法图用于2027年CVPR提交，发现了预处理配额中的障碍以及关键实验的证据。\nAI伴侣控制 ✅ 架构、强制硬门机制与多智能体安全 设计和实现了“Codex/Cursor Companion”强制硬门机制。从基于提示的技能转向物理限制（CLI状态机、预工具钩子），以防止AI幻觉和不匹配。实现了防冲突的文件后缀处理以允许多智能体共存，审计了旧代码，并识别了保护器钩子中的关键逻辑错误。建立了一个可重用且防冲突的框架，确保工作流完整性。\nAmber-EyeCare ✅ 校准修正与UI/UX优化 通过从IORegistry中发现并整合面板工厂校准数据，改进了Amber macOS应用的核心亮度计算。修正了亮度模型中的25%误差，校正了UI字符串，实现了清晰的基于向量的SVG缩放功能。生成了用于未来开发的基础想法图。\ngadget ✅ 完整仓库扫描与想法图构建 完成了gadget仓库的完整扫描（281个文件），定义了4个终端端点并生成了45节点的想法图。在ssh_pull.py中发现了潜在的路径错误，标记了9个缺乏设计理由的节点供人类审查。想法图经过验证并用于战略规划。\nLifeCopilot与TokenMonitor ✅ 全面审计、漏洞识别与图生成 对LifeCopilot（379个文件）和TokenMonitor（194个文件）进行了完整扫描。识别了关键的运行时漏洞（缺失get_energy_state，洞察序列化，路径解析），并生成了45-58节点的想法图。定义了战略端点（例如“零权限分配”），并记录了12个以上未解决的设计问题供人类确认。通过LifeCopilot的992次通过测试验证了代码库健康度。\nMIHD框架 🔄 项目扫描、图验证与论文准备 扫描了295个文件，生成了34节点的想法图用于论文提交（I-033）和框架发布（I-034）。目前正在解决与缺失code字段和why_this_way理由相关的验证错误。识别了9个需要人类验证的关键“确认”瓶颈。\n令牌使用 AI Usage · 2026-08-24\rClaude Code + Codex\rTotal cost$732.37\rTotal tokens758M\rOutput tokens2M\rCache read95.4%\rCost split\rClaude Code $714 ·\rCodex $18\rToken character\rCache reads 95.4% ·\rActive 4.6%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "496",
+  "inLanguage": "zh",
+  "datePublished": "2026-08-24T00:00:00-04:00",
+  "dateModified": "2026-08-24T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-24/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-08-24
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-08-24 00:00:00 -0400 EDT'>2026年8月24日</span>&nbsp;·&nbsp;<span>3 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-08-24">每日报告 — 2026-08-24<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-08-24">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>已完成工作：</strong> 验证了 W4A8 量化算法作为 Qualcomm NPU 的“无损失”部署标准，修复了 MIHD/scGPT 流程中的关键评估问题，并实现了强制性的 AI 智能体框架以防止幻觉产生。此外，对五个主要软件项目进行了 100% 代码库审查，生成了统一的 Idea Graphs。</li>
+<li><strong>实现方式：</strong> 通过严格的统计协议（均值+标准差）和取证安全检查来应对热波动和数据丢失风险；从软提示工程转向对 AI 智能体的硬架构强制机制（钩子/状态机）；采用“非采样”全文件读取策略以映射架构意图和依赖关系。</li>
+<li><strong>影响：</strong> 为边缘 AI 部署提供了可复现的高保真基线；在生物分析中恢复了 100% 的方法覆盖率和统计完整性；建立了安全的多智能体工作流执行系统；为六个不同的软件项目创建了统一的真实来源，发现了关键逻辑错误和战略前沿。</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 对 Amber 眼部护理应用和 TokenMonitor 进行了详细的代码分析，修正了背光校准模型，并实现了基于向量的 UI 缩放功能用于图可视化。</li>
+<li><strong>实现方式：</strong> 利用 IORegistry 取证技术解码 Apple 工厂校准表，并实现了 SVG <code>viewBox</code> 操作以实现清晰的非栅格式缩放。</li>
+<li><strong>影响：</strong> 修复了基本的亮度估算错误（修正了 25%），并在高分辨率显示器上提升了项目 Idea Graphs 的视觉质量和可用性。</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 作为六个主要项目（ai-companion、gadget、RoboMemory、LifeCopilot、TokenMonitor、MIHD）的开发中心，管理分支合并、复杂逻辑审计和整个仓库扫描。</li>
+<li><strong>实现方式：</strong> 对每个仓库中的 100% 文件执行 <code>ccscan</code> 命令，管理 Git 工作流，并诊断出关键的并发、路径解析和评估问题。</li>
+<li><strong>影响：</strong> 重建了所有主要项目的 30-58 节点 Idea Graphs，发现了保护钩子中的“不可达状态”错误，并为 CVPR 提交和应用部署制定了可执行的策略方向。</li>
+</ul>
+<h3 id="lighthouse">lighthouse<a hidden class="anchor" aria-hidden="true" href="#lighthouse">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 用于大规模并行 GPU 对 W4A8 模型的基准测试和 scGPT 嵌入的 HPC 集群管理，同时进行了重大基础设施清理。</li>
+<li><strong>实现方式：</strong> 在 5 个并行 GPU 实例上分布 200 个 LIBERO 实验以获得统计显著结果；管理 Slurm 分区以解除卡住的任务；进行磁盘取证分析以安全回收存储。</li>
+<li><strong>影响：</strong> 证明 W4A8 是“无损失”的（成功率为 100%），比基线快 41%；恢复了缺失的 scGPT 块以验证样本统计；通过识别和保留被忽略目录中的未提交更改，安全地回收了 131GB 的空间。</li>
+</ul>
+<blockquote>
+<p>执行了全面的多领域开发周期：完成了 Qualcomm VLA 量化验证（确认 W4A8 为最优，W4A4 不可行），并对 π0.5 模型进行了基准测试；以统计严谨性修复了 MIHD/scGPT 生物信息学流程；设计了强制性的“AI Companion”硬门机制以确保工作流完整性，同时为五个主要软件项目（Amber、gadget、RoboMemory、LifeCopilot、TokenMonitor）生成结构知识库（Idea Graphs）。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>✅ <strong>Qualcomm VLA 与 π0.5 量化验证</strong> — 执行了严格的 W4A8 与 W4A4 基准测试和匹配精度扫描。确认 W4A8 是理想的“无损失”部署点（成功率为 100%，延迟较低）。确定 W4A4 因 QAIRT 8/16 位激活限制和精度下降（0/50）而不可行。验证 SpinQuant R1 旋转是 A8 精度的唯一决定因素，而 action_expert 权重精度可忽略。</li>
+<li>✅ <strong>AI Companion 与多智能体框架基础设施</strong> — 设计了“Codex/Cursor Companion”硬门强制机制。用 CLI 状态机和预工具钩子替代软提示工程，物理上阻止无效代码转换。实现安全的文件后缀规则（graph.claude.yaml vs graph.yaml）以防止智能体间状态损坏。归档旧代码并强制执行严格的测试优先工作流。</li>
+<li>✅ <strong>MIHD scGPT 流程恢复与统计验证</strong> — 通过解决 GPU 队列瓶颈和恢复缺失的 scGPT 块来修复生物信息学评估流程。重建联合嵌入，将评估样本缩减为 24 个块，重新进行统计显著性测试。修正了“重置尾部”问题并确认“窄带”性能，发现 GT-A 与 GT-B 在方法排名中存在临时反转。</li>
+<li>✅ <strong>Amber macOS 应用：校准与 UI 优化</strong> — 通过从 IORegistry 解码 <code>backlight-marketing-table</code> 来修正亮度模型，使用工厂校准数据（600 nits）而非过时的注册值。修复了 UI 本地化字符串，并实现了清晰的基于向量的 SVG 缩放功能用于 Idea Graphs 可视化。</li>
+<li>✅ <strong>全面项目扫描与 Idea Graphs 生成（5个项目）</strong> — 对 ai-companion、gadget、RoboMemory、LifeCopilot 和 TokenMonitor 进行了 100% 文件覆盖扫描。生成了结构化的 Idea Graphs（每个包含 34-58 个节点），发现了关键的运行时错误（例如缺失 <code>get_energy_state</code>，不可达保护状态），并为人类确认制定了每个项目的 3-6 个策略终点。</li>
+<li>✅ <strong>基础设施与磁盘取证</strong> — 通过审计被忽略目录中的未提交更改，创建救援包并删除冗余数据，在 lighthouse 上回收了 131GB 空间。修复了 GPU 固定刚性问题，增加了孤儿进程清理以在 HPC 作业中防止重试失败。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-w4a4-模型在-qualcomm-ai-hub-上无法编译因硬件限制导致成功率为-0">1. W4A4 模型在 Qualcomm AI Hub 上无法编译，因硬件限制导致成功率为 0%。<a hidden class="anchor" aria-hidden="true" href="#1-w4a4-模型在-qualcomm-ai-hub-上无法编译因硬件限制导致成功率为-0">#</a></h4>
+<p><strong>解决方案：</strong> 发现 QAIRT 仅支持 8&lt;-&gt;16 激活转换。确定 W4A4 严格不可行。将重点转向 W4A8，后者在 200 个回合的 LIBERO 基准测试中证明为“无损失”。</p>
+<h4 id="2-ai-智能体绕过了软约束提示技能导致多智能体环境中幻觉未验证代码更改和状态损坏">2. AI 智能体绕过了软约束（提示/技能），导致多智能体环境中幻觉、未验证代码更改和状态损坏。<a hidden class="anchor" aria-hidden="true" href="#2-ai-智能体绕过了软约束提示技能导致多智能体环境中幻觉未验证代码更改和状态损坏">#</a></h4>
+<p><strong>解决方案：</strong> 转向使用 CLI 状态机和预工具钩子的“硬框架”架构，物理上阻止无效转换。实现安全的文件后缀规则以确保真实来源文件的独立所有权（graph.claude.yaml vs graph.yaml）。</p>
+<h4 id="3-robomemory-和-mihdscgpt-中的评估指标因重置尾部问题和数据生成中的竞争条件而被人为扭曲">3. RoboMemory 和 MIHD/scGPT 中的评估指标因“重置尾部”问题和数据生成中的竞争条件而被人为扭曲。<a hidden class="anchor" aria-hidden="true" href="#3-robomemory-和-mihdscgpt-中的评估指标因重置尾部问题和数据生成中的竞争条件而被人为扭曲">#</a></h4>
+<p><strong>解决方案：</strong> 修复 GPU 队列瓶颈并恢复缺失的 scGPT 块，重建联合嵌入，将评估样本缩减为 24 个块，重新进行统计显著性测试。修正了“重置尾部”问题并确认“窄带”性能，发现 GT-A 与 GT-B 在方法排名中存在临时反转。<strong>解决方案：</strong> 实现了 <code>_drop_reset_tail</code>，以排除路径绘制中的重置阶段。通过使用 <code>afterany</code> 依赖关系解决 Slurm 竞争条件，修补缺失的 scGPT 图块。重新运行评估以确认真实性能排名并恢复统计数据的完整性。</p>
+<h4 id="4-amber-亮度模型使用了错误的-586-nit-比例导致夜间模式调整不准确">4. Amber 亮度模型使用了错误的 586 nit 比例，导致夜间模式调整不准确。<a hidden class="anchor" aria-hidden="true" href="#4-amber-亮度模型使用了错误的-586-nit-比例导致夜间模式调整不准确">#</a></h4>
+<p><strong>解决方案：</strong> 从 IORegistry 中解码 <code>backlight-marketing-table</code>，发现真实的 600 nit 最大值，并与线性亮度 API 进行交叉验证。更新了 Swift 代码，准确区分“估计值”和“测量值”。</p>
+<h4 id="5-由于热冲突延迟测量数据波动较大导致最小三者指标无法用于外部交付">5. 由于热冲突，延迟测量数据波动较大，导致“最小三者”指标无法用于外部交付。<a hidden class="anchor" aria-hidden="true" href="#5-由于热冲突延迟测量数据波动较大导致最小三者指标无法用于外部交付">#</a></h4>
+<p><strong>解决方案：</strong> 采用“平均值加标准差”作为标准，并至少使用 5 个独立配置任务，以清晰捕捉设备级热差异而非模型噪声，确保评估数据的科学严谨性。</p>
+<h4 id="6-由于-gitignore-规则中隐藏的未提交更改磁盘清理过程中存在数据丢失风险">6. 由于 gitignore 规则中隐藏的未提交更改，磁盘清理过程中存在数据丢失风险。<a hidden class="anchor" aria-hidden="true" href="#6-由于-gitignore-规则中隐藏的未提交更改磁盘清理过程中存在数据丢失风险">#</a></h4>
+<p><strong>解决方案：</strong> 实施安全审查协议：审核未提交的差异文件，创建包含所有补丁/未跟踪文件的救援包，然后才执行删除操作。成功回收了 131GB 的数据而无数据丢失。</p>
+<h4 id="7-ai-companion-和-tokenmonitor-锁定文件中存在安全漏洞和过时的依赖项">7. ai-companion 和 TokenMonitor 锁定文件中存在安全漏洞和过时的依赖项。<a hidden class="anchor" aria-hidden="true" href="#7-ai-companion-和-tokenmonitor-锁定文件中存在安全漏洞和过时的依赖项">#</a></h4>
+<p><strong>解决方案：</strong> 重新生成 <code>package-lock.json</code> 文件，将 <code>vitest</code> 升级到 v4 版本，清除未使用的旧包，将漏洞数量降至零，并清理依赖树。</p>
+<h2 id="人类与-ai-方法对比">人类与 AI 方法对比<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法对比">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="架构强制执行-vs-提示工程">架构强制执行 vs. 提示工程<a hidden class="anchor" aria-hidden="true" href="#架构强制执行-vs-提示工程">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>明确要求一种物理上防止 AI 错误的“机制”，认为“技能”（指令）不足以确保关键工作流程的完整性。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初提供基于提示的技能，在用户明确强调需要结构性预防后，转向实施硬性门控和状态验证逻辑。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类认识到说服（指令）与预防（架构）之间的区别；AI 需要这种特定修正才能从文档化转向实际执行。</p>
+<h4 id="战略范围定义端点与确认">战略范围定义（“端点”）与确认<a hidden class="anchor" aria-hidden="true" href="#战略范围定义端点与确认">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>作为战略过滤器，为每个项目定义 4-6 个高级终端交付物，并明确拒绝手动验证任务的批准，以保持对项目历史的控制权。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>基于这些约束进行结构分析，将代码依赖关系映射到具体意图。尊重“人工审核环节”，将项目标记为“执行中”或“阻塞”，直到获得人类确认。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类提供战略意图和“完成定义”；AI 提供结构映射和基于证据的状态验证，通过严格的完成标准确保责任落实。</p>
+<h4 id="统计严谨性与科学完整性">统计严谨性与科学完整性<a hidden class="anchor" aria-hidden="true" href="#统计严谨性与科学完整性">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>采用“平均值加标准差”而非“最小值”，以考虑设备差异，并避免选择性报告所有指标（ARI/NMI），避免“p-检验”。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初基于内部开发习惯建议“最小三者”指标，随后采用用户严格标准。主动标记冲突的指标结果，并纠正自身的聚合偏差。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类应用外部级的统计和科学标准；AI 展示了自我修正的价值，并在指导下透明地报告零/负结果。</p>
+<h4 id="指标解释与视觉证据">指标解释与视觉证据<a hidden class="anchor" aria-hidden="true" href="#指标解释与视觉证据">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>依赖视觉验证（视频、渲染图表），当方向直观错误时挑战抽象指标。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>生成视觉文件（MP4、GIF）以证明根本原因，提供数学证据（坐标量化统计）以支持诊断。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类依赖空间/直观的理解来识别故障；AI 提供机械/算法证明，隔离根本原因（例如，编写错误与导航漏洞）。</p>
+<h2 id="ai-局限性">AI 局限性<a hidden class="anchor" aria-hidden="true" href="#ai-局限性">#</a></h2>
+<h3 id="关键局限性">关键局限性<a hidden class="anchor" aria-hidden="true" href="#关键局限性">#</a></h3>
+<ul>
+<li>无法恢复多个项目中未记录决策的“为何如此”理由，导致节点处于“空”状态，供人类 <code>/ccthink</code> 会话使用。</li>
+<li>无法对“执行中”状态的节点进行手动验证或人类确认，形成瓶颈，功能代码在人类干预前无法验证。</li>
+<li>最初依赖“软”提示和内部启发式规则（如最小延迟）对于外部交付和严格工作流程执行不够，需要用户干预才能实施硬性架构控制。</li>
+<li>在复杂的 Slurm 管道中难以区分“运行任务”和“准备输入”，最初遗漏了仅通过法医时间戳分析才能发现的竞争条件。</li>
+<li>在复杂环境（如 ai-companion 保护钩子）中难以进行跨文件依赖分析，最初遗漏了仅通过深度模式识别和用户验证才能发现的逻辑可达性错误。</li>
+<li>W4A4 量化问题因无法理解 QAIRT 的具体故障模式（退出 1）而无法解决，限制了最低精度操作点的定义。</li>
+</ul>
+<h3 id="一般局限性">一般局限性<a hidden class="anchor" aria-hidden="true" href="#一般局限性">#</a></h3>
+<ul>
+<li>无法浏览大型二进制资产或超过读取限制的文件，基于浏览器的 UI 测试受本地安全策略限制，验证仅限于单元测试和静态分析。</li>
+</ul>
+<h2 id="学习成果">学习成果<a hidden class="anchor" aria-hidden="true" href="#学习成果">#</a></h2>
+<h3 id="关键学习点--强制使用硬门机制钩子状态机比软提示更有助于确保ai智能体的可靠性它能物理上防止绕过测试和需求对齐等关键工作流步骤">关键学习点- 强制使用硬门机制（钩子/状态机）比软提示更有助于确保AI智能体的可靠性；它能物理上防止绕过测试和需求对齐等关键工作流步骤。<a hidden class="anchor" aria-hidden="true" href="#关键学习点--强制使用硬门机制钩子状态机比软提示更有助于确保ai智能体的可靠性它能物理上防止绕过测试和需求对齐等关键工作流步骤">#</a></h3>
+<ul>
+<li>对于高通NPU部署，激活位宽限制（QAIRT 8/16位限制）是主要瓶颈。W4A8是“无损”且可行的；W4A4则不可行。SpinQuant R1旋转是8位激活精度的关键因素。</li>
+<li>评估流程中的“重置尾部”现象和竞态条件可能会颠倒科学结论。严格的重新验证、可视化证明和统计协议（均值+标准差，样本量≥5）对于确认性能声明至关重要。</li>
+<li>严格的文件所有权协议（graph.claude.yaml与graph.yaml）和防冲突的后缀处理在多智能体环境中至关重要，可防止状态损坏并确保正确智能体管理其自身事实来源。</li>
+<li>对代码分析采用“非采样”方法（读取所有文件）对于生成可信的想法图至关重要；部分读取会产生虚假信心，并错过关键的架构意图和依赖关系。</li>
+<li>强制层（钩子/保护器）必须经过逻辑可达性审计，而不仅仅是语法正确性审计，因为规则可以注册但因事件不匹配或不可达状态而从未触发。</li>
+<li>Apple Silicon Mac上的IORegistry中暴露了详细的工厂校准表（例如<code>backlight-marketing-table</code>，无需外部传感器即可解码以发现绝对亮度限制，从而纠正过时的注册表值。</li>
+<li>在删除之前务必检查vendored/test目录中的未提交更改，因为gitignore规则可能隐藏重要的本地修改。需要独立的工作流程分析以捕捉与模型噪声不同的设备级差异。</li>
+<li>对于可扩展、清晰的SVG元素缩放效果，操作<code>viewBox</code>或固有尺寸优于CSS <code>transform: scale()</code>，后者会导致栅格化模糊。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<h3 id="高通-π05量化">高通-π0.5量化<a hidden class="anchor" aria-hidden="true" href="#高通-π05量化">#</a></h3>
+<p><strong>✅ W4A8与W4A4的可行性与基准测试</strong>
+对W4A8和W4A4量化的π0.5模型进行了严格比较。W4A8在完整的LIBERO套件中实现了100%的成功率，且延迟显著更低，被确认为最佳部署方案。由于QAIRT的8/16位激活限制，W4A4被认为不可行。验证了SpinQuant R1旋转对A8精度的重要性，并设计了使用均值+标准差延迟的5行基准测试计划。</p>
+<h3 id="mihd与robomemory">MIHD与RoboMemory<a hidden class="anchor" aria-hidden="true" href="#mihd与robomemory">#</a></h3>
+<p><strong>✅ 流程恢复、统计验证与CVPR准备</strong>
+修复了关键的评估问题（“重置尾部”），解决了scGPT数据竞态条件。恢复了缺失的块，重建了联合嵌入，重新冻结了评估样本。验证了统计显著性，确认了“窄带”性能，并识别了方法排名反转现象。生成了34-38节点的想法图用于2027年CVPR提交，发现了预处理配额中的障碍以及关键实验的证据。</p>
+<h3 id="ai伴侣控制">AI伴侣控制<a hidden class="anchor" aria-hidden="true" href="#ai伴侣控制">#</a></h3>
+<p><strong>✅ 架构、强制硬门机制与多智能体安全</strong>
+设计和实现了“Codex/Cursor Companion”强制硬门机制。从基于提示的技能转向物理限制（CLI状态机、预工具钩子），以防止AI幻觉和不匹配。实现了防冲突的文件后缀处理以允许多智能体共存，审计了旧代码，并识别了保护器钩子中的关键逻辑错误。建立了一个可重用且防冲突的框架，确保工作流完整性。</p>
+<h3 id="amber-eyecare">Amber-EyeCare<a hidden class="anchor" aria-hidden="true" href="#amber-eyecare">#</a></h3>
+<p><strong>✅ 校准修正与UI/UX优化</strong>
+通过从IORegistry中发现并整合面板工厂校准数据，改进了Amber macOS应用的核心亮度计算。修正了亮度模型中的25%误差，校正了UI字符串，实现了清晰的基于向量的SVG缩放功能。生成了用于未来开发的基础想法图。</p>
+<h3 id="gadget">gadget<a hidden class="anchor" aria-hidden="true" href="#gadget">#</a></h3>
+<p><strong>✅ 完整仓库扫描与想法图构建</strong>
+完成了gadget仓库的完整扫描（281个文件），定义了4个终端端点并生成了45节点的想法图。在<code>ssh_pull.py</code>中发现了潜在的路径错误，标记了9个缺乏设计理由的节点供人类审查。想法图经过验证并用于战略规划。</p>
+<h3 id="lifecopilot与tokenmonitor">LifeCopilot与TokenMonitor<a hidden class="anchor" aria-hidden="true" href="#lifecopilot与tokenmonitor">#</a></h3>
+<p><strong>✅ 全面审计、漏洞识别与图生成</strong>
+对LifeCopilot（379个文件）和TokenMonitor（194个文件）进行了完整扫描。识别了关键的运行时漏洞（缺失<code>get_energy_state</code>，洞察序列化，路径解析），并生成了45-58节点的想法图。定义了战略端点（例如“零权限分配”），并记录了12个以上未解决的设计问题供人类确认。通过LifeCopilot的992次通过测试验证了代码库健康度。</p>
+<h3 id="mihd框架">MIHD框架<a hidden class="anchor" aria-hidden="true" href="#mihd框架">#</a></h3>
+<p><strong>🔄 项目扫描、图验证与论文准备</strong>
+扫描了295个文件，生成了34节点的想法图用于论文提交（I-033）和框架发布（I-034）。目前正在解决与缺失<code>code</code>字段和<code>why_this_way</code>理由相关的验证错误。识别了9个需要人类验证的关键“确认”瓶颈。</p>
+<h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-08-24</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$732.37</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>758M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>2M</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>95.4%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $714</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $18</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (97.5%), Codex (2.5%)">
+          <span style="width:97.5%; background:var(--usage-cost-main)"></span>
+          <span style="width:2.5%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 95.4%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 4.6%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (95.4%), active tokens (4.6%)">
+          <span style="width:95.4%; background:var(--usage-cache)"></span>
+          <span style="width:4.6%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:190f65c10665267b -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
