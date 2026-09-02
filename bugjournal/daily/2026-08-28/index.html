@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-08-28 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="Completed the PI0.5 quantization-surface grid analysis (concluding 16-bit environments are required for 4-bit projection inputs) and generated a code-level root-cause report; resolved critical infrastructure issues including Duke DCC SSH configuration, login-node process cleanup, and Intel Wi-Fi driver updates; advanced the RoboMemory project with a validated segment-based Gemini writer; and implemented a currency consistency module for TokenMonitor.">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/bugjournal/daily/2026-08-28/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-08-28/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-28/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/bugjournal/daily/2026-08-28/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-08-28">
+  <meta property="og:description" content="Completed the PI0.5 quantization-surface grid analysis (concluding 16-bit environments are required for 4-bit projection inputs) and generated a code-level root-cause report; resolved critical infrastructure issues including Duke DCC SSH configuration, login-node process cleanup, and Intel Wi-Fi driver updates; advanced the RoboMemory project with a validated segment-based Gemini writer; and implemented a currency consistency module for TokenMonitor.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-08-28T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-08-28T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-08-28">
+  <meta name="twitter:description" content="Completed the PI0.5 quantization-surface grid analysis (concluding 16-bit environments are required for 4-bit projection inputs) and generated a code-level root-cause report; resolved critical infrastructure issues including Duke DCC SSH configuration, login-node process cleanup, and Intel Wi-Fi driver updates; advanced the RoboMemory project with a validated segment-based Gemini writer; and implemented a currency consistency module for TokenMonitor.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-08-28",
+      "item": "https://tzj2006.github.io/bugjournal/daily/2026-08-28/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-08-28",
+  "name": "Bug Journal 2026-08-28",
+  "description": "Completed the PI0.5 quantization-surface grid analysis (concluding 16-bit environments are required for 4-bit projection inputs) and generated a code-level root-cause report; resolved critical infrastructure issues including Duke DCC SSH configuration, login-node process cleanup, and Intel Wi-Fi driver updates; advanced the RoboMemory project with a validated segment-based Gemini writer; and implemented a currency consistency module for TokenMonitor.",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-08-28 Daily Overview What was done: Finalized the scientific validation of the PI0.5 W4A8 deployment strategy by identifying 16-bit activation requirements for 4-bit projections; established robust remote compute infrastructure (Duke DCC SSH and agent process management); resolved local hardware instability (Wi-Fi); and delivered high-precision software components for RoboMemory (segment writer) and TokenMonitor (currency module). How it was done: Utilized closed-loop benchmarking with rigorous fingerprint validation and forensic analysis of compiler tracebacks (QAIRT/QNN) for model quantization; implemented defensive shell scripting and multi-hop SSH provisioning for HPC infrastructure; applied TDD and adversarial multi-agent reviews for software implementation; and used PowerShell/CLI for driver management. Impact: Secured the scientific integrity of the quantization strategy by isolating rotation’s role and pinpointing hardware limitations; enabled stable remote AI-agent execution and team collaboration on shared nodes; eliminated local connectivity errors; and produced a robust, token-efficient segment-summarization writer and a unified currency formatting system. MacOS What was done: Configured SSH aliases for Duke DCC (CPU/GPU/Agent) and established a protocol for connecting AI agents to remote compute nodes. How it was done: Used Codex to read Duke’s documentation, modified ~/.ssh/config with ProxyCommand chains, and created a sockets directory with strict permissions. Impact: Enabled seamless integration of remote compute resources into the local development and AI-agent workflow. TzJsDesktop What was done: Executed and analyzed the PI0.5 quantization experiments (‘projin’ and ‘sqvla’), generated the final technical report, managed AI agent process cleanup on DCC login nodes, updated Intel AX211 Wi-Fi drivers, and implemented the RoboMemory segment writer and TokenMonitor currency audit. How it was done: Drove bash pipelines for model evaluation, parsed compiler logs for root-cause analysis, iteratively debugged stop-login-node-ide.sh to handle DNS round-robin and self-exclusion, executed PowerShell driver updates, and applied strict ’test-first’ and multi-agent review workflows for Python and Rust code. Impact: Produced actionable scientific conclusions and a robust infrastructure tool; eliminated local connectivity instability; delivered a high-accuracy, low-reasoning-cost segment writer; and identified/fix critical bugs in TokenMonitor’s currency handling. lighthouse What was done: Executed and analyzed the ‘projin’ and ‘sqvla’ quantization cells for the PI0.5 model, verifying the necessity of 16-bit activations for 4-bit projections. How it was done: Ran Libero benchmarks, validated results via log fingerprints and metadata checks, and generated a comprehensive English report with code-level traces of QAIRT’s 4-bit limitations. Impact: Definitively mapped the boundaries of viable quantization strategies, confirming that 4-bit activations are currently non-deployable on the target hardware. Completed the PI0.5 quantization-surface grid analysis (concluding 16-bit environments are required for 4-bit projection inputs) and generated a code-level root-cause report; resolved critical infrastructure issues including Duke DCC SSH configuration, login-node process cleanup, and Intel Wi-Fi driver updates; advanced the RoboMemory project with a validated segment-based Gemini writer; and implemented a currency consistency module for TokenMonitor.\nTasks Architecture \u0026 Strategy ✅ PI0.5 Quantization Grid Completion \u0026 Report Finalization (I-080/I-081) — Ran benchmarks for ‘projin’ (4-bit input, 8-bit env) and ‘sqvla’ (8-bit input, no rotation), validated results, and updated the project documentation with a 5-row grid table. Generated the QUANT_SURFACE_GRID.md report including a technical appendix on 4-bit compiler limitations and code-level root cause analysis. ✅ RoboMemory I-040/I-041 Implementation — Developed and validated the ‘segment_writer.py’ tool, implementing a chunking logic and a Gemini-based summarization loop that significantly reduced reasoning token usage compared to previous versions. 🔄 TokenMonitor Currency Consistency (I-047) — Implemented a unified currency formatting module (money.rs) and audited the codebase for hardcoded currency symbols; currently fixing a discovered bug in the fallback rate table. Implementation \u0026 Fixes ✅ Duke DCC SSH Configuration \u0026 Infrastructure Setup — Configured SSH aliases (dcc-agent, dcc-gpu), created the necessary socket directory, and established a clear protocol for AI agents to use these aliases for remote execution on MacOS. ✅ DCC Login Node Process Cleanup Script Fix \u0026 Execution — Updated stop-login-node-ide.sh to correctly identify and exclude the current session’s process group to prevent self-kill, handled multi-node DNS round-robin resolution, and swept dcc-login-01 through 05 to kill lingering Claude/VSCode/Cursor processes. ✅ Intel Wi-Fi Driver Update — Updated AX211 driver to 24.60.0 and Bluetooth to version 24.40.11.1 on TzJsDesktop to resolve intermittent 5010 error storms. Problems \u0026 Solutions Critical Issues 1. User reported that 4-bit activations cannot be converted to 8/16-bit, but needed the specific code reason. Solution: Extracted the full Python traceback from the failed AI Hub compile jobs, identifying the exception in qti/aisw/converters/qnn_backend/ir_to_dlc.py:569 where the native C++ quantizer rejects the conversion.\nGeneral Issues 2. The DCC login node cleanup script was killing the active Claude session because it matched the --bridge process which is a sibling, not a child, of the CLI. Solution: Modified the script to traverse the process ancestor chain to find the session’s unique run/ directory and exclude all processes sharing that socket path from the kill list.\n3. Intel Wi-Fi AX211 throwing ‘firmware returned invalid value’ errors (5010). Solution: Diagnosed that the driver version 23.170 was significantly outdated; updated to 24.60.0 which includes the necessary firmware fix.\n4. Claude Code on Windows failing to connect to ‘dcc-agent’ due to ProxyCommand ‘sh’ not found and MSYS path translation issues. Solution: Added Git Bash (Git/usr/bin) to the user PATH and used the absolute path for OpenSSH’s ssh.exe with double-slash paths to bypass MSYS conversion.\n5. TokenMonitor sub-agent accidentally reverting changes to exchange_rates.rs during a test run. Solution: Identified the ‘git checkout’ command in the sub-agent’s journal, manually restored the changes, and re-ran the test suite to ensure stability.\nHuman vs AI Approaches Strategic Level RoboMemory Chunking Strategy Role Approach Human Requested a strategy that ‘summarizes each segment into a single line’ to manage Gemini’s output reliability and provided the high-level architectural constraint. AI Implemented a ’test-first’ approach, creating a strict validator and a chunking logic that respects the robot’s physical dwell-points rather than arbitrary frame counts. Difference Analysis: The human provided the high-level architectural constraint (segment-level control), while the AI provided the rigorous implementation (strict grammar validation and physics-aware chunking) that made it work.\nNaming Convention for Quantization Cells Role Approach Human Proposed using ‘with SpinQuant’ and ‘without SpinQuant’ instead of internal tags like ‘qvla’ or ‘projin’ to improve document clarity and pedagogical clarity. AI Initially used internal shorthand; after user clarification, renamed all instances in the report while keeping internal tags only for file path tracing. Difference Analysis: The human prioritized reader comprehension, narrative flow, and accessibility for a broader technical audience, while the AI focused on direct technical references; the human’s instruction successfully improved the final report’s structure.\nRoot Cause Analysis Depth Role Approach Human Specifically asked for the ’exact line of code’ and ‘what specific thing’ prevents the bit conversion, rather than accepting a high-level ‘unsupported’ error. AI Initially provided a summary of the limitation but recognized the need for deeper proof, then fetched the actual compiler logs to pinpoint ir_to_dlc.py:569 and the native C++ check. Difference Analysis: The human pushed for forensic-level evidence in the report, which the AI then retrieved from external logs, transforming a known constraint into a documented technical fact.\nAI Limitations Critical Limitations Sub-agents in the TokenMonitor project executed destructive git commands (git checkout) on the main working tree, which requires manual recovery. General Limitations Initially proposed a cleanup script that would kill its own active session because it failed to account for the sibling process architecture of the Claude remote server. Initial interpretation of ‘projin’ as a permanent label rather than a descriptive action (‘projection-inputs demotion’), and required user prompting to move from general explanation of 4-bit limitations to retrieving specific compiler tracebacks for the final report. Learnings Key Learnings For low-bit quantization, the ‘rest of the activation’ environment (16-bit vs 8-bit) is the primary determinant of success; 4-bit projections only survive in a high-precision neighbor (16-bit). SpinQuant rotation is not inherently necessary for the model’s accuracy but is a required workaround for the quantization noise in the residual stream when using full-graph low-bit quantization. Splitting VLM inputs into small, validated segments reduces ‘reasoning tokens’ by an order of magnitude (from 15-20k to \u003c1k) without sacrificing semantic accuracy. Practical Learnings DCC login nodes use DNS round-robin, meaning scripts must be executed explicitly for each host (01-05) rather than relying on a single SSH connection. Claude Code’s ProxyCommand implementation on Windows requires a POSIX-style shell (sh) available in the PATH and is sensitive to MSYS path translation for remote bash scripts. Conversation Summaries Qualcomm PI0.5 • Quantization-Surface Grid Results, Report Finalization \u0026 QAIRT 4-bit Limitations Analyzed the results of the ‘projin’ (0/50) and ‘sqvla’ (48/50) experiment cells. Concluded that rotation (SpinQuant) is only necessary when the entire graph is quantized at 8-bit, and that 16-bit activation environments are required for 4-bit projection inputs. Generated the QUANT_SURFACE_GRID.md technical report, including a code-level appendix identifying ir_to_dlc.py:569 in the QAIRT compiler as the source of 4-bit conversion blocks.\nDuke DCC \u0026 Infrastructure • SSH Configuration for Remote Compute Agents \u0026 Login Node Process Cleanup Configured SSH aliases for CPU and GPU nodes on Duke DCC on MacOS, establishing a clear protocol for AI agents to use these aliases for remote execution. Additionally, addressed lingering Claude/IDE processes on DCC login nodes by fixing the stop-login-node-ide.sh script to prevent self-termination (handling sibling process architecture and DNS round-robin) and sweeping all 5 login nodes to ensure a clean environment.\nTzJsDesktop • Intel AX211 Driver Update \u0026 Firmware Fix Diagnosed intermittent Wi-Fi error storms (5010). Identified an outdated driver version (23.170) and updated to 24.60.0, which resolved the issue and updated the underlying firmware.\nRoboMemory • Segment-Summarize Writer (I-040/I-041) Built and tested a new ‘segment_writer’ module that splits robot demos into physical segments and uses Gemini to generate controlled summary lines. Verified that this significantly reduces reasoning tokens and maintains accuracy.\nTokenMonitor • Currency Consistency Audit \u0026 Implementation (I-047) Implemented a central currency module in Rust (money.rs) to ensure all UI elements display the same currency. Conducted a multi-perspective review which caught a critical bug regarding missing fallback exchange rates in the Rust backend and a sub-agent revert issue.\nToken Usage AI Usage · 2026-08-28\rClaude Code\rTotal cost$95.15\rTotal tokens63M\rOutput tokens356K\rCache read95.0%\rToken character\rCache reads 95.0% ·\rActive 5.0%\rMost token volume came from cache reads.\r",
+  "wordCount" : "1675",
+  "inLanguage": "en",
+  "datePublished": "2026-08-28T00:00:00-04:00",
+  "dateModified": "2026-08-28T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/bugjournal/daily/2026-08-28/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/zh/" title="中文"
+                                aria-label="中文">中文</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-08-28
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-08-28 00:00:00 -0400 EDT'>August 28, 2026</span>&nbsp;·&nbsp;<span>8 min</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-08-28">Daily Report — 2026-08-28<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-08-28">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>What was done:</strong> Finalized the scientific validation of the PI0.5 W4A8 deployment strategy by identifying 16-bit activation requirements for 4-bit projections; established robust remote compute infrastructure (Duke DCC SSH and agent process management); resolved local hardware instability (Wi-Fi); and delivered high-precision software components for RoboMemory (segment writer) and TokenMonitor (currency module).</li>
+<li><strong>How it was done:</strong> Utilized closed-loop benchmarking with rigorous fingerprint validation and forensic analysis of compiler tracebacks (QAIRT/QNN) for model quantization; implemented defensive shell scripting and multi-hop SSH provisioning for HPC infrastructure; applied TDD and adversarial multi-agent reviews for software implementation; and used PowerShell/CLI for driver management.</li>
+<li><strong>Impact:</strong> Secured the scientific integrity of the quantization strategy by isolating rotation&rsquo;s role and pinpointing hardware limitations; enabled stable remote AI-agent execution and team collaboration on shared nodes; eliminated local connectivity errors; and produced a robust, token-efficient segment-summarization writer and a unified currency formatting system.</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>What was done:</strong> Configured SSH aliases for Duke DCC (CPU/GPU/Agent) and established a protocol for connecting AI agents to remote compute nodes.</li>
+<li><strong>How it was done:</strong> Used Codex to read Duke&rsquo;s documentation, modified ~/.ssh/config with ProxyCommand chains, and created a sockets directory with strict permissions.</li>
+<li><strong>Impact:</strong> Enabled seamless integration of remote compute resources into the local development and AI-agent workflow.</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>What was done:</strong> Executed and analyzed the PI0.5 quantization experiments (&lsquo;projin&rsquo; and &lsquo;sqvla&rsquo;), generated the final technical report, managed AI agent process cleanup on DCC login nodes, updated Intel AX211 Wi-Fi drivers, and implemented the RoboMemory segment writer and TokenMonitor currency audit.</li>
+<li><strong>How it was done:</strong> Drove bash pipelines for model evaluation, parsed compiler logs for root-cause analysis, iteratively debugged <code>stop-login-node-ide.sh</code> to handle DNS round-robin and self-exclusion, executed PowerShell driver updates, and applied strict &rsquo;test-first&rsquo; and multi-agent review workflows for Python and Rust code.</li>
+<li><strong>Impact:</strong> Produced actionable scientific conclusions and a robust infrastructure tool; eliminated local connectivity instability; delivered a high-accuracy, low-reasoning-cost segment writer; and identified/fix critical bugs in TokenMonitor&rsquo;s currency handling.</li>
+</ul>
+<h3 id="lighthouse">lighthouse<a hidden class="anchor" aria-hidden="true" href="#lighthouse">#</a></h3>
+<ul>
+<li><strong>What was done:</strong> Executed and analyzed the &lsquo;projin&rsquo; and &lsquo;sqvla&rsquo; quantization cells for the PI0.5 model, verifying the necessity of 16-bit activations for 4-bit projections.</li>
+<li><strong>How it was done:</strong> Ran Libero benchmarks, validated results via log fingerprints and metadata checks, and generated a comprehensive English report with code-level traces of QAIRT&rsquo;s 4-bit limitations.</li>
+<li><strong>Impact:</strong> Definitively mapped the boundaries of viable quantization strategies, confirming that 4-bit activations are currently non-deployable on the target hardware.</li>
+</ul>
+<blockquote>
+<p>Completed the PI0.5 quantization-surface grid analysis (concluding 16-bit environments are required for 4-bit projection inputs) and generated a code-level root-cause report; resolved critical infrastructure issues including Duke DCC SSH configuration, login-node process cleanup, and Intel Wi-Fi driver updates; advanced the RoboMemory project with a validated segment-based Gemini writer; and implemented a currency consistency module for TokenMonitor.</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<ul>
+<li>✅ <strong>PI0.5 Quantization Grid Completion &amp; Report Finalization (I-080/I-081)</strong> — Ran benchmarks for &lsquo;projin&rsquo; (4-bit input, 8-bit env) and &lsquo;sqvla&rsquo; (8-bit input, no rotation), validated results, and updated the project documentation with a 5-row grid table. Generated the <code>QUANT_SURFACE_GRID.md</code> report including a technical appendix on 4-bit compiler limitations and code-level root cause analysis.</li>
+<li>✅ <strong>RoboMemory I-040/I-041 Implementation</strong> — Developed and validated the &lsquo;segment_writer.py&rsquo; tool, implementing a chunking logic and a Gemini-based summarization loop that significantly reduced reasoning token usage compared to previous versions.</li>
+<li>🔄 <strong>TokenMonitor Currency Consistency (I-047)</strong> — Implemented a unified currency formatting module (money.rs) and audited the codebase for hardcoded currency symbols; currently fixing a discovered bug in the fallback rate table.</li>
+</ul>
+<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<ul>
+<li>✅ <strong>Duke DCC SSH Configuration &amp; Infrastructure Setup</strong> — Configured SSH aliases (dcc-agent, dcc-gpu), created the necessary socket directory, and established a clear protocol for AI agents to use these aliases for remote execution on MacOS.</li>
+<li>✅ <strong>DCC Login Node Process Cleanup Script Fix &amp; Execution</strong> — Updated <code>stop-login-node-ide.sh</code> to correctly identify and exclude the current session&rsquo;s process group to prevent self-kill, handled multi-node DNS round-robin resolution, and swept <code>dcc-login-01</code> through <code>05</code> to kill lingering Claude/VSCode/Cursor processes.</li>
+<li>✅ <strong>Intel Wi-Fi Driver Update</strong> — Updated AX211 driver to 24.60.0 and Bluetooth to version 24.40.11.1 on TzJsDesktop to resolve intermittent 5010 error storms.</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-user-reported-that-4-bit-activations-cannot-be-converted-to-816-bit-but-needed-the-specific-code-reason">1. User reported that 4-bit activations cannot be converted to 8/16-bit, but needed the specific code reason.<a hidden class="anchor" aria-hidden="true" href="#1-user-reported-that-4-bit-activations-cannot-be-converted-to-816-bit-but-needed-the-specific-code-reason">#</a></h4>
+<p><strong>Solution:</strong> Extracted the full Python traceback from the failed AI Hub compile jobs, identifying the exception in <code>qti/aisw/converters/qnn_backend/ir_to_dlc.py:569</code> where the native C++ quantizer rejects the conversion.</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="2-the-dcc-login-node-cleanup-script-was-killing-the-active-claude-session-because-it-matched-the---bridge-process-which-is-a-sibling-not-a-child-of-the-cli">2. The DCC login node cleanup script was killing the active Claude session because it matched the <code>--bridge</code> process which is a sibling, not a child, of the CLI.<a hidden class="anchor" aria-hidden="true" href="#2-the-dcc-login-node-cleanup-script-was-killing-the-active-claude-session-because-it-matched-the---bridge-process-which-is-a-sibling-not-a-child-of-the-cli">#</a></h4>
+<p><strong>Solution:</strong> Modified the script to traverse the process ancestor chain to find the session&rsquo;s unique <code>run/</code> directory and exclude all processes sharing that socket path from the kill list.</p>
+<h4 id="3-intel-wi-fi-ax211-throwing-firmware-returned-invalid-value-errors-5010">3. Intel Wi-Fi AX211 throwing &lsquo;firmware returned invalid value&rsquo; errors (5010).<a hidden class="anchor" aria-hidden="true" href="#3-intel-wi-fi-ax211-throwing-firmware-returned-invalid-value-errors-5010">#</a></h4>
+<p><strong>Solution:</strong> Diagnosed that the driver version 23.170 was significantly outdated; updated to 24.60.0 which includes the necessary firmware fix.</p>
+<h4 id="4-claude-code-on-windows-failing-to-connect-to-dcc-agent-due-to-proxycommand-sh-not-found-and-msys-path-translation-issues">4. Claude Code on Windows failing to connect to &lsquo;dcc-agent&rsquo; due to ProxyCommand &lsquo;sh&rsquo; not found and MSYS path translation issues.<a hidden class="anchor" aria-hidden="true" href="#4-claude-code-on-windows-failing-to-connect-to-dcc-agent-due-to-proxycommand-sh-not-found-and-msys-path-translation-issues">#</a></h4>
+<p><strong>Solution:</strong> Added Git Bash (Git/usr/bin) to the user PATH and used the absolute path for OpenSSH&rsquo;s ssh.exe with double-slash paths to bypass MSYS conversion.</p>
+<h4 id="5-tokenmonitor-sub-agent-accidentally-reverting-changes-to-exchange_ratesrs-during-a-test-run">5. TokenMonitor sub-agent accidentally reverting changes to exchange_rates.rs during a test run.<a hidden class="anchor" aria-hidden="true" href="#5-tokenmonitor-sub-agent-accidentally-reverting-changes-to-exchange_ratesrs-during-a-test-run">#</a></h4>
+<p><strong>Solution:</strong> Identified the &lsquo;git checkout&rsquo; command in the sub-agent&rsquo;s journal, manually restored the changes, and re-ran the test suite to ensure stability.</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="robomemory-chunking-strategy">RoboMemory Chunking Strategy<a hidden class="anchor" aria-hidden="true" href="#robomemory-chunking-strategy">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>Requested a strategy that &lsquo;summarizes each segment into a single line&rsquo; to manage Gemini&rsquo;s output reliability and provided the high-level architectural constraint.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>Implemented a &rsquo;test-first&rsquo; approach, creating a strict validator and a chunking logic that respects the robot&rsquo;s physical dwell-points rather than arbitrary frame counts.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> The human provided the high-level architectural constraint (segment-level control), while the AI provided the rigorous implementation (strict grammar validation and physics-aware chunking) that made it work.</p>
+<h4 id="naming-convention-for-quantization-cells">Naming Convention for Quantization Cells<a hidden class="anchor" aria-hidden="true" href="#naming-convention-for-quantization-cells">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>Proposed using &lsquo;with SpinQuant&rsquo; and &lsquo;without SpinQuant&rsquo; instead of internal tags like &lsquo;qvla&rsquo; or &lsquo;projin&rsquo; to improve document clarity and pedagogical clarity.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>Initially used internal shorthand; after user clarification, renamed all instances in the report while keeping internal tags only for file path tracing.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> The human prioritized reader comprehension, narrative flow, and accessibility for a broader technical audience, while the AI focused on direct technical references; the human&rsquo;s instruction successfully improved the final report&rsquo;s structure.</p>
+<h4 id="root-cause-analysis-depth">Root Cause Analysis Depth<a hidden class="anchor" aria-hidden="true" href="#root-cause-analysis-depth">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>Specifically asked for the &rsquo;exact line of code&rsquo; and &lsquo;what specific thing&rsquo; prevents the bit conversion, rather than accepting a high-level &lsquo;unsupported&rsquo; error.</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>Initially provided a summary of the limitation but recognized the need for deeper proof, then fetched the actual compiler logs to pinpoint <code>ir_to_dlc.py:569</code> and the native C++ check.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> The human pushed for forensic-level evidence in the report, which the AI then retrieved from external logs, transforming a known constraint into a documented technical fact.</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
+<ul>
+<li>Sub-agents in the TokenMonitor project executed destructive git commands (git checkout) on the main working tree, which requires manual recovery.</li>
+</ul>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<ul>
+<li>Initially proposed a cleanup script that would kill its own active session because it failed to account for the sibling process architecture of the Claude remote server.</li>
+<li>Initial interpretation of &lsquo;projin&rsquo; as a permanent label rather than a descriptive action (&lsquo;projection-inputs demotion&rsquo;), and required user prompting to move from general explanation of 4-bit limitations to retrieving specific compiler tracebacks for the final report.</li>
+</ul>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<ul>
+<li>For low-bit quantization, the &lsquo;rest of the activation&rsquo; environment (16-bit vs 8-bit) is the primary determinant of success; 4-bit projections only survive in a high-precision neighbor (16-bit).</li>
+<li>SpinQuant rotation is not inherently necessary for the model&rsquo;s accuracy but is a required workaround for the quantization noise in the residual stream when using full-graph low-bit quantization.</li>
+<li>Splitting VLM inputs into small, validated segments reduces &lsquo;reasoning tokens&rsquo; by an order of magnitude (from 15-20k to &lt;1k) without sacrificing semantic accuracy.</li>
+</ul>
+<h3 id="practical-learnings">Practical Learnings<a hidden class="anchor" aria-hidden="true" href="#practical-learnings">#</a></h3>
+<ul>
+<li>DCC login nodes use DNS round-robin, meaning scripts must be executed explicitly for each host (01-05) rather than relying on a single SSH connection.</li>
+<li>Claude Code&rsquo;s ProxyCommand implementation on Windows requires a POSIX-style shell (sh) available in the PATH and is sensitive to MSYS path translation for remote bash scripts.</li>
+</ul>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<h3 id="qualcomm-pi05">Qualcomm PI0.5<a hidden class="anchor" aria-hidden="true" href="#qualcomm-pi05">#</a></h3>
+<p><strong>• Quantization-Surface Grid Results, Report Finalization &amp; QAIRT 4-bit Limitations</strong>
+Analyzed the results of the &lsquo;projin&rsquo; (0/50) and &lsquo;sqvla&rsquo; (48/50) experiment cells. Concluded that rotation (SpinQuant) is only necessary when the entire graph is quantized at 8-bit, and that 16-bit activation environments are required for 4-bit projection inputs. Generated the <code>QUANT_SURFACE_GRID.md</code> technical report, including a code-level appendix identifying <code>ir_to_dlc.py:569</code> in the QAIRT compiler as the source of 4-bit conversion blocks.</p>
+<h3 id="duke-dcc--infrastructure">Duke DCC &amp; Infrastructure<a hidden class="anchor" aria-hidden="true" href="#duke-dcc--infrastructure">#</a></h3>
+<p><strong>• SSH Configuration for Remote Compute Agents &amp; Login Node Process Cleanup</strong>
+Configured SSH aliases for CPU and GPU nodes on Duke DCC on MacOS, establishing a clear protocol for AI agents to use these aliases for remote execution. Additionally, addressed lingering Claude/IDE processes on DCC login nodes by fixing the <code>stop-login-node-ide.sh</code> script to prevent self-termination (handling sibling process architecture and DNS round-robin) and sweeping all 5 login nodes to ensure a clean environment.</p>
+<h3 id="tzjsdesktop-1">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop-1">#</a></h3>
+<p><strong>• Intel AX211 Driver Update &amp; Firmware Fix</strong>
+Diagnosed intermittent Wi-Fi error storms (5010). Identified an outdated driver version (23.170) and updated to 24.60.0, which resolved the issue and updated the underlying firmware.</p>
+<h3 id="robomemory">RoboMemory<a hidden class="anchor" aria-hidden="true" href="#robomemory">#</a></h3>
+<p><strong>• Segment-Summarize Writer (I-040/I-041)</strong>
+Built and tested a new &lsquo;segment_writer&rsquo; module that splits robot demos into physical segments and uses Gemini to generate controlled summary lines. Verified that this significantly reduces reasoning tokens and maintains accuracy.</p>
+<h3 id="tokenmonitor">TokenMonitor<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor">#</a></h3>
+<p><strong>• Currency Consistency Audit &amp; Implementation (I-047)</strong>
+Implemented a central currency module in Rust (money.rs) to ensure all UI elements display the same currency. Conducted a multi-perspective review which caught a critical bug regarding missing fallback exchange rates in the Rust backend and a sub-agent revert issue.</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-08-28</span>
+        <span class="usage-card__source">Claude Code</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$95.15</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>63M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>356K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>95.0%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 95.0%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 5.0%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (95.0%), active tokens (5.0%)">
+          <span style="width:95.0%; background:var(--usage-cache)"></span>
+          <span style="width:5.0%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:54f7ebbd84c4d480 -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 This entry was generated by AI from conversation logs and may contain errors.
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-08-26 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="对π0.5延迟基线进行了审核修正，并通过在GeGLU/残差流上开展消融实验证明了W4A4量化问题；同时优化了Gadget的总结工具架构，并针对中文创意写作和文档准确性开展了全面的LLM基准测试，解决了过程中的硬件与并发冲突问题。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-26/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-08-26/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-26/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-26/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-08-26">
+  <meta property="og:description" content="对π0.5延迟基线进行了审核修正，并通过在GeGLU/残差流上开展消融实验证明了W4A4量化问题；同时优化了Gadget的总结工具架构，并针对中文创意写作和文档准确性开展了全面的LLM基准测试，解决了过程中的硬件与并发冲突问题。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-08-26T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-08-26T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-08-26">
+  <meta name="twitter:description" content="对π0.5延迟基线进行了审核修正，并通过在GeGLU/残差流上开展消融实验证明了W4A4量化问题；同时优化了Gadget的总结工具架构，并针对中文创意写作和文档准确性开展了全面的LLM基准测试，解决了过程中的硬件与并发冲突问题。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-08-26",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-26/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-08-26",
+  "name": "Bug Journal 2026-08-26",
+  "description": "对π0.5延迟基线进行了审核修正，并通过在GeGLU/残差流上开展消融实验证明了W4A4量化问题；同时优化了Gadget的总结工具架构，并针对中文创意写作和文档准确性开展了全面的LLM基准测试，解决了过程中的硬件与并发冲突问题。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-08-26 日常概述 已完成工作： 当日主要聚焦于两个核心方面：验证 π0.5 在 Qualcomm NPU 上的推理性能正确性（纠正延迟错误并隔离 W4A4 精度问题），以及提升 Gadget 项目的 AI 报告能力（优化提示工程、对创意/技术任务进行模型基准测试，并规划统一模型配置系统）。 实施方法： 对 NPU 流水线采用精细的位宽降低实验和源代码审计；对于 Gadget 项目则利用多智能体研究工作流（Explore + WebSearch）、自定义 Python 基准测试框架以及架构思想图工具。 影响： 为 π0.5 建立了准确的性能基准（纠正了 1.85 倍的误差），并明确识别出 GeGLU/残差层是 W4A4 部署的瓶颈。对于 Gadget，通过整合“自夸文档”和“密度链”原则，制定了高质量报告的实施路线图，对 15 多种 LLM 的模型能力进行了验证，并设计了统一的配置解决策略以消除无声故障。 MacOS 已完成工作： 进行常规监控和少量账户使用检查；该设备没有重大开发工作。 实施方法： 互动极少，仅通过本地命令调用获取使用指标。 影响： 无显著影响。 TzJsDesktop 已完成工作： 对 Gadget 总结工具进行了深入架构分析，对本地和云端模型进行了全面的 LLM 基准测试（创意写作和文档处理），并管理项目思想图以规划统一模型切换功能。 实施方法： 使用 claude_code 进行研究，使用 Python 进行基准测试（zhbench.py、docbench.py），使用 Bash 进行环境检查，通过多智能体工作流综合最佳实践并解决共享状态文件中同时出现的 ID 冲突问题。 影响： 揭示了破坏性能的默认设置（reasoning_effort: none），生成了可发布的双语基准报告，并提供了清晰无冲突的实施计划（I-051 至 I-053）以提升报告质量和模型稳定性。 lighthouse 已完成工作： 对 Qualcomm Dragonwing NPU 对 π0.5 的限制进行了深度分析，包括隔离 W4A4 与 W4A8 的故障，计算真正的端到端延迟，同时大幅回收磁盘空间以支持这些实验。 实施方法： 使用 tmux 进行序列实验评估，手动操作 model.encodings 以隔离激活家族（GeGLU、残差层），通过归档大型数据集和清理缓存来释放 150GB 以上的空间以管理硬件限制。 影响： 证明 GeGLU 和残差流对 W4A4 精度是独立的致命因素（W4A4 成功率为 0/50），而 W4A8 为 50/50；同时建立了正确的端到端延迟基准，将之前的项目估计修正了高达 1.85 倍。 审核并修正了 π0.5 的延迟基准，通过针对 GeGLU/残差流进行消融实验证明了 W4A4 量化问题；同时优化了 Gadget 的总结工具架构，并对中文创意写作和文档处理准确性进行了全面的 LLM 基准测试，过程中解决了硬件和并发冲突问题。\n任务 架构与策略 🔄 W4A4 与 W4A8 性能退化研究（I-078） — 进行消融实验，将特定家族的激活位宽从 8 位降低至 4 位（GeGLU、残差层、注意力、其他）。发现 GeGLU 和残差层单独对 W4A4 精度造成致命影响，证明其在无重构的情况下与 4 位精度在结构上不兼容。 ✅ 重新评估 π0.5 端到端延迟 — 修正了 RESULTS.md 中的延迟估计，该估计因未考虑 action_expert 的 10 步欧拉循环而低估了性能。更新计算逻辑为 2xVE + 1xBB + 10xAE，发现 W4A16 的延迟约为 923 毫秒（之前为约 555 毫秒）。 ✅ 研究 W4A4 的“死锁”问题（精度与可部署性） — 分析为何 W4A4 无法修复：精度要求 16 位“岛屿”（softmax），但 QAIRT 编译器规则禁止从 4 位到 16 位的转换。即使处于最佳精度状态，累积的 4 位损伤也会导致故障。 🔄 总结工具提示优化与模型基准测试 — 基于“自夸文档”和“密度链”原则重新设计日常/周报提示架构。对 15 多种模型（Gemma4、Qwen、GPT、Claude）进行中文创意写作和 README 理解能力的基准测试，以选择最佳基准并生成双语报告。 🔄 统一模型切换架构规划 — 设计将分散的模型默认设置整合为单一解决功能的方案（I-051-I-053）。识别了因未拉取模型导致的无声故障，并解决了思想图中同时出现的 ID 冲突问题。 实施与修复 ✅ 磁盘空间管理（lighthouse） — 通过删除 AI Hub 临时文件、uv/pip 缓存以及归档 RoboMemory 数据集，解决了“设备上无空间”错误，从而释放了 150GB 以上的空间以容纳大型 aimet_onnx 临时文件。 问题与解决方案 关键问题 1. W4A4 的 성공率为 0/50，而 W4A8 为 50/50，导致关于这是调整问题还是结构不兼容的假设不明确。 解决方案： 通过手动编辑 model.encodings 将特定张量家族的位宽降低至 4 位，进行“降级”实验。发现 GeGLU 和残差层单独与 4 位精度不兼容，确认其在结构上不可行。\n2. π0.5 的延迟估计不准确（低估了），原因是 app.py 中的调用循环错误，其中 action_expert 被计为 1 步而非 10 步。 解决方案： 审核源代码以识别 10 步欧拉循环，更新计算逻辑为 2xVE + 1xBB + 10xAE，从而修正了基准性能指标。\n3. Gadget 中的每日报告缓存仅按日期键入，导致旧的低质量结果在提示优化后仍然保留。 解决方案： 提出新的缓存机制，在键中包含模式/版本哈希，以确保数据生成的新鲜性并防止输出陈旧。\n4. Windows .cmd shims 对 CLI 代理的修改导致包含新行的命令行参数被截断，导致基准测试期间提示被切断。 解决方案： 修改基准测试脚本，通过 stdin 而非 argv 传递长提示给 CLI 代理，确保提示完整且结果准确。\n5. 同时运行的 AI 会话编辑共享思想图（ideas/graph.claude.yaml）导致 ID 重复错误（I-046 至 I-050 冲突）。 解决方案： 实施手动重新编号策略，识别冲突 ID 的“所有者”，并将当前会话的新节点移动到更高未使用的 ID 中（I-051+），以保持图结构完整。\n一般问题 6. lighthouse 上的磁盘空间不足由于aimet_onnx占用资源较大，导致在模型加载过程中耗尽了π0.5实验的运行次数。解决方案： 积极清理可再生缓存（uv、pip、AI Hub），并将大型静态数据集（RoboMemory）归档至 /archive，为性能分析实验腾出足够空间。 人类与人工智能方法对比 战略层面 技术文档准确性 角色 方法 人类 明确要求严格遵循提供的README，禁止编造源代码中不存在的命令或参数。 人工智能 通过抑制用通用知识填补空白的倾向来遵守规定，确保教程完全基于验证过的源代码内容，避免幻觉产生。 差异分析： 无\nW4A4失败的解释 角色 方法 人类 无 人工智能 最初将W4A4失败视为独立的“精度错误”和“编译限制”。 差异分析： 用户将其调整为层次化视角：精度损伤是结构性的（4位精度对于GeGLU/残差层来说太粗糙），而编译器规则（QAIRT 4-\u003e16禁止）则作为约束条件阻止了改进。用户将“部署限制与精度限制”视为一个整体比“两个错误”更优。\n提示词优化策略与报告质量 角色 方法 人类 寻求更深入、更有洞察力的总结用于个人回顾，避免“购物清单”式的报告。 人工智能 提出使用“自夸文档”（什么/为什么/影响）和“密度链”等成熟框架来结构化LLM输出，为用户的“个人实用”目标提供理论支撑。 差异分析： 无\n实施层面 文学细微之处与创意限制 角色 方法 人类 要求“侧面体现”挣扎过程，而非直接陈述，注重微妙性和主题深度（例如战后舞蹈演员）。 人工智能 通过感官细节（松脂气味、坏音乐盒）和日常惯例生成变体，以突出缺失身体部位的缺失，展示出“展示而非讲述”技术的熟练度。 差异分析： 无\n人工智能局限性 关键局限 对π0.5的初始延迟计算依赖于文档，但未验证调用图（Euler步骤），导致1.85倍的误差，需要源代码审查才能修正。 在总结规划阶段，人工智能必须被明确指导在代码库中寻找“先例”，避免创造新模式，这表明如果不基于现有代码风格，就有过度设计倾向。 基准测试的初始CLI执行因Windows路径解析问题及无扩展的npm shims而失败，需要动态调整使用完整的.cmd路径或stdin来绕过CreateProcess限制。 一般局限 在某些创意写作过程中，人工智能无意中在输出中包含了内部“思考过程”或“策略笔记”，打断沉浸感并违反隐式的“直接输出”指令。 学习成果 关键学习点 Qualcomm QAIRT的“岛屿”规则具有方向性：8\u003c-\u003e16转换被支持，但4-\u003e16则不支持。这使得混合精度（例如在4位图中使用16位Softmax）无法在此NPU上部署。 GeGLU和残差层激活对4位量化非常敏感。对于此NPU，激活必须至少保持8位才能成功；W4A4从根本上无法实现，除非重新架构模型。 在结构化LLM输出中，JSON模式中description字段充当“嵌入式微提示”，显著影响字段内容的丰富度。 “自夸文档”风格（结果+行动+重要性）比时间日志更适合日常工程报告，提供更好的洞察密度。 在基准测试本地模型时，使用ollama stop确保冷启动条件下的VRAM和加载时间指标一致；如果其他进程活跃，nvidia-smi中的基线VRAM不可靠。 共享状态文件（如想法图）需要锁定机制或顺序协调协议，以防止多会话AI环境中ID冲突。 对话总结 Qualcomm VLA ✅ π0.5延迟审计与W4A4失败分析 深入探究Qualcomm Dragonwing NPU的限制。审查源代码以修正π0.5中1.85倍的延迟低估。执行D1-D4消融研究证明，由于QAIRT位转换规则和固有的量化敏感性，GeGLU和残差层与W4A4精度在结构上不兼容。\nGadget ✅ 总结工具优化与模型基准测试 使用“自夸文档”和“密度链”原则重新设计总结工具的提示词架构。对15多种模型（本地Ollama+云API）进行中文创意写作和README理解基准测试。识别表现最佳的模型，解决Windows CLI参数截断问题，并为网站生成双语基准报告。\n✅ 统一模型切换架构与想法图同步 计划重构以集中模型选择（I-051到I-053）。识别由未拉取默认模型引起的静默故障。通过手动重新编号节点解决共享想法图中的并发ID冲突，防止平行AI会话之间的状态冲突。\n创意写作基准测试 ✅ 战后舞蹈演员与科幻故事 执行多轮创意写作提示（装有假肢的芭蕾舞者、远程站观察员）。展示出对情感基调和感官细节的强控制能力，以间接方式描绘挣扎。验证了在严格技术准确性与富有表现力的文学风格之间切换的能力。\nToken使用 AI Usage · 2026-08-26\rClaude Code + Codex\rTotal cost$99.02\rTotal tokens56M\rOutput tokens396K\rCache read92.3%\rCost split\rClaude Code $98 ·\rCodex $1\rToken character\rCache reads 92.3% ·\rActive 7.7%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "409",
+  "inLanguage": "zh",
+  "datePublished": "2026-08-26T00:00:00-04:00",
+  "dateModified": "2026-08-26T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-26/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-08-26
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-08-26 00:00:00 -0400 EDT'>2026年8月26日</span>&nbsp;·&nbsp;<span>2 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-08-26">每日报告 — 2026-08-26<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-08-26">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>已完成工作：</strong> 当日主要聚焦于两个核心方面：验证 π0.5 在 Qualcomm NPU 上的推理性能正确性（纠正延迟错误并隔离 W4A4 精度问题），以及提升 Gadget 项目的 AI 报告能力（优化提示工程、对创意/技术任务进行模型基准测试，并规划统一模型配置系统）。</li>
+<li><strong>实施方法：</strong> 对 NPU 流水线采用精细的位宽降低实验和源代码审计；对于 Gadget 项目则利用多智能体研究工作流（Explore + WebSearch）、自定义 Python 基准测试框架以及架构思想图工具。</li>
+<li><strong>影响：</strong> 为 π0.5 建立了准确的性能基准（纠正了 1.85 倍的误差），并明确识别出 GeGLU/残差层是 W4A4 部署的瓶颈。对于 Gadget，通过整合“自夸文档”和“密度链”原则，制定了高质量报告的实施路线图，对 15 多种 LLM 的模型能力进行了验证，并设计了统一的配置解决策略以消除无声故障。</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 进行常规监控和少量账户使用检查；该设备没有重大开发工作。</li>
+<li><strong>实施方法：</strong> 互动极少，仅通过本地命令调用获取使用指标。</li>
+<li><strong>影响：</strong> 无显著影响。</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 对 Gadget 总结工具进行了深入架构分析，对本地和云端模型进行了全面的 LLM 基准测试（创意写作和文档处理），并管理项目思想图以规划统一模型切换功能。</li>
+<li><strong>实施方法：</strong> 使用 <code>claude_code</code> 进行研究，使用 Python 进行基准测试（zhbench.py、docbench.py），使用 Bash 进行环境检查，通过多智能体工作流综合最佳实践并解决共享状态文件中同时出现的 ID 冲突问题。</li>
+<li><strong>影响：</strong> 揭示了破坏性能的默认设置（<code>reasoning_effort: none</code>），生成了可发布的双语基准报告，并提供了清晰无冲突的实施计划（I-051 至 I-053）以提升报告质量和模型稳定性。</li>
+</ul>
+<h3 id="lighthouse">lighthouse<a hidden class="anchor" aria-hidden="true" href="#lighthouse">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 对 Qualcomm Dragonwing NPU 对 π0.5 的限制进行了深度分析，包括隔离 W4A4 与 W4A8 的故障，计算真正的端到端延迟，同时大幅回收磁盘空间以支持这些实验。</li>
+<li><strong>实施方法：</strong> 使用 <code>tmux</code> 进行序列实验评估，手动操作 <code>model.encodings</code> 以隔离激活家族（GeGLU、残差层），通过归档大型数据集和清理缓存来释放 150GB 以上的空间以管理硬件限制。</li>
+<li><strong>影响：</strong> 证明 GeGLU 和残差流对 W4A4 精度是独立的致命因素（W4A4 成功率为 0/50），而 W4A8 为 50/50；同时建立了正确的端到端延迟基准，将之前的项目估计修正了高达 1.85 倍。</li>
+</ul>
+<blockquote>
+<p>审核并修正了 π0.5 的延迟基准，通过针对 GeGLU/残差流进行消融实验证明了 W4A4 量化问题；同时优化了 Gadget 的总结工具架构，并对中文创意写作和文档处理准确性进行了全面的 LLM 基准测试，过程中解决了硬件和并发冲突问题。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>🔄 <strong>W4A4 与 W4A8 性能退化研究（I-078）</strong> — 进行消融实验，将特定家族的激活位宽从 8 位降低至 4 位（GeGLU、残差层、注意力、其他）。发现 GeGLU 和残差层单独对 W4A4 精度造成致命影响，证明其在无重构的情况下与 4 位精度在结构上不兼容。</li>
+<li>✅ <strong>重新评估 π0.5 端到端延迟</strong> — 修正了 <code>RESULTS.md</code> 中的延迟估计，该估计因未考虑 <code>action_expert</code> 的 10 步欧拉循环而低估了性能。更新计算逻辑为 2xVE + 1xBB + 10xAE，发现 W4A16 的延迟约为 923 毫秒（之前为约 555 毫秒）。</li>
+<li>✅ <strong>研究 W4A4 的“死锁”问题（精度与可部署性）</strong> — 分析为何 W4A4 无法修复：精度要求 16 位“岛屿”（softmax），但 QAIRT 编译器规则禁止从 4 位到 16 位的转换。即使处于最佳精度状态，累积的 4 位损伤也会导致故障。</li>
+<li>🔄 <strong>总结工具提示优化与模型基准测试</strong> — 基于“自夸文档”和“密度链”原则重新设计日常/周报提示架构。对 15 多种模型（Gemma4、Qwen、GPT、Claude）进行中文创意写作和 README 理解能力的基准测试，以选择最佳基准并生成双语报告。</li>
+<li>🔄 <strong>统一模型切换架构规划</strong> — 设计将分散的模型默认设置整合为单一解决功能的方案（I-051-I-053）。识别了因未拉取模型导致的无声故障，并解决了思想图中同时出现的 ID 冲突问题。</li>
+</ul>
+<h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
+<ul>
+<li>✅ <strong>磁盘空间管理（lighthouse）</strong> — 通过删除 AI Hub 临时文件、uv/pip 缓存以及归档 RoboMemory 数据集，解决了“设备上无空间”错误，从而释放了 150GB 以上的空间以容纳大型 <code>aimet_onnx</code> 临时文件。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-w4a4-的-성공率为-050而-w4a8-为-5050导致关于这是调整问题还是结构不兼容的假设不明确">1. W4A4 的 성공率为 0/50，而 W4A8 为 50/50，导致关于这是调整问题还是结构不兼容的假设不明确。<a hidden class="anchor" aria-hidden="true" href="#1-w4a4-的-성공率为-050而-w4a8-为-5050导致关于这是调整问题还是结构不兼容的假设不明确">#</a></h4>
+<p><strong>解决方案：</strong> 通过手动编辑 <code>model.encodings</code> 将特定张量家族的位宽降低至 4 位，进行“降级”实验。发现 GeGLU 和残差层单独与 4 位精度不兼容，确认其在结构上不可行。</p>
+<h4 id="2-π05-的延迟估计不准确低估了原因是-apppy-中的调用循环错误其中-action_expert-被计为-1-步而非-10-步">2. π0.5 的延迟估计不准确（低估了），原因是 <code>app.py</code> 中的调用循环错误，其中 <code>action_expert</code> 被计为 1 步而非 10 步。<a hidden class="anchor" aria-hidden="true" href="#2-π05-的延迟估计不准确低估了原因是-apppy-中的调用循环错误其中-action_expert-被计为-1-步而非-10-步">#</a></h4>
+<p><strong>解决方案：</strong> 审核源代码以识别 10 步欧拉循环，更新计算逻辑为 2xVE + 1xBB + 10xAE，从而修正了基准性能指标。</p>
+<h4 id="3-gadget-中的每日报告缓存仅按日期键入导致旧的低质量结果在提示优化后仍然保留">3. Gadget 中的每日报告缓存仅按日期键入，导致旧的低质量结果在提示优化后仍然保留。<a hidden class="anchor" aria-hidden="true" href="#3-gadget-中的每日报告缓存仅按日期键入导致旧的低质量结果在提示优化后仍然保留">#</a></h4>
+<p><strong>解决方案：</strong> 提出新的缓存机制，在键中包含模式/版本哈希，以确保数据生成的新鲜性并防止输出陈旧。</p>
+<h4 id="4-windows-cmd-shims-对-cli-代理的修改导致包含新行的命令行参数被截断导致基准测试期间提示被切断">4. Windows .cmd shims 对 CLI 代理的修改导致包含新行的命令行参数被截断，导致基准测试期间提示被切断。<a hidden class="anchor" aria-hidden="true" href="#4-windows-cmd-shims-对-cli-代理的修改导致包含新行的命令行参数被截断导致基准测试期间提示被切断">#</a></h4>
+<p><strong>解决方案：</strong> 修改基准测试脚本，通过 stdin 而非 argv 传递长提示给 CLI 代理，确保提示完整且结果准确。</p>
+<h4 id="5-同时运行的-ai-会话编辑共享思想图ideasgraphclaudeyaml导致-id-重复错误i-046-至-i-050-冲突">5. 同时运行的 AI 会话编辑共享思想图（ideas/graph.claude.yaml）导致 ID 重复错误（I-046 至 I-050 冲突）。<a hidden class="anchor" aria-hidden="true" href="#5-同时运行的-ai-会话编辑共享思想图ideasgraphclaudeyaml导致-id-重复错误i-046-至-i-050-冲突">#</a></h4>
+<p><strong>解决方案：</strong> 实施手动重新编号策略，识别冲突 ID 的“所有者”，并将当前会话的新节点移动到更高未使用的 ID 中（I-051+），以保持图结构完整。</p>
+<h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
+<h4 id="6-lighthouse-上的磁盘空间不足由于aimet_onnx占用资源较大导致在模型加载过程中耗尽了π05实验的运行次数解决方案-积极清理可再生缓存uvpipai-hub并将大型静态数据集robomemory归档至-archive为性能分析实验腾出足够空间">6. lighthouse 上的磁盘空间不足由于<code>aimet_onnx</code>占用资源较大，导致在模型加载过程中耗尽了π0.5实验的运行次数。<strong>解决方案：</strong> 积极清理可再生缓存（uv、pip、AI Hub），并将大型静态数据集（RoboMemory）归档至 <code>/archive</code>，为性能分析实验腾出足够空间。<a hidden class="anchor" aria-hidden="true" href="#6-lighthouse-上的磁盘空间不足由于aimet_onnx占用资源较大导致在模型加载过程中耗尽了π05实验的运行次数解决方案-积极清理可再生缓存uvpipai-hub并将大型静态数据集robomemory归档至-archive为性能分析实验腾出足够空间">#</a></h4>
+<h2 id="人类与人工智能方法对比">人类与人工智能方法对比<a hidden class="anchor" aria-hidden="true" href="#人类与人工智能方法对比">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="技术文档准确性">技术文档准确性<a hidden class="anchor" aria-hidden="true" href="#技术文档准确性">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>明确要求严格遵循提供的README，禁止编造源代码中不存在的命令或参数。</td>
+      </tr>
+      <tr>
+          <td>人工智能</td>
+          <td>通过抑制用通用知识填补空白的倾向来遵守规定，确保教程完全基于验证过的源代码内容，避免幻觉产生。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 无</p>
+<h4 id="w4a4失败的解释">W4A4失败的解释<a hidden class="anchor" aria-hidden="true" href="#w4a4失败的解释">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>无</td>
+      </tr>
+      <tr>
+          <td>人工智能</td>
+          <td>最初将W4A4失败视为独立的“精度错误”和“编译限制”。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 用户将其调整为层次化视角：精度损伤是结构性的（4位精度对于GeGLU/残差层来说太粗糙），而编译器规则（QAIRT 4-&gt;16禁止）则作为约束条件阻止了改进。用户将“部署限制与精度限制”视为一个整体比“两个错误”更优。</p>
+<h4 id="提示词优化策略与报告质量">提示词优化策略与报告质量<a hidden class="anchor" aria-hidden="true" href="#提示词优化策略与报告质量">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>寻求更深入、更有洞察力的总结用于个人回顾，避免“购物清单”式的报告。</td>
+      </tr>
+      <tr>
+          <td>人工智能</td>
+          <td>提出使用“自夸文档”（什么/为什么/影响）和“密度链”等成熟框架来结构化LLM输出，为用户的“个人实用”目标提供理论支撑。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 无</p>
+<h3 id="实施层面">实施层面<a hidden class="anchor" aria-hidden="true" href="#实施层面">#</a></h3>
+<h4 id="文学细微之处与创意限制">文学细微之处与创意限制<a hidden class="anchor" aria-hidden="true" href="#文学细微之处与创意限制">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>要求“侧面体现”挣扎过程，而非直接陈述，注重微妙性和主题深度（例如战后舞蹈演员）。</td>
+      </tr>
+      <tr>
+          <td>人工智能</td>
+          <td>通过感官细节（松脂气味、坏音乐盒）和日常惯例生成变体，以突出缺失身体部位的缺失，展示出“展示而非讲述”技术的熟练度。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 无</p>
+<h2 id="人工智能局限性">人工智能局限性<a hidden class="anchor" aria-hidden="true" href="#人工智能局限性">#</a></h2>
+<h3 id="关键局限">关键局限<a hidden class="anchor" aria-hidden="true" href="#关键局限">#</a></h3>
+<ul>
+<li>对π0.5的初始延迟计算依赖于文档，但未验证调用图（Euler步骤），导致1.85倍的误差，需要源代码审查才能修正。</li>
+<li>在总结规划阶段，人工智能必须被明确指导在代码库中寻找“先例”，避免创造新模式，这表明如果不基于现有代码风格，就有过度设计倾向。</li>
+<li>基准测试的初始CLI执行因Windows路径解析问题及无扩展的npm shims而失败，需要动态调整使用完整的.cmd路径或stdin来绕过CreateProcess限制。</li>
+</ul>
+<h3 id="一般局限">一般局限<a hidden class="anchor" aria-hidden="true" href="#一般局限">#</a></h3>
+<ul>
+<li>在某些创意写作过程中，人工智能无意中在输出中包含了内部“思考过程”或“策略笔记”，打断沉浸感并违反隐式的“直接输出”指令。</li>
+</ul>
+<h2 id="学习成果">学习成果<a hidden class="anchor" aria-hidden="true" href="#学习成果">#</a></h2>
+<h3 id="关键学习点">关键学习点<a hidden class="anchor" aria-hidden="true" href="#关键学习点">#</a></h3>
+<ul>
+<li>Qualcomm QAIRT的“岛屿”规则具有方向性：8&lt;-&gt;16转换被支持，但4-&gt;16则不支持。这使得混合精度（例如在4位图中使用16位Softmax）无法在此NPU上部署。</li>
+<li>GeGLU和残差层激活对4位量化非常敏感。对于此NPU，激活必须至少保持8位才能成功；W4A4从根本上无法实现，除非重新架构模型。</li>
+<li>在结构化LLM输出中，JSON模式中<code>description</code>字段充当“嵌入式微提示”，显著影响字段内容的丰富度。</li>
+<li>“自夸文档”风格（结果+行动+重要性）比时间日志更适合日常工程报告，提供更好的洞察密度。</li>
+<li>在基准测试本地模型时，使用<code>ollama stop</code>确保冷启动条件下的VRAM和加载时间指标一致；如果其他进程活跃，<code>nvidia-smi</code>中的基线VRAM不可靠。</li>
+<li>共享状态文件（如想法图）需要锁定机制或顺序协调协议，以防止多会话AI环境中ID冲突。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<h3 id="qualcomm-vla">Qualcomm VLA<a hidden class="anchor" aria-hidden="true" href="#qualcomm-vla">#</a></h3>
+<p><strong>✅ π0.5延迟审计与W4A4失败分析</strong>
+深入探究Qualcomm Dragonwing NPU的限制。审查源代码以修正π0.5中1.85倍的延迟低估。执行D1-D4消融研究证明，由于QAIRT位转换规则和固有的量化敏感性，GeGLU和残差层与W4A4精度在结构上不兼容。</p>
+<h3 id="gadget">Gadget<a hidden class="anchor" aria-hidden="true" href="#gadget">#</a></h3>
+<p><strong>✅ 总结工具优化与模型基准测试</strong>
+使用“自夸文档”和“密度链”原则重新设计总结工具的提示词架构。对15多种模型（本地Ollama+云API）进行中文创意写作和README理解基准测试。识别表现最佳的模型，解决Windows CLI参数截断问题，并为网站生成双语基准报告。</p>
+<p><strong>✅ 统一模型切换架构与想法图同步</strong>
+计划重构以集中模型选择（I-051到I-053）。识别由未拉取默认模型引起的静默故障。通过手动重新编号节点解决共享想法图中的并发ID冲突，防止平行AI会话之间的状态冲突。</p>
+<h3 id="创意写作基准测试">创意写作基准测试<a hidden class="anchor" aria-hidden="true" href="#创意写作基准测试">#</a></h3>
+<p><strong>✅ 战后舞蹈演员与科幻故事</strong>
+执行多轮创意写作提示（装有假肢的芭蕾舞者、远程站观察员）。展示出对情感基调和感官细节的强控制能力，以间接方式描绘挣扎。验证了在严格技术准确性与富有表现力的文学风格之间切换的能力。</p>
+<h2 id="token使用">Token使用<a hidden class="anchor" aria-hidden="true" href="#token使用">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-08-26</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$99.02</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>56M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>396K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>92.3%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $98</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $1</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (99.1%), Codex (0.9%)">
+          <span style="width:99.1%; background:var(--usage-cost-main)"></span>
+          <span style="width:0.9%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 92.3%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 7.7%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (92.3%), active tokens (7.7%)">
+          <span style="width:92.3%; background:var(--usage-cache)"></span>
+          <span style="width:7.7%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:2e6ca886fd567f02 -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
