@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-08-31 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="为期一天的跨项目工程工作，内容包括对高通VLA量化技术和RoboMemory关键硬件的验证，统一AI辅助引擎的实现与严格测试，先进的自动语音识别后处理设计，以及复杂Windows/SSH基础设施问题的解决，旨在确保系统的合规性与稳定性。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-31/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-08-31/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-31/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-31/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-08-31">
+  <meta property="og:description" content="为期一天的跨项目工程工作，内容包括对高通VLA量化技术和RoboMemory关键硬件的验证，统一AI辅助引擎的实现与严格测试，先进的自动语音识别后处理设计，以及复杂Windows/SSH基础设施问题的解决，旨在确保系统的合规性与稳定性。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-08-31T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-08-31T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-08-31">
+  <meta name="twitter:description" content="为期一天的跨项目工程工作，内容包括对高通VLA量化技术和RoboMemory关键硬件的验证，统一AI辅助引擎的实现与严格测试，先进的自动语音识别后处理设计，以及复杂Windows/SSH基础设施问题的解决，旨在确保系统的合规性与稳定性。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-08-31",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-31/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-08-31",
+  "name": "Bug Journal 2026-08-31",
+  "description": "为期一天的跨项目工程工作，内容包括对高通VLA量化技术和RoboMemory关键硬件的验证，统一AI辅助引擎的实现与严格测试，先进的自动语音识别后处理设计，以及复杂Windows/SSH基础设施问题的解决，旨在确保系统的合规性与稳定性。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-08-31 日常概述 完成事项： 研究了 Qualcomm NPU 上 W8A8/W4A4 的硬件限制，实现了并测试了统一共享 AI 代理引擎，设计了适用于 LiveCaption 的稳健 AI 文本润色功能，解决了关键 Windows/SSH 基础设施问题以符合 DCC 政策要求。 实现方法： 采用对抗性验证、测试驱动开发（TDD）进行引擎移植，通过深层根本原因分析系统延迟（驱动冲突），并对远程 HPC 环境实施严格的依赖项绑定（ms-swift/PyTorch）。 影响： 将 W8A8 确立为 Qualcomm 部署的可行目标（尽管速度较慢），创建了可移植且经过测试的“中性”核心引擎用于代理工作流，设计了科学严谨的 ASR 质量“Kill Gate”，并恢复了 DCC 计算节点稳定的合规远程开发访问。 TzJsDesktop 完成事项： 作为主要工作站进行大量开发：实现了统一“伴侣”引擎，解决了系统延迟问题（禁用故障驱动），配置了 DCC SSH 合规性，并对 RoboMemory 执行了远程集群分析。 实现方法： 使用 PowerShell 进行系统诊断，通过 TDD 进行代码移植，采用复杂的 SSH/worktree 工作流处理远程 GPU 推理任务。 影响： 提供了稳定的跨代理开发基础以及合规的高性能远程计算环境。 lighthouse 完成事项： 托管 Qualcomm 项目仓库，作为验证量化结果和更新项目概念图的执行环境。 实现方法： 处理后台 Python 脚本以进行 ONNX 分块操作，并管理跨会话的图同步。 影响： 提供了 W8A8/W4A4 性能指标的真实数据，确保项目状态一致性。 MacOS 完成事项： 研究了“Amber”应用的环境光传感器数据故障，诊断出由瞬时 ALS 读取错误导致的静默退出问题。 实现方法： 分析 launchctl 状态和 Swift 代码以识别传感器故障时的早期退出逻辑。 影响： 发现了数据收集中的关键鲁棒性缺陷，从而能够修复防止在睡眠/唤醒转换期间数据丢失的问题。 这是一天内跨项目的综合工程工作，包括 Qualcomm VLA 量化和 RoboMemory 的关键硬件验证，统一 AI-伴侣引擎的实现与严格测试，先进的 ASR 后处理设计，以及复杂 Windows/SSH 基础设施问题的解决，以确保合规性与稳定性。\n任务 架构与策略 ✅ Qualcomm VLA 量化：W8A8 分析与策略 — 通过分块验证确认了 W8A8 核心的可行性（延迟 374.5ms），并确认 W4A4 不可行。更新了项目图和策略，转向 W4A8/W8A8 混合方案。 ✅ 实现统一 AI-伴侣引擎（I-088/I-089） — 将 Claude 概念图引擎移植到中性“伴侣”目录中。实现了准备检查和审批逻辑。通过 27 次测试验证。解决了 CSS UI 错误并明确了命令行调用方式。 ✅ 设计 LiveCaption AI 文本润色功能 — 基于从“修正”转向“音频引导重转录”的转型，设计了 7 节点实施计划（I-031 至 I-037）。引入了用于统计验证的“Kill Gate”（I-036）和两阶段输出（忠实 + 易读）。 ✅ RoboMemory：MemER 设置与协调验证 — 解决了 tianhe3 集群上的复杂依赖冲突（ms-swift 3.x，PyTorch 2.9.1+cu128）。验证了 MemER 使用 (y,x) 坐标约定。修复了带有空关键帧列表的上游崩溃问题。 ✅ 解决 DCC SSH 合规性和 Windows 多路复用问题 — 为 DCC 计算节点配置 SSH 别名以符合 Duke 政策。移除了 Windows OpenSSH 不兼容的 ControlMaster 选项。修复了 Codex/VS Code 连接超时和 ProxyCommand 路径解析问题。 ✅ 系统延迟诊断与驱动修复 — 诊断出 Windows 上的光标/音频卡顿，追溯到处于错误状态的故障“USB 移动显示器”虚拟显示驱动，并禁用它以恢复稳定性。 ✅ 实现 Set-of-Mark Writer（I-045）及评估 — 为 VideoUnmaskSwap 实现了 mark_writer 模块。进行了 50 集评估，证明本地化问题已解决（1.4px 误差），但内存保留是瓶颈（选择准确率 41.7%）。 问题与解决方案 关键问题 1. Codex/VS Code 中的 SSH 连接至 DCC/Agent 失败，提示“握手前连接丢失”，尽管 CLI 连接正常。 解决方案： 发现 Windows OpenSSH/MSYS 在 ProxyCommand中扭曲绝对路径，基于 electron 的应用需要更长的超时时间。通过在 ProxyCommand 中使用裸 ssh 命令并将 remote.SSH.connectTimeout 设置为 300 秒来修复。\n关键洞察： Electron 基于的 IDE 和 Windows OpenSSH 在路径解析和默认超时方面存在特定问题，与标准 CLI 环境不同。\n2. 环境光探针在启动后立即退出，记录“无法读取传感器”，导致夜间无数据输出。 解决方案： 代码审查揭示了 guard 逻辑在 Diagnostics.swift 中导致首次读取失败时的早期返回（常见于睡眠/唤醒期间）。提出了重试逻辑和优雅降级而非终止。\n关键洞察： 传感器可能在状态转换期间不可用；稳健的探针必须处理瞬态读取失败而不终止整个会话。\n3. 初始设计认为“文本修正”优于“重转录”，并使用未验证参考文件作为真实数据。 解决方案： 转向“带上下文重转录”方法，引入了使用三臂比较（原始 vs. 润色 vs. 重转录）的“Kill Gate”（I-036）以统计验证改进，避免循环偏见。\n关键洞察： 在改进 AI 生成内容时，需要独立基线来隔离价值并避免针对模型自身错误进行验证。\n4. LifeCopilot I-064 通过mock测试通过，但在 Windows 生产环境中功能无声失败，因为 subprocess.run(\"npx\") 无法解析 PATHEXT。 解决方案： 对真实 CLI 进行对抗性验证。通过 shutil.which('npx') 解决可执行路径问题，并添加了一个生成实际进程的外部测试。\n关键洞察： 基于 mock 的测试可能给系统集成带来虚假信心；在 Windows 上针对外部 CLI 交互始终需使用真实二进制文件进行测试。\n5. 由多个 AI 会话或代理编辑同一共享状态文件导致的 ideas/graph.yaml 并发写冲突。解决方案： 实现了“检测并停止”循环：停止编辑，重新阅读当前状态，调整节点 ID 以避免冲突，然后重新应用编辑。对于多智能体工作流，建议采用明确的锁定或版本检查机制。 关键洞察： 多智能体环境中的共享文件状态容易出现竞争条件；盲目的写入会破坏战略计划。\n6. MemER 推理失败是因为 ModuleNotFoundError: No module named 'swift.llm' 和 torch.cuda.is_available() 返回了 False。 解决方案： 将 ms-swift 降级为 3.12.6（4.x 重构了包结构），并将 PyTorch 固定为 2.9.1+cu128，以匹配已安装的 NVIDIA 驱动程序（12.2）。为空关键帧列表添加保护机制，防止崩溃。\n关键洞察： 在复杂的 HPC 环境中，明确的版本固定至关重要；“最新”版本通常会导致破坏性变更或特定硬件问题。\n7. Windows 主机上全局性的光标和音频延迟问题。 解决方案： 发现一个故障的“USB Mobile Monitor”（Amyuni）虚拟显示驱动处于错误状态。通过 PnP 工具禁用它，立即解决了延迟问题。\n关键洞察： 即使物理显示器正常，虚拟显示驱动也可能通过干扰 compositor（DWM）导致系统级 UI/音频延迟。\n人类与 AI 方法对比 战略层面 AI-Companion 中“步骤概述”的范围 角色 方法 人类 用户希望有一个可移植的规范说明，以便任何仓库都能生成自己的概述，而不是为某个仓库硬编码文本。 AI 最初被理解为硬编码内容。经澄清后，重新设计成规范中的正式字段，需要人类确认以确保可用性。 差异分析： 人类关注可移植性和长期维护；AI 最初关注局部优化。这种澄清避免了不可扩展的设计。\nLifeCopilot 中验证的严格性（模拟 vs. 实际） 角色 方法 人类 依赖标准的 TDD 和绿色 CI 信号来批准实现。 AI 主动应用“对抗性验证”对真实系统二进制文件进行测试，发现了被模拟忽略的 Windows 特定故障。 差异分析： AI 对系统级集成采用了更高的保证标准，识别了标准单元测试无法捕捉的风险。\nLiveCaption 中 AI 后处理的目的 角色 方法 人类 除了“优化”之外，明确要求“释义”，目标是可读性而非仅准确性。 AI 最初专注于“错误纠正”。纠正后，重新评估流程，支持两阶段输出，并在各阶段之间设置严格的“验证门”。 差异分析： 人类的澄清迫使架构发生根本转变，确保“忠实”的纠正在“可读”的释义开始之前得到验证。\nDCC 中“握手前连接丢失”的诊断 角色 方法 人类 用户报告了 GUI 错误，怀疑是网络不稳定或简单的配置问题。 AI 对 Codex/Electron 与 CLI SSH 进行了日志分析，发现细微的路径兼容性和超时不匹配。 差异分析： AI 通过深入探究 electron/node 路径解析的特殊情况，弥合了正常 CLI 环境和失败 GUI 环境之间的差距。\nAI 局限性 关键局限性 无法自我批准规范或验证需要人类互动观察和判断的行为保证（如钩子执行）。 容易受到共享 YAML 图中并发写入产生的旧数据影响，需要手动“检测并停止”循环以避免覆盖其他智能体的工作。 一般局限性 在 Bash 中执行内联 PowerShell 时遇到困难，需要转向脚本文件生成，以避免 MSYS 环境中的引用问题。 最初没有意识到 Claude Code/Codex 可能缓存了旧的 SSH 配置或特定项目文档（如代理命名问题），导致故障排查时混乱。 经验教训 关键经验 在 Windows 环境中，始终通过 shutil.which 解析可执行文件，或在 Python subprocess 调用中使用绝对路径，以避免 CreateProcess PATHEXT 解析失败。 一个“中立”的核心引擎可以抽象出智能体特定的钩子（Claude/Codex/Cursor），允许“一次编写，处处使用”的开发流程，大幅减少重复工作。 当使用 AI 改进 AI 生成的内容时，不要将原始 AI 未经验证的输出作为唯一真实标准；需要独立基线（如纯重新转录）来分离价值。 Set-of-Mark 策略有效将“本地化”与“身份/记忆”分离，为机器人任务中的 VLM 故障提供清晰的诊断信息。 浏览器原生 / 是生成 HTML 页面中可折叠 UI 的正确原语——无需 JS，支持键盘/ARIA 功能，并在 file:// 上下文中工作。 在 Windows/Git Bash 中定义 SSH ProxyCommands 时，始终使用路径解析后的远程命令而非绝对路径，以防止 MSYS 路径处理错误。 虚拟显示驱动通过干扰 compositor（DWM）导致系统级 UI/音频延迟，即使物理显示器正常也是如此。 对话总结 Qualcomm VLA 量化项目 • 硬件限制与策略转向 研究了 Qualcomm NPU 上 W4A4/W8A8 的硬件限制。通过分块验证 W8A8 后端分析（374.5ms），认为 W4A4 不可行。转向 W4A8/W8A8 混合方案。跨并发会话同步项目图。\nAI-Companion（统一引擎） • 共享基础实现与 Web 功能 使用 TDD 实现了统一共享基础的前两个模块（Engine、Readiness）。为手动确认和进行中的项添加了可折叠索引。在明确必须可移植后，定义了“步骤概述”规范（I-082），并在外部仓库 LifeCopilot 中验证。\nLiveCaption • AI 文本润色设计与错误修复 设计了稳健的 7 节点计划用于 AI 文本润色，从简单纠正转向带有“Kill Gate”的音频引导重新转录。使用动态 glob 模式修复了停止脚本中的流程管理错误。验证了 ASR 模型的坐标约定。\nDCC 基础设施与合规性 • SSH 配置与 Windows 兼容性 将 DCC 工作流迁移到计算节点以符合 Duke 政策。通过调整 ProxyCommand 语法和超时设置，解决了 Windows OpenSSH 多路复用问题和 Codex/VS Code “连接丢失”错误。确保登录节点上没有剩余进程。\nRoboMemory（E-MemER 集成） —• 环境配置与标记生成器评估 在 Tianhe3 集群上解决了 ms-swift/PyTorch 依赖冲突问题。确认了 MemER 坐标规范（y,x）。实现了并评估了 Set-of-Mark 生成器（I-045），发现定位功能已解决，但内存保留成为瓶颈。修复了 RouteStick 的Ground Truth规则，使其使用准确的帧数。\n令牌使用 AI Usage · 2026-08-31\rClaude Code + Codex\rTotal cost$552.63\rTotal tokens584M\rOutput tokens3M\rCache read96.5%\rCost split\rClaude Code $549 ·\rCodex $4\rToken character\rCache reads 96.5% ·\rActive 3.5%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "594",
+  "inLanguage": "zh",
+  "datePublished": "2026-08-31T00:00:00-04:00",
+  "dateModified": "2026-08-31T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-31/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-08-31
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-08-31 00:00:00 -0400 EDT'>2026年8月31日</span>&nbsp;·&nbsp;<span>3 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-08-31">每日报告 — 2026-08-31<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-08-31">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>完成事项：</strong> 研究了 Qualcomm NPU 上 W8A8/W4A4 的硬件限制，实现了并测试了统一共享 AI 代理引擎，设计了适用于 LiveCaption 的稳健 AI 文本润色功能，解决了关键 Windows/SSH 基础设施问题以符合 DCC 政策要求。</li>
+<li><strong>实现方法：</strong> 采用对抗性验证、测试驱动开发（TDD）进行引擎移植，通过深层根本原因分析系统延迟（驱动冲突），并对远程 HPC 环境实施严格的依赖项绑定（ms-swift/PyTorch）。</li>
+<li><strong>影响：</strong> 将 W8A8 确立为 Qualcomm 部署的可行目标（尽管速度较慢），创建了可移植且经过测试的“中性”核心引擎用于代理工作流，设计了科学严谨的 ASR 质量“Kill Gate”，并恢复了 DCC 计算节点稳定的合规远程开发访问。</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>完成事项：</strong> 作为主要工作站进行大量开发：实现了统一“伴侣”引擎，解决了系统延迟问题（禁用故障驱动），配置了 DCC SSH 合规性，并对 RoboMemory 执行了远程集群分析。</li>
+<li><strong>实现方法：</strong> 使用 PowerShell 进行系统诊断，通过 TDD 进行代码移植，采用复杂的 SSH/worktree 工作流处理远程 GPU 推理任务。</li>
+<li><strong>影响：</strong> 提供了稳定的跨代理开发基础以及合规的高性能远程计算环境。</li>
+</ul>
+<h3 id="lighthouse">lighthouse<a hidden class="anchor" aria-hidden="true" href="#lighthouse">#</a></h3>
+<ul>
+<li><strong>完成事项：</strong> 托管 Qualcomm 项目仓库，作为验证量化结果和更新项目概念图的执行环境。</li>
+<li><strong>实现方法：</strong> 处理后台 Python 脚本以进行 ONNX 分块操作，并管理跨会话的图同步。</li>
+<li><strong>影响：</strong> 提供了 W8A8/W4A4 性能指标的真实数据，确保项目状态一致性。</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>完成事项：</strong> 研究了“Amber”应用的环境光传感器数据故障，诊断出由瞬时 ALS 读取错误导致的静默退出问题。</li>
+<li><strong>实现方法：</strong> 分析 <code>launchctl</code> 状态和 Swift 代码以识别传感器故障时的早期退出逻辑。</li>
+<li><strong>影响：</strong> 发现了数据收集中的关键鲁棒性缺陷，从而能够修复防止在睡眠/唤醒转换期间数据丢失的问题。</li>
+</ul>
+<blockquote>
+<p>这是一天内跨项目的综合工程工作，包括 Qualcomm VLA 量化和 RoboMemory 的关键硬件验证，统一 AI-伴侣引擎的实现与严格测试，先进的 ASR 后处理设计，以及复杂 Windows/SSH 基础设施问题的解决，以确保合规性与稳定性。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>✅ <strong>Qualcomm VLA 量化：W8A8 分析与策略</strong> — 通过分块验证确认了 W8A8 核心的可行性（延迟 374.5ms），并确认 W4A4 不可行。更新了项目图和策略，转向 W4A8/W8A8 混合方案。</li>
+<li>✅ <strong>实现统一 AI-伴侣引擎（I-088/I-089）</strong> — 将 Claude 概念图引擎移植到中性“伴侣”目录中。实现了准备检查和审批逻辑。通过 27 次测试验证。解决了 CSS UI 错误并明确了命令行调用方式。</li>
+<li>✅ <strong>设计 LiveCaption AI 文本润色功能</strong> — 基于从“修正”转向“音频引导重转录”的转型，设计了 7 节点实施计划（I-031 至 I-037）。引入了用于统计验证的“Kill Gate”（I-036）和两阶段输出（忠实 + 易读）。</li>
+<li>✅ <strong>RoboMemory：MemER 设置与协调验证</strong> — 解决了 tianhe3 集群上的复杂依赖冲突（ms-swift 3.x，PyTorch 2.9.1+cu128）。验证了 MemER 使用 (y,x) 坐标约定。修复了带有空关键帧列表的上游崩溃问题。</li>
+<li>✅ <strong>解决 DCC SSH 合规性和 Windows 多路复用问题</strong> — 为 DCC 计算节点配置 SSH 别名以符合 Duke 政策。移除了 Windows OpenSSH 不兼容的 <code>ControlMaster</code> 选项。修复了 Codex/VS Code 连接超时和 ProxyCommand 路径解析问题。</li>
+<li>✅ <strong>系统延迟诊断与驱动修复</strong> — 诊断出 Windows 上的光标/音频卡顿，追溯到处于错误状态的故障“USB 移动显示器”虚拟显示驱动，并禁用它以恢复稳定性。</li>
+<li>✅ <strong>实现 Set-of-Mark Writer（I-045）及评估</strong> — 为 VideoUnmaskSwap 实现了 mark_writer 模块。进行了 50 集评估，证明本地化问题已解决（1.4px 误差），但内存保留是瓶颈（选择准确率 41.7%）。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-codexvs-code-中的-ssh-连接至-dccagent-失败提示握手前连接丢失尽管-cli-连接正常">1. Codex/VS Code 中的 SSH 连接至 DCC/Agent 失败，提示“握手前连接丢失”，尽管 CLI 连接正常。<a hidden class="anchor" aria-hidden="true" href="#1-codexvs-code-中的-ssh-连接至-dccagent-失败提示握手前连接丢失尽管-cli-连接正常">#</a></h4>
+<p><strong>解决方案：</strong> 发现 Windows OpenSSH/MSYS 在 <code>ProxyCommand</code>中扭曲绝对路径，基于 electron 的应用需要更长的超时时间。通过在 ProxyCommand 中使用裸 <code>ssh</code> 命令并将 <code>remote.SSH.connectTimeout</code> 设置为 300 秒来修复。</p>
+<p><strong>关键洞察：</strong> Electron 基于的 IDE 和 Windows OpenSSH 在路径解析和默认超时方面存在特定问题，与标准 CLI 环境不同。</p>
+<h4 id="2-环境光探针在启动后立即退出记录无法读取传感器导致夜间无数据输出">2. 环境光探针在启动后立即退出，记录“无法读取传感器”，导致夜间无数据输出。<a hidden class="anchor" aria-hidden="true" href="#2-环境光探针在启动后立即退出记录无法读取传感器导致夜间无数据输出">#</a></h4>
+<p><strong>解决方案：</strong> 代码审查揭示了 <code>guard</code> 逻辑在 <code>Diagnostics.swift</code> 中导致首次读取失败时的早期返回（常见于睡眠/唤醒期间）。提出了重试逻辑和优雅降级而非终止。</p>
+<p><strong>关键洞察：</strong> 传感器可能在状态转换期间不可用；稳健的探针必须处理瞬态读取失败而不终止整个会话。</p>
+<h4 id="3-初始设计认为文本修正优于重转录并使用未验证参考文件作为真实数据">3. 初始设计认为“文本修正”优于“重转录”，并使用未验证参考文件作为真实数据。<a hidden class="anchor" aria-hidden="true" href="#3-初始设计认为文本修正优于重转录并使用未验证参考文件作为真实数据">#</a></h4>
+<p><strong>解决方案：</strong> 转向“带上下文重转录”方法，引入了使用三臂比较（原始 vs. 润色 vs. 重转录）的“Kill Gate”（I-036）以统计验证改进，避免循环偏见。</p>
+<p><strong>关键洞察：</strong> 在改进 AI 生成内容时，需要独立基线来隔离价值并避免针对模型自身错误进行验证。</p>
+<h4 id="4-lifecopilot-i-064-通过mock测试通过但在-windows-生产环境中功能无声失败因为-subprocessrunnpx-无法解析-pathext">4. LifeCopilot I-064 通过mock测试通过，但在 Windows 生产环境中功能无声失败，因为 <code>subprocess.run(&quot;npx&quot;)</code> 无法解析 PATHEXT。<a hidden class="anchor" aria-hidden="true" href="#4-lifecopilot-i-064-通过mock测试通过但在-windows-生产环境中功能无声失败因为-subprocessrunnpx-无法解析-pathext">#</a></h4>
+<p><strong>解决方案：</strong> 对真实 CLI 进行对抗性验证。通过 <code>shutil.which('npx')</code> 解决可执行路径问题，并添加了一个生成实际进程的外部测试。</p>
+<p><strong>关键洞察：</strong> 基于 mock 的测试可能给系统集成带来虚假信心；在 Windows 上针对外部 CLI 交互始终需使用真实二进制文件进行测试。</p>
+<h4 id="5-由多个-ai-会话或代理编辑同一共享状态文件导致的-ideasgraphyaml-并发写冲突解决方案-实现了检测并停止循环停止编辑重新阅读当前状态调整节点-id-以避免冲突然后重新应用编辑对于多智能体工作流建议采用明确的锁定或版本检查机制">5. 由多个 AI 会话或代理编辑同一共享状态文件导致的 <code>ideas/graph.yaml</code> 并发写冲突。<strong>解决方案：</strong> 实现了“检测并停止”循环：停止编辑，重新阅读当前状态，调整节点 ID 以避免冲突，然后重新应用编辑。对于多智能体工作流，建议采用明确的锁定或版本检查机制。<a hidden class="anchor" aria-hidden="true" href="#5-由多个-ai-会话或代理编辑同一共享状态文件导致的-ideasgraphyaml-并发写冲突解决方案-实现了检测并停止循环停止编辑重新阅读当前状态调整节点-id-以避免冲突然后重新应用编辑对于多智能体工作流建议采用明确的锁定或版本检查机制">#</a></h4>
+<p><strong>关键洞察：</strong> 多智能体环境中的共享文件状态容易出现竞争条件；盲目的写入会破坏战略计划。</p>
+<h4 id="6-memer-推理失败是因为-modulenotfounderror-no-module-named-swiftllm-和-torchcudais_available-返回了-false">6. MemER 推理失败是因为 <code>ModuleNotFoundError: No module named 'swift.llm'</code> 和 <code>torch.cuda.is_available()</code> 返回了 False。<a hidden class="anchor" aria-hidden="true" href="#6-memer-推理失败是因为-modulenotfounderror-no-module-named-swiftllm-和-torchcudais_available-返回了-false">#</a></h4>
+<p><strong>解决方案：</strong> 将 ms-swift 降级为 3.12.6（4.x 重构了包结构），并将 PyTorch 固定为 2.9.1+cu128，以匹配已安装的 NVIDIA 驱动程序（12.2）。为空关键帧列表添加保护机制，防止崩溃。</p>
+<p><strong>关键洞察：</strong> 在复杂的 HPC 环境中，明确的版本固定至关重要；“最新”版本通常会导致破坏性变更或特定硬件问题。</p>
+<h4 id="7-windows-主机上全局性的光标和音频延迟问题">7. Windows 主机上全局性的光标和音频延迟问题。<a hidden class="anchor" aria-hidden="true" href="#7-windows-主机上全局性的光标和音频延迟问题">#</a></h4>
+<p><strong>解决方案：</strong> 发现一个故障的“USB Mobile Monitor”（Amyuni）虚拟显示驱动处于错误状态。通过 PnP 工具禁用它，立即解决了延迟问题。</p>
+<p><strong>关键洞察：</strong> 即使物理显示器正常，虚拟显示驱动也可能通过干扰 compositor（DWM）导致系统级 UI/音频延迟。</p>
+<h2 id="人类与-ai-方法对比">人类与 AI 方法对比<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法对比">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="ai-companion-中步骤概述的范围">AI-Companion 中“步骤概述”的范围<a hidden class="anchor" aria-hidden="true" href="#ai-companion-中步骤概述的范围">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户希望有一个可移植的规范说明，以便任何仓库都能生成自己的概述，而不是为某个仓库硬编码文本。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初被理解为硬编码内容。经澄清后，重新设计成规范中的正式字段，需要人类确认以确保可用性。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类关注可移植性和长期维护；AI 最初关注局部优化。这种澄清避免了不可扩展的设计。</p>
+<h4 id="lifecopilot-中验证的严格性模拟-vs-实际">LifeCopilot 中验证的严格性（模拟 vs. 实际）<a hidden class="anchor" aria-hidden="true" href="#lifecopilot-中验证的严格性模拟-vs-实际">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>依赖标准的 TDD 和绿色 CI 信号来批准实现。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>主动应用“对抗性验证”对真实系统二进制文件进行测试，发现了被模拟忽略的 Windows 特定故障。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> AI 对系统级集成采用了更高的保证标准，识别了标准单元测试无法捕捉的风险。</p>
+<h4 id="livecaption-中-ai-后处理的目的">LiveCaption 中 AI 后处理的目的<a hidden class="anchor" aria-hidden="true" href="#livecaption-中-ai-后处理的目的">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>除了“优化”之外，明确要求“释义”，目标是可读性而非仅准确性。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初专注于“错误纠正”。纠正后，重新评估流程，支持两阶段输出，并在各阶段之间设置严格的“验证门”。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类的澄清迫使架构发生根本转变，确保“忠实”的纠正在“可读”的释义开始之前得到验证。</p>
+<h4 id="dcc-中握手前连接丢失的诊断">DCC 中“握手前连接丢失”的诊断<a hidden class="anchor" aria-hidden="true" href="#dcc-中握手前连接丢失的诊断">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>用户报告了 GUI 错误，怀疑是网络不稳定或简单的配置问题。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>对 Codex/Electron 与 CLI SSH 进行了日志分析，发现细微的路径兼容性和超时不匹配。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> AI 通过深入探究 electron/node 路径解析的特殊情况，弥合了正常 CLI 环境和失败 GUI 环境之间的差距。</p>
+<h2 id="ai-局限性">AI 局限性<a hidden class="anchor" aria-hidden="true" href="#ai-局限性">#</a></h2>
+<h3 id="关键局限性">关键局限性<a hidden class="anchor" aria-hidden="true" href="#关键局限性">#</a></h3>
+<ul>
+<li>无法自我批准规范或验证需要人类互动观察和判断的行为保证（如钩子执行）。</li>
+<li>容易受到共享 YAML 图中并发写入产生的旧数据影响，需要手动“检测并停止”循环以避免覆盖其他智能体的工作。</li>
+</ul>
+<h3 id="一般局限性">一般局限性<a hidden class="anchor" aria-hidden="true" href="#一般局限性">#</a></h3>
+<ul>
+<li>在 Bash 中执行内联 PowerShell 时遇到困难，需要转向脚本文件生成，以避免 MSYS 环境中的引用问题。</li>
+<li>最初没有意识到 Claude Code/Codex 可能缓存了旧的 SSH 配置或特定项目文档（如代理命名问题），导致故障排查时混乱。</li>
+</ul>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="关键经验">关键经验<a hidden class="anchor" aria-hidden="true" href="#关键经验">#</a></h3>
+<ul>
+<li>在 Windows 环境中，始终通过 <code>shutil.which</code> 解析可执行文件，或在 Python subprocess 调用中使用绝对路径，以避免 <code>CreateProcess</code> PATHEXT 解析失败。</li>
+<li>一个“中立”的核心引擎可以抽象出智能体特定的钩子（Claude/Codex/Cursor），允许“一次编写，处处使用”的开发流程，大幅减少重复工作。</li>
+<li>当使用 AI 改进 AI 生成的内容时，不要将原始 AI 未经验证的输出作为唯一真实标准；需要独立基线（如纯重新转录）来分离价值。</li>
+<li>Set-of-Mark 策略有效将“本地化”与“身份/记忆”分离，为机器人任务中的 VLM 故障提供清晰的诊断信息。</li>
+<li>浏览器原生 <code>&lt;details&gt;/&lt;summary&gt;</code> 是生成 HTML 页面中可折叠 UI 的正确原语——无需 JS，支持键盘/ARIA 功能，并在 <code>file://</code> 上下文中工作。</li>
+<li>在 Windows/Git Bash 中定义 SSH ProxyCommands 时，始终使用路径解析后的远程命令而非绝对路径，以防止 MSYS 路径处理错误。</li>
+<li>虚拟显示驱动通过干扰 compositor（DWM）导致系统级 UI/音频延迟，即使物理显示器正常也是如此。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<h3 id="qualcomm-vla-量化项目">Qualcomm VLA 量化项目<a hidden class="anchor" aria-hidden="true" href="#qualcomm-vla-量化项目">#</a></h3>
+<p><strong>• 硬件限制与策略转向</strong>
+研究了 Qualcomm NPU 上 W4A4/W8A8 的硬件限制。通过分块验证 W8A8 后端分析（374.5ms），认为 W4A4 不可行。转向 W4A8/W8A8 混合方案。跨并发会话同步项目图。</p>
+<h3 id="ai-companion统一引擎">AI-Companion（统一引擎）<a hidden class="anchor" aria-hidden="true" href="#ai-companion统一引擎">#</a></h3>
+<p><strong>• 共享基础实现与 Web 功能</strong>
+使用 TDD 实现了统一共享基础的前两个模块（Engine、Readiness）。为手动确认和进行中的项添加了可折叠索引。在明确必须可移植后，定义了“步骤概述”规范（I-082），并在外部仓库 LifeCopilot 中验证。</p>
+<h3 id="livecaption">LiveCaption<a hidden class="anchor" aria-hidden="true" href="#livecaption">#</a></h3>
+<p><strong>• AI 文本润色设计与错误修复</strong>
+设计了稳健的 7 节点计划用于 AI 文本润色，从简单纠正转向带有“Kill Gate”的音频引导重新转录。使用动态 glob 模式修复了停止脚本中的流程管理错误。验证了 ASR 模型的坐标约定。</p>
+<h3 id="dcc-基础设施与合规性">DCC 基础设施与合规性<a hidden class="anchor" aria-hidden="true" href="#dcc-基础设施与合规性">#</a></h3>
+<p><strong>• SSH 配置与 Windows 兼容性</strong>
+将 DCC 工作流迁移到计算节点以符合 Duke 政策。通过调整 ProxyCommand 语法和超时设置，解决了 Windows OpenSSH 多路复用问题和 Codex/VS Code “连接丢失”错误。确保登录节点上没有剩余进程。</p>
+<h3 id="robomemorye-memer-集成">RoboMemory（E-MemER 集成）<a hidden class="anchor" aria-hidden="true" href="#robomemorye-memer-集成">#</a></h3>
+<p>&mdash;<strong>• 环境配置与标记生成器评估</strong>
+在 Tianhe3 集群上解决了 ms-swift/PyTorch 依赖冲突问题。确认了 MemER 坐标规范（y,x）。实现了并评估了 Set-of-Mark 生成器（I-045），发现定位功能已解决，但内存保留成为瓶颈。修复了 RouteStick 的Ground Truth规则，使其使用准确的帧数。</p>
+<h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-08-31</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$552.63</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>584M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>3M</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>96.5%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $549</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $4</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (99.3%), Codex (0.7%)">
+          <span style="width:99.3%; background:var(--usage-cost-main)"></span>
+          <span style="width:0.7%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 96.5%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 3.5%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (96.5%), active tokens (3.5%)">
+          <span style="width:96.5%; background:var(--usage-cache)"></span>
+          <span style="width:3.5%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:acbc2ebbecb7f00c -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

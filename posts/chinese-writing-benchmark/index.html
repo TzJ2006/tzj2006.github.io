@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Sixteen models, for the same Chinese writing task | TzJ&#39;s Net</title>
+<meta name="keywords" content="">
+<meta name="description" content="The same prompt, 4 local Ollama models &#43; 12 cloud models from three Agent CLI, written again each time.
+Below is the entire original output, along with speed, VRAM, latency, and token data recorded during each run.
+Task
+请用中文写一个约500字的小说开头，以一位在战争爆炸中失去一条腿的芭蕾舞演员为主角，通过描写她在战后生活来侧面体现出她的挣扎。
+Running Conditions
+Sixteen models receive exactly the same prompt, without any prefix or system prompt.
+Local (Ollama) — RTX 5090 / 32 GB. POST 127.0.0.1:11434/api/chat, stream: false.
+No sampling parameters are specified; temperature, num_predict, and context all use the default values from the model Modelfile and ollama.
+(ollama ps shows that the context for all four models is 65536, and the KV cache in VRAM is allocated according to this size).
+Each model first ollama stop clears the VRAM before running, so the loading time is cold start.
+The peak VRAM access(nvidia-smi) minus the desktop baseline (2.5–3.3 GB).
+Speed is directly read from the response body(eval_count / eval_duration), without HTTP and Python overhead.">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/posts/chinese-writing-benchmark/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/posts/chinese-writing-benchmark/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/posts/chinese-writing-benchmark/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/posts/chinese-writing-benchmark/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Sixteen models, for the same Chinese writing task">
+  <meta property="og:description" content="The same prompt, 4 local Ollama models &#43; 12 cloud models from three Agent CLI, written again each time.
+Below is the entire original output, along with speed, VRAM, latency, and token data recorded during each run.
+Task 请用中文写一个约500字的小说开头，以一位在战争爆炸中失去一条腿的芭蕾舞演员为主角，通过描写她在战后生活来侧面体现出她的挣扎。 Running Conditions Sixteen models receive exactly the same prompt, without any prefix or system prompt.
+Local (Ollama) — RTX 5090 / 32 GB. POST 127.0.0.1:11434/api/chat, stream: false.
+No sampling parameters are specified; temperature, num_predict, and context all use the default values from the model Modelfile and ollama.
+(ollama ps shows that the context for all four models is 65536, and the KV cache in VRAM is allocated according to this size).
+Each model first ollama stop clears the VRAM before running, so the loading time is cold start.
+The peak VRAM access(nvidia-smi) minus the desktop baseline (2.5–3.3 GB).
+Speed is directly read from the response body(eval_count / eval_duration), without HTTP and Python overhead.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-08-26T10:00:00-04:00">
+    <meta property="article:modified_time" content="2026-08-26T10:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Sixteen models, for the same Chinese writing task">
+  <meta name="twitter:description" content="The same prompt, 4 local Ollama models &#43; 12 cloud models from three Agent CLI, written again each time.
+Below is the entire original output, along with speed, VRAM, latency, and token data recorded during each run.
+Task 请用中文写一个约500字的小说开头，以一位在战争爆炸中失去一条腿的芭蕾舞演员为主角，通过描写她在战后生活来侧面体现出她的挣扎。 Running Conditions Sixteen models receive exactly the same prompt, without any prefix or system prompt.
+Local (Ollama) — RTX 5090 / 32 GB. POST 127.0.0.1:11434/api/chat, stream: false.
+No sampling parameters are specified; temperature, num_predict, and context all use the default values from the model Modelfile and ollama.
+(ollama ps shows that the context for all four models is 65536, and the KV cache in VRAM is allocated according to this size).
+Each model first ollama stop clears the VRAM before running, so the loading time is cold start.
+The peak VRAM access(nvidia-smi) minus the desktop baseline (2.5–3.3 GB).
+Speed is directly read from the response body(eval_count / eval_duration), without HTTP and Python overhead.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://tzj2006.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Sixteen models, for the same Chinese writing task",
+      "item": "https://tzj2006.github.io/posts/chinese-writing-benchmark/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Sixteen models, for the same Chinese writing task",
+  "name": "Sixteen models, for the same Chinese writing task",
+  "description": "The same prompt, 4 local Ollama models + 12 cloud models from three Agent CLI, written again each time.\nBelow is the entire original output, along with speed, VRAM, latency, and token data recorded during each run.\nTask 请用中文写一个约500字的小说开头，以一位在战争爆炸中失去一条腿的芭蕾舞演员为主角，通过描写她在战后生活来侧面体现出她的挣扎。 Running Conditions Sixteen models receive exactly the same prompt, without any prefix or system prompt.\nLocal (Ollama) — RTX 5090 / 32 GB. POST 127.0.0.1:11434/api/chat, stream: false.\nNo sampling parameters are specified; temperature, num_predict, and context all use the default values from the model Modelfile and ollama.\n(ollama ps shows that the context for all four models is 65536, and the KV cache in VRAM is allocated according to this size).\nEach model first ollama stop clears the VRAM before running, so the loading time is cold start.\nThe peak VRAM access(nvidia-smi) minus the desktop baseline (2.5–3.3 GB).\nSpeed is directly read from the response body(eval_count / eval_duration), without HTTP and Python overhead.\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "The same prompt, 4 local Ollama models + 12 cloud models from three Agent CLI, written again each time.\nBelow is the entire original output, along with speed, VRAM, latency, and token data recorded during each run.\nTask 请用中文写一个约500字的小说开头，以一位在战争爆炸中失去一条腿的芭蕾舞演员为主角，通过描写她在战后生活来侧面体现出她的挣扎。 Running Conditions Sixteen models receive exactly the same prompt, without any prefix or system prompt.\nLocal (Ollama) — RTX 5090 / 32 GB. POST 127.0.0.1:11434/api/chat, stream: false.\nNo sampling parameters are specified; temperature, num_predict, and context all use the default values from the model Modelfile and ollama.\n(ollama ps shows that the context for all four models is 65536, and the KV cache in VRAM is allocated according to this size).\nEach model first ollama stop clears the VRAM before running, so the loading time is cold start.\nThe peak VRAM access(nvidia-smi) minus the desktop baseline (2.5–3.3 GB).\nSpeed is directly read from the response body(eval_count / eval_duration), without HTTP and Python overhead.\nCloud (Agent CLI) — codex exec, claude -p, cursor-agent --print,\nall run serially, --output-format json; the working directory is an empty temporary folder.\nTotal time is measured by(perf_counter) over the entire process; the number of tokens and API time are read from the usage field in each JSON.\nEach model runs once. Sampling is random, and the results and speeds vary. The table below is given as magnitudes.\nTwo facts affecting the metrics The two speed tables cannot be compared. The input for local models is just this prompt itself (50–59 tokens);\ncloud models use a coding agent CLI, which includes their respective system prompts and tool definitions,\nso the input tokens in Table 2 range from 15,000 to 20,000.\nThe JSON of Claude Code in(input_tokens) shows a single digit, not the actual length,\nso that column is empty for it. Codex and Cursor report the full input.\nThe running conditions for Fable 5.1 are different from those of the other Claude Code models. It was added later:\n--effort high is explicitly specified, while the other three Claude Code models use the default effort of the CLI.\nTable 1: Local Models Model Parameter Count Architecture Quantization VRAM Usage Loading Prefill Output Tokens Decoding Speed Generation Time Gemma4 12B 11.9B gemma4 Q4_K_M 15.0 GB 7.58 s 282.9 tok/s 470 118.6 tok/s 11.75 s Gemma4 26B 25.2B gemma4 Q4_K_M 27.9 GB 16.04 s 159.1 tok/s 429 165.3 tok/s 19.01 s Qwen3.8 27.3B qwen35 Q4_K_M 20.3 GB 13.81 s 227.4 tok/s 431 73.8 tok/s 19.87 s Qwen3.6 36.0B qwen35moe Q4_K_M 23.4 GB 14.97 s 145.7 tok/s 430 208.8 tok/s 17.38 s Table 2: Agent CLI Tool / Model Total Time API Time Input Tokens Output Tokens Inference Tokens Effective Throughput Chinese Characters / Output Tokens Codex · GPT-5.6-Sol 18.56 s — 18,408 576 32 31.0 tok/s 0.89 Codex · GPT-5.6-Terra 14.14 s — 16,799 597 24 42.2 tok/s 0.85 Codex · GPT-5.6-Luna 14.36 s — 15,241 589 34 41.0 tok/s 0.88 Codex · GPT-5.5 19.19 s — 17,416 494 0 25.7 tok/s 0.95 Codex · GPT-5.4-Mini 15.1 s — 15,679 730 94 48.4 tok/s 0.82 Claude Code · Opus 5 27.97 s 26.04 s — 887 — 31.7 tok/s 0.72 Claude Code · Sonnet 5 16.79 s 15.17 s — 676 — 40.3 tok/s 0.72 Claude Code · Haiku 4.5 17.51 s 15.90 s — 1273 — 72.7 tok/s 0.54 Cursor · Composer 2.5 20.55 s 17.93 s 10,343 627 — 30.5 tok/s 0.90 Cursor · Grok 4.6 High 32.47 s 30.06 s 11,964 778 — 24.0 tok/s 0.76 Cursor · Gemini 3.7 Flash 19.19 s 16.40 s 19,364 402 — 20.9 tok/s 1.03 Claude Code · Fable 5.1 · effort high 25.49 s 23.62 s — 796 — 31.2 tok/s 0.70 Table 3: Objective Statistics on Chinese Output All calculated using regular expressions, without subjective judgment. The “word match” column matches 挣扎, 痛苦不堪, 内心的煎熬, 无法接受 — these words are directly mentioned in the task requirements.\n“Foreign words” count consecutive Latin letters strings of two or more characters.\nModel Number of Chinese Characters Full-width Punctuation Rate Number of Sentences Median Sentence Length Longest Sentence Four-character Phrase Foreign Words Markdown Word Match for “struggle”, etc. Gemma4 12B 542 100.0% 18 30.0 73 113 No No Struggle Gemma4 26B 478 100.0% 15 32 48 103 1 No No Qwen3.8 614 100.0% 18 30.5 70 131 No No Struggle Qwen3.6 597 100.0% 17 34 63 123 2 No No Codex · GPT-5.6-Sol 511 100.0% 24 19.5 38 108 No No No Codex · GPT-5.6-Terra 508 100.0% 22 21.0 61 106 No No No Codex · GPT-5.6-Luna 518 100.0% 23 21 41 102 No No No Codex · GPT-5.5 467 100.0% 22 23.0 35 94 No No No Codex · GPT-5.4-Mini 598 100.0% 19 26 75 130 No No No Claude Code · Opus 5 640 98.9% 35 16 56 130 No No No Claude Code · Sonnet 5 490 36.2% 14 36.5 77 103 No No No Claude Code · Haiku 4.5 690 100.0% 33 22 50 144 No Yes No Cursor · Composer 2.5 564 100.0% 31 16 66 113 No Yes Struggle Cursor · Grok 4.6 High 594 100.0% 45 10 34 118 1 No No Cursor · Gemini 3.7 Flash 414 100.0% 13 34 53 89 No No No Claude Code · Fable 5.1 · effort high 556 100.0% 36 13.0 45 110 No Yes No Full Text Gemma4 12B — 542 characters\rIt was a winter day soaked by smoke and dust.\nLin Yue sat by the window, her fingertips gently sliding over those velvet shoes that had turned yellow due to lack of wear. They lay quietly in the display case, like two dried cicada molts. If she closed her eyes, she seemed to hear the last quiet before the explosion — the silent breath held by everyone in the theater, followed by the roar of heavy shells tearing through the air, and the sharp sound that could shatter eardrums, the loud noise of metal and bones breaking apart.\nNow, all she heard was the whimpering caused by the city ruins shaking in the wind.\nShe tried to stand up, but her movement was extremely slow. When she crossed the threshold, the muscles of her left leg instinctively tightened, trying to find a support that no longer existed. That was her left leg — on that cursed afternoon, it “disappeared” along with the flames and thick smoke. Now, the broken end was wrapped in thick compression socks, artificially supported to form a silhouette that barely could bear her weight.\nShe walked to the mirror. The woman in the mirror had a pale face, with a thin scar at the corner of her eyes — the mark left by fragments at that time. She tried to perform a basic “push palm” motion, her arms gracefully sweeping over her head. However, when she tried to shift her weight to the left side and prepare a light rotation, her broken sense of balance instantly collapsed.\nShe staggered, her unstable weight hitting the wall behind her, and didn’t even make a sound.\nBecause she lost that supporting point, her core muscles were always in a highly tense state, as if every second was fighting against gravity. She could no longer perform complex rotations, and even standing steadily until the last minute became a luxury.\nShe closed her eyes and danced in her mind. There, she was still at the center of the stage, her toes touching the ground, light as feathers, without pain from breaks, without the coldness of a wheelchair, only the desperate and noble elegance that emerged from the pile of debris.\nGemma4 26B — 478 words\rThe slight creak of the titanium alloy support in the middle of the night was the only rhythm in Elena’s life.\nOnce, her world consisted of the lightness of stepping on the toes and the rise as she spun. At that time, the air smelled of pine resin, and every jump seemed to try to break free from the gravity of the earth. Now, however, the air carries only the smell of old plaster and the endless, gray ruins outside the window.\nWhen the last shell exploded on the side of the theater, what she heard was not a loud noise, but an extremely long, tearing silence. Then, the sensation that used to belong to her left leg disappeared, replaced by a hollow, scorched void like that caused by fire.\nToday, Elena lives desperately in the gaps among the post-war ruins. She still tries to practice, but it is no longer art—more like a silent protest against her damaged body. Every morning, she trembles, trying to fasten the cold metal prosthetic on her missing limb. The dull pain from the metal rubbing against skin is like a nail, constantly reminding her: the girl who could dance on that thin strap has died in that fire.\nShe sits on a wobbling wooden chair, looking at the thin figure in the mirror. She tries to perform an “Arabesque,” but when she attempts to support herself on one leg, the cold support makes a heavy, harsh sound on the wooden floor. It doesn’t sound like dance—more like a dead bone hitting a coffin lid.\nShe stares at the half-destroyed tree outside the window, tears rolling in her eyes yet never falling down. She isn’t crying over losing her leg—she is desperate for the faint vibration she can no longer feel with the ground.\nQwen3.8 — 614 words\rRain flows down through the broken window glass and gathers into muddy puddles on the floor. Lin Wan stands in front of a floor-to-ceiling mirror, her gaze not focused on the woman in black tight training clothes reflected in the mirror, but fixed on the empty trouser leg. That was where her proud swan leg used to be, now only leaving a smooth scar at the broken end and a faint rusty smell in the air—the only reminder of last year’s unexploded bullet that torn her right knee behind the theater.\nShe takes a deep breath, trying to recall the beginning of Act I of Swan Lake by moving her muscles. She lifts her left foot, slowly shifts her weight, and her body leans forward. At that moment, the world is terrifyingly quiet, only the heart’s violent beating in her chest heard. However, when inertia pushes her weight to the right, the force that should be supported by her right leg suddenly becomes suspended. The sense of imbalance rushes in, and instinctively she reaches for the handle beside her, but the moment her fingertips touch the cold wood, she falls heavily onto the cold floor.\nThere are no piercing cries or hysterical struggles. Lin Wan just lies there quietly, watching the peeling paint on the ceiling stack up like soil in a trench. She can even feel the pain from overstraining her left ankle—a protest from her body against the missing part, and a mockery of her once light steps.\nOutside, the air raid sirens have stopped long ago, replaced by children playing across the street, chasing paper airplanes with clear, carefree laughter.\nLin Wan slowly raises her hand, wiping away water marks on her face—whether it’s physiological tears or rain? She can’t tell. She struggles to get up, and her joints make a subtle click. She walks to the piano in the corner of the room, fingers hovering above the keys but never landing. The post-war city is filled with a silence like scorched earth. What she lost is not just a leg—it is herself, capable of embracing the wind while spinning. In these days of reconstruction, every breath feels like digging through ruins, painful and long, but she knows that as long as she stands, even limping, there will come a day to dance again.\nQwen3.6 — 597 words\rAt five in the morning, the rain outside the window sounds like an endless drumbeat, knocking against the old glass of the apartment. Lin Wan opens her eyes and instinctively wants to jump out of bed and perform a standard “Grand Jeté,” but the cold prosthetic on her left leg is stuck to the mattress, pulling her back into reality.\nShe stares at the water mark on the ceiling—where she used to focus while spinning—now just a blurred gray patch. On the wooden floor beside the bed, the heavily worn pink toe shoes lie still, with dried mud on the tips—remnants of the last performance before the war, also her epitaph for leaving the stage completely.\nLin Wan sits up slowly, fingers trembling as she fastens the metal buckle of the prosthetic. Each touch causes a sharp phantom pain from the metal rubbing against skin, as if the torn leg is still screaming at the nerve endings. She supports herself on the wall and stands up, her weight tilting to the right, creating a sickly asymmetrical beauty. The woman in the mirror has a pale face and deep-set eyes; the once “swan” now looks like a bird with broken wings but still trying to fly, clumsy and heartbreaking.\nThe way to the kitchen is only three steps away, but to Lin Wan, it feels like a difficult journey across a trench. She must calculate every step, every shift in weight, even the rhythm of her breathing, to ensure the heavy metal leg doesn’t make her fall. When the kettle makes a sharp whistle, she feels dizzy. At that moment, the smell of gunpowder seems to fill the air again, the sound of explosion and boiling water overlapping, almost suffocating her.\nShe picks up the coffee cup, her hand shaking badly, brown liquid splashing on the back of her hand, leaving a red mark—but not even one tenth of what she feels inside. Outside, the city’s reconstruction is underway, the roar of cranes overpowering the birdsong. Lin Wan looks at herself reflected in the glass, trying to mimic a spinning motion from memory, but a tearing pain comes from her ankle. She stops, takes a deep breath, and swallows the impending cry back into her throat. Life must go on, even if it is broken, with rust in every breath.\nCodex · GPT-5.6-Sol — 511 words\rThree months after the peace treaty, a poster was hung again at the theater entrance.\nLin Wan leans on her walking stick and walks slowly across from the other side of the street. The poster shows her with two long legs, her white dress fluttering in the air, the toes light as if on snow that never sinks. The wind lifts the paper corners, knocking against the wall repeatedly. She doesn’t stop, only seeing her empty trouser leg on the reflection in the shop window, slightly swaying in the twilight.\nShe lives in an surviving old building behind the theater. There are forty-three steps, and she counts them every day. When she reaches twenty-seven steps, the walking stick touches the shattered tile, making a clear sound like a teacher’s beat in a rehearsal hall. In the past, she always found the beat too slow, but now she must wait for her breath to catch up before taking another step.\nThere is no mirror inside. The only one is covered with old bed sheets, with a pair of worn ballet shoes on it. The sole of the right shoe has been worn thin, while the left one still retains its shape from the last performance, the ribbon neatly stuffed into the shoe cavity. In the morning, she burns a pot of water, adds some mint to the window sill, then sits down and props her right leg onto the horizontal bar. The bar is fixed by the landlord with an abandoned window frame, slightly two inches higher than usual—she never mentioned it.\nThe children downstairs often imitate her dancing on the open space. They don’t know how many feet there are, just spread their arms and spin, making the broken bricks squeak. A little girl with a red ribbon always comes knocking at the door, asking when she will return to the theater. Lin Wan always says, “Wait until the floor is fixed.”\nIn fact, the floor was already fixed.\nThat evening, piano music came from the theater. She sits on the twenty-seventh step of the stairs, placing the walking stick on her knee. The music passes through the wall, playing repeatedly at the jump point, then suddenly stopping. She lifts her right foot, straightens the instep, and hovers the toe in the air. The light in the corridor has been broken for a long time, and no one sees her maintaining that posture until the distant clock strikes nine.\nCodex · GPT-5.6-Terra — 508 words\rIn the third spring after the peace treaty, Lin Yan still wakes up at five in the morning every day.\nThe street outside the window was cleaned by last night’s rain, and the repaired building walls still have bullet holes, like a row of black moleskine marks. She sits on the edge of the bed, first reaching for the prosthetic beside the chair, then for the ballet shoes. The satin shoes are old, their toes repaired repeatedly with thread, like two white birds refusing to die.\nShe wears only her left foot.\nAfter her right leg was cut off at the knee, the hospital nurse gave her back the shoe. The toe is covered in dust, and the laces contain tiny pieces of glass. Lin Yan washes it, dries it, and puts it deep in the drawer. She doesn’t throw it away, as if as long as the shoe remains, the right foot is just late, not always absent.\nThe kettle in the kitchen starts to sound. She moves over with her cane, her motion almost graceful: the tip lands, the left foot follows, and her body leans slightly forward. Neighbors always praise her “good recovery,” and she smiles. No one sees the skin torn by the prosthetic when she removes it at night; no one hears her lowering her voice to count beats in the stairwell—one, two, three, four—like waiting for a music that will never sound.\nBreakfast is half a black bread piece and a cup of pale coffee. She turns on the radio to classical music, which plays Swan Lake at the same time. As the music starts, her shoulders unconsciously open, her arms slowly raised, creating a curve in the small kitchen. The window glass reflects her thin shadow: one leg supports all the weight, the other trouser leg hangs empty.\nWhen the music reaches the thirty-second eighth measure, the construction team’s explosion sound comes from outside the building.\nThe cup slips from her hand and breaks on the floor. Lin Yan stands still, her face paler than the wall. After a long time, she bends over to pick up the pieces. She doesn’t cry, just puts each ceramic piece neatly into a paper bag, like collecting parts of a body that hasn’t been found entirely from the ruins.\nCodex · GPT-5.6-Luna — 518 words\rAt six in the morning, the city is still soaked in a gray-blue haze. Lin Zhi opens the curtains and first sees the building without glass across from her, then the wild grass growing on the roof. The wind passes through the gap, carrying coal smoke, dampness, and the smell of the bakery from afar, like a hesitant hand touching every scar left by the war.\nShe sits on the edge of the bed, untying the pants of her pajama. Her left leg stops below the knee, wrapped in thin cotton. The prosthetic leans against the wall, its metal joints white under the morning light. Lin Zhi doesn’t reach for it immediately, instead putting her right foot down first, the toes straight, the instep bent into her familiar curve.\nIn the past, she started training this way every day. Toes, heels, knees, back straight, breathing hidden between the ribs. She once danced Swan Lake on the brightest stage of the theater, her skirt fluttering like white flowers on the water. The audience’s applause came from the darkness, and she always thought that sound could hold a person up, preventing them from falling forever.\nThe explosion happened one afternoon. That day she was walking through the square, holding a freshly bought orange. After the loud noise, the world became pure white. Later, someone told her she was unconscious for eleven days; others said the doctors did their best. When she woke up, her first question wasn’t whether the war was over, but “Where are my shoes?”\nNow, the theater is a temporary warehouse, and half of the ballet school’s mirror wall is broken. She finds an ad in old newspapers: the Citizen Rehabilitation Center is recruiting dance teachers, with a meager salary, requiring self-arrangement.\nLin Zhi fixes the prosthetic, the pain slowly rising along her bone. She supports herself on the wall and stands up, her body shaking like a bird that has forgotten how to fly. Outside the window, people sweeping the ruins push their carts, the wheels crushing stones, making a monotonous, hard sound.\nShe grabs the worn ballet shoes and suddenly remembers she still has one foot that can stand on. So she opens the door and walks toward the stairs.\nCodex · GPT-5.5 — 467 words\rAt six in the morning, the city’s bell tower hasn’t been repaired yet, leaving only a charred tip sticking out in the fog. Lin Zhi is already awake. She sits on the edge of the bed, fastening the belt of the prosthetic one by one, very gently, like before tying the satin ribbon of the ballet shoes. The sound of a van passing over the gravel road comes from outside the window, and when the wheels touch the crater, there’s always a short bump. She stops for a moment, waiting until the sound fades, then reaches for the old wooden box on the bedside table.\nInside the box is a pair of pink toe shoes, the toes worn white, the soles still with pine resin. She doesn’t wear them, just touches the surface with her fingertips, then closes the lid, like closing an undelivered letter.\nThe neighbors downstairs have already started lining up to get water. Lin Zhi picks up two empty pots and slowly walks down the stairs. At the corner between the third and second floors, there’s a crack in the wall, like a crooked river. She passes by every day, occasionally remembering the painted decorations on the theater ceiling, also cracked. That day she was standing in the middle of the stage, just as the music reached the third measure, then the lights suddenly went dark, and the world was swallowed by white. When she wakes up, she hears someone calling her name, the voice thick with dust, like coming from underwater.\nNext to the water station, children draw grids on the ground with chalk, jumping on one foot. A little girl recognizes her and asks timidly, “Did you dance before?”\nLin Zhi smiles and switches the pot to her other hand. “Yes, before.”\n“Now?”\nShe doesn’t answer immediately. In the distance, the temporary school’s broadcast starts, playing practice pieces intermittently, the notes drifting between the broken walls and drying ropes. She sees her shadow on the ground, longer on one side, shorter on the other, swaying in the sunlight. After a long while, she says, “I’m still learning now.”\nCodex · GPT-5.4-Mini — 598 words\rAt six in the morning, the bell tower of the old theater in the south of the city shows a bit of grayish white in the fog, like a bone dulled by time. When Lin Cheng pushes open the attic window, the first bus carrying bread just passed down the street. She leans on her cane against the wall, uses both hands to hold the window frame, and slowly moves her body onto the floor. The empty space of her left leg is hidden in loose training pants, like a melody quietly cut out. She never looks at it, but can feel its absence in every movement.\nThe steam in the basin quickly dissipated. She rubbed her face with cold water, and the face in the mirror remained young, only with a layer of indelible gray that resembled the dust left by war, settling deep into the skin. The bread shop downstairs had opened, and the aroma crept up through the stairway cracks. She used to love this smell—during rehearsal breaks, the dancers would crowd in the backstage and share the still-warm sweet rolls; now she often only buys a small piece of black bread, cutting it in half, keeping one half for evening and chewing the other half until it loses its taste.\rThis morning she went to the market. The road wasn’t long, but she stopped three times. The old woman who sells vegetables recognized her and always stuffed an extra potato into the bag as a casual kindness. When Lin Cheng thanked her, she kept her head down, afraid of meeting those looks that fell on herself, like the dust floating quietly after the lights are turned off on an old theater stage, refusing to fall.\nShe used to be the lightest person in the ballet company, able to leap like she was about to leave the ground in the last eight measures; now she has learned to calculate the weight of each step on the stone pavement, to not show pain on her face, and to say “I’m fine” as naturally as breathing.\nWhen she returned to the attic, she stopped at the door for a long time. The old dance shoes in the room were still on the box, the tips worn white, the ribbons curled, like two silent wings. She sat down, slowly tied the laces of her right shoe, then looked out the window at the street rebuilt after the bombardment. Children’s laughter came from afar, light as a performance that hasn’t yet begun. Lin Cheng didn’t get up immediately. She just pressed her hand on her knee, listening to the bell downstairs ring one by one, as if reminding her: some lives have already finished their curtain call, while some still have to stand under the lights.\nClaude Code · Opus 5 — 640 words\rShe can’t open the罐头 now.\nThis was the first thing Suli adapted to—not a prosthetic, not that empty trouser leg, but the罐头. With her left hand holding the peach罐头, her right hand tried to turn it, but without a support, when her center of gravity shifted, the罐头 rolled down the table. She looked down for a while but didn’t pick it up.\nIt was raining outside the window. The window on the third floor faced a parking lot rebuilt from ruins, and rainwater accumulated into broken mirrors in the potholes, reflecting the gray-white sky. The explosion happened in April two years ago, when the wall behind the theater collapsed while she was tying the ribbons of her toe shoes. Those shoes were never found, or rather, one was found.\nThe physical therapist was a very young girl, speaking softly, always saying “great” and “one more time.” Suli walked well in front of her, one step, two steps, turning around, holding onto the railing. The therapist said her balance was much stronger than most people’s. Suli smiled. Of course. At sixteen, she could stand thirty-two circles in one square centimeter.\nShe stopped listening to music. The radio broke and wasn’t repaired, and the song lists on her phone were completely deleted. Once at the supermarket, Tchaikovsky played on the radio. She stood by the shopping cart in front of the freezer, waiting for the salesperson to ask if she needed help. She said no, then pushed the cart to another aisle and bought three bags of frozen dumplings she didn’t need at all.\nThe prosthetic was German-made, very expensive, donated by a foundation. Metal and carbon fiber, the interface made her skin turn red. She gave it a name, but never told anyone. When she couldn’t sleep at night, she would think of the broken leg—not about the pain, but about how it stretched straight in the air, the instep bent into an arc, like the end of a beautifully written sentence. The doctor said this was phantom limb sensation, which would fade over time.\nShe hoped it wouldn’t fade.\nThe children in the neighborhood sometimes stared at her. A five or six-year-old boy asked directly: “Auntie, where is your leg?” She said, “Lost.” The boy thought for a moment and asked, “Then can you fly?”\nSuli was stunned.\nThat night she returned home, opened the curtains, and the room was empty. The floor was old wood, with one spot that made noise. She stood up against the wall, stepped on her right foot, and slowly shifted her center of gravity.\nThe wooden board made a creak.\nShe stood there for a long time without moving.\nSkip: specific war background, backstory of supporting characters, subsequent plot. Say if it should be expanded into a full chapter.\nClaude Code · Sonnet 5 — 490 words\rHer left leg remained under the ruins on that rainy night in 1943. Now it was the third year, and she sat by the window mending clothes for children. Her fingers were still delicate and skilled, as if remembering the force of holding the toe shoe laces.\nThe accordion sound came downstairs. The old soldier next door played a waltz. Her right foot unconsciously tapped the rhythm on the floor, while that empty trouser leg remained still beside the chair leg. She looked down briefly, then quickly turned away—a motion she had repeated countless times, like a ritual, reminding herself not to look, not to think.\nThe mirror was still hanging on the wall, an old item from before the war, with intricate patterns carved into the frame. It had been long since she stood in front of it. Not because she was afraid of seeing that leg, but because she was afraid of seeing her own eyes—those eyes that once shone under the spotlight, now leaving only a fatigue she didn’t recognize.\nMisha, the boy from the bread shop downstairs, would bring a piece of black bread every evening, place it at the door, and leave without saying much. She knew he had seen her dance “Swan Lake” in the back row of the theater, the last season before the war. Once he braved asking if she would dance again, she smiled and said leg problems could be solved, would get better.\nShe didn’t tell him that last night she dreamed she was wearing toe shoes, spinning in the snow, spinning, spinning, until the music stopped for a long time, and she continued spinning until the leg grew back, until she could live lightly and without reason, just like before.\nWhen she woke up, it was just beginning to light outside the window. The old piano still had a photo of her at seventeen, wearing a white dance dress, smiling carelessly. She reached out to turn the photo over, then picked up the needle and thread.\nClaude Code · Haiku 4.5 — 690 words\rFragments The rain started again outside the window. Maria sat in her wheelchair, looking at the closed dance studio across the street. The glass door still had a promotional photo from three years ago—a complete woman under the spotlight, toes pointing toward the sky.\nShe hadn’t looked at that photo for a long time.\nThe ritual every morning was the same. She would wake up at six, a gift left by war—a biological clock that no longer needed an alarm. That was when the explosions were most piercing. Even now, far from the war zone, her body still tightened at this moment during sleep, as if waiting for another shockwave.\nShe would wash up and change into clean clothes. These small actions took three times as long as before. In front of the mirror, she no longer avoided her reflection. The prosthetic leaned against the bed, pale-skinned silicone and carefully adjusted spring mechanisms. She gave it a name—“Claude”—like it was a stranger, not part of her own body.\n“Good morning, Claude,” she would say softly, with a hint of mockery and strange tenderness in her voice.\nToday she was going to the physical therapy clinic. The hallway was filled with people like her: different missing body parts, but the same look in their eyes—a look that had learned how to continue living. The therapist asked her to try balancing, to walk, to believe that the metal joint stuck at her knee would bend and stretch like a real knee.\nShe tried it. Many times.\nIn the afternoon, she would sit in a café, a cup of hot tea in front of her getting colder. The young girl at the next table was wearing dance clothes, the ribbon of a ballet shoe sticking out from her bag. Maria would watch her too long, until the girl felt the gaze, turned around, and her expression changed from unaware to uneasy, then to complex sympathy.\nAt that moment, Maria would turn away.\nShe didn’t want sympathy. What she wanted was whether the whole herself could suddenly return at some point. But she had learned not to expect miracles. War taught her that the most real part of life often appears at the moment you notice its absence.\nAt night, she would play a video—her own dancing footage. On the screen, that version of Maria spun, jumped, flew. Two legs, two complete legs. She would pause repeatedly, studying the expression on her face, wondering if the joy then was real or just an illusion under the stage lights.\nOutside the window, the rain continued. And Maria continued sitting there, at some midpoint between herself and others, waiting for answers.\nCursor · Composer 2.5 — 564 words\rMirror after Rain After the rain stopped, Lin Wan pushed the window open a little. The cart selling soy milk downstairs came out again, the sound of the iron bucket hitting the ground similar to the sound of the heating pipes behind the theater three years ago.\nShe sat on the edge of the bed, smoothing the silicone cover on her prosthetic. The motion was slow, like tying shoelaces before rehearsal—only now, with nothing under her knee, the shoelace was empty.\nThe kettle made a sound from the kitchen. She stood up against the wall, her left leg landing first, then her right leg. Her right leg remembered every curve: toes spread out, heel in. But the prosthetic had no curve, only a slight “click” from the metal joint, creating an unfamiliar rhythm on the wooden floor.\nShe made a bowl of noodles without onions. Before, she hated the smell of onions, saying it would wash away the stage makeup. Now, with only her own in the kitchen, onions or not, it was the same.\nThe afternoon sun slanted into the living room. In the corner stood a dusty dance shoe, the pink fabric faded to gray, the tip still in its shape from the last time she stood on tiptoe. She didn’t look at it, but knew it was there, as if knowing the calendar on the wall had turned to September—the performance season should have started.\nThe phone on the coffee table vibrated once. It was a reminder from the rehabilitation center: physical therapy at three in the afternoon. She typed “okay” and put the phone away.\nThree o’clock came, and she changed into clothes for going out. In the mirror, she wore loose knitted pants, unable to see the outline of her left leg. She raised her chin against the mirror—a habit before going on stage. The person in the mirror looked back at her, eyes calm, but the corners of her mouth slightly tightened.\nShe picked up her bag and stopped at the door for a second.\nThe children’s laughter came from downstairs, running across the stairs, then farther away. She took a deep breath and pushed the door open. The air after rain had the smell of soil and osmanthus. She walked down the steps, one step, then another. The rhythm was unstable, but she didn’t stop.\nThe full text is about 520 words. The struggles are mainly presented through daily details: the mechanical feel of the prosthetic, remnants of old habits, avoiding the dance shoe, covering it with loose clothes, the subconscious posture toward the mirror, and that one-second pause and unstable gait when going out. If you need to adjust the style (more cold or more poetic) or length, please let me know.\nCursor · Grok 4.6 High — 594 words\rThe stone steps were still wet after the rain. Anna supported herself on the rail, probing the prosthetic first, the rubber bottom slipping slightly on the moss. She stopped for a moment, waiting until the empty sound rising from her knee disappeared, then put the other foot on top.\nThe bread shop lights were already on. She passed by this window every day. The glass reflected her: short hair, old coat, the unyielding outline beneath the skirt. The window displayed protein cake, white like the walls of the rehearsal hall before. She didn’t enter. The coins in her pocket only lasted half a loaf of rye.\nThe studio was on the third floor. The elevator was broken for three months, no one repaired it. She counted the steps: thirty-seven, thirty-eight. At the thirty-ninth level, the prosthetic made a soft “click,” as if there was sand in her bone. The door was open. The mirror was still there. The mirror never left the dance classroom, even though it had been converted into a mending shop. In the corner were military coats given by others, sleeves worn, collar blackened. Anna sat down, placing the needle and thread box on her leg—on that still-leg.\nShe sewed buttons for the children. The children didn’t dance. They came to pick up the repaired pants, looked at her skirt, and sometimes asked: “Auntie, why don’t you show the other one?” She smiled and cut the thread. The thread was sticky, like the smell of cutting the ribbon before.\nAt noon she opened the window. Someone on the opposite roof was drying bedsheets, the wind blowing the white cloth up, slightly resembling a tutu. Anna’s hand stopped in mid-air. She didn’t grab it. She just watched the cloth fall, wrinkled into a ball, and another hand smoothed it back.\nThere was also a pair of old toe shoes in the drawer. The tips were soft, and there was a thin layer of gray in the shoe box. She opened them occasionally, not to wear them, but to confirm they were still there. After confirming, she closed them. Like swallowing a sentence back.\nIn the evening, someone downstairs played old records. It was “Swan Lake.” She didn’t close the window. The prosthetic leaned against the chair leg. She tapped the table edge with her finger, once, twice. To the part that should have been spinning, the finger stopped. Someone passed by outside the window, their laughter soft. She finished the record, turned off the light, folded the empty trouser leg, and put it in the drawer—not to hide it, just to let it sleep.\nShe still had to go to the third floor tomorrow. Still count the steps. Still thread through the button holes. Life didn’t explode, just continued. Continuing itself was already heavy.\nCursor · Gemini 3.7 Flash — 414 words\rAt six in the morning, the light in the attic was still cold gray. Lin Na opened her eyes one second before the alarm went off, habitually straightening her toe shoes—her right ankle drawing a gentle arc in the air, while the left side had only empty bedding slightly trembling in the wind.\nThere were two things on the bedside table: a box of damp pine resin and a metal prosthetic reflecting a cold light.\nShe sat up against the bed edge. Her right leg, bearing twice the weight all year, had stiff muscles. Standing was still a long, silent struggle. When putting on the prosthetic, the dull pain from the belt buckle sinking into the missing skin made her barely bite her lower lip, but she didn’t stop, just smoothed the faded old training clothes.\nNext to the dressing mirror by the window, the worn toe shoes hung quietly. The woman in the mirror had a straight back like before, the long neck and jaw slightly raised—elegance and pride carved into her bones. But when she tried to turn to get the kettle on the stove, the prosthetic bearing made a harsh “click,” and her center of gravity shifted suddenly. She pressed hard against the table edge, the iron kettle tipped, cold water dripping along the uneven corner of the table, making a slow rhythm on the floor.\nLin Na didn’t wipe up the water spot. She stood still, the missing nerve on the left side throbbing faintly, as if still stubbornly searching for a pivot point to fall back into. The noise from the market outside gradually increased. She took a deep breath, adjusted her breathing and center of gravity, and stepped toward the stove like waiting for the curtain to rise.\nClaude Code · Fable 5.1 · effort high — 556 words\rLesson 1 Before dawn, Lin Wan woke up. Her right leg hurt under the blanket, below her knee—the doctor called it phantom limb pain. She didn’t touch it; she knew there was only empty sheets there.\nThe bakery downstairs began to smell. The building was rebuilt after the war, with thin walls, and she could hear the owner opening the rolling curtain. Three years ago, this street was a wasteland. Three years ago, behind the theater at the end of the street, she stuffed soft padding into her toe shoes.\nShe sat up, first putting on the prosthetic, then the pants. It took her three months to get this order right. The prosthetic was provided by the government—hard plastic, with skin reddening at the joints. She padded it with an old silk cloth from a costume.\nHer breakfast was a boiled egg and half a cup of milk. She ate slowly. She used to eat slowly too, to control weight; now it was because there was nothing to rush.\nAt eight o’clock, she went to the community cultural station to teach. There were over a dozen children, the oldest ten years old. The parents didn’t care if she taught well, just needed a place to leave their kids for two hours. She didn’t care either—she needed the pay.\nThe classroom floor was concrete, covered with a thin plastic mat. She had the kids stand in a line, holding onto the wall.\n“Tuck your heels together, spread your toes.”\nThe children did it awkwardly. A little girl stood on tiptoe, wobbled slightly, and laughed out loud. Lin Wan watched her wiggling ankle for a long time.\n“Teacher, why don’t you demonstrate?”\n“My leg is inconvenient,” she said without pausing.\n“Did you do it before?”\nShe didn’t answer, turned to play music. It was Act II of Swan Lake, the tape a bit old and the sound muffled. When the intro started, her right hand lifted involuntarily, forming a half arc, then stopping in mid-air. She lowered it, pressed against her pants pocket—inside was an old program sheet folded four times, the edges softened. She didn’t take it out.\n“Do it again,” she said, “tuck your heels together, spread your toes.”\nOutside the window, on the rebuilt street, someone was flying a kite.\nReproduction The two scripts used for the run test and generation, along with the full record of 16 runs (including text, timing, and usage): zhbench.py, gen_post.py, zhbench.json.\npython zhbench.py # 全部跑一遍，结果写入 zhbench.json，断点续跑 python gen_post.py # 从 zhbench.json 重新生成本文 ",
+  "wordCount" : "7307",
+  "inLanguage": "en",
+  "datePublished": "2026-08-26T10:00:00-04:00",
+  "dateModified": "2026-08-26T10:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/posts/chinese-writing-benchmark/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/zh/" title="中文"
+                                aria-label="中文">中文</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/bugjournal/daily/" title="bugJournal">
+                    <span>bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/posts/">Posts</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Sixteen models, for the same Chinese writing task
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-08-26 10:00:00 -0400 EDT'>August 26, 2026</span>&nbsp;·&nbsp;<span>35 min</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><p>The same prompt, 4 local Ollama models + 12 cloud models from three Agent CLI, written again each time.<br>
+Below is the entire original output, along with speed, VRAM, latency, and token data recorded during each run.</p>
+<h2 id="task">Task<a hidden class="anchor" aria-hidden="true" href="#task">#</a></h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">请用中文写一个约500字的小说开头，以一位在战争爆炸中失去一条腿的芭蕾舞演员为主角，通过描写她在战后生活来侧面体现出她的挣扎。
+</span></span></code></pre></div><h2 id="running-conditions">Running Conditions<a hidden class="anchor" aria-hidden="true" href="#running-conditions">#</a></h2>
+<p><strong>Sixteen models receive exactly the same prompt</strong>, without any prefix or system prompt.</p>
+<p><strong>Local (Ollama)</strong> — RTX 5090 / 32 GB. <code>POST 127.0.0.1:11434/api/chat</code>, <code>stream: false</code>.<br>
+No sampling parameters are specified; temperature, num_predict, and context all use the default values from the model Modelfile and ollama.<br>
+(<code>ollama ps</code> shows that the context for all four models is 65536, and the KV cache in VRAM is allocated according to this size).<br>
+Each model first <code>ollama stop</code> clears the VRAM before running, so the loading time is cold start.<br>
+The peak VRAM access(<code>nvidia-smi</code>) minus the desktop baseline (2.5–3.3 GB).<br>
+Speed is directly read from the response body(<code>eval_count / eval_duration</code>), without HTTP and Python overhead.</p>
+<p><strong>Cloud (Agent CLI)</strong> — <code>codex exec</code>, <code>claude -p</code>, <code>cursor-agent --print</code>,<br>
+all run serially, <code>--output-format json</code>; the working directory is an empty temporary folder.<br>
+Total time is measured by(<code>perf_counter</code>) over the entire process; the number of tokens and API time are read from the usage field in each JSON.</p>
+<p><strong>Each model runs once.</strong> Sampling is random, and the results and speeds vary. The table below is given as magnitudes.</p>
+<h3 id="two-facts-affecting-the-metrics">Two facts affecting the metrics<a hidden class="anchor" aria-hidden="true" href="#two-facts-affecting-the-metrics">#</a></h3>
+<ol>
+<li>
+<p><strong>The two speed tables cannot be compared.</strong> The input for local models is just this prompt itself (50–59 tokens);<br>
+cloud models use a coding agent CLI, which includes their respective system prompts and tool definitions,<br>
+so the input tokens in Table 2 range from 15,000 to 20,000.</p>
+</li>
+<li>
+<p><strong>The JSON of Claude Code in(<code>input_tokens</code>) shows a single digit</strong>, not the actual length,<br>
+so that column is empty for it. Codex and Cursor report the full input.</p>
+</li>
+<li>
+<p><strong>The running conditions for Fable 5.1 are different from those of the other Claude Code models.</strong> It was added later:<br>
+<code>--effort high</code> is explicitly specified, while the other three Claude Code models use the default effort of the CLI.</p>
+</li>
+</ol>
+<h2 id="table-1-local-models">Table 1: Local Models<a hidden class="anchor" aria-hidden="true" href="#table-1-local-models">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>Model</th>
+          <th>Parameter Count</th>
+          <th>Architecture</th>
+          <th>Quantization</th>
+          <th>VRAM Usage</th>
+          <th>Loading</th>
+          <th>Prefill</th>
+          <th>Output Tokens</th>
+          <th>Decoding Speed</th>
+          <th>Generation Time</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Gemma4 12B</td>
+          <td>11.9B</td>
+          <td><code>gemma4</code></td>
+          <td>Q4_K_M</td>
+          <td>15.0 GB</td>
+          <td>7.58 s</td>
+          <td>282.9 tok/s</td>
+          <td>470</td>
+          <td><strong>118.6 tok/s</strong></td>
+          <td>11.75 s</td>
+      </tr>
+      <tr>
+          <td>Gemma4 26B</td>
+          <td>25.2B</td>
+          <td><code>gemma4</code></td>
+          <td>Q4_K_M</td>
+          <td>27.9 GB</td>
+          <td>16.04 s</td>
+          <td>159.1 tok/s</td>
+          <td>429</td>
+          <td><strong>165.3 tok/s</strong></td>
+          <td>19.01 s</td>
+      </tr>
+      <tr>
+          <td>Qwen3.8</td>
+          <td>27.3B</td>
+          <td><code>qwen35</code></td>
+          <td>Q4_K_M</td>
+          <td>20.3 GB</td>
+          <td>13.81 s</td>
+          <td>227.4 tok/s</td>
+          <td>431</td>
+          <td><strong>73.8 tok/s</strong></td>
+          <td>19.87 s</td>
+      </tr>
+      <tr>
+          <td>Qwen3.6</td>
+          <td>36.0B</td>
+          <td><code>qwen35moe</code></td>
+          <td>Q4_K_M</td>
+          <td>23.4 GB</td>
+          <td>14.97 s</td>
+          <td>145.7 tok/s</td>
+          <td>430</td>
+          <td><strong>208.8 tok/s</strong></td>
+          <td>17.38 s</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="table-2-agent-cli">Table 2: Agent CLI<a hidden class="anchor" aria-hidden="true" href="#table-2-agent-cli">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>Tool / Model</th>
+          <th>Total Time</th>
+          <th>API Time</th>
+          <th>Input Tokens</th>
+          <th>Output Tokens</th>
+          <th>Inference Tokens</th>
+          <th>Effective Throughput</th>
+          <th>Chinese Characters / Output Tokens</th>
+          <th></th>
+          <th></th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Codex · GPT-5.6-Sol</td>
+          <td>18.56 s</td>
+          <td>—</td>
+          <td>18,408</td>
+          <td>576</td>
+          <td>32</td>
+          <td>31.0 tok/s</td>
+          <td>0.89</td>
+          <td></td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>Codex · GPT-5.6-Terra</td>
+          <td>14.14 s</td>
+          <td>—</td>
+          <td>16,799</td>
+          <td>597</td>
+          <td>24</td>
+          <td>42.2 tok/s</td>
+          <td>0.85</td>
+          <td></td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>Codex · GPT-5.6-Luna</td>
+          <td>14.36 s</td>
+          <td>—</td>
+          <td>15,241</td>
+          <td>589</td>
+          <td>34</td>
+          <td>41.0 tok/s</td>
+          <td>0.88</td>
+          <td></td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>Codex · GPT-5.5</td>
+          <td>19.19 s</td>
+          <td>—</td>
+          <td>17,416</td>
+          <td>494</td>
+          <td>0</td>
+          <td>25.7 tok/s</td>
+          <td>0.95</td>
+          <td></td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>Codex · GPT-5.4-Mini</td>
+          <td>15.1 s</td>
+          <td>—</td>
+          <td>15,679</td>
+          <td>730</td>
+          <td>94</td>
+          <td>48.4 tok/s</td>
+          <td>0.82</td>
+          <td></td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>Claude Code · Opus 5</td>
+          <td>27.97 s</td>
+          <td>26.04 s</td>
+          <td>—</td>
+          <td>887</td>
+          <td>—</td>
+          <td>31.7 tok/s</td>
+          <td>0.72</td>
+          <td></td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>Claude Code · Sonnet 5</td>
+          <td>16.79 s</td>
+          <td>15.17 s</td>
+          <td>—</td>
+          <td>676</td>
+          <td>—</td>
+          <td>40.3 tok/s</td>
+          <td>0.72</td>
+          <td></td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>Claude Code · Haiku 4.5</td>
+          <td>17.51 s</td>
+          <td>15.90 s</td>
+          <td>—</td>
+          <td>1273</td>
+          <td>—</td>
+          <td>72.7 tok/s</td>
+          <td>0.54</td>
+          <td></td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>Cursor · Composer 2.5</td>
+          <td>20.55 s</td>
+          <td>17.93 s</td>
+          <td>10,343</td>
+          <td>627</td>
+          <td>—</td>
+          <td>30.5 tok/s</td>
+          <td>0.90</td>
+          <td></td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>Cursor · Grok 4.6 High</td>
+          <td>32.47 s</td>
+          <td>30.06 s</td>
+          <td>11,964</td>
+          <td>778</td>
+          <td>—</td>
+          <td>24.0 tok/s</td>
+          <td>0.76</td>
+          <td></td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>Cursor · Gemini 3.7 Flash</td>
+          <td>19.19 s</td>
+          <td>16.40 s</td>
+          <td>19,364</td>
+          <td>402</td>
+          <td>—</td>
+          <td>20.9 tok/s</td>
+          <td>1.03</td>
+          <td></td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>Claude Code · Fable 5.1 · effort high</td>
+          <td>25.49 s</td>
+          <td>23.62 s</td>
+          <td>—</td>
+          <td>796</td>
+          <td>—</td>
+          <td>31.2 tok/s</td>
+          <td>0.70</td>
+          <td></td>
+          <td></td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="table-3-objective-statistics-on-chinese-output">Table 3: Objective Statistics on Chinese Output<a hidden class="anchor" aria-hidden="true" href="#table-3-objective-statistics-on-chinese-output">#</a></h2>
+<p>All calculated using regular expressions, without subjective judgment. The “word match” column matches <code>挣扎</code>, <code>痛苦不堪</code>, <code>内心的煎熬</code>, <code>无法接受</code> — these words are directly mentioned in the task requirements.<br>
+“Foreign words” count consecutive Latin letters strings of two or more characters.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Model</th>
+          <th>Number of Chinese Characters</th>
+          <th>Full-width Punctuation Rate</th>
+          <th>Number of Sentences</th>
+          <th>Median Sentence Length</th>
+          <th>Longest Sentence</th>
+          <th>Four-character Phrase</th>
+          <th>Foreign Words</th>
+          <th>Markdown</th>
+          <th>Word Match for “struggle”, etc.</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Gemma4 12B</td>
+          <td>542</td>
+          <td>100.0%</td>
+          <td>18</td>
+          <td>30.0</td>
+          <td>73</td>
+          <td>113</td>
+          <td>No</td>
+          <td>No</td>
+          <td>Struggle</td>
+      </tr>
+      <tr>
+          <td>Gemma4 26B</td>
+          <td>478</td>
+          <td>100.0%</td>
+          <td>15</td>
+          <td>32</td>
+          <td>48</td>
+          <td>103</td>
+          <td>1</td>
+          <td>No</td>
+          <td>No</td>
+      </tr>
+      <tr>
+          <td>Qwen3.8</td>
+          <td>614</td>
+          <td>100.0%</td>
+          <td>18</td>
+          <td>30.5</td>
+          <td>70</td>
+          <td>131</td>
+          <td>No</td>
+          <td>No</td>
+          <td>Struggle</td>
+      </tr>
+      <tr>
+          <td>Qwen3.6</td>
+          <td>597</td>
+          <td>100.0%</td>
+          <td>17</td>
+          <td>34</td>
+          <td>63</td>
+          <td>123</td>
+          <td>2</td>
+          <td>No</td>
+          <td>No</td>
+      </tr>
+      <tr>
+          <td>Codex · GPT-5.6-Sol</td>
+          <td>511</td>
+          <td>100.0%</td>
+          <td>24</td>
+          <td>19.5</td>
+          <td>38</td>
+          <td>108</td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+      </tr>
+      <tr>
+          <td>Codex · GPT-5.6-Terra</td>
+          <td>508</td>
+          <td>100.0%</td>
+          <td>22</td>
+          <td>21.0</td>
+          <td>61</td>
+          <td>106</td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+      </tr>
+      <tr>
+          <td>Codex · GPT-5.6-Luna</td>
+          <td>518</td>
+          <td>100.0%</td>
+          <td>23</td>
+          <td>21</td>
+          <td>41</td>
+          <td>102</td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+      </tr>
+      <tr>
+          <td>Codex · GPT-5.5</td>
+          <td>467</td>
+          <td>100.0%</td>
+          <td>22</td>
+          <td>23.0</td>
+          <td>35</td>
+          <td>94</td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+      </tr>
+      <tr>
+          <td>Codex · GPT-5.4-Mini</td>
+          <td>598</td>
+          <td>100.0%</td>
+          <td>19</td>
+          <td>26</td>
+          <td>75</td>
+          <td>130</td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+      </tr>
+      <tr>
+          <td>Claude Code · Opus 5</td>
+          <td>640</td>
+          <td>98.9%</td>
+          <td>35</td>
+          <td>16</td>
+          <td>56</td>
+          <td>130</td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+      </tr>
+      <tr>
+          <td>Claude Code · Sonnet 5</td>
+          <td>490</td>
+          <td><strong>36.2%</strong></td>
+          <td>14</td>
+          <td>36.5</td>
+          <td>77</td>
+          <td>103</td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+      </tr>
+      <tr>
+          <td>Claude Code · Haiku 4.5</td>
+          <td>690</td>
+          <td>100.0%</td>
+          <td>33</td>
+          <td>22</td>
+          <td>50</td>
+          <td>144</td>
+          <td>No</td>
+          <td>Yes</td>
+          <td>No</td>
+      </tr>
+      <tr>
+          <td>Cursor · Composer 2.5</td>
+          <td>564</td>
+          <td>100.0%</td>
+          <td>31</td>
+          <td>16</td>
+          <td>66</td>
+          <td>113</td>
+          <td>No</td>
+          <td>Yes</td>
+          <td>Struggle</td>
+      </tr>
+      <tr>
+          <td>Cursor · Grok 4.6 High</td>
+          <td>594</td>
+          <td>100.0%</td>
+          <td>45</td>
+          <td>10</td>
+          <td>34</td>
+          <td>118</td>
+          <td>1</td>
+          <td>No</td>
+          <td>No</td>
+      </tr>
+      <tr>
+          <td>Cursor · Gemini 3.7 Flash</td>
+          <td>414</td>
+          <td>100.0%</td>
+          <td>13</td>
+          <td>34</td>
+          <td>53</td>
+          <td>89</td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+      </tr>
+      <tr>
+          <td>Claude Code · Fable 5.1 · effort high</td>
+          <td>556</td>
+          <td>100.0%</td>
+          <td>36</td>
+          <td>13.0</td>
+          <td>45</td>
+          <td>110</td>
+          <td>No</td>
+          <td>Yes</td>
+          <td>No</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="full-text">Full Text<a hidden class="anchor" aria-hidden="true" href="#full-text">#</a></h2>
+<details>
+<summary><b>Gemma4 12B</b> — 542 characters</summary>
+<p>It was a winter day soaked by smoke and dust.</p>
+<p>Lin Yue sat by the window, her fingertips gently sliding over those velvet shoes that had turned yellow due to lack of wear. They lay quietly in the display case, like two dried cicada molts. If she closed her eyes, she seemed to hear the last quiet before the explosion — the silent breath held by everyone in the theater, followed by the roar of heavy shells tearing through the air, and the sharp sound that could shatter eardrums, the loud noise of metal and bones breaking apart.</p>
+<p>Now, all she heard was the whimpering caused by the city ruins shaking in the wind.</p>
+<p>She tried to stand up, but her movement was extremely slow. When she crossed the threshold, the muscles of her left leg instinctively tightened, trying to find a support that no longer existed. That was her left leg — on that cursed afternoon, it “disappeared” along with the flames and thick smoke. Now, the broken end was wrapped in thick compression socks, artificially supported to form a silhouette that barely could bear her weight.</p>
+<p>She walked to the mirror. The woman in the mirror had a pale face, with a thin scar at the corner of her eyes — the mark left by fragments at that time. She tried to perform a basic “push palm” motion, her arms gracefully sweeping over her head. However, when she tried to shift her weight to the left side and prepare a light rotation, her broken sense of balance instantly collapsed.</p>
+<p>She staggered, her unstable weight hitting the wall behind her, and didn’t even make a sound.</p>
+<p>Because she lost that supporting point, her core muscles were always in a highly tense state, as if every second was fighting against gravity. She could no longer perform complex rotations, and even standing steadily until the last minute became a luxury.</p>
+<p>She closed her eyes and danced in her mind. There, she was still at the center of the stage, her toes touching the ground, light as feathers, without pain from breaks, without the coldness of a wheelchair, only the desperate and noble elegance that emerged from the pile of debris.</p>
+</details><details>
+<summary><b>Gemma4 26B</b> — 478 words</summary>
+<p>The slight creak of the titanium alloy support in the middle of the night was the only rhythm in Elena’s life.</p>
+<p>Once, her world consisted of the lightness of stepping on the toes and the rise as she spun. At that time, the air smelled of pine resin, and every jump seemed to try to break free from the gravity of the earth. Now, however, the air carries only the smell of old plaster and the endless, gray ruins outside the window.</p>
+<p>When the last shell exploded on the side of the theater, what she heard was not a loud noise, but an extremely long, tearing silence. Then, the sensation that used to belong to her left leg disappeared, replaced by a hollow, scorched void like that caused by fire.</p>
+<p>Today, Elena lives desperately in the gaps among the post-war ruins. She still tries to practice, but it is no longer art—more like a silent protest against her damaged body. Every morning, she trembles, trying to fasten the cold metal prosthetic on her missing limb. The dull pain from the metal rubbing against skin is like a nail, constantly reminding her: the girl who could dance on that thin strap has died in that fire.</p>
+<p>She sits on a wobbling wooden chair, looking at the thin figure in the mirror. She tries to perform an “Arabesque,” but when she attempts to support herself on one leg, the cold support makes a heavy, harsh sound on the wooden floor. It doesn’t sound like dance—more like a dead bone hitting a coffin lid.</p>
+<p>She stares at the half-destroyed tree outside the window, tears rolling in her eyes yet never falling down. She isn’t crying over losing her leg—she is desperate for the faint vibration she can no longer feel with the ground.</p>
+</details>
+<details>
+<summary><b>Qwen3.8</b> — 614 words</summary>
+<p>Rain flows down through the broken window glass and gathers into muddy puddles on the floor. Lin Wan stands in front of a floor-to-ceiling mirror, her gaze not focused on the woman in black tight training clothes reflected in the mirror, but fixed on the empty trouser leg. That was where her proud swan leg used to be, now only leaving a smooth scar at the broken end and a faint rusty smell in the air—the only reminder of last year’s unexploded bullet that torn her right knee behind the theater.</p>
+<p>She takes a deep breath, trying to recall the beginning of Act I of <em>Swan Lake</em> by moving her muscles. She lifts her left foot, slowly shifts her weight, and her body leans forward. At that moment, the world is terrifyingly quiet, only the heart’s violent beating in her chest heard. However, when inertia pushes her weight to the right, the force that should be supported by her right leg suddenly becomes suspended. The sense of imbalance rushes in, and instinctively she reaches for the handle beside her, but the moment her fingertips touch the cold wood, she falls heavily onto the cold floor.</p>
+<p>There are no piercing cries or hysterical struggles. Lin Wan just lies there quietly, watching the peeling paint on the ceiling stack up like soil in a trench. She can even feel the pain from overstraining her left ankle—a protest from her body against the missing part, and a mockery of her once light steps.</p>
+<p>Outside, the air raid sirens have stopped long ago, replaced by children playing across the street, chasing paper airplanes with clear, carefree laughter.</p>
+<p>Lin Wan slowly raises her hand, wiping away water marks on her face—whether it’s physiological tears or rain? She can’t tell. She struggles to get up, and her joints make a subtle click. She walks to the piano in the corner of the room, fingers hovering above the keys but never landing. The post-war city is filled with a silence like scorched earth. What she lost is not just a leg—it is herself, capable of embracing the wind while spinning. In these days of reconstruction, every breath feels like digging through ruins, painful and long, but she knows that as long as she stands, even limping, there will come a day to dance again.</p>
+</details>
+<details>
+<summary><b>Qwen3.6</b> — 597 words</summary>
+<p>At five in the morning, the rain outside the window sounds like an endless drumbeat, knocking against the old glass of the apartment. Lin Wan opens her eyes and instinctively wants to jump out of bed and perform a standard “Grand Jeté,” but the cold prosthetic on her left leg is stuck to the mattress, pulling her back into reality.</p>
+<p>She stares at the water mark on the ceiling—where she used to focus while spinning—now just a blurred gray patch. On the wooden floor beside the bed, the heavily worn pink toe shoes lie still, with dried mud on the tips—remnants of the last performance before the war, also her epitaph for leaving the stage completely.</p>
+<p>Lin Wan sits up slowly, fingers trembling as she fastens the metal buckle of the prosthetic. Each touch causes a sharp phantom pain from the metal rubbing against skin, as if the torn leg is still screaming at the nerve endings. She supports herself on the wall and stands up, her weight tilting to the right, creating a sickly asymmetrical beauty. The woman in the mirror has a pale face and deep-set eyes; the once “swan” now looks like a bird with broken wings but still trying to fly, clumsy and heartbreaking.</p>
+<p>The way to the kitchen is only three steps away, but to Lin Wan, it feels like a difficult journey across a trench. She must calculate every step, every shift in weight, even the rhythm of her breathing, to ensure the heavy metal leg doesn’t make her fall. When the kettle makes a sharp whistle, she feels dizzy. At that moment, the smell of gunpowder seems to fill the air again, the sound of explosion and boiling water overlapping, almost suffocating her.</p>
+<p>She picks up the coffee cup, her hand shaking badly, brown liquid splashing on the back of her hand, leaving a red mark—but not even one tenth of what she feels inside. Outside, the city’s reconstruction is underway, the roar of cranes overpowering the birdsong. Lin Wan looks at herself reflected in the glass, trying to mimic a spinning motion from memory, but a tearing pain comes from her ankle. She stops, takes a deep breath, and swallows the impending cry back into her throat. Life must go on, even if it is broken, with rust in every breath.</p>
+</details>
+<details>
+<summary><b>Codex · GPT-5.6-Sol</b> — 511 words</summary>
+<p>Three months after the peace treaty, a poster was hung again at the theater entrance.</p>
+<p>Lin Wan leans on her walking stick and walks slowly across from the other side of the street. The poster shows her with two long legs, her white dress fluttering in the air, the toes light as if on snow that never sinks. The wind lifts the paper corners, knocking against the wall repeatedly. She doesn’t stop, only seeing her empty trouser leg on the reflection in the shop window, slightly swaying in the twilight.</p>
+<p>She lives in an surviving old building behind the theater. There are forty-three steps, and she counts them every day. When she reaches twenty-seven steps, the walking stick touches the shattered tile, making a clear sound like a teacher’s beat in a rehearsal hall. In the past, she always found the beat too slow, but now she must wait for her breath to catch up before taking another step.</p>
+<p>There is no mirror inside. The only one is covered with old bed sheets, with a pair of worn ballet shoes on it. The sole of the right shoe has been worn thin, while the left one still retains its shape from the last performance, the ribbon neatly stuffed into the shoe cavity. In the morning, she burns a pot of water, adds some mint to the window sill, then sits down and props her right leg onto the horizontal bar. The bar is fixed by the landlord with an abandoned window frame, slightly two inches higher than usual—she never mentioned it.</p>
+<p>The children downstairs often imitate her dancing on the open space. They don’t know how many feet there are, just spread their arms and spin, making the broken bricks squeak. A little girl with a red ribbon always comes knocking at the door, asking when she will return to the theater. Lin Wan always says, “Wait until the floor is fixed.”</p>
+<p>In fact, the floor was already fixed.</p>
+<p>That evening, piano music came from the theater. She sits on the twenty-seventh step of the stairs, placing the walking stick on her knee. The music passes through the wall, playing repeatedly at the jump point, then suddenly stopping. She lifts her right foot, straightens the instep, and hovers the toe in the air. The light in the corridor has been broken for a long time, and no one sees her maintaining that posture until the distant clock strikes nine.</p>
+</details>
+<details>
+<summary><b>Codex · GPT-5.6-Terra</b> — 508 words</summary>
+<p>In the third spring after the peace treaty, Lin Yan still wakes up at five in the morning every day.</p>
+<p>The street outside the window was cleaned by last night’s rain, and the repaired building walls still have bullet holes, like a row of black moleskine marks. She sits on the edge of the bed, first reaching for the prosthetic beside the chair, then for the ballet shoes. The satin shoes are old, their toes repaired repeatedly with thread, like two white birds refusing to die.</p>
+<p>She wears only her left foot.</p>
+<p>After her right leg was cut off at the knee, the hospital nurse gave her back the shoe. The toe is covered in dust, and the laces contain tiny pieces of glass. Lin Yan washes it, dries it, and puts it deep in the drawer. She doesn’t throw it away, as if as long as the shoe remains, the right foot is just late, not always absent.</p>
+<p>The kettle in the kitchen starts to sound. She moves over with her cane, her motion almost graceful: the tip lands, the left foot follows, and her body leans slightly forward. Neighbors always praise her “good recovery,” and she smiles. No one sees the skin torn by the prosthetic when she removes it at night; no one hears her lowering her voice to count beats in the stairwell—one, two, three, four—like waiting for a music that will never sound.</p>
+<p>Breakfast is half a black bread piece and a cup of pale coffee. She turns on the radio to classical music, which plays <em>Swan Lake</em> at the same time. As the music starts, her shoulders unconsciously open, her arms slowly raised, creating a curve in the small kitchen. The window glass reflects her thin shadow: one leg supports all the weight, the other trouser leg hangs empty.</p>
+<p>When the music reaches the thirty-second eighth measure, the construction team’s explosion sound comes from outside the building.</p>
+<p>The cup slips from her hand and breaks on the floor. Lin Yan stands still, her face paler than the wall. After a long time, she bends over to pick up the pieces. She doesn’t cry, just puts each ceramic piece neatly into a paper bag, like collecting parts of a body that hasn’t been found entirely from the ruins.</p>
+</details>
+<details>
+<summary><b>Codex · GPT-5.6-Luna</b> — 518 words</summary>
+<p>At six in the morning, the city is still soaked in a gray-blue haze. Lin Zhi opens the curtains and first sees the building without glass across from her, then the wild grass growing on the roof. The wind passes through the gap, carrying coal smoke, dampness, and the smell of the bakery from afar, like a hesitant hand touching every scar left by the war.</p>
+<p>She sits on the edge of the bed, untying the pants of her pajama. Her left leg stops below the knee, wrapped in thin cotton. The prosthetic leans against the wall, its metal joints white under the morning light. Lin Zhi doesn’t reach for it immediately, instead putting her right foot down first, the toes straight, the instep bent into her familiar curve.</p>
+<p>In the past, she started training this way every day. Toes, heels, knees, back straight, breathing hidden between the ribs. She once danced <em>Swan Lake</em> on the brightest stage of the theater, her skirt fluttering like white flowers on the water. The audience’s applause came from the darkness, and she always thought that sound could hold a person up, preventing them from falling forever.</p>
+<p>The explosion happened one afternoon. That day she was walking through the square, holding a freshly bought orange. After the loud noise, the world became pure white. Later, someone told her she was unconscious for eleven days; others said the doctors did their best. When she woke up, her first question wasn’t whether the war was over, but “Where are my shoes?”</p>
+<p>Now, the theater is a temporary warehouse, and half of the ballet school’s mirror wall is broken. She finds an ad in old newspapers: the Citizen Rehabilitation Center is recruiting dance teachers, with a meager salary, requiring self-arrangement.</p>
+<p>Lin Zhi fixes the prosthetic, the pain slowly rising along her bone. She supports herself on the wall and stands up, her body shaking like a bird that has forgotten how to fly. Outside the window, people sweeping the ruins push their carts, the wheels crushing stones, making a monotonous, hard sound.</p>
+<p>She grabs the worn ballet shoes and suddenly remembers she still has one foot that can stand on. So she opens the door and walks toward the stairs.</p>
+</details>
+<details>
+<summary><b>Codex · GPT-5.5</b> — 467 words</summary>
+<p>At six in the morning, the city’s bell tower hasn’t been repaired yet, leaving only a charred tip sticking out in the fog. Lin Zhi is already awake. She sits on the edge of the bed, fastening the belt of the prosthetic one by one, very gently, like before tying the satin ribbon of the ballet shoes. The sound of a van passing over the gravel road comes from outside the window, and when the wheels touch the crater, there’s always a short bump. She stops for a moment, waiting until the sound fades, then reaches for the old wooden box on the bedside table.</p>
+<p>Inside the box is a pair of pink toe shoes, the toes worn white, the soles still with pine resin. She doesn’t wear them, just touches the surface with her fingertips, then closes the lid, like closing an undelivered letter.</p>
+<p>The neighbors downstairs have already started lining up to get water. Lin Zhi picks up two empty pots and slowly walks down the stairs. At the corner between the third and second floors, there’s a crack in the wall, like a crooked river. She passes by every day, occasionally remembering the painted decorations on the theater ceiling, also cracked. That day she was standing in the middle of the stage, just as the music reached the third measure, then the lights suddenly went dark, and the world was swallowed by white. When she wakes up, she hears someone calling her name, the voice thick with dust, like coming from underwater.</p>
+<p>Next to the water station, children draw grids on the ground with chalk, jumping on one foot. A little girl recognizes her and asks timidly, “Did you dance before?”</p>
+<p>Lin Zhi smiles and switches the pot to her other hand. “Yes, before.”</p>
+<p>“Now?”</p>
+<p>She doesn’t answer immediately. In the distance, the temporary school’s broadcast starts, playing practice pieces intermittently, the notes drifting between the broken walls and drying ropes. She sees her shadow on the ground, longer on one side, shorter on the other, swaying in the sunlight. After a long while, she says, “I’m still learning now.”</p>
+</details>
+<details>
+<summary><b>Codex · GPT-5.4-Mini</b> — 598 words</summary>
+<p>At six in the morning, the bell tower of the old theater in the south of the city shows a bit of grayish white in the fog, like a bone dulled by time. When Lin Cheng pushes open the attic window, the first bus carrying bread just passed down the street. She leans on her cane against the wall, uses both hands to hold the window frame, and slowly moves her body onto the floor. The empty space of her left leg is hidden in loose training pants, like a melody quietly cut out. She never looks at it, but can feel its absence in every movement.</p>
+</details>The steam in the basin quickly dissipated. She rubbed her face with cold water, and the face in the mirror remained young, only with a layer of indelible gray that resembled the dust left by war, settling deep into the skin. The bread shop downstairs had opened, and the aroma crept up through the stairway cracks. She used to love this smell—during rehearsal breaks, the dancers would crowd in the backstage and share the still-warm sweet rolls; now she often only buys a small piece of black bread, cutting it in half, keeping one half for evening and chewing the other half until it loses its taste.
+<p>This morning she went to the market. The road wasn’t long, but she stopped three times. The old woman who sells vegetables recognized her and always stuffed an extra potato into the bag as a casual kindness. When Lin Cheng thanked her, she kept her head down, afraid of meeting those looks that fell on herself, like the dust floating quietly after the lights are turned off on an old theater stage, refusing to fall.</p>
+<p>She used to be the lightest person in the ballet company, able to leap like she was about to leave the ground in the last eight measures; now she has learned to calculate the weight of each step on the stone pavement, to not show pain on her face, and to say “I’m fine” as naturally as breathing.</p>
+<p>When she returned to the attic, she stopped at the door for a long time. The old dance shoes in the room were still on the box, the tips worn white, the ribbons curled, like two silent wings. She sat down, slowly tied the laces of her right shoe, then looked out the window at the street rebuilt after the bombardment. Children’s laughter came from afar, light as a performance that hasn’t yet begun. Lin Cheng didn’t get up immediately. She just pressed her hand on her knee, listening to the bell downstairs ring one by one, as if reminding her: some lives have already finished their curtain call, while some still have to stand under the lights.</p>
+</details>
+<details>
+<summary><b>Claude Code · Opus 5</b> — 640 words</summary>
+<p>She can’t open the罐头 now.</p>
+<p>This was the first thing Suli adapted to—not a prosthetic, not that empty trouser leg, but the罐头. With her left hand holding the peach罐头, her right hand tried to turn it, but without a support, when her center of gravity shifted, the罐头 rolled down the table. She looked down for a while but didn’t pick it up.</p>
+<p>It was raining outside the window. The window on the third floor faced a parking lot rebuilt from ruins, and rainwater accumulated into broken mirrors in the potholes, reflecting the gray-white sky. The explosion happened in April two years ago, when the wall behind the theater collapsed while she was tying the ribbons of her toe shoes. Those shoes were never found, or rather, one was found.</p>
+<p>The physical therapist was a very young girl, speaking softly, always saying “great” and “one more time.” Suli walked well in front of her, one step, two steps, turning around, holding onto the railing. The therapist said her balance was much stronger than most people’s. Suli smiled. Of course. At sixteen, she could stand thirty-two circles in one square centimeter.</p>
+<p>She stopped listening to music. The radio broke and wasn’t repaired, and the song lists on her phone were completely deleted. Once at the supermarket, Tchaikovsky played on the radio. She stood by the shopping cart in front of the freezer, waiting for the salesperson to ask if she needed help. She said no, then pushed the cart to another aisle and bought three bags of frozen dumplings she didn’t need at all.</p>
+<p>The prosthetic was German-made, very expensive, donated by a foundation. Metal and carbon fiber, the interface made her skin turn red. She gave it a name, but never told anyone. When she couldn’t sleep at night, she would think of the broken leg—not about the pain, but about how it stretched straight in the air, the instep bent into an arc, like the end of a beautifully written sentence. The doctor said this was phantom limb sensation, which would fade over time.</p>
+<p>She hoped it wouldn’t fade.</p>
+<p>The children in the neighborhood sometimes stared at her. A five or six-year-old boy asked directly: “Auntie, where is your leg?” She said, “Lost.” The boy thought for a moment and asked, “Then can you fly?”</p>
+<p>Suli was stunned.</p>
+<p>That night she returned home, opened the curtains, and the room was empty. The floor was old wood, with one spot that made noise. She stood up against the wall, stepped on her right foot, and slowly shifted her center of gravity.</p>
+<p>The wooden board made a creak.</p>
+<p>She stood there for a long time without moving.</p>
+<hr>
+<p>Skip: specific war background, backstory of supporting characters, subsequent plot. Say if it should be expanded into a full chapter.</p>
+</details>
+<details>
+<summary><b>Claude Code · Sonnet 5</b> — 490 words</summary>
+<p>Her left leg remained under the ruins on that rainy night in 1943. Now it was the third year, and she sat by the window mending clothes for children. Her fingers were still delicate and skilled, as if remembering the force of holding the toe shoe laces.</p>
+<p>The accordion sound came downstairs. The old soldier next door played a waltz. Her right foot unconsciously tapped the rhythm on the floor, while that empty trouser leg remained still beside the chair leg. She looked down briefly, then quickly turned away—a motion she had repeated countless times, like a ritual, reminding herself not to look, not to think.</p>
+<p>The mirror was still hanging on the wall, an old item from before the war, with intricate patterns carved into the frame. It had been long since she stood in front of it. Not because she was afraid of seeing that leg, but because she was afraid of seeing her own eyes—those eyes that once shone under the spotlight, now leaving only a fatigue she didn’t recognize.</p>
+<p>Misha, the boy from the bread shop downstairs, would bring a piece of black bread every evening, place it at the door, and leave without saying much. She knew he had seen her dance “Swan Lake” in the back row of the theater, the last season before the war. Once he braved asking if she would dance again, she smiled and said leg problems could be solved, would get better.</p>
+<p>She didn’t tell him that last night she dreamed she was wearing toe shoes, spinning in the snow, spinning, spinning, until the music stopped for a long time, and she continued spinning until the leg grew back, until she could live lightly and without reason, just like before.</p>
+<p>When she woke up, it was just beginning to light outside the window. The old piano still had a photo of her at seventeen, wearing a white dance dress, smiling carelessly. She reached out to turn the photo over, then picked up the needle and thread.</p>
+</details>
+<details>
+<summary><b>Claude Code · Haiku 4.5</b> — 690 words</summary>
+<h1 id="fragments">Fragments<a hidden class="anchor" aria-hidden="true" href="#fragments">#</a></h1>
+<p>The rain started again outside the window. Maria sat in her wheelchair, looking at the closed dance studio across the street. The glass door still had a promotional photo from three years ago—a complete woman under the spotlight, toes pointing toward the sky.</p>
+<p>She hadn’t looked at that photo for a long time.</p>
+<p>The ritual every morning was the same. She would wake up at six, a gift left by war—a biological clock that no longer needed an alarm. That was when the explosions were most piercing. Even now, far from the war zone, her body still tightened at this moment during sleep, as if waiting for another shockwave.</p>
+<p>She would wash up and change into clean clothes. These small actions took three times as long as before. In front of the mirror, she no longer avoided her reflection. The prosthetic leaned against the bed, pale-skinned silicone and carefully adjusted spring mechanisms. She gave it a name—“Claude”—like it was a stranger, not part of her own body.</p>
+<p>“Good morning, Claude,” she would say softly, with a hint of mockery and strange tenderness in her voice.</p>
+<p>Today she was going to the physical therapy clinic. The hallway was filled with people like her: different missing body parts, but the same look in their eyes—a look that had learned how to continue living. The therapist asked her to try balancing, to walk, to believe that the metal joint stuck at her knee would bend and stretch like a real knee.</p>
+<p>She tried it. Many times.</p>
+<p>In the afternoon, she would sit in a café, a cup of hot tea in front of her getting colder. The young girl at the next table was wearing dance clothes, the ribbon of a ballet shoe sticking out from her bag. Maria would watch her too long, until the girl felt the gaze, turned around, and her expression changed from unaware to uneasy, then to complex sympathy.</p>
+<p>At that moment, Maria would turn away.</p>
+<p>She didn’t want sympathy. What she wanted was whether the whole herself could suddenly return at some point. But she had learned not to expect miracles. War taught her that the most real part of life often appears at the moment you notice its absence.</p>
+<p>At night, she would play a video—her own dancing footage. On the screen, that version of Maria spun, jumped, flew. Two legs, two complete legs. She would pause repeatedly, studying the expression on her face, wondering if the joy then was real or just an illusion under the stage lights.</p>
+<p>Outside the window, the rain continued. And Maria continued sitting there, at some midpoint between herself and others, waiting for answers.</p>
+</details>
+<details>
+<summary><b>Cursor · Composer 2.5</b> — 564 words</summary>
+<h1 id="mirror-after-rain">Mirror after Rain<a hidden class="anchor" aria-hidden="true" href="#mirror-after-rain">#</a></h1>
+<p>After the rain stopped, Lin Wan pushed the window open a little. The cart selling soy milk downstairs came out again, the sound of the iron bucket hitting the ground similar to the sound of the heating pipes behind the theater three years ago.</p>
+<p>She sat on the edge of the bed, smoothing the silicone cover on her prosthetic. The motion was slow, like tying shoelaces before rehearsal—only now, with nothing under her knee, the shoelace was empty.</p>
+<p>The kettle made a sound from the kitchen. She stood up against the wall, her left leg landing first, then her right leg. Her right leg remembered every curve: toes spread out, heel in. But the prosthetic had no curve, only a slight “click” from the metal joint, creating an unfamiliar rhythm on the wooden floor.</p>
+<p>She made a bowl of noodles without onions. Before, she hated the smell of onions, saying it would wash away the stage makeup. Now, with only her own in the kitchen, onions or not, it was the same.</p>
+<p>The afternoon sun slanted into the living room. In the corner stood a dusty dance shoe, the pink fabric faded to gray, the tip still in its shape from the last time she stood on tiptoe. She didn’t look at it, but knew it was there, as if knowing the calendar on the wall had turned to September—the performance season should have started.</p>
+<p>The phone on the coffee table vibrated once. It was a reminder from the rehabilitation center: physical therapy at three in the afternoon. She typed “okay” and put the phone away.</p>
+<p>Three o’clock came, and she changed into clothes for going out. In the mirror, she wore loose knitted pants, unable to see the outline of her left leg. She raised her chin against the mirror—a habit before going on stage. The person in the mirror looked back at her, eyes calm, but the corners of her mouth slightly tightened.</p>
+<p>She picked up her bag and stopped at the door for a second.</p>
+<p>The children’s laughter came from downstairs, running across the stairs, then farther away. She took a deep breath and pushed the door open. The air after rain had the smell of soil and osmanthus. She walked down the steps, one step, then another. The rhythm was unstable, but she didn’t stop.</p>
+<hr>
+<p>The full text is about 520 words. The struggles are mainly presented through daily details: the mechanical feel of the prosthetic, remnants of old habits, avoiding the dance shoe, covering it with loose clothes, the subconscious posture toward the mirror, and that one-second pause and unstable gait when going out. If you need to adjust the style (more cold or more poetic) or length, please let me know.</p>
+</details>
+<details>
+<summary><b>Cursor · Grok 4.6 High</b> — 594 words</summary>
+<p>The stone steps were still wet after the rain. Anna supported herself on the rail, probing the prosthetic first, the rubber bottom slipping slightly on the moss. She stopped for a moment, waiting until the empty sound rising from her knee disappeared, then put the other foot on top.</p>
+<p>The bread shop lights were already on. She passed by this window every day. The glass reflected her: short hair, old coat, the unyielding outline beneath the skirt. The window displayed protein cake, white like the walls of the rehearsal hall before. She didn’t enter. The coins in her pocket only lasted half a loaf of rye.</p>
+<p>The studio was on the third floor. The elevator was broken for three months, no one repaired it. She counted the steps: thirty-seven, thirty-eight. At the thirty-ninth level, the prosthetic made a soft “click,” as if there was sand in her bone. The door was open. The mirror was still there. The mirror never left the dance classroom, even though it had been converted into a mending shop. In the corner were military coats given by others, sleeves worn, collar blackened. Anna sat down, placing the needle and thread box on her leg—on that still-leg.</p>
+<p>She sewed buttons for the children. The children didn’t dance. They came to pick up the repaired pants, looked at her skirt, and sometimes asked: “Auntie, why don’t you show the other one?” She smiled and cut the thread. The thread was sticky, like the smell of cutting the ribbon before.</p>
+<p>At noon she opened the window. Someone on the opposite roof was drying bedsheets, the wind blowing the white cloth up, slightly resembling a tutu. Anna’s hand stopped in mid-air. She didn’t grab it. She just watched the cloth fall, wrinkled into a ball, and another hand smoothed it back.</p>
+<p>There was also a pair of old toe shoes in the drawer. The tips were soft, and there was a thin layer of gray in the shoe box. She opened them occasionally, not to wear them, but to confirm they were still there. After confirming, she closed them. Like swallowing a sentence back.</p>
+<p>In the evening, someone downstairs played old records. It was “Swan Lake.” She didn’t close the window. The prosthetic leaned against the chair leg. She tapped the table edge with her finger, once, twice. To the part that should have been spinning, the finger stopped. Someone passed by outside the window, their laughter soft. She finished the record, turned off the light, folded the empty trouser leg, and put it in the drawer—not to hide it, just to let it sleep.</p>
+<p>She still had to go to the third floor tomorrow. Still count the steps. Still thread through the button holes. Life didn’t explode, just continued. Continuing itself was already heavy.</p>
+</details>
+<details>
+<summary><b>Cursor · Gemini 3.7 Flash</b> — 414 words</summary>
+<p>At six in the morning, the light in the attic was still cold gray. Lin Na opened her eyes one second before the alarm went off, habitually straightening her toe shoes—her right ankle drawing a gentle arc in the air, while the left side had only empty bedding slightly trembling in the wind.</p>
+<p>There were two things on the bedside table: a box of damp pine resin and a metal prosthetic reflecting a cold light.</p>
+<p>She sat up against the bed edge. Her right leg, bearing twice the weight all year, had stiff muscles. Standing was still a long, silent struggle. When putting on the prosthetic, the dull pain from the belt buckle sinking into the missing skin made her barely bite her lower lip, but she didn’t stop, just smoothed the faded old training clothes.</p>
+<p>Next to the dressing mirror by the window, the worn toe shoes hung quietly. The woman in the mirror had a straight back like before, the long neck and jaw slightly raised—elegance and pride carved into her bones. But when she tried to turn to get the kettle on the stove, the prosthetic bearing made a harsh “click,” and her center of gravity shifted suddenly. She pressed hard against the table edge, the iron kettle tipped, cold water dripping along the uneven corner of the table, making a slow rhythm on the floor.</p>
+<p>Lin Na didn’t wipe up the water spot. She stood still, the missing nerve on the left side throbbing faintly, as if still stubbornly searching for a pivot point to fall back into. The noise from the market outside gradually increased. She took a deep breath, adjusted her breathing and center of gravity, and stepped toward the stove like waiting for the curtain to rise.</p>
+</details></details>
+<details>
+<summary><b>Claude Code · Fable 5.1 · effort high</b> — 556 words</summary>
+<h1 id="lesson-1">Lesson 1<a hidden class="anchor" aria-hidden="true" href="#lesson-1">#</a></h1>
+<p>Before dawn, Lin Wan woke up. Her right leg hurt under the blanket, below her knee—the doctor called it phantom limb pain. She didn’t touch it; she knew there was only empty sheets there.</p>
+<p>The bakery downstairs began to smell. The building was rebuilt after the war, with thin walls, and she could hear the owner opening the rolling curtain. Three years ago, this street was a wasteland. Three years ago, behind the theater at the end of the street, she stuffed soft padding into her toe shoes.</p>
+<p>She sat up, first putting on the prosthetic, then the pants. It took her three months to get this order right. The prosthetic was provided by the government—hard plastic, with skin reddening at the joints. She padded it with an old silk cloth from a costume.</p>
+<p>Her breakfast was a boiled egg and half a cup of milk. She ate slowly. She used to eat slowly too, to control weight; now it was because there was nothing to rush.</p>
+<p>At eight o’clock, she went to the community cultural station to teach. There were over a dozen children, the oldest ten years old. The parents didn’t care if she taught well, just needed a place to leave their kids for two hours. She didn’t care either—she needed the pay.</p>
+<p>The classroom floor was concrete, covered with a thin plastic mat. She had the kids stand in a line, holding onto the wall.</p>
+<p>“Tuck your heels together, spread your toes.”</p>
+<p>The children did it awkwardly. A little girl stood on tiptoe, wobbled slightly, and laughed out loud. Lin Wan watched her wiggling ankle for a long time.</p>
+<p>“Teacher, why don’t you demonstrate?”</p>
+<p>“My leg is inconvenient,” she said without pausing.</p>
+<p>“Did you do it before?”</p>
+<p>She didn’t answer, turned to play music. It was Act II of <em>Swan Lake</em>, the tape a bit old and the sound muffled. When the intro started, her right hand lifted involuntarily, forming a half arc, then stopping in mid-air. She lowered it, pressed against her pants pocket—inside was an old program sheet folded four times, the edges softened. She didn’t take it out.</p>
+<p>“Do it again,” she said, “tuck your heels together, spread your toes.”</p>
+<p>Outside the window, on the rebuilt street, someone was flying a kite.</p>
+</details>
+<h2 id="reproduction">Reproduction<a hidden class="anchor" aria-hidden="true" href="#reproduction">#</a></h2>
+<p>The two scripts used for the run test and generation, along with the full record of 16 runs (including text, timing, and usage):
+<code>zhbench.py</code>, <code>gen_post.py</code>, <code>zhbench.json</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">python zhbench.py     <span class="c1"># 全部跑一遍，结果写入 zhbench.json，断点续跑</span>
+</span></span><span class="line"><span class="cl">python gen_post.py    <span class="c1"># 从 zhbench.json 重新生成本文</span>
+</span></span></code></pre></div>
+
+  </div>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

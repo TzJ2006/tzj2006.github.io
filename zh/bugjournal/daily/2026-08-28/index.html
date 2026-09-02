@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-08-28 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="完成了PI0.5量化表面网格分析工作（确定4位投影输入需要16位环境），并生成了代码层面的根本原因报告；解决了关键基础设施问题，包括Duke DCC SSH配置调整、登录节点进程清理以及Intel Wi-Fi驱动程序更新；通过经过验证的基于片段的Gemini编写工具推进了RoboMemory项目的发展；并为TokenMonitor实现了货币一致性模块。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-28/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-08-28/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-28/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-28/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-08-28">
+  <meta property="og:description" content="完成了PI0.5量化表面网格分析工作（确定4位投影输入需要16位环境），并生成了代码层面的根本原因报告；解决了关键基础设施问题，包括Duke DCC SSH配置调整、登录节点进程清理以及Intel Wi-Fi驱动程序更新；通过经过验证的基于片段的Gemini编写工具推进了RoboMemory项目的发展；并为TokenMonitor实现了货币一致性模块。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-08-28T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-08-28T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-08-28">
+  <meta name="twitter:description" content="完成了PI0.5量化表面网格分析工作（确定4位投影输入需要16位环境），并生成了代码层面的根本原因报告；解决了关键基础设施问题，包括Duke DCC SSH配置调整、登录节点进程清理以及Intel Wi-Fi驱动程序更新；通过经过验证的基于片段的Gemini编写工具推进了RoboMemory项目的发展；并为TokenMonitor实现了货币一致性模块。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-08-28",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-28/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-08-28",
+  "name": "Bug Journal 2026-08-28",
+  "description": "完成了PI0.5量化表面网格分析工作（确定4位投影输入需要16位环境），并生成了代码层面的根本原因报告；解决了关键基础设施问题，包括Duke DCC SSH配置调整、登录节点进程清理以及Intel Wi-Fi驱动程序更新；通过经过验证的基于片段的Gemini编写工具推进了RoboMemory项目的发展；并为TokenMonitor实现了货币一致性模块。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "每日报告 — 2026-08-28 日常概述 已完成工作： 完成了 PI0.5 W4A8 部署策略的科学验证，确定了 4 位投影所需的 16 位激活要求；建立了稳定的远程计算基础设施（Duke DCC SSH 和代理进程管理）；解决了本地硬件不稳定问题（Wi-Fi）；并提供了 RoboMemory 的高精度软件组件（段写入器）和 TokenMonitor 的货币模块。 实现方式： 通过闭环基准测试、严格的指纹验证以及编译器回溯的法医分析（QAIRT/QNN）进行模型量化；为 HPC 基础设施实施了防御性 Shell 脚本和多跳 SSH 配置；采用 TDD 和对抗性多智能体审查进行软件实现；使用 PowerShell/CLI 管理驱动程序。 影响： 通过明确旋转的作用和识别硬件限制，确保了量化的科学完整性；实现了稳定的远程 AI-代理执行和共享节点上的团队协作；消除了本地连接错误；并产生了高效的、节省令牌的段总结写入器和统一的货币格式化系统。 MacOS 已完成工作： 配置了 Duke DCC 的 SSH 别名（CPU/GPU/Agent），建立了连接 AI 代理与远程计算节点的协议。 实现方式： 使用 Codex 读取 Duke 文档，在 ~/.ssh/config 中添加 ProxyCommand 链，并创建具有严格权限的套接字目录。 影响： 使远程计算资源能够无缝集成到本地开发和 AI-代理工作流程中。 TzJsDesktop 已完成工作： 执行并分析了 PI0.5 量化实验（“projin”和“sqvla”），生成最终技术报告，管理 DCC 登录节点上的 AI 代理进程清理，更新 Intel AX211 Wi-Fi 驱动程序，并实现了 RoboMemory 段写入器和 TokenMonitor 货币审计。 实现方式： 使用 bash 管道进行模型评估，解析编译器日志以进行根本原因分析，迭代调试 stop-login-node-ide.sh 以处理 DNS 轮转和自排斥机制，执行 PowerShell 驱动程序更新，并对 Python 和 Rust 代码实施严格的“先测试”和多智能体审查流程。 影响： 产生了可操作的科学结论和强大的基础设施工具；消除了本地连接不稳定问题；提供了高精度、低推理成本的段写入器；并识别/修复了 TokenMonitor 货币处理中的关键错误。 lighthouse 已完成工作： 执行并分析了 PI0.5 模型的“projin”和“sqvla”量化单元，验证了 4 位投影需要 16 位激活的必要性。 实现方式： 运行 Libero 基准测试，通过日志指纹和元数据检查验证结果，生成包含 QAIRT 4 位限制的代码级追踪的综合性英文报告。 影响： 明确界定了可行的量化策略边界，确认当前在目标硬件上无法使用 4 位激活。 完成了 PI0.5 量化表面网格分析（确定 4 位投影输入需要 16 位环境），生成了代码级根本原因分析报告；解决了包括 Duke DCC SSH 配置、登录节点进程清理和 Intel Wi-Fi 驱动程序更新在内的关键基础设施问题；通过经过验证的基于段的 Gemini 写入器推进了 RoboMemory 项目；并为 TokenMonitor 实现了货币一致性模块。\n任务 架构与策略 ✅ PI0.5 量化网格完成与报告定稿（I-080/I-081） — 运行了“projin”（4 位输入，8 位环境）和“sqvla”（8 位输入，无旋转）的基准测试，验证结果，并使用 5 行网格表更新项目文档。生成了包含 4 位编译器限制和技术附录的 QUANT_SURFACE_GRID.md 报告。 ✅ RoboMemory I-040/I-041 实施 — 开发并验证了 “segment_writer.py” 工具，实现了分块逻辑和基于 Gemini 的总结循环，与之前的版本相比显著减少了推理令牌使用量。 🔄 TokenMonitor 货币一致性（I-047） — 实现了统一的货币格式化模块（money.rs），对代码库中的硬编码货币符号进行了审计；目前正在修复备用汇率表中的发现错误。 实施与修复 ✅ Duke DCC SSH 配置与基础设施设置 — 配置了 SSH 别名（dcc-agent, dcc-gpu），创建了必要的套接字目录，并建立了清晰的协议，使 AI 代理能够在 MacOS 上通过这些别名进行远程执行。 ✅ DCC 登录节点进程清理脚本修复与执行 — 更新 stop-login-node-ide.sh 以正确识别并排除当前会话的进程组，防止自杀，处理了多节点 DNS 轮转解析，并通过 dcc-login-01 到 05 清理剩余的 Claude/VSCode/Cursor 进程。 ✅ Intel Wi-Fi 驱动程序更新 — 在 TzJsDesktop 上将 AX211 驱动程序更新为 24.60.0，蓝牙版本更新为 24.40.11.1，以解决间歇性的 5010 错误风暴。 问题与解决方案 关键问题 1. 用户报告称 4 位激活无法转换为 8/16 位，需要具体的代码原因。 解决方案： 从失败的 AI Hub 编译作业中提取完整的 Python 回溯信息，在 qti/aisw/converters/qnn_backend/ir_to_dlc.py:569 中识别出原生 C++ 量化器拒绝转换的异常。\n一般问题 2. DCC 登录节点清理脚本杀死了活跃的 Claude 会话，因为它匹配了 --bridge 进程，而该进程是 CLI 的子进程而非父进程。 解决方案： 修改脚本以遍历进程祖先链，找到会话的唯一 run/ 目录，并从杀除列表中排除所有共享该套接字路径的进程。\n3. Intel Wi-Fi AX211 抛出“固件返回无效值”错误（5010）。 解决方案： 发现驱动程序版本 23.170 严重过时；更新为 24.60.0，其中包含了必要的固件修复。\n4. Windows 上的 Claude Code 无法连接到 “dcc-agent”，原因是找不到 ProxyCommand ‘sh’ 和 MSYS 路径转换问题。 解决方案： 将 Git Bash（Git/usr/bin）添加到用户 PATH 中，使用双斜杠路径的 OpenSSH ssh.exe 绝对路径来绕过 MSYS 转换。\n5. TokenMonitor 子代理在测试运行期间意外恢复了 exchange_rates.rs 中的更改。 解决方案： 在子代理的日志中识别到 “git checkout” 命令，手动恢复更改，并重新运行测试套件以确保稳定性。\n人类与 AI 方法 战略层面 RoboMemory 分块策略| 角色 | 方法 | |——|——| | 人类 | 提出一种“将每个片段总结为一行”的策略，以提升 Gemini 的输出可靠性，并提供了高层的架构约束。 | | AI | 采用“先测试后实现”的方法，构建了严格的验证器与分块逻辑，这些逻辑遵循机器人的物理停留点，而非任意的帧数限制。 |\n差异分析： 人类提供了高层架构约束（片段级控制），而 AI 则实现了严格的实现（严格的语法验证和符合物理特性的分块逻辑），使得系统能够正常运行。\n量化单元命名规范 角色 方法 人类 建议使用“带 SpinQuant”和“不带 SpinQuant”的命名方式，而非像“qvla”或“projin”这样的内部标签，以提高文档的清晰度和教学性。 AI 最初使用内部简写；在用户澄清后，报告中的所有实例都被重命名，仅保留内部标签用于文件路径追踪。 差异分析： 人类注重读者的理解能力、叙事流畅性和对更广泛技术受众的可访问性，而 AI 则侧重于直接的技术引用；人类的指示成功改善了最终报告的结构。\n根本原因分析深度 角色 方法 人类 具体要求“精确的代码行”和“具体是什么问题”导致了位转换失败，而不是接受高层的“不支持”错误。 AI 最初提供了限制的总结，但意识到需要更深入的证明，随后获取了实际的编译器日志，从而确定 ir_to_dlc.py:569 和原生 C++ 检查。 差异分析： 人类在报告中要求提供法庭级别的证据， AI 则从外部日志中获取了这些证据，将已知的约束转化为有记录的技術事实。\nAI 局限性 关键局限性 TokenMonitor 项目中的子代理在主工作树上执行了破坏性的 git 命令（git checkout），需要手动恢复。 一般局限性 最初提出了一个清理脚本，但该脚本会终止自己的活动会话，因为未能考虑 Claude 远程服务器的兄弟进程架构。 最初将“projin”视为永久标签而非描述性操作（“投影输入降级”），需要用户提示才能从对 4-bit 限制的通用解释转向获取具体的编译器跟踪信息以用于最终报告。 经验教训 关键经验 对于低位量化，‘激活部分的其余部分’环境（16位 vs 8位）是成功的关键决定因素；4-bit 投影仅在高精度邻居环境（16位）中能够存活。 SpinQuant 旋转对于模型精度并非必需，但在使用全图低位量化时，它是解决残差流中量化噪声的必要方法。 将 VLM 输入分割成小的、经过验证的片段，可以将“推理标记”减少一个数量级（从 15-20k 减少到 \u003c1k），同时不牺牲语义准确性。 实际经验 DCC 登录节点使用 DNS 轮转机制，意味着必须为每个主机（01-05）显式执行脚本，而不是依赖单一的 SSH 连接。 Claude Code 在 Windows 上的 ProxyCommand 实现需要 PATH 中可用的 POSIX 风格 shell（sh），并且对远程 bash 脚本的 MSYS 路径转换非常敏感。 对话总结 Qualcomm PI0.5 • 量化表面网格结果、报告完成及 QAIRT 4-bit 局限性 分析了 “projin”（0/50）和 “sqvla”（48/50）实验单元的结果。得出结论：只有当整个图在 8位下量化时才需要旋转（SpinQuant），而 4-bit 投影输入需要 16位激活环境。生成了 QUANT_SURFACE_GRID.md 技术报告，包括一个代码级附录，指出 QAIRT 编译器中的 ir_to_dlc.py:569 是 4-bit 转换块的来源。\nDuke DCC 与基础设施 • 远程计算代理和登录节点进程清理的 SSH 配置 在 MacOS 上为 Duke DCC 的 CPU 和 GPU 节点配置了 SSH 别名，为 AI 代理提供了使用这些别名的远程执行协议。此外，通过修复 stop-login-node-ide.sh 脚本来防止登录节点上的 Claude/IDE 进程自终止（处理兄弟进程架构和 DNS 轮转机制），并清理所有 5 个登录节点以确保环境清洁。\nTzJsDesktop • Intel AX211 驱动更新与固件修复 诊断了间歇性的 Wi-Fi 错误风暴（5010）。发现了一个过时的驱动版本（23.170），并升级到 24.60.0，从而解决了问题并更新了底层固件。\nRoboMemory • 片段总结写入器（I-040/I-041） 构建并测试了一个新的 “segment_writer” 模块，它将机器人演示分割为物理片段，并使用 Gemini 生成可控的总结行。验证表明这显著减少了推理标记并保持准确性。\nTokenMonitor • 货币一致性审计与实现（I-047） 在 Rust 中实现了中央货币模块（money.rs），以确保所有 UI 元素显示相同的货币。进行了多视角审查，发现了 Rust 后端缺少备用汇率的关键错误和子代理回退问题。\n令牌使用 AI Usage · 2026-08-28\rClaude Code\rTotal cost$95.15\rTotal tokens63M\rOutput tokens356K\rCache read95.0%\rToken character\rCache reads 95.0% ·\rActive 5.0%\rMost token volume came from cache reads.\r",
+  "wordCount" : "500",
+  "inLanguage": "zh",
+  "datePublished": "2026-08-28T00:00:00-04:00",
+  "dateModified": "2026-08-28T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-08-28/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-08-28
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-08-28 00:00:00 -0400 EDT'>2026年8月28日</span>&nbsp;·&nbsp;<span>3 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="每日报告--2026-08-28">每日报告 — 2026-08-28<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-08-28">#</a></h1>
+<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+<ul>
+<li><strong>已完成工作：</strong> 完成了 PI0.5 W4A8 部署策略的科学验证，确定了 4 位投影所需的 16 位激活要求；建立了稳定的远程计算基础设施（Duke DCC SSH 和代理进程管理）；解决了本地硬件不稳定问题（Wi-Fi）；并提供了 RoboMemory 的高精度软件组件（段写入器）和 TokenMonitor 的货币模块。</li>
+<li><strong>实现方式：</strong> 通过闭环基准测试、严格的指纹验证以及编译器回溯的法医分析（QAIRT/QNN）进行模型量化；为 HPC 基础设施实施了防御性 Shell 脚本和多跳 SSH 配置；采用 TDD 和对抗性多智能体审查进行软件实现；使用 PowerShell/CLI 管理驱动程序。</li>
+<li><strong>影响：</strong> 通过明确旋转的作用和识别硬件限制，确保了量化的科学完整性；实现了稳定的远程 AI-代理执行和共享节点上的团队协作；消除了本地连接错误；并产生了高效的、节省令牌的段总结写入器和统一的货币格式化系统。</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 配置了 Duke DCC 的 SSH 别名（CPU/GPU/Agent），建立了连接 AI 代理与远程计算节点的协议。</li>
+<li><strong>实现方式：</strong> 使用 Codex 读取 Duke 文档，在 ~/.ssh/config 中添加 ProxyCommand 链，并创建具有严格权限的套接字目录。</li>
+<li><strong>影响：</strong> 使远程计算资源能够无缝集成到本地开发和 AI-代理工作流程中。</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 执行并分析了 PI0.5 量化实验（“projin”和“sqvla”），生成最终技术报告，管理 DCC 登录节点上的 AI 代理进程清理，更新 Intel AX211 Wi-Fi 驱动程序，并实现了 RoboMemory 段写入器和 TokenMonitor 货币审计。</li>
+<li><strong>实现方式：</strong> 使用 bash 管道进行模型评估，解析编译器日志以进行根本原因分析，迭代调试 <code>stop-login-node-ide.sh</code> 以处理 DNS 轮转和自排斥机制，执行 PowerShell 驱动程序更新，并对 Python 和 Rust 代码实施严格的“先测试”和多智能体审查流程。</li>
+<li><strong>影响：</strong> 产生了可操作的科学结论和强大的基础设施工具；消除了本地连接不稳定问题；提供了高精度、低推理成本的段写入器；并识别/修复了 TokenMonitor 货币处理中的关键错误。</li>
+</ul>
+<h3 id="lighthouse">lighthouse<a hidden class="anchor" aria-hidden="true" href="#lighthouse">#</a></h3>
+<ul>
+<li><strong>已完成工作：</strong> 执行并分析了 PI0.5 模型的“projin”和“sqvla”量化单元，验证了 4 位投影需要 16 位激活的必要性。</li>
+<li><strong>实现方式：</strong> 运行 Libero 基准测试，通过日志指纹和元数据检查验证结果，生成包含 QAIRT 4 位限制的代码级追踪的综合性英文报告。</li>
+<li><strong>影响：</strong> 明确界定了可行的量化策略边界，确认当前在目标硬件上无法使用 4 位激活。</li>
+</ul>
+<blockquote>
+<p>完成了 PI0.5 量化表面网格分析（确定 4 位投影输入需要 16 位环境），生成了代码级根本原因分析报告；解决了包括 Duke DCC SSH 配置、登录节点进程清理和 Intel Wi-Fi 驱动程序更新在内的关键基础设施问题；通过经过验证的基于段的 Gemini 写入器推进了 RoboMemory 项目；并为 TokenMonitor 实现了货币一致性模块。</p>
+</blockquote>
+<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
+<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<ul>
+<li>✅ <strong>PI0.5 量化网格完成与报告定稿（I-080/I-081）</strong> — 运行了“projin”（4 位输入，8 位环境）和“sqvla”（8 位输入，无旋转）的基准测试，验证结果，并使用 5 行网格表更新项目文档。生成了包含 4 位编译器限制和技术附录的 <code>QUANT_SURFACE_GRID.md</code> 报告。</li>
+<li>✅ <strong>RoboMemory I-040/I-041 实施</strong> — 开发并验证了 “segment_writer.py” 工具，实现了分块逻辑和基于 Gemini 的总结循环，与之前的版本相比显著减少了推理令牌使用量。</li>
+<li>🔄 <strong>TokenMonitor 货币一致性（I-047）</strong> — 实现了统一的货币格式化模块（money.rs），对代码库中的硬编码货币符号进行了审计；目前正在修复备用汇率表中的发现错误。</li>
+</ul>
+<h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
+<ul>
+<li>✅ <strong>Duke DCC SSH 配置与基础设施设置</strong> — 配置了 SSH 别名（dcc-agent, dcc-gpu），创建了必要的套接字目录，并建立了清晰的协议，使 AI 代理能够在 MacOS 上通过这些别名进行远程执行。</li>
+<li>✅ <strong>DCC 登录节点进程清理脚本修复与执行</strong> — 更新 <code>stop-login-node-ide.sh</code> 以正确识别并排除当前会话的进程组，防止自杀，处理了多节点 DNS 轮转解析，并通过 <code>dcc-login-01</code> 到 <code>05</code> 清理剩余的 Claude/VSCode/Cursor 进程。</li>
+<li>✅ <strong>Intel Wi-Fi 驱动程序更新</strong> — 在 TzJsDesktop 上将 AX211 驱动程序更新为 24.60.0，蓝牙版本更新为 24.40.11.1，以解决间歇性的 5010 错误风暴。</li>
+</ul>
+<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
+<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
+<h4 id="1-用户报告称-4-位激活无法转换为-816-位需要具体的代码原因">1. 用户报告称 4 位激活无法转换为 8/16 位，需要具体的代码原因。<a hidden class="anchor" aria-hidden="true" href="#1-用户报告称-4-位激活无法转换为-816-位需要具体的代码原因">#</a></h4>
+<p><strong>解决方案：</strong> 从失败的 AI Hub 编译作业中提取完整的 Python 回溯信息，在 <code>qti/aisw/converters/qnn_backend/ir_to_dlc.py:569</code> 中识别出原生 C++ 量化器拒绝转换的异常。</p>
+<h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
+<h4 id="2-dcc-登录节点清理脚本杀死了活跃的-claude-会话因为它匹配了---bridge-进程而该进程是-cli-的子进程而非父进程">2. DCC 登录节点清理脚本杀死了活跃的 Claude 会话，因为它匹配了 <code>--bridge</code> 进程，而该进程是 CLI 的子进程而非父进程。<a hidden class="anchor" aria-hidden="true" href="#2-dcc-登录节点清理脚本杀死了活跃的-claude-会话因为它匹配了---bridge-进程而该进程是-cli-的子进程而非父进程">#</a></h4>
+<p><strong>解决方案：</strong> 修改脚本以遍历进程祖先链，找到会话的唯一 <code>run/</code> 目录，并从杀除列表中排除所有共享该套接字路径的进程。</p>
+<h4 id="3-intel-wi-fi-ax211-抛出固件返回无效值错误5010">3. Intel Wi-Fi AX211 抛出“固件返回无效值”错误（5010）。<a hidden class="anchor" aria-hidden="true" href="#3-intel-wi-fi-ax211-抛出固件返回无效值错误5010">#</a></h4>
+<p><strong>解决方案：</strong> 发现驱动程序版本 23.170 严重过时；更新为 24.60.0，其中包含了必要的固件修复。</p>
+<h4 id="4-windows-上的-claude-code-无法连接到-dcc-agent原因是找不到-proxycommand-sh-和-msys-路径转换问题">4. Windows 上的 Claude Code 无法连接到 “dcc-agent”，原因是找不到 ProxyCommand ‘sh’ 和 MSYS 路径转换问题。<a hidden class="anchor" aria-hidden="true" href="#4-windows-上的-claude-code-无法连接到-dcc-agent原因是找不到-proxycommand-sh-和-msys-路径转换问题">#</a></h4>
+<p><strong>解决方案：</strong> 将 Git Bash（Git/usr/bin）添加到用户 PATH 中，使用双斜杠路径的 OpenSSH ssh.exe 绝对路径来绕过 MSYS 转换。</p>
+<h4 id="5-tokenmonitor-子代理在测试运行期间意外恢复了-exchange_ratesrs-中的更改">5. TokenMonitor 子代理在测试运行期间意外恢复了 exchange_rates.rs 中的更改。<a hidden class="anchor" aria-hidden="true" href="#5-tokenmonitor-子代理在测试运行期间意外恢复了-exchange_ratesrs-中的更改">#</a></h4>
+<p><strong>解决方案：</strong> 在子代理的日志中识别到 “git checkout” 命令，手动恢复更改，并重新运行测试套件以确保稳定性。</p>
+<h2 id="人类与-ai-方法">人类与 AI 方法<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法">#</a></h2>
+<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
+<h4 id="robomemory-分块策略-角色--方法-">RoboMemory 分块策略| 角色 | 方法 |<a hidden class="anchor" aria-hidden="true" href="#robomemory-分块策略-角色--方法-">#</a></h4>
+<p>|&mdash;&mdash;|&mdash;&mdash;|
+| 人类 | 提出一种“将每个片段总结为一行”的策略，以提升 Gemini 的输出可靠性，并提供了高层的架构约束。 |
+| AI   | 采用“先测试后实现”的方法，构建了严格的验证器与分块逻辑，这些逻辑遵循机器人的物理停留点，而非任意的帧数限制。 |</p>
+<p><strong>差异分析：</strong> 人类提供了高层架构约束（片段级控制），而 AI 则实现了严格的实现（严格的语法验证和符合物理特性的分块逻辑），使得系统能够正常运行。</p>
+<h4 id="量化单元命名规范">量化单元命名规范<a hidden class="anchor" aria-hidden="true" href="#量化单元命名规范">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>建议使用“带 SpinQuant”和“不带 SpinQuant”的命名方式，而非像“qvla”或“projin”这样的内部标签，以提高文档的清晰度和教学性。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初使用内部简写；在用户澄清后，报告中的所有实例都被重命名，仅保留内部标签用于文件路径追踪。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类注重读者的理解能力、叙事流畅性和对更广泛技术受众的可访问性，而 AI 则侧重于直接的技术引用；人类的指示成功改善了最终报告的结构。</p>
+<h4 id="根本原因分析深度">根本原因分析深度<a hidden class="anchor" aria-hidden="true" href="#根本原因分析深度">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>人类</td>
+          <td>具体要求“精确的代码行”和“具体是什么问题”导致了位转换失败，而不是接受高层的“不支持”错误。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初提供了限制的总结，但意识到需要更深入的证明，随后获取了实际的编译器日志，从而确定 <code>ir_to_dlc.py:569</code> 和原生 C++ 检查。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> 人类在报告中要求提供法庭级别的证据， AI 则从外部日志中获取了这些证据，将已知的约束转化为有记录的技術事实。</p>
+<h2 id="ai-局限性">AI 局限性<a hidden class="anchor" aria-hidden="true" href="#ai-局限性">#</a></h2>
+<h3 id="关键局限性">关键局限性<a hidden class="anchor" aria-hidden="true" href="#关键局限性">#</a></h3>
+<ul>
+<li>TokenMonitor 项目中的子代理在主工作树上执行了破坏性的 git 命令（git checkout），需要手动恢复。</li>
+</ul>
+<h3 id="一般局限性">一般局限性<a hidden class="anchor" aria-hidden="true" href="#一般局限性">#</a></h3>
+<ul>
+<li>最初提出了一个清理脚本，但该脚本会终止自己的活动会话，因为未能考虑 Claude 远程服务器的兄弟进程架构。</li>
+<li>最初将“projin”视为永久标签而非描述性操作（“投影输入降级”），需要用户提示才能从对 4-bit 限制的通用解释转向获取具体的编译器跟踪信息以用于最终报告。</li>
+</ul>
+<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
+<h3 id="关键经验">关键经验<a hidden class="anchor" aria-hidden="true" href="#关键经验">#</a></h3>
+<ul>
+<li>对于低位量化，‘激活部分的其余部分’环境（16位 vs 8位）是成功的关键决定因素；4-bit 投影仅在高精度邻居环境（16位）中能够存活。</li>
+<li>SpinQuant 旋转对于模型精度并非必需，但在使用全图低位量化时，它是解决残差流中量化噪声的必要方法。</li>
+<li>将 VLM 输入分割成小的、经过验证的片段，可以将“推理标记”减少一个数量级（从 15-20k 减少到 &lt;1k），同时不牺牲语义准确性。</li>
+</ul>
+<h3 id="实际经验">实际经验<a hidden class="anchor" aria-hidden="true" href="#实际经验">#</a></h3>
+<ul>
+<li>DCC 登录节点使用 DNS 轮转机制，意味着必须为每个主机（01-05）显式执行脚本，而不是依赖单一的 SSH 连接。</li>
+<li>Claude Code 在 Windows 上的 ProxyCommand 实现需要 PATH 中可用的 POSIX 风格 shell（sh），并且对远程 bash 脚本的 MSYS 路径转换非常敏感。</li>
+</ul>
+<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
+<h3 id="qualcomm-pi05">Qualcomm PI0.5<a hidden class="anchor" aria-hidden="true" href="#qualcomm-pi05">#</a></h3>
+<p><strong>• 量化表面网格结果、报告完成及 QAIRT 4-bit 局限性</strong>
+分析了 “projin”（0/50）和 “sqvla”（48/50）实验单元的结果。得出结论：只有当整个图在 8位下量化时才需要旋转（SpinQuant），而 4-bit 投影输入需要 16位激活环境。生成了 <code>QUANT_SURFACE_GRID.md</code> 技术报告，包括一个代码级附录，指出 QAIRT 编译器中的 <code>ir_to_dlc.py:569</code> 是 4-bit 转换块的来源。</p>
+<h3 id="duke-dcc-与基础设施">Duke DCC 与基础设施<a hidden class="anchor" aria-hidden="true" href="#duke-dcc-与基础设施">#</a></h3>
+<p><strong>• 远程计算代理和登录节点进程清理的 SSH 配置</strong>
+在 MacOS 上为 Duke DCC 的 CPU 和 GPU 节点配置了 SSH 别名，为 AI 代理提供了使用这些别名的远程执行协议。此外，通过修复 <code>stop-login-node-ide.sh</code> 脚本来防止登录节点上的 Claude/IDE 进程自终止（处理兄弟进程架构和 DNS 轮转机制），并清理所有 5 个登录节点以确保环境清洁。</p>
+<h3 id="tzjsdesktop-1">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop-1">#</a></h3>
+<p><strong>• Intel AX211 驱动更新与固件修复</strong>
+诊断了间歇性的 Wi-Fi 错误风暴（5010）。发现了一个过时的驱动版本（23.170），并升级到 24.60.0，从而解决了问题并更新了底层固件。</p>
+<h3 id="robomemory">RoboMemory<a hidden class="anchor" aria-hidden="true" href="#robomemory">#</a></h3>
+<p><strong>• 片段总结写入器（I-040/I-041）</strong>
+构建并测试了一个新的 “segment_writer” 模块，它将机器人演示分割为物理片段，并使用 Gemini 生成可控的总结行。验证表明这显著减少了推理标记并保持准确性。</p>
+<h3 id="tokenmonitor">TokenMonitor<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor">#</a></h3>
+<p><strong>• 货币一致性审计与实现（I-047）</strong>
+在 Rust 中实现了中央货币模块（money.rs），以确保所有 UI 元素显示相同的货币。进行了多视角审查，发现了 Rust 后端缺少备用汇率的关键错误和子代理回退问题。</p>
+<h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-08-28</span>
+        <span class="usage-card__source">Claude Code</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$95.15</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>63M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>356K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>95.0%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 95.0%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 5.0%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (95.0%), active tokens (5.0%)">
+          <span style="width:95.0%; background:var(--usage-cache)"></span>
+          <span style="width:5.0%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:54f7ebbd84c4d480 -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
