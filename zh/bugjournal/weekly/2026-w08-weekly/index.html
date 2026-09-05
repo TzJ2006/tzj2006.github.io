@@ -7,7 +7,7 @@
 <meta name="robots" content="index, follow">
 <title>Weekly Summary 2026-W08 | TzJ&#39;s Net</title>
 <meta name="keywords" content="Bug Journal, Weekly Summary">
-<meta name="description" content="本周，基础性的MIHD空间转录组研究得到了整合，同时错误恢复基准测试的第二阶段验证流程也得到了加速发展。通过实施自监督聚类引擎（STEGO、BYOL&#43;GAT、SCAN），利用L2归一化稳定对比损失，并对视觉编码器流程进行重构，解决了关键的空间坐标提取问题以及基础模型分布变化问题。并行工作成功实现了具有强大LLM输出修复功能的双阶段AI每日报告系统，基准测试场景数量增加到450个以上，训练了BC-RNN基线模型，并部署了双服务器VLA推理基础设施。基础设施加固措施解决了SSH多路复用冲突、SLURM分区拒绝、第三方定价模式波动以及HuggingFace兼容性问题，通过针对性依赖固定和动态资源分配实现了这些问题。目前，重点转向关系对齐验证、MimicGen数据扩展（超过500个示例）以及最终完成M14/M6多策略评估流程的优化，为论文撰写做准备。">
+<meta name="description" content="本周成功将 multimodal spatial transcriptome 研究与 robotic error recovery benchmarks 相结合，实现了从理论规划到经过验证的 execution pipelines 的过渡。MIHD pipeline 取得了显著进展，解决了关键的 coordinate swap bugs，并实现了 self-supervised clustering (STEGO, SCAN) 以恢复数据完整性。同时，Error Recovery Benchmark 通过大规模场景扩展和 VLA dual-server infrastructure 的实现，超越了 M5 目标。尽管团队遇到了 cluster-level permission 障碍和特定模型的训练挑战 (BC-RNN)，但稳健的数据转换框架 (HDF5-to-LeRobot) 和自动化报告基础设施的建立，为大规模 multi-policy evaluation 和 multimodal fusion training 奠定了稳定的基础。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w08-weekly/">
 <link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
@@ -79,7 +79,7 @@
 <meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w08-weekly/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="Weekly Summary 2026-W08">
-  <meta property="og:description" content="本周，基础性的MIHD空间转录组研究得到了整合，同时错误恢复基准测试的第二阶段验证流程也得到了加速发展。通过实施自监督聚类引擎（STEGO、BYOL&#43;GAT、SCAN），利用L2归一化稳定对比损失，并对视觉编码器流程进行重构，解决了关键的空间坐标提取问题以及基础模型分布变化问题。并行工作成功实现了具有强大LLM输出修复功能的双阶段AI每日报告系统，基准测试场景数量增加到450个以上，训练了BC-RNN基线模型，并部署了双服务器VLA推理基础设施。基础设施加固措施解决了SSH多路复用冲突、SLURM分区拒绝、第三方定价模式波动以及HuggingFace兼容性问题，通过针对性依赖固定和动态资源分配实现了这些问题。目前，重点转向关系对齐验证、MimicGen数据扩展（超过500个示例）以及最终完成M14/M6多策略评估流程的优化，为论文撰写做准备。">
+  <meta property="og:description" content="本周成功将 multimodal spatial transcriptome 研究与 robotic error recovery benchmarks 相结合，实现了从理论规划到经过验证的 execution pipelines 的过渡。MIHD pipeline 取得了显著进展，解决了关键的 coordinate swap bugs，并实现了 self-supervised clustering (STEGO, SCAN) 以恢复数据完整性。同时，Error Recovery Benchmark 通过大规模场景扩展和 VLA dual-server infrastructure 的实现，超越了 M5 目标。尽管团队遇到了 cluster-level permission 障碍和特定模型的训练挑战 (BC-RNN)，但稳健的数据转换框架 (HDF5-to-LeRobot) 和自动化报告基础设施的建立，为大规模 multi-policy evaluation 和 multimodal fusion training 奠定了稳定的基础。">
   <meta property="og:locale" content="zh_cn">
   <meta property="og:type" content="article">
     <meta property="article:section" content="bugjournal">
@@ -88,7 +88,7 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Weekly Summary 2026-W08">
-  <meta name="twitter:description" content="本周，基础性的MIHD空间转录组研究得到了整合，同时错误恢复基准测试的第二阶段验证流程也得到了加速发展。通过实施自监督聚类引擎（STEGO、BYOL&#43;GAT、SCAN），利用L2归一化稳定对比损失，并对视觉编码器流程进行重构，解决了关键的空间坐标提取问题以及基础模型分布变化问题。并行工作成功实现了具有强大LLM输出修复功能的双阶段AI每日报告系统，基准测试场景数量增加到450个以上，训练了BC-RNN基线模型，并部署了双服务器VLA推理基础设施。基础设施加固措施解决了SSH多路复用冲突、SLURM分区拒绝、第三方定价模式波动以及HuggingFace兼容性问题，通过针对性依赖固定和动态资源分配实现了这些问题。目前，重点转向关系对齐验证、MimicGen数据扩展（超过500个示例）以及最终完成M14/M6多策略评估流程的优化，为论文撰写做准备。">
+  <meta name="twitter:description" content="本周成功将 multimodal spatial transcriptome 研究与 robotic error recovery benchmarks 相结合，实现了从理论规划到经过验证的 execution pipelines 的过渡。MIHD pipeline 取得了显著进展，解决了关键的 coordinate swap bugs，并实现了 self-supervised clustering (STEGO, SCAN) 以恢复数据完整性。同时，Error Recovery Benchmark 通过大规模场景扩展和 VLA dual-server infrastructure 的实现，超越了 M5 目标。尽管团队遇到了 cluster-level permission 障碍和特定模型的训练挑战 (BC-RNN)，但稳健的数据转换框架 (HDF5-to-LeRobot) 和自动化报告基础设施的建立，为大规模 multi-policy evaluation 和 multimodal fusion training 奠定了稳定的基础。">
 
 
 <script type="application/ld+json">
@@ -123,12 +123,12 @@
   "@type": "BlogPosting",
   "headline": "Weekly Summary 2026-W08",
   "name": "Weekly Summary 2026-W08",
-  "description": "本周，基础性的MIHD空间转录组研究得到了整合，同时错误恢复基准测试的第二阶段验证流程也得到了加速发展。通过实施自监督聚类引擎（STEGO、BYOL+GAT、SCAN），利用L2归一化稳定对比损失，并对视觉编码器流程进行重构，解决了关键的空间坐标提取问题以及基础模型分布变化问题。并行工作成功实现了具有强大LLM输出修复功能的双阶段AI每日报告系统，基准测试场景数量增加到450个以上，训练了BC-RNN基线模型，并部署了双服务器VLA推理基础设施。基础设施加固措施解决了SSH多路复用冲突、SLURM分区拒绝、第三方定价模式波动以及HuggingFace兼容性问题，通过针对性依赖固定和动态资源分配实现了这些问题。目前，重点转向关系对齐验证、MimicGen数据扩展（超过500个示例）以及最终完成M14/M6多策略评估流程的优化，为论文撰写做准备。",
+  "description": "本周成功将 multimodal spatial transcriptome 研究与 robotic error recovery benchmarks 相结合，实现了从理论规划到经过验证的 execution pipelines 的过渡。MIHD pipeline 取得了显著进展，解决了关键的 coordinate swap bugs，并实现了 self-supervised clustering (STEGO, SCAN) 以恢复数据完整性。同时，Error Recovery Benchmark 通过大规模场景扩展和 VLA dual-server infrastructure 的实现，超越了 M5 目标。尽管团队遇到了 cluster-level permission 障碍和特定模型的训练挑战 (BC-RNN)，但稳健的数据转换框架 (HDF5-to-LeRobot) 和自动化报告基础设施的建立，为大规模 multi-policy evaluation 和 multimodal fusion training 奠定了稳定的基础。",
   "keywords": [
     "Bug Journal", "Weekly Summary"
   ],
-  "articleBody": "每周报告 — 2026-W08 (2026-02-16 ~ 2026-02-22) 本周整合了基础性的 MIHD 空间转录组研究，并加快了错误恢复基准测试第二阶段验证流程的开发。通过实施自监督聚类引擎（STEGO、BYOL+GAT、SCAN），采用 L2 归一化稳定对比损失，以及重构视觉编码器流程，解决了关键的空间坐标提取错误和基础模型分布偏移问题。并行工作成功实现了具有强大 LLM 输出修复功能的双阶段 AI 日报架构，扩展了超过 450 个测试场景，训练了 BC-RNN 基线模型，并部署了双服务器 VLA 推理基础设施。通过针对性依赖固定和动态资源分配，解决了 SSH 多路复用冲突、SLURM 分区拒绝、第三方定价模式漂移以及 HuggingFace 兼容性问题。当前战略重点转向关系对齐验证、MimicGen 数据扩展（超过 500 个示例）以及完成 M14/M6 多策略评估流程以准备论文。\n每周概述 指标 数值 日期范围 2026-02-16 ~ 2026-02-22 活跃天数 7 / 7 总对话数 32 项目数 18 完成任务数 41 进行中任务数 6 总token数 229,294,726 总成本 $107.08 日均成本 $15.30 项目进展 MIHD 多模态融合研究与空间转录组基准测试（7天活跃） — 🔄 活跃 成就：\n发现并修复了 tissue_positions_list.csv 中的关键 X/Y 坐标交换问题，该问题导致视觉嵌入数据无效 重新运行基线实验，使多个部分的 UNI2 视觉 ARI 提升幅度达 +86% 执行可配置的隐藏维度消融实验，解决了 GCN 嵌入崩溃问题，证明了关系对齐优于生成映射 通过并行基准测试验证了 QFormer Enhanced 和 STAIG GCN 融合策略 汇总了关于 UNI2、spEMO、STAIG、SPADE、HEST-1k 的文献，标准化了视觉编码器架构 为 STEGO、BYOL+GAT 和 SCAN 头构建自定义 PyTorch 模块；通过 L2 归一化和 LogSumExp 稳定化解决 InfoNCE 差异问题 将 CacheManager 直接集成到 run_benchmark.py 中，并跟踪变体，大幅缩短处理时间 生成了关于 RM-IDEAL 评分的完整双语文档，并匹配了 H\u0026E 可视化流程 在 DLPFC 切片上验证了 ARI 基线，确定了多模态对齐的数值稳定性上限 阻碍因素：\n⚠️ 持续运行的核心 MultimodalFast 评估阶段正在进行中 ⚠️ 共享 HPC 环境中 GPU 资源竞争导致无声的缓存问题/OOM 失败 ⚠️ 通过 L2 归一化和 LogSumExp 稳定化解决了密集相似性矩阵溢出问题 错误恢复基准测试与 VLA 策略集成（7天活跃） — 🔄 活跃 成就：\n通过 _augment_specs_with_alternatives() 注入器将场景数据库扩展到 454+ 个场景（为 M5 目标数的 227%） 从零训练并集成 BC-RNN 基线策略；修复了不同策略中的 robosuite 观察键映射问题 部署了双服务器 VLA 基础设施（Pi0 端口 5556 + Pi0.5 端口 5557）用于多策略评估 通过切换为 robosuite 包装方法解决了非脉冲注入器中的 MuJoCo API 兼容性问题 通过 MimicGen 增强、分层分割和剧集粒度恢复逻辑实现了数据集扩展 创建了 run_full_eval.sh 和 tmux 自动化脚本，实现可靠的后台执行和实时状态跟踪 在并行 GPU 工作负载中协调 M14 基线评估；建立了动态 VRAM 感知的 Slurm 调度 在 MimicGen 工具中修复 RoboMimic v0.3.0 API 兼容性问题，防止运行时 EOF 崩溃 阻碍因素：\n⚠️ BC-RNN 检查点训练不足（可视化成功率仅为 0%），需要延长训练周期或权重重新获取 ⚠️ 多策略评估流程正在进行中；需要完成并回滚分析 ⚠️ 通过账户映射和禁用 ControlMaster 启动器解决了 SLURM 分区拒绝和过期的 SSH 套接字问题 AI 日报工具与文档基础设施（6天活跃） — ✅ 完成 成就：\n设计并实现了双阶段导出/合并架构，实现可靠的跨设备日志聚合 集成了健壮的四阶段 JSON 解析和 LLM 修复回退机制，以处理格式错误的结构化输出 扩展了报告模式，包含对话摘要、级别/重要性元数据以及设备身份跟踪 成功处理历史日志（2月12-16日），并通过 GitHub Pages 部署了更新的 Hugo bugJournal 网站 将 CLAUDE.md/README.md 从约 1500 行减少到 763 行，同时保留层次化的研究轨迹 通过分层防御（keep-alive、tmux 持久化、自动ssh 包装器）解决了 Tianhe HPC 上的 SSH 断开不稳定性 阻碍因素：\n⚠️ 导出/修正后 LLM API ConnectionRefused 错误导致报告生成受阻 ⚠️ 大规模仓库扫描期间 Windows OpenSSH 多路复用冲突和上下文窗口碎片化 基础模型微调与 MimicGen 数据管道（2天活跃） — 🔄 活跃 成就：\n开发了用于 MimicGen 任务的统一 HDF5 到 Parquet 转换器，并更新了 OpenPI/OpenMMLab 配置 设计了动态基因预处理路由和一致的自适应边缘丢弃机制，以确保跨模态梯度稳定性 映射了里程碑拓扑结构，建立了收集器输出模式，并启动了完整的 STAIG 融合系统开发 诊断了 LeRobot-HuggingFace 不兼容问题；将数据集库限制为 \u003c4.0 版本 阻碍因素：\n⚠️ MimicGen 源示例仅包含 13 个样本，低于可靠 Pi0 微调所需的约 500 个样本阈值 ⚠️ A800 GPU 队列依赖和存储审批尚未验证，无法实现大规模数据扩展 ⚠️ 通过 srun/sbatch 切换解决了集群资源死锁和异构节点上的 EGL/CUDA 映射不匹配问题 关键任务- ✅ 修复 MIHD load_spatial_coordinates() 坐标交换及 Patch ccusage 计费缺陷 (2026-02-17) — 修正了反向的 CSV 列映射问题并清理了损坏的缓存，从而恢复视觉编码器的有效性。在 daily_summary.py 中实现了本地备用定价机制，解决了 13 倍于实际成本的低估问题，并恢复了财务跟踪的完整性。 ✅ 扩展基准测试场景并部署 VLA 双服务器推理 (2026-02-18) — 通过 pose_perturb 和摩擦生成器将基准数据库扩展到 454+ 个场景，达到 M5 目标的 227%。为 Pi0/Phoenix 模型构建了专用 TCP 推理服务器，重构了部署生成器，并完成了 59+ 次 E2E 部署，其中包含 150 个失败场景。 ✅ 训练 BC-RNN 基线并解决政策观察键不匹配问题 (2026-02-19) — 从零训练 BC-RNN（600 轮），修复了各策略中的观察键映射问题，并修补了 _to_robosuite_obs() 函数以传递原始 robosuite 观测数据，从而确保准确的推理初始化，且 79 个单元测试通过。 ✅ 实现自监督聚类引擎并解决 InfoNCE 差异问题 (2026-02-19) — 为 STEGO、BYOL+GAT 和 SCAN 头构建了自定义 PyTorch 模块。应用 sklearn L2 归一化预投影，并将浮点64位张量中的相似度限制为稳定密集对比目标，从而证明 ARI/NMI 有所提升。 🔄 执行多策略评估流程 (M6/M14) 并协调并行 GPU 工作负载 (2026-02-20) — 在 50+ 个场景上对 4 种策略进行评估，使用 3 个种子。将 CacheManager 直接集成到基准测试运行中，启动并发后台任务用于注入/自然采集，并建立动态考虑 VRAM 的 Slurm 调度。 ✅ 设计两阶段每日报告架构并实施多层 SSH 加固措施 (2026-02-17) — 将工作流程从单阶段改为导出/合并模式，支持跨设备聚合。部署了多层远程开发加固措施，包括 tmux 持久性、SSH 保持存活/配置多路复用以及自动重连包装器。 ✅ 构建统一数据转换流程并解决第三方框架兼容性问题 (2026-02-22) — 开发了 HDF5 到 Parquet 转换器，更新了 OpenPI 配置，并通过限制数据集版本 \u003c4.0 来固定 LeRobot-HuggingFace 兼容性，以恢复张量堆叠预期并避免转换类型错误。 问题与解决方案 1. 预训练的病理基础模型在精细皮层层识别上表现出严重的分布偏移，将解剖上不同的区域聚类为人为伪影。MIHD 坐标提取交换导致视觉 patches 被悄悄翻转，使得 UNI2 视觉 ARI 降至约 0.065。[MIHD 多模态融合研究] (2026-02-17) 解决方案： 放弃原始冻结编码器聚类，转而采用目标领域自监督适应（STEGO/BYOL）。修正了 CSV 列映射顺序，清理了损坏的缓存，并通过在 DLPFC 切片上增加 +86% 基线重跑验证 ARI 恢复情况。\n2. 第三方 ccusage 工具因模型名称版本不匹配而返回 cost=0 的结果，严重低估了令牌成本。LLM 对结构化报告的响应经常返回格式错误的 JSON，导致流程中断。[AI 每日报告工具与基础设施] (2026-02-17) 解决方案： 实现了带有明确定价字典的本地后处理备用机制，恢复了财务跟踪的完整性。部署了四阶段防御性解析链（直接加载 → 代码块提取 → 花括号匹配 → LLM 修复），确保在生成高峰期间工作流程持续运行。\n3. VLA 服务器初始化失败是由于 OpenPI API 不匹配、层次化扁平键冲突以及非脉冲注入器绕过框架层所致。BC-RNN 部署因输入尺寸/张量不匹配（65维 vs 37维）而崩溃。[错误恢复基准测试与 VLA 政策集成] (2026-02-18) 解决方案： 用官方 create_trained_policy 替换自定义 norm_stats；注入明确的 IMAGE_KEY_MAP 重映射。将注入器改为 robosuite 包装方法，并采用 try/except 备用机制。修复了 _to_robosuite_obs() 中的键映射，以匹配训练模式。\n4. 密集对比目标因 float32 精度限制和旧加载器形状不匹配而收敛为 NaN。长期运行的分布式基准测试缺乏自动恢复机制，以应对节点超时和陈旧状态。[MIHD 基准测试与错误恢复基础设施] (2026-02-19) 解决方案： 应用 LogSumExp 稳定化和精度限制。在收集器中嵌入事件粒度恢复机制，实现 CLI 切片以实现容错子批次处理，并禁用 Windows OpenSSH ControlMaster 以清除陈旧套接字。\n5. run_benchmark.py 缺乏缓存加载导致重复编码。LeRobot-HF 数据集库不兼容导致转换时 Parquet 元数据类型错误。用户组缺乏 SLURM 分区/SSH 访问权限。[基础设施与数据转换流程] (2026-02-20) 解决方案： 将 CacheManager 直接集成到基准测试运行中，通过变体跟踪避免并行工具漂移。固定 huggingface/datasets \u003c4.0 以恢复兼容性。映射账户关联，测试分区，并创建直接 SSH tmux 启动器以绕过即时分配障碍。\n经验教训 调试 (debugging) 原始元数据或预处理流程中的隐秘数据损坏比模型错误更隐蔽且更难追踪；宏观级指标异常必须在调试代码逻辑之前回溯到源定义。密集对比目标和长期评估需要严格的 L2 归一化、浮点64位精度缓冲、LogSumExp 稳定化以及事件粒度恢复逻辑，以防止梯度爆炸和陈旧读取。框架正确性和政策行为质量需要不同的验证层：集成测试确认代码路径，而结合视频可视化的 GPU 部署是诊断训练不足的必要手段。 架构 (architecture) 纯视觉编码器在缺乏自监督约束或多模态融合的情况下，在精细空间分层上必然达到平台期；任务-特征不匹配是架构特性而非实现缺陷。分布式工作流应采用两阶段导出/合并架构，而非单体设计，以防止循环依赖并安全地将原始数据修正与复杂的 API 阶段分离。为了应对不稳定的网络环境，多层防御（协议保持存活、SSH 多路复用、tmux 持久性、自动重连脚本）是必需的，因为单一层在共享 HPC 环境中无法解决问题。 工具 (tools)- 必须采用防御性补丁机制来应对架构变更导致的模式漂移或定价错误，通过仅在异常值时触发的条件回退机制，同时保留向后兼容性。修改测试基准基础设施时，需利用成熟的管道缓存/标准化机制，避免预处理参数的变化。框架迁移需要严格的依赖项固定和动态API签名检查，以防止第三方机器学习环境出现隐式中断。 领域知识 (domain) 理论对齐必须先于架构扩展进行；生成式映射在潜在融合空间中缺乏必要的监督信号，因此需要尽早转向关系化方法（AdaLN、对比学习）。VLA策略无法在模拟测试基准中实现零样本迁移；可靠的微调需要通过MimicGen将源行为多样性扩展到500个示例以上，才能投入计算资源。集群访问策略严格规定了执行流程，需要管理员手动协调而非自动化解决方案。明确的命名规范与战略性的文档重建对于维持长期智能体入职效率至关重要。 AI使用注意事项 有效模式：\n✓ 两阶段导出/合并架构成功解决了分布式日志聚合限制问题 ✓ 分层诊断验证（宏观指标异常 → 原始CSV/特征检查）有效隔离了隐式数据损坏 ✓ 利用成熟的管道基础设施（如CacheManager）而非孤立的评估包装器，以提高系统凝聚力 ✓ 仅提供回退功能的定价补丁和多阶段LLM解析在生产使用高峰期间保持向后兼容性 ✓ 通过动态API签名检查解决第三方库冲突，无需手动逆向工程 ✓ 实施明确的数学隔离标准，引导AI从冗余架构转向有针对性的数值稳定化 限制：\n✗ 完全依赖用户提供的假设进行根本原因分析，而非自主追踪宏观指标到原始数据来源 ✗ 在初始架构设计中未能预见多设备部署限制，直到用户明确指示 ✗ 在没有明确提示的情况下难以验证第三方工具架构，最初假设文档与实时输出结构一致 ✗ 无法主动将被阻塞的工作流（LLM API中断）与成功的并行管道分离 ✗ 应对学术付费墙的困难以及区分单模态测试基准与多模态消融研究需要大量用户约束筛选 ✗ 在整体文件重构过程中上下文窗口的碎片化要求对大量仓库文档进行手动分区 下周计划 下周将重点完成M6/M14多策略评估管道，并通过延长训练周期或获取替代验证检查点来解决BC-RNN训练不足的问题。MIHD fusion core_multimodal_fast评估阶段需完成最终调整，并持续管理GPU资源隔离，以防止OOM竞争。基础设施优先事项包括一旦API稳定性恢复即自动生成历史每日报告，整合集中式检查点工作流，以及启动MimicGen数据扩展管道（\u003e500个示例），以解除Pi0微调的前提条件。战略关注将转向为M14基线执行并行GPU工作负载，扩展OpenPI训练的多GPU JAX配置，汇总最终测试基准指标用于论文撰写，并通过实验验证关系化融合架构，以符合本周确定的理论约束。\n令牌使用统计 AI Usage · 2026-W08\rClaude Code\rTotal cost$107.08\rTotal tokens229M\rOutput tokens61K\rCache read89.2%\rToken character\rCache reads 89.2% ·\rActive 10.8%\rMost token volume came from cache reads.\r高峰日： 2026-02-16 — $31.31 / 57.0M 令牌\n每日平均： $15.30\n",
-  "wordCount" : "624",
+  "articleBody": "Weekly Report — 2026-W08 (2026-02-16 ~ 2026-02-22) 本周成功将 multimodal spatial transcriptome 研究与 robotic error recovery benchmarks 相结合，实现了从理论规划到验证执行 pipeline 的过渡。MIHD pipeline 取得了显著进展，通过解决关键的 coordinate swap bugs 并实现 self-supervised clustering (STEGO, SCAN) 恢复了数据完整性。同时，Error Recovery Benchmark 通过大规模场景扩展和 VLA dual-server infrastructure 的实现，超越了 M5 目标。尽管团队遇到了 cluster-level 权限障碍和特定模型的训练挑战 (BC-RNN)，但稳健的数据转换框架 (HDF5-to-LeRobot) 和自动化报告基础设施的建立，为大规模 multi-policy evaluation 和 multimodal fusion training 奠定了稳定的基础。\nWeekly Overview Metric Value Date Range 2026-02-16 ~ 2026-02-22 Active Days 7 / 7 Total Conversations 32 Projects 18 Tasks Completed 41 Tasks In Progress 6 Total Tokens 229,294,726 Total Cost $107.08 Daily Average Cost $15.30 Project Progress Error Recovery Benchmark (7 days active) — 🔄 active Accomplishments:\n通过 pose_perturb 和 friction injectors 将 scene database 从 251 扩展到 454 (达到目标的 227%)，实现了 M5 milestone。 在 tianhe 上实现了 VLA dual-server infrastructure (Pi0 and Pi0.5)。 使用 multi-policy evaluation framework (Random, BC-RNN, VLA_Pi0, VLA_Pi0.5) 完成了 M6 milestone 准备工作。 使用 MimicGen augmentation 扩展了 dataset construction，并开发了 HDF5-to-LeRobot conversion pipelines。 实现了具备 resume 能力的 episode collectors 和 M14 baseline evaluation scripts。 设计了基于 tmux 的自动化工具用于 background job monitoring。 Blockers:\n⚠️ BC-RNN policy 显示 0% success rate，这是由于 checkpoint 训练不足而非 framework bugs 导致。 ⚠️ Cluster GPU node 访问限制 (SLURM/PAM permission issues)。 ⚠️ VLA server port binding conflicts。 MIHD Research \u0026 Benchmarking (7 days active) — 🔄 active Accomplishments:\n识别并修复了 spatial transcriptomics pipeline 中一个关键的 X/Y coordinate swap bug，将 UNI2 visual ARI 从 0.065 恢复至 ~0.25。 实现了 self-supervised clustering (STEGO, BYOL+GAT, SCAN) 并验证了 ARI/NMI 的提升。 进行了 ablation studies，并确定 QFormer Enhanced 和 STAIG GCN+STAIG fusion 是更优的方法。 将 embedding caching 集成到 benchmark pipeline 中以减少冗余计算。 开始使用修正后的 embeddings 重新运行 vision-dependent fusion experiments (core_multimodal_fast)。 记录了 metric calculations 和 vision encoder architectures。 Blockers:\n⚠️ 需要大规模重新运行 286+ 个 experiments 以验证修正后的 spatial data。 ⚠️ 稠密相似度矩阵中的数值不稳定性 (NaN/divergence)。 Daily Report Tooling \u0026 Infrastructure (2 days active) — ✅ completed Accomplishments:\n开发了生产级两阶段 (export -\u003e merge) 架构，使用 rclone 进行 multi-device log synchronization。 实现了稳健的 4-stage JSON parsing，并配备了基于 LLM 的 repair fallbacks。 为 bug journaling 创建了自动化的 Hugo/GitHub Pages deployment pipeline。 VLA/Pi0 Fine-Tuning Readiness (1 days active) — 🔄 active Accomplishments:\n清查了现有的 model weights，并建立了一个基于 symlink 的集中式 checkpoint management system。 评估了 MimicGen dataset 的就绪情况，并确定了 500-demo 的扩展需求。 Blockers:\n⚠️ 缺乏针对 Robosuite environments 的 task-specific checkpoints。 Project Infrastructure \u0026 Documentation (3 days active) — ✅ completed Accomplishments:\n重构并压缩了核心项目文档 (CLAUDE.md/README.md)。 在异构 cluster environments 中标准化了 remote SSH/SLURM workflows。 将研究计划统一整合为一份 consolidated strategic document。 Key Tasks ✅ Fix MIHD load_spatial_coordinates() X/Y coordinate swap bug — 修正了 CSV column mapping 以确保从正确的 spatial coordinates 提取 vision patches，解决了影响所有 fusion benchmarks 的根本性数据完整性问题。 ✅ Diagnose and fix ccusage claude-opus-4-6 zero-cost billing bug — 识别出由 LiteLLM model name mismatches 导致的 13 倍成本低估问题，并实现了 fallback pricing mechanism。 ✅ Generate tianhe M5 non-impulse error scenes — 使用自动化 augmentation 将 benchmark database 扩展至 454 个场景 (目标的 227%)。 ✅ VLA Policy Server Integration \u0026 E2E Rollout — 为 Pi0/Phoenix models 构建了 TCP inference server 并执行了 59+ rollouts。 ✅ Self-Supervised Clustering \u0026 Vision Refinement Implementation — 为 spatial contrastive losses 构建了自定义 PyTorch modules;通过 L2 normalization 和 LogSumExp stabilization 解决了 InfoNCE divergence 问题。 ✅ Embedding Cache I/O Integration — 将 CacheManager 集成到 run_benchmark.py 中，以消除冗余的 encoder 实例化并加速 benchmarking。 ✅ Multi-Task LeRobot Data Conversion \u0026 OpenPI Training — 为 9 个 MimicGen 任务设计了 HDF5-to-Parquet 转换流程，并更新了用于 foundation model fine-tuning 的训练配置。 Problems \u0026 Solutions 1. 使用转置的 X/Y 坐标进行 MIHD vision encoder 提取导致 ARI 极低 (~0.065)。 [MIHD] (2026-02-17) Solution: 修正了 CSV 列映射 (pxl_col/pxl_row) 和坐标顺序，并清除了所有损坏的 spatial caches。\n2. 由于 LiteLLM 名称不匹配，ccusage 未能追踪 claude-opus-4-6 的成本，导致低估了 13 倍。 [Infrastructure] (2026-02-17) Solution: 在 summary tool 中实现了一个本地的 _FALLBACK_PRICING 字典，以处理零成本异常。\n3. tianhe non-impulse injectors 由于直接调用 MuJoCo API 绕过了 robosuite abstractions 而崩溃。 [Error Recovery Benchmark] (2026-02-17) Solution: 使用 robosuite model.body_name2id/geom_name2id 替换了 mj_name2id，并实现了一个 name-suffix resolver。\n4. LLM 生成的 structured reports 经常产生格式错误或截断的 JSON。 [Infrastructure] (2026-02-17) Solution: 实现了一个包含 code block extraction、brace matching 和基于 LLM 的 repair 在内的 4 阶段 parsing fallback chain。\n5. 在长时间运行的任务期间，与 tianhe cluster 的 SSH 连接频繁超时。 [Infrastructure] (2026-02-17) Solution: 实施了分层防御，包括 TCP keep-alive、tmux session persistence 和 SSH connection multiplexing。\n6. Pretrained pathology models 在细粒度 cortical layer identification 中表现出 distribution shifts。 [MIHD] (2026-02-19) Solution: 采用 target-domain self-supervised adaptation (STEGO, BYOL) 代替使用 frozen encoders。\n7. 由于 float32 中 dense similarity matrix overflow 导致 InfoNCE loss 收敛至 NaN。 [MIHD] (2026-02-19)Solution: 应用了 L2 normalization、LogSumExp stabilization，并强制执行了 float64 precision buffering。 8. BC-RNN policy crashes due to 65-dim vs 37-dim observation mismatch. [Error Recovery Benchmark] (2026-02-20) Solution: 修复了 _to_robosuite_obs() 的 key mapping，并确保传递的是原始 robot observations 而不是压缩后的 state_info。\n9. LeRobot-HuggingFace library incompatibility causing metadata TypeErrors. [Error Recovery Benchmark] (2026-02-22) Solution: 将 huggingface/datasets 固定在 4.0 以下的版本以恢复兼容性。\n10. Windows OpenSSH incompatibility causing connection drops to compute nodes. [Infrastructure] (2026-02-19) Solution: 清理了陈旧的 socket files，并在 .ssh/config 中禁用了冲突的 multiplexing parameters。\nLearnings Domain Knowledge (domain) 数据 bug（例如 metadata/coordinate swaps）比 model bug 更具破坏性，因为代码和测试可以顺利通过，但结果在根本上是无效的。验证过程必须从 macro-anomalies 回溯到原始数据源。 纯 vision-only 的 spatial clustering 会导致较低的 ARI；细粒度的 morphological features 需要 multimodal fusion 或特定领域的 self-supervised alignment。 VLA/foundation models 在不同仿真环境之间（从 LIBERO 到 Robosuite）缺乏鲁棒的 zero-shot transfer；成功的前提是在 fine-tuning 之前扩展 behavioral diversity（例如通过 MimicGen 获取 \u003e500 demos）。 Architecture (architecture) 分布式工作流需要两阶段架构（local extraction + centralized merging）来处理多设备环境并防止冗余的 API 成本。 Policy evaluation pipelines 必须保留原始的 observation modalities；内部的 state extractors 经常会丢失 pre-trained adapters 所需的 keys。 Debugging (debugging) Framework correctness（通过 unit tests）与 model quality（behavioral success）是不同的。需要进行 GPU integration tests 和 video visualization 来检测“hovering”与“grasping”问题。 float32 中的高温度 cosine similarity matrices 会迅速饱和；对于 contrastive objectives，数学上的 stabilization (LogSumExp/L2) 是强制性的。 Tools (tools) 第三方工具集成需要防御性编程（例如 fallback pricing、name remapping），以应对上游 schema 或命名不匹配的问题。 Framework migrations（例如 LeRobot/HuggingFace）需要严格的 dependency pinning，以防止静默的 schema corruption。 AI Usage Notes Effective Patterns:\n✓ 用于分布式数据处理的两阶段架构。 ✓ 用于 LLM 生成 JSON 的多阶段 fallback parsing。 ✓ 用于远程连接稳定性的分层防御。 ✓ 使用 AI 进行底层的 PyTorch module 实现和自动化 unit test 生成。 ✓ 利用 multi-agent task spawning 进行大规模 repository refactoring。 Limitations:\n✗ 无法独立诊断高层级的数据源 bug（依赖用户的统计直觉）。 ✗ 缺乏对特定项目数据孤岛和特定环境配置要求的感知。 ✗ 在没有人工干预的情况下，无法通过视频分析评估 policy quality。 ✗ AI 倾向于提出冗余/孤立的 scripts，而不是与现有 infrastructure 集成。 ✗ AI 无法自主处理 cluster permission/SLURM 障碍。 ✗ 由于缺乏深层的诊断上下文，偶尔会对 visualization artifacts 产生误判。 Next Week Outlook 优先级包括：1) 通过行政协调确保 cluster GPU node 的访问权限，以解锁 M14 baseline evaluations；2) 使用修正后的 coordinates 对 MIHD vision-dependent experiments 进行大规模重新运行；3) 将 MimicGen dataset 扩展到 \u003e500 demo 的阈值，以便在 Robosuite 中进行 Pi0 fine-tuning；4) 完成 Error Recovery Benchmark 的 M6 multi-policy evaluation（解决 BC-RNN training 问题）；5) 将 MIHD 从 self-supervised refinement 过渡到使用 STAIG GCN architecture 的全量 multimodal fusion training；以及 6) 朝着每日报告 deployment pipeline 的自动化方向迈进。\nToken Usage Statistics AI Usage · 2026-W08\rClaude Code\rTotal cost$107.08\rTotal tokens229M\rOutput tokens61K\rCache read89.2%\rToken character\rCache reads 89.2% ·\rActive 10.8%\rMost token volume came from cache reads.\rPeak Day: 2026-02-16 — $31.31 / 57.0M tokens\nDaily Average: $15.30\n",
+  "wordCount" : "989",
   "inLanguage": "zh",
   "datePublished": "2026-02-22T23:59:00-05:00",
   "dateModified": "2026-02-22T23:59:00-05:00",
@@ -254,184 +254,190 @@
     </h1>
     <div class="post-meta">
 
-<span title='2026-02-22 23:59:00 -0500 EST'>2026年2月22日</span>&nbsp;·&nbsp;<span>3 分钟</span>
+<span title='2026-02-22 23:59:00 -0500 EST'>2026年2月22日</span>&nbsp;·&nbsp;<span>5 分钟</span>
 
 </div>
   </header> 
-  <div class="post-content md-content"><h1 id="每周报告--2026-w08-2026-02-16--2026-02-22">每周报告 — 2026-W08 (2026-02-16 ~ 2026-02-22)<a hidden class="anchor" aria-hidden="true" href="#每周报告--2026-w08-2026-02-16--2026-02-22">#</a></h1>
+  <div class="post-content md-content"><h1 id="weekly-report--2026-w08-2026-02-16--2026-02-22">Weekly Report — 2026-W08 (2026-02-16 ~ 2026-02-22)<a hidden class="anchor" aria-hidden="true" href="#weekly-report--2026-w08-2026-02-16--2026-02-22">#</a></h1>
 <blockquote>
-<p>本周整合了基础性的 MIHD 空间转录组研究，并加快了错误恢复基准测试第二阶段验证流程的开发。通过实施自监督聚类引擎（STEGO、BYOL+GAT、SCAN），采用 L2 归一化稳定对比损失，以及重构视觉编码器流程，解决了关键的空间坐标提取错误和基础模型分布偏移问题。并行工作成功实现了具有强大 LLM 输出修复功能的双阶段 AI 日报架构，扩展了超过 450 个测试场景，训练了 BC-RNN 基线模型，并部署了双服务器 VLA 推理基础设施。通过针对性依赖固定和动态资源分配，解决了 SSH 多路复用冲突、SLURM 分区拒绝、第三方定价模式漂移以及 HuggingFace 兼容性问题。当前战略重点转向关系对齐验证、MimicGen 数据扩展（超过 500 个示例）以及完成 M14/M6 多策略评估流程以准备论文。</p>
+<p>本周成功将 multimodal spatial transcriptome 研究与 robotic error recovery benchmarks 相结合，实现了从理论规划到验证执行 pipeline 的过渡。MIHD pipeline 取得了显著进展，通过解决关键的 coordinate swap bugs 并实现 self-supervised clustering (STEGO, SCAN) 恢复了数据完整性。同时，Error Recovery Benchmark 通过大规模场景扩展和 VLA dual-server infrastructure 的实现，超越了 M5 目标。尽管团队遇到了 cluster-level 权限障碍和特定模型的训练挑战 (BC-RNN)，但稳健的数据转换框架 (HDF5-to-LeRobot) 和自动化报告基础设施的建立，为大规模 multi-policy evaluation 和 multimodal fusion training 奠定了稳定的基础。</p>
 </blockquote>
-<h2 id="每周概述">每周概述<a hidden class="anchor" aria-hidden="true" href="#每周概述">#</a></h2>
+<h2 id="weekly-overview">Weekly Overview<a hidden class="anchor" aria-hidden="true" href="#weekly-overview">#</a></h2>
 <table>
   <thead>
       <tr>
-          <th>指标</th>
-          <th>数值</th>
+          <th>Metric</th>
+          <th>Value</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>日期范围</td>
+          <td>Date Range</td>
           <td>2026-02-16 ~ 2026-02-22</td>
       </tr>
       <tr>
-          <td>活跃天数</td>
+          <td>Active Days</td>
           <td>7 / 7</td>
       </tr>
       <tr>
-          <td>总对话数</td>
+          <td>Total Conversations</td>
           <td>32</td>
       </tr>
       <tr>
-          <td>项目数</td>
+          <td>Projects</td>
           <td>18</td>
       </tr>
       <tr>
-          <td>完成任务数</td>
+          <td>Tasks Completed</td>
           <td>41</td>
       </tr>
       <tr>
-          <td>进行中任务数</td>
+          <td>Tasks In Progress</td>
           <td>6</td>
       </tr>
       <tr>
-          <td>总token数</td>
+          <td>Total Tokens</td>
           <td>229,294,726</td>
       </tr>
       <tr>
-          <td>总成本</td>
+          <td>Total Cost</td>
           <td>$107.08</td>
       </tr>
       <tr>
-          <td>日均成本</td>
+          <td>Daily Average Cost</td>
           <td>$15.30</td>
       </tr>
   </tbody>
 </table>
-<h2 id="项目进展">项目进展<a hidden class="anchor" aria-hidden="true" href="#项目进展">#</a></h2>
-<h3 id="mihd-多模态融合研究与空间转录组基准测试7天活跃---活跃">MIHD 多模态融合研究与空间转录组基准测试（7天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#mihd-多模态融合研究与空间转录组基准测试7天活跃---活跃">#</a></h3>
-<p><strong>成就：</strong></p>
+<h2 id="project-progress">Project Progress<a hidden class="anchor" aria-hidden="true" href="#project-progress">#</a></h2>
+<h3 id="error-recovery-benchmark-7-days-active---active">Error Recovery Benchmark (7 days active) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#error-recovery-benchmark-7-days-active---active">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
 <ul>
-<li>发现并修复了 tissue_positions_list.csv 中的关键 X/Y 坐标交换问题，该问题导致视觉嵌入数据无效</li>
-<li>重新运行基线实验，使多个部分的 UNI2 视觉 ARI 提升幅度达 +86%</li>
-<li>执行可配置的隐藏维度消融实验，解决了 GCN 嵌入崩溃问题，证明了关系对齐优于生成映射</li>
-<li>通过并行基准测试验证了 QFormer Enhanced 和 STAIG GCN 融合策略</li>
-<li>汇总了关于 UNI2、spEMO、STAIG、SPADE、HEST-1k 的文献，标准化了视觉编码器架构</li>
-<li>为 STEGO、BYOL+GAT 和 SCAN 头构建自定义 PyTorch 模块；通过 L2 归一化和 LogSumExp 稳定化解决 InfoNCE 差异问题</li>
-<li>将 CacheManager 直接集成到 run_benchmark.py 中，并跟踪变体，大幅缩短处理时间</li>
-<li>生成了关于 RM-IDEAL 评分的完整双语文档，并匹配了 H&amp;E 可视化流程</li>
-<li>在 DLPFC 切片上验证了 ARI 基线，确定了多模态对齐的数值稳定性上限</li>
+<li>通过 pose_perturb 和 friction injectors 将 scene database 从 251 扩展到 454 (达到目标的 227%)，实现了 M5 milestone。</li>
+<li>在 tianhe 上实现了 VLA dual-server infrastructure (Pi0 and Pi0.5)。</li>
+<li>使用 multi-policy evaluation framework (Random, BC-RNN, VLA_Pi0, VLA_Pi0.5) 完成了 M6 milestone 准备工作。</li>
+<li>使用 MimicGen augmentation 扩展了 dataset construction，并开发了 HDF5-to-LeRobot conversion pipelines。</li>
+<li>实现了具备 resume 能力的 episode collectors 和 M14 baseline evaluation scripts。</li>
+<li>设计了基于 tmux 的自动化工具用于 background job monitoring。</li>
 </ul>
-<p><strong>阻碍因素：</strong></p>
+<p><strong>Blockers:</strong></p>
 <ul>
-<li>⚠️ 持续运行的核心 MultimodalFast 评估阶段正在进行中</li>
-<li>⚠️ 共享 HPC 环境中 GPU 资源竞争导致无声的缓存问题/OOM 失败</li>
-<li>⚠️ 通过 L2 归一化和 LogSumExp 稳定化解决了密集相似性矩阵溢出问题</li>
+<li>⚠️ BC-RNN policy 显示 0% success rate，这是由于 checkpoint 训练不足而非 framework bugs 导致。</li>
+<li>⚠️ Cluster GPU node 访问限制 (SLURM/PAM permission issues)。</li>
+<li>⚠️ VLA server port binding conflicts。</li>
 </ul>
-<h3 id="错误恢复基准测试与-vla-策略集成7天活跃---活跃">错误恢复基准测试与 VLA 策略集成（7天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#错误恢复基准测试与-vla-策略集成7天活跃---活跃">#</a></h3>
-<p><strong>成就：</strong></p>
+<h3 id="mihd-research--benchmarking-7-days-active---active">MIHD Research &amp; Benchmarking (7 days active) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#mihd-research--benchmarking-7-days-active---active">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
 <ul>
-<li>通过 _augment_specs_with_alternatives() 注入器将场景数据库扩展到 454+ 个场景（为 M5 目标数的 227%）</li>
-<li>从零训练并集成 BC-RNN 基线策略；修复了不同策略中的 robosuite 观察键映射问题</li>
-<li>部署了双服务器 VLA 基础设施（Pi0 端口 5556 + Pi0.5 端口 5557）用于多策略评估</li>
-<li>通过切换为 robosuite 包装方法解决了非脉冲注入器中的 MuJoCo API 兼容性问题</li>
-<li>通过 MimicGen 增强、分层分割和剧集粒度恢复逻辑实现了数据集扩展</li>
-<li>创建了 run_full_eval.sh 和 tmux 自动化脚本，实现可靠的后台执行和实时状态跟踪</li>
-<li>在并行 GPU 工作负载中协调 M14 基线评估；建立了动态 VRAM 感知的 Slurm 调度</li>
-<li>在 MimicGen 工具中修复 RoboMimic v0.3.0 API 兼容性问题，防止运行时 EOF 崩溃</li>
+<li>识别并修复了 spatial transcriptomics pipeline 中一个关键的 X/Y coordinate swap bug，将 UNI2 visual ARI 从 0.065 恢复至 ~0.25。</li>
+<li>实现了 self-supervised clustering (STEGO, BYOL+GAT, SCAN) 并验证了 ARI/NMI 的提升。</li>
+<li>进行了 ablation studies，并确定 QFormer Enhanced 和 STAIG GCN+STAIG fusion 是更优的方法。</li>
+<li>将 embedding caching 集成到 benchmark pipeline 中以减少冗余计算。</li>
+<li>开始使用修正后的 embeddings 重新运行 vision-dependent fusion experiments (core_multimodal_fast)。</li>
+<li>记录了 metric calculations 和 vision encoder architectures。</li>
 </ul>
-<p><strong>阻碍因素：</strong></p>
+<p><strong>Blockers:</strong></p>
 <ul>
-<li>⚠️ BC-RNN 检查点训练不足（可视化成功率仅为 0%），需要延长训练周期或权重重新获取</li>
-<li>⚠️ 多策略评估流程正在进行中；需要完成并回滚分析</li>
-<li>⚠️ 通过账户映射和禁用 ControlMaster 启动器解决了 SLURM 分区拒绝和过期的 SSH 套接字问题</li>
+<li>⚠️ 需要大规模重新运行 286+ 个 experiments 以验证修正后的 spatial data。</li>
+<li>⚠️ 稠密相似度矩阵中的数值不稳定性 (NaN/divergence)。</li>
 </ul>
-<h3 id="ai-日报工具与文档基础设施6天活跃---完成">AI 日报工具与文档基础设施（6天活跃） — ✅ 完成<a hidden class="anchor" aria-hidden="true" href="#ai-日报工具与文档基础设施6天活跃---完成">#</a></h3>
-<p><strong>成就：</strong></p>
+<h3 id="daily-report-tooling--infrastructure-2-days-active---completed">Daily Report Tooling &amp; Infrastructure (2 days active) — ✅ completed<a hidden class="anchor" aria-hidden="true" href="#daily-report-tooling--infrastructure-2-days-active---completed">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
 <ul>
-<li>设计并实现了双阶段导出/合并架构，实现可靠的跨设备日志聚合</li>
-<li>集成了健壮的四阶段 JSON 解析和 LLM 修复回退机制，以处理格式错误的结构化输出</li>
-<li>扩展了报告模式，包含对话摘要、级别/重要性元数据以及设备身份跟踪</li>
-<li>成功处理历史日志（2月12-16日），并通过 GitHub Pages 部署了更新的 Hugo bugJournal 网站</li>
-<li>将 CLAUDE.md/README.md 从约 1500 行减少到 763 行，同时保留层次化的研究轨迹</li>
-<li>通过分层防御（keep-alive、tmux 持久化、自动ssh 包装器）解决了 Tianhe HPC 上的 SSH 断开不稳定性</li>
+<li>开发了生产级两阶段 (export -&gt; merge) 架构，使用 rclone 进行 multi-device log synchronization。</li>
+<li>实现了稳健的 4-stage JSON parsing，并配备了基于 LLM 的 repair fallbacks。</li>
+<li>为 bug journaling 创建了自动化的 Hugo/GitHub Pages deployment pipeline。</li>
 </ul>
-<p><strong>阻碍因素：</strong></p>
+<h3 id="vlapi0-fine-tuning-readiness-1-days-active---active">VLA/Pi0 Fine-Tuning Readiness (1 days active) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#vlapi0-fine-tuning-readiness-1-days-active---active">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
 <ul>
-<li>⚠️ 导出/修正后 LLM API ConnectionRefused 错误导致报告生成受阻</li>
-<li>⚠️ 大规模仓库扫描期间 Windows OpenSSH 多路复用冲突和上下文窗口碎片化</li>
+<li>清查了现有的 model weights，并建立了一个基于 symlink 的集中式 checkpoint management system。</li>
+<li>评估了 MimicGen dataset 的就绪情况，并确定了 500-demo 的扩展需求。</li>
 </ul>
-<h3 id="基础模型微调与-mimicgen-数据管道2天活跃---活跃">基础模型微调与 MimicGen 数据管道（2天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#基础模型微调与-mimicgen-数据管道2天活跃---活跃">#</a></h3>
-<p><strong>成就：</strong></p>
+<p><strong>Blockers:</strong></p>
 <ul>
-<li>开发了用于 MimicGen 任务的统一 HDF5 到 Parquet 转换器，并更新了 OpenPI/OpenMMLab 配置</li>
-<li>设计了动态基因预处理路由和一致的自适应边缘丢弃机制，以确保跨模态梯度稳定性</li>
-<li>映射了里程碑拓扑结构，建立了收集器输出模式，并启动了完整的 STAIG 融合系统开发</li>
-<li>诊断了 LeRobot-HuggingFace 不兼容问题；将数据集库限制为 &lt;4.0 版本</li>
+<li>⚠️ 缺乏针对 Robosuite environments 的 task-specific checkpoints。</li>
 </ul>
-<p><strong>阻碍因素：</strong></p>
+<h3 id="project-infrastructure--documentation-3-days-active---completed">Project Infrastructure &amp; Documentation (3 days active) — ✅ completed<a hidden class="anchor" aria-hidden="true" href="#project-infrastructure--documentation-3-days-active---completed">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
 <ul>
-<li>⚠️ MimicGen 源示例仅包含 13 个样本，低于可靠 Pi0 微调所需的约 500 个样本阈值</li>
-<li>⚠️ A800 GPU 队列依赖和存储审批尚未验证，无法实现大规模数据扩展</li>
-<li>⚠️ 通过 srun/sbatch 切换解决了集群资源死锁和异构节点上的 EGL/CUDA 映射不匹配问题</li>
+<li>重构并压缩了核心项目文档 (CLAUDE.md/README.md)。</li>
+<li>在异构 cluster environments 中标准化了 remote SSH/SLURM workflows。</li>
+<li>将研究计划统一整合为一份 consolidated strategic document。</li>
 </ul>
-<h2 id="关键任务---修复-mihd-load_-2026-02-17--修正了反向的-csv-列映射问题并清理了损坏的缓存从而恢复视觉编码器的有效性在-daily_summarypy-中实现了本地备用定价机制解决了-13-倍于实际成本的低估问题并恢复了财务跟踪的完整性">关键任务- ✅ <strong>修复 MIHD load_spatial_coordinates() 坐标交换及 Patch ccusage 计费缺陷</strong> (2026-02-17) — 修正了反向的 CSV 列映射问题并清理了损坏的缓存，从而恢复视觉编码器的有效性。在 daily_summary.py 中实现了本地备用定价机制，解决了 13 倍于实际成本的低估问题，并恢复了财务跟踪的完整性。<a hidden class="anchor" aria-hidden="true" href="#关键任务---修复-mihd-load_-2026-02-17--修正了反向的-csv-列映射问题并清理了损坏的缓存从而恢复视觉编码器的有效性在-daily_summarypy-中实现了本地备用定价机制解决了-13-倍于实际成本的低估问题并恢复了财务跟踪的完整性">#</a></h2>
+<h2 id="key-tasks">Key Tasks<a hidden class="anchor" aria-hidden="true" href="#key-tasks">#</a></h2>
 <ul>
-<li>✅ <strong>扩展基准测试场景并部署 VLA 双服务器推理</strong> (2026-02-18) — 通过 pose_perturb 和摩擦生成器将基准数据库扩展到 454+ 个场景，达到 M5 目标的 227%。为 Pi0/Phoenix 模型构建了专用 TCP 推理服务器，重构了部署生成器，并完成了 59+ 次 E2E 部署，其中包含 150 个失败场景。</li>
-<li>✅ <strong>训练 BC-RNN 基线并解决政策观察键不匹配问题</strong> (2026-02-19) — 从零训练 BC-RNN（600 轮），修复了各策略中的观察键映射问题，并修补了 _to_robosuite_obs() 函数以传递原始 robosuite 观测数据，从而确保准确的推理初始化，且 79 个单元测试通过。</li>
-<li>✅ <strong>实现自监督聚类引擎并解决 InfoNCE 差异问题</strong> (2026-02-19) — 为 STEGO、BYOL+GAT 和 SCAN 头构建了自定义 PyTorch 模块。应用 sklearn L2 归一化预投影，并将浮点64位张量中的相似度限制为稳定密集对比目标，从而证明 ARI/NMI 有所提升。</li>
-<li>🔄 <strong>执行多策略评估流程 (M6/M14) 并协调并行 GPU 工作负载</strong> (2026-02-20) — 在 50+ 个场景上对 4 种策略进行评估，使用 3 个种子。将 CacheManager 直接集成到基准测试运行中，启动并发后台任务用于注入/自然采集，并建立动态考虑 VRAM 的 Slurm 调度。</li>
-<li>✅ <strong>设计两阶段每日报告架构并实施多层 SSH 加固措施</strong> (2026-02-17) — 将工作流程从单阶段改为导出/合并模式，支持跨设备聚合。部署了多层远程开发加固措施，包括 tmux 持久性、SSH 保持存活/配置多路复用以及自动重连包装器。</li>
-<li>✅ <strong>构建统一数据转换流程并解决第三方框架兼容性问题</strong> (2026-02-22) — 开发了 HDF5 到 Parquet 转换器，更新了 OpenPI 配置，并通过限制数据集版本 &lt;4.0 来固定 LeRobot-HuggingFace 兼容性，以恢复张量堆叠预期并避免转换类型错误。</li>
+<li>✅ <strong>Fix MIHD load_spatial_coordinates() X/Y coordinate swap bug</strong> — 修正了 CSV column mapping 以确保从正确的 spatial coordinates 提取 vision patches，解决了影响所有 fusion benchmarks 的根本性数据完整性问题。</li>
+<li>✅ <strong>Diagnose and fix ccusage claude-opus-4-6 zero-cost billing bug</strong> — 识别出由 LiteLLM model name mismatches 导致的 13 倍成本低估问题，并实现了 fallback pricing mechanism。</li>
+<li>✅ <strong>Generate tianhe M5 non-impulse error scenes</strong> — 使用自动化 augmentation 将 benchmark database 扩展至 454 个场景 (目标的 227%)。</li>
+<li>✅ <strong>VLA Policy Server Integration &amp; E2E Rollout</strong> — 为 Pi0/Phoenix models 构建了 TCP inference server 并执行了 59+ rollouts。</li>
+<li>✅ <strong>Self-Supervised Clustering &amp; Vision Refinement Implementation</strong> — 为 spatial contrastive losses 构建了自定义 PyTorch modules;通过 L2 normalization 和 LogSumExp stabilization 解决了 InfoNCE divergence 问题。</li>
+<li>✅ <strong>Embedding Cache I/O Integration</strong> — 将 CacheManager 集成到 run_benchmark.py 中，以消除冗余的 encoder 实例化并加速 benchmarking。</li>
+<li>✅ <strong>Multi-Task LeRobot Data Conversion &amp; OpenPI Training</strong> — 为 9 个 MimicGen 任务设计了 HDF5-to-Parquet 转换流程，并更新了用于 foundation model fine-tuning 的训练配置。</li>
 </ul>
-<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
-<h3 id="1-预训练的病理基础模型在精细皮层层识别上表现出严重的分布偏移将解剖上不同的区域聚类为人为伪影mihd-坐标提取交换导致视觉-patches-被悄悄翻转使得-uni2-视觉-ari-降至约-0065mihd-多模态融合研究-2026-02-17">1. 预训练的病理基础模型在精细皮层层识别上表现出严重的分布偏移，将解剖上不同的区域聚类为人为伪影。MIHD 坐标提取交换导致视觉 patches 被悄悄翻转，使得 UNI2 视觉 ARI 降至约 0.065。[MIHD 多模态融合研究] (2026-02-17)<a hidden class="anchor" aria-hidden="true" href="#1-预训练的病理基础模型在精细皮层层识别上表现出严重的分布偏移将解剖上不同的区域聚类为人为伪影mihd-坐标提取交换导致视觉-patches-被悄悄翻转使得-uni2-视觉-ari-降至约-0065mihd-多模态融合研究-2026-02-17">#</a></h3>
-<p><strong>解决方案：</strong> 放弃原始冻结编码器聚类，转而采用目标领域自监督适应（STEGO/BYOL）。修正了 CSV 列映射顺序，清理了损坏的缓存，并通过在 DLPFC 切片上增加 +86% 基线重跑验证 ARI 恢复情况。</p>
-<h3 id="2-第三方-ccusage-工具因模型名称版本不匹配而返回-cost0-的结果严重低估了令牌成本llm-对结构化报告的响应经常返回格式错误的-json导致流程中断ai-每日报告工具与基础设施-2026-02-17">2. 第三方 ccusage 工具因模型名称版本不匹配而返回 cost=0 的结果，严重低估了令牌成本。LLM 对结构化报告的响应经常返回格式错误的 JSON，导致流程中断。[AI 每日报告工具与基础设施] (2026-02-17)<a hidden class="anchor" aria-hidden="true" href="#2-第三方-ccusage-工具因模型名称版本不匹配而返回-cost0-的结果严重低估了令牌成本llm-对结构化报告的响应经常返回格式错误的-json导致流程中断ai-每日报告工具与基础设施-2026-02-17">#</a></h3>
-<p><strong>解决方案：</strong> 实现了带有明确定价字典的本地后处理备用机制，恢复了财务跟踪的完整性。部署了四阶段防御性解析链（直接加载 → 代码块提取 → 花括号匹配 → LLM 修复），确保在生成高峰期间工作流程持续运行。</p>
-<h3 id="3-vla-服务器初始化失败是由于-openpi-api-不匹配层次化扁平键冲突以及非脉冲注入器绕过框架层所致bc-rnn-部署因输入尺寸张量不匹配65维-vs-37维而崩溃错误恢复基准测试与-vla-政策集成-2026-02-18">3. VLA 服务器初始化失败是由于 OpenPI API 不匹配、层次化扁平键冲突以及非脉冲注入器绕过框架层所致。BC-RNN 部署因输入尺寸/张量不匹配（65维 vs 37维）而崩溃。[错误恢复基准测试与 VLA 政策集成] (2026-02-18)<a hidden class="anchor" aria-hidden="true" href="#3-vla-服务器初始化失败是由于-openpi-api-不匹配层次化扁平键冲突以及非脉冲注入器绕过框架层所致bc-rnn-部署因输入尺寸张量不匹配65维-vs-37维而崩溃错误恢复基准测试与-vla-政策集成-2026-02-18">#</a></h3>
-<p><strong>解决方案：</strong> 用官方 create_trained_policy 替换自定义 norm_stats；注入明确的 IMAGE_KEY_MAP 重映射。将注入器改为 robosuite 包装方法，并采用 try/except 备用机制。修复了 _to_robosuite_obs() 中的键映射，以匹配训练模式。</p>
-<h3 id="4-密集对比目标因-float32-精度限制和旧加载器形状不匹配而收敛为-nan长期运行的分布式基准测试缺乏自动恢复机制以应对节点超时和陈旧状态mihd-基准测试与错误恢复基础设施-2026-02-19">4. 密集对比目标因 float32 精度限制和旧加载器形状不匹配而收敛为 NaN。长期运行的分布式基准测试缺乏自动恢复机制，以应对节点超时和陈旧状态。[MIHD 基准测试与错误恢复基础设施] (2026-02-19)<a hidden class="anchor" aria-hidden="true" href="#4-密集对比目标因-float32-精度限制和旧加载器形状不匹配而收敛为-nan长期运行的分布式基准测试缺乏自动恢复机制以应对节点超时和陈旧状态mihd-基准测试与错误恢复基础设施-2026-02-19">#</a></h3>
-<p><strong>解决方案：</strong> 应用 LogSumExp 稳定化和精度限制。在收集器中嵌入事件粒度恢复机制，实现 CLI 切片以实现容错子批次处理，并禁用 Windows OpenSSH ControlMaster 以清除陈旧套接字。</p>
-<h3 id="5-run_benchmarkpy-缺乏缓存加载导致重复编码lerobot-hf-数据集库不兼容导致转换时-parquet-元数据类型错误用户组缺乏-slurm-分区ssh-访问权限基础设施与数据转换流程-2026-02-20">5. run_benchmark.py 缺乏缓存加载导致重复编码。LeRobot-HF 数据集库不兼容导致转换时 Parquet 元数据类型错误。用户组缺乏 SLURM 分区/SSH 访问权限。[基础设施与数据转换流程] (2026-02-20)<a hidden class="anchor" aria-hidden="true" href="#5-run_benchmarkpy-缺乏缓存加载导致重复编码lerobot-hf-数据集库不兼容导致转换时-parquet-元数据类型错误用户组缺乏-slurm-分区ssh-访问权限基础设施与数据转换流程-2026-02-20">#</a></h3>
-<p><strong>解决方案：</strong> 将 CacheManager 直接集成到基准测试运行中，通过变体跟踪避免并行工具漂移。固定 huggingface/datasets &lt;4.0 以恢复兼容性。映射账户关联，测试分区，并创建直接 SSH tmux 启动器以绕过即时分配障碍。</p>
-<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
-<h3 id="调试-debugging">调试 (debugging)<a hidden class="anchor" aria-hidden="true" href="#调试-debugging">#</a></h3>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="1-使用转置的-xy-坐标进行-mihd-vision-encoder-提取导致-ari-极低-0065-mihd-2026-02-17">1. 使用转置的 X/Y 坐标进行 MIHD vision encoder 提取导致 ARI 极低 (~0.065)。 [MIHD] (2026-02-17)<a hidden class="anchor" aria-hidden="true" href="#1-使用转置的-xy-坐标进行-mihd-vision-encoder-提取导致-ari-极低-0065-mihd-2026-02-17">#</a></h3>
+<p><strong>Solution:</strong> 修正了 CSV 列映射 (pxl_col/pxl_row) 和坐标顺序，并清除了所有损坏的 spatial caches。</p>
+<h3 id="2-由于-litellm-名称不匹配ccusage-未能追踪-claude-opus-4-6-的成本导致低估了-13-倍-infrastructure-2026-02-17">2. 由于 LiteLLM 名称不匹配，ccusage 未能追踪 claude-opus-4-6 的成本，导致低估了 13 倍。 [Infrastructure] (2026-02-17)<a hidden class="anchor" aria-hidden="true" href="#2-由于-litellm-名称不匹配ccusage-未能追踪-claude-opus-4-6-的成本导致低估了-13-倍-infrastructure-2026-02-17">#</a></h3>
+<p><strong>Solution:</strong> 在 summary tool 中实现了一个本地的 _FALLBACK_PRICING 字典，以处理零成本异常。</p>
+<h3 id="3-tianhe-non-impulse-injectors-由于直接调用-mujoco-api-绕过了-robosuite-abstractions-而崩溃-error-recovery-benchmark-2026-02-17">3. tianhe non-impulse injectors 由于直接调用 MuJoCo API 绕过了 robosuite abstractions 而崩溃。 [Error Recovery Benchmark] (2026-02-17)<a hidden class="anchor" aria-hidden="true" href="#3-tianhe-non-impulse-injectors-由于直接调用-mujoco-api-绕过了-robosuite-abstractions-而崩溃-error-recovery-benchmark-2026-02-17">#</a></h3>
+<p><strong>Solution:</strong> 使用 robosuite model.body_name2id/geom_name2id 替换了 mj_name2id，并实现了一个 name-suffix resolver。</p>
+<h3 id="4-llm-生成的-structured-reports-经常产生格式错误或截断的-json-infrastructure-2026-02-17">4. LLM 生成的 structured reports 经常产生格式错误或截断的 JSON。 [Infrastructure] (2026-02-17)<a hidden class="anchor" aria-hidden="true" href="#4-llm-生成的-structured-reports-经常产生格式错误或截断的-json-infrastructure-2026-02-17">#</a></h3>
+<p><strong>Solution:</strong> 实现了一个包含 code block extraction、brace matching 和基于 LLM 的 repair 在内的 4 阶段 parsing fallback chain。</p>
+<h3 id="5-在长时间运行的任务期间与-tianhe-cluster-的-ssh-连接频繁超时-infrastructure-2026-02-17">5. 在长时间运行的任务期间，与 tianhe cluster 的 SSH 连接频繁超时。 [Infrastructure] (2026-02-17)<a hidden class="anchor" aria-hidden="true" href="#5-在长时间运行的任务期间与-tianhe-cluster-的-ssh-连接频繁超时-infrastructure-2026-02-17">#</a></h3>
+<p><strong>Solution:</strong> 实施了分层防御，包括 TCP keep-alive、tmux session persistence 和 SSH connection multiplexing。</p>
+<h3 id="6-pretrained-pathology-models-在细粒度-cortical-layer-identification-中表现出-distribution-shifts-mihd-2026-02-19">6. Pretrained pathology models 在细粒度 cortical layer identification 中表现出 distribution shifts。 [MIHD] (2026-02-19)<a hidden class="anchor" aria-hidden="true" href="#6-pretrained-pathology-models-在细粒度-cortical-layer-identification-中表现出-distribution-shifts-mihd-2026-02-19">#</a></h3>
+<p><strong>Solution:</strong> 采用 target-domain self-supervised adaptation (STEGO, BYOL) 代替使用 frozen encoders。</p>
+<h3 id="7-由于-float32-中-dense-similarity-matrix-overflow-导致-infonce-loss-收敛至-nan-mihd-2026-02-19solution-应用了-l2-normalizationlogsumexp-stabilization并强制执行了-float64-precision-buffering">7. 由于 float32 中 dense similarity matrix overflow 导致 InfoNCE loss 收敛至 NaN。 [MIHD] (2026-02-19)<strong>Solution:</strong> 应用了 L2 normalization、LogSumExp stabilization，并强制执行了 float64 precision buffering。<a hidden class="anchor" aria-hidden="true" href="#7-由于-float32-中-dense-similarity-matrix-overflow-导致-infonce-loss-收敛至-nan-mihd-2026-02-19solution-应用了-l2-normalizationlogsumexp-stabilization并强制执行了-float64-precision-buffering">#</a></h3>
+<h3 id="8-bc-rnn-policy-crashes-due-to-65-dim-vs-37-dim-observation-mismatch-error-recovery-benchmark-2026-02-20">8. BC-RNN policy crashes due to 65-dim vs 37-dim observation mismatch. [Error Recovery Benchmark] (2026-02-20)<a hidden class="anchor" aria-hidden="true" href="#8-bc-rnn-policy-crashes-due-to-65-dim-vs-37-dim-observation-mismatch-error-recovery-benchmark-2026-02-20">#</a></h3>
+<p><strong>Solution:</strong> 修复了 _to_robosuite_obs() 的 key mapping，并确保传递的是原始 robot observations 而不是压缩后的 state_info。</p>
+<h3 id="9-lerobot-huggingface-library-incompatibility-causing-metadata-typeerrors-error-recovery-benchmark-2026-02-22">9. LeRobot-HuggingFace library incompatibility causing metadata TypeErrors. [Error Recovery Benchmark] (2026-02-22)<a hidden class="anchor" aria-hidden="true" href="#9-lerobot-huggingface-library-incompatibility-causing-metadata-typeerrors-error-recovery-benchmark-2026-02-22">#</a></h3>
+<p><strong>Solution:</strong> 将 huggingface/datasets 固定在 4.0 以下的版本以恢复兼容性。</p>
+<h3 id="10-windows-openssh-incompatibility-causing-connection-drops-to-compute-nodes-infrastructure-2026-02-19">10. Windows OpenSSH incompatibility causing connection drops to compute nodes. [Infrastructure] (2026-02-19)<a hidden class="anchor" aria-hidden="true" href="#10-windows-openssh-incompatibility-causing-connection-drops-to-compute-nodes-infrastructure-2026-02-19">#</a></h3>
+<p><strong>Solution:</strong> 清理了陈旧的 socket files，并在 .ssh/config 中禁用了冲突的 multiplexing parameters。</p>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="domain-knowledge-domain">Domain Knowledge (domain)<a hidden class="anchor" aria-hidden="true" href="#domain-knowledge-domain">#</a></h3>
 <ul>
-<li>原始元数据或预处理流程中的隐秘数据损坏比模型错误更隐蔽且更难追踪；宏观级指标异常必须在调试代码逻辑之前回溯到源定义。密集对比目标和长期评估需要严格的 L2 归一化、浮点64位精度缓冲、LogSumExp 稳定化以及事件粒度恢复逻辑，以防止梯度爆炸和陈旧读取。框架正确性和政策行为质量需要不同的验证层：集成测试确认代码路径，而结合视频可视化的 GPU 部署是诊断训练不足的必要手段。</li>
+<li>数据 bug（例如 metadata/coordinate swaps）比 model bug 更具破坏性，因为代码和测试可以顺利通过，但结果在根本上是无效的。验证过程必须从 macro-anomalies 回溯到原始数据源。</li>
+<li>纯 vision-only 的 spatial clustering 会导致较低的 ARI；细粒度的 morphological features 需要 multimodal fusion 或特定领域的 self-supervised alignment。</li>
+<li>VLA/foundation models 在不同仿真环境之间（从 LIBERO 到 Robosuite）缺乏鲁棒的 zero-shot transfer；成功的前提是在 fine-tuning 之前扩展 behavioral diversity（例如通过 MimicGen 获取 &gt;500 demos）。</li>
 </ul>
-<h3 id="架构-architecture">架构 (architecture)<a hidden class="anchor" aria-hidden="true" href="#架构-architecture">#</a></h3>
+<h3 id="architecture-architecture">Architecture (architecture)<a hidden class="anchor" aria-hidden="true" href="#architecture-architecture">#</a></h3>
 <ul>
-<li>纯视觉编码器在缺乏自监督约束或多模态融合的情况下，在精细空间分层上必然达到平台期；任务-特征不匹配是架构特性而非实现缺陷。分布式工作流应采用两阶段导出/合并架构，而非单体设计，以防止循环依赖并安全地将原始数据修正与复杂的 API 阶段分离。为了应对不稳定的网络环境，多层防御（协议保持存活、SSH 多路复用、tmux 持久性、自动重连脚本）是必需的，因为单一层在共享 HPC 环境中无法解决问题。</li>
+<li>分布式工作流需要两阶段架构（local extraction + centralized merging）来处理多设备环境并防止冗余的 API 成本。</li>
+<li>Policy evaluation pipelines 必须保留原始的 observation modalities；内部的 state extractors 经常会丢失 pre-trained adapters 所需的 keys。</li>
 </ul>
-<h3 id="工具-tools--必须采用防御性补丁机制来应对架构变更导致的模式漂移或定价错误通过仅在异常值时触发的条件回退机制同时保留向后兼容性修改测试基准基础设施时需利用成熟的管道缓存标准化机制避免预处理参数的变化框架迁移需要严格的依赖项固定和动态api签名检查以防止第三方机器学习环境出现隐式中断">工具 (tools)- 必须采用防御性补丁机制来应对架构变更导致的模式漂移或定价错误，通过仅在异常值时触发的条件回退机制，同时保留向后兼容性。修改测试基准基础设施时，需利用成熟的管道缓存/标准化机制，避免预处理参数的变化。框架迁移需要严格的依赖项固定和动态API签名检查，以防止第三方机器学习环境出现隐式中断。<a hidden class="anchor" aria-hidden="true" href="#工具-tools--必须采用防御性补丁机制来应对架构变更导致的模式漂移或定价错误通过仅在异常值时触发的条件回退机制同时保留向后兼容性修改测试基准基础设施时需利用成熟的管道缓存标准化机制避免预处理参数的变化框架迁移需要严格的依赖项固定和动态api签名检查以防止第三方机器学习环境出现隐式中断">#</a></h3>
-<h3 id="领域知识-domain">领域知识 (domain)<a hidden class="anchor" aria-hidden="true" href="#领域知识-domain">#</a></h3>
+<h3 id="debugging-debugging">Debugging (debugging)<a hidden class="anchor" aria-hidden="true" href="#debugging-debugging">#</a></h3>
 <ul>
-<li>理论对齐必须先于架构扩展进行；生成式映射在潜在融合空间中缺乏必要的监督信号，因此需要尽早转向关系化方法（AdaLN、对比学习）。VLA策略无法在模拟测试基准中实现零样本迁移；可靠的微调需要通过MimicGen将源行为多样性扩展到500个示例以上，才能投入计算资源。集群访问策略严格规定了执行流程，需要管理员手动协调而非自动化解决方案。明确的命名规范与战略性的文档重建对于维持长期智能体入职效率至关重要。</li>
+<li>Framework correctness（通过 unit tests）与 model quality（behavioral success）是不同的。需要进行 GPU integration tests 和 video visualization 来检测“hovering”与“grasping”问题。</li>
+<li>float32 中的高温度 cosine similarity matrices 会迅速饱和；对于 contrastive objectives，数学上的 stabilization (LogSumExp/L2) 是强制性的。</li>
 </ul>
-<h2 id="ai使用注意事项">AI使用注意事项<a hidden class="anchor" aria-hidden="true" href="#ai使用注意事项">#</a></h2>
-<p><strong>有效模式：</strong></p>
+<h3 id="tools-tools">Tools (tools)<a hidden class="anchor" aria-hidden="true" href="#tools-tools">#</a></h3>
 <ul>
-<li>✓ 两阶段导出/合并架构成功解决了分布式日志聚合限制问题</li>
-<li>✓ 分层诊断验证（宏观指标异常 → 原始CSV/特征检查）有效隔离了隐式数据损坏</li>
-<li>✓ 利用成熟的管道基础设施（如CacheManager）而非孤立的评估包装器，以提高系统凝聚力</li>
-<li>✓ 仅提供回退功能的定价补丁和多阶段LLM解析在生产使用高峰期间保持向后兼容性</li>
-<li>✓ 通过动态API签名检查解决第三方库冲突，无需手动逆向工程</li>
-<li>✓ 实施明确的数学隔离标准，引导AI从冗余架构转向有针对性的数值稳定化</li>
+<li>第三方工具集成需要防御性编程（例如 fallback pricing、name remapping），以应对上游 schema 或命名不匹配的问题。</li>
+<li>Framework migrations（例如 LeRobot/HuggingFace）需要严格的 dependency pinning，以防止静默的 schema corruption。</li>
 </ul>
-<p><strong>限制：</strong></p>
+<h2 id="ai-usage-notes">AI Usage Notes<a hidden class="anchor" aria-hidden="true" href="#ai-usage-notes">#</a></h2>
+<p><strong>Effective Patterns:</strong></p>
 <ul>
-<li>✗ 完全依赖用户提供的假设进行根本原因分析，而非自主追踪宏观指标到原始数据来源</li>
-<li>✗ 在初始架构设计中未能预见多设备部署限制，直到用户明确指示</li>
-<li>✗ 在没有明确提示的情况下难以验证第三方工具架构，最初假设文档与实时输出结构一致</li>
-<li>✗ 无法主动将被阻塞的工作流（LLM API中断）与成功的并行管道分离</li>
-<li>✗ 应对学术付费墙的困难以及区分单模态测试基准与多模态消融研究需要大量用户约束筛选</li>
-<li>✗ 在整体文件重构过程中上下文窗口的碎片化要求对大量仓库文档进行手动分区</li>
+<li>✓ 用于分布式数据处理的两阶段架构。</li>
+<li>✓ 用于 LLM 生成 JSON 的多阶段 fallback parsing。</li>
+<li>✓ 用于远程连接稳定性的分层防御。</li>
+<li>✓ 使用 AI 进行底层的 PyTorch module 实现和自动化 unit test 生成。</li>
+<li>✓ 利用 multi-agent task spawning 进行大规模 repository refactoring。</li>
 </ul>
-<h2 id="下周计划">下周计划<a hidden class="anchor" aria-hidden="true" href="#下周计划">#</a></h2>
-<p>下周将重点完成M6/M14多策略评估管道，并通过延长训练周期或获取替代验证检查点来解决BC-RNN训练不足的问题。MIHD fusion core_multimodal_fast评估阶段需完成最终调整，并持续管理GPU资源隔离，以防止OOM竞争。基础设施优先事项包括一旦API稳定性恢复即自动生成历史每日报告，整合集中式检查点工作流，以及启动MimicGen数据扩展管道（&gt;500个示例），以解除Pi0微调的前提条件。战略关注将转向为M14基线执行并行GPU工作负载，扩展OpenPI训练的多GPU JAX配置，汇总最终测试基准指标用于论文撰写，并通过实验验证关系化融合架构，以符合本周确定的理论约束。</p>
-<h2 id="令牌使用统计">令牌使用统计<a hidden class="anchor" aria-hidden="true" href="#令牌使用统计">#</a></h2>
+<p><strong>Limitations:</strong></p>
+<ul>
+<li>✗ 无法独立诊断高层级的数据源 bug（依赖用户的统计直觉）。</li>
+<li>✗ 缺乏对特定项目数据孤岛和特定环境配置要求的感知。</li>
+<li>✗ 在没有人工干预的情况下，无法通过视频分析评估 policy quality。</li>
+<li>✗ AI 倾向于提出冗余/孤立的 scripts，而不是与现有 infrastructure 集成。</li>
+<li>✗ AI 无法自主处理 cluster permission/SLURM 障碍。</li>
+<li>✗ 由于缺乏深层的诊断上下文，偶尔会对 visualization artifacts 产生误判。</li>
+</ul>
+<h2 id="next-week-outlook">Next Week Outlook<a hidden class="anchor" aria-hidden="true" href="#next-week-outlook">#</a></h2>
+<p>优先级包括：1) 通过行政协调确保 cluster GPU node 的访问权限，以解锁 M14 baseline evaluations；2) 使用修正后的 coordinates 对 MIHD vision-dependent experiments 进行大规模重新运行；3) 将 MimicGen dataset 扩展到 &gt;500 demo 的阈值，以便在 Robosuite 中进行 Pi0 fine-tuning；4) 完成 Error Recovery Benchmark 的 M6 multi-policy evaluation（解决 BC-RNN training 问题）；5) 将 MIHD 从 self-supervised refinement 过渡到使用 STAIG GCN architecture 的全量 multimodal fusion training；以及 6) 朝着每日报告 deployment pipeline 的自动化方向迈进。</p>
+<h2 id="token-usage-statistics">Token Usage Statistics<a hidden class="anchor" aria-hidden="true" href="#token-usage-statistics">#</a></h2>
 <style>
   .usage-card {
     --usage-bg: #fafaf9;
@@ -515,9 +521,9 @@
         Most token volume came from cache reads.
       </p>
 </footer>
-<p><strong>高峰日：</strong> 2026-02-16 — $31.31 / 57.0M 令牌</p>
-<p><strong>每日平均：</strong> $15.30</p>
-<!-- gadget:src-hash:6c5b1c43b9f2d36c -->
+<p><strong>Peak Day:</strong> 2026-02-16 — $31.31 / 57.0M tokens</p>
+<p><strong>Daily Average:</strong> $15.30</p>
+<!-- gadget:src-hash:v2:8ad260e385f83068 -->
 
 
   </div>

@@ -7,7 +7,7 @@
 <meta name="robots" content="index, follow">
 <title>Bug Journal 2026-05-20 | TzJ&#39;s Net</title>
 <meta name="keywords" content="Bug Journal">
-<meta name="description" content="A protocol review was conducted on TokenMonitor, and it was found that there are critical differences between the documentation descriptions and the actual implementation status in terms of specification enforcement and Python import handling.">
+<meta name="description" content="Conducted a protocol review for TokenMonitor, identifying critical discrepancies between documentation claims and actual implementation states regarding spec enforcement and Python import resolution.">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/bugjournal/daily/2026-05-20/">
 <link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
@@ -79,16 +79,16 @@
 <meta property="og:url" content="https://tzj2006.github.io/bugjournal/daily/2026-05-20/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="Bug Journal 2026-05-20">
-  <meta property="og:description" content="A protocol review was conducted on TokenMonitor, and it was found that there are critical differences between the documentation descriptions and the actual implementation status in terms of specification enforcement and Python import handling.">
+  <meta property="og:description" content="Conducted a protocol review for TokenMonitor, identifying critical discrepancies between documentation claims and actual implementation states regarding spec enforcement and Python import resolution.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="bugjournal">
-    <meta property="article:published_time" content="2026-05-20T00:00:00-05:00">
-    <meta property="article:modified_time" content="2026-05-20T00:00:00-05:00">
+    <meta property="article:published_time" content="2026-05-20T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-05-20T00:00:00-04:00">
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Bug Journal 2026-05-20">
-  <meta name="twitter:description" content="A protocol review was conducted on TokenMonitor, and it was found that there are critical differences between the documentation descriptions and the actual implementation status in terms of specification enforcement and Python import handling.">
+  <meta name="twitter:description" content="Conducted a protocol review for TokenMonitor, identifying critical discrepancies between documentation claims and actual implementation states regarding spec enforcement and Python import resolution.">
 
 
 <script type="application/ld+json">
@@ -123,15 +123,15 @@
   "@type": "BlogPosting",
   "headline": "Bug Journal 2026-05-20",
   "name": "Bug Journal 2026-05-20",
-  "description": "A protocol review was conducted on TokenMonitor, and it was found that there are critical differences between the documentation descriptions and the actual implementation status in terms of specification enforcement and Python import handling.",
+  "description": "Conducted a protocol review for TokenMonitor, identifying critical discrepancies between documentation claims and actual implementation states regarding spec enforcement and Python import resolution.",
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-05-20 General Overview Completed work: Reviewed the proxy workflow protocol in the TokenMonitor repository along with the current code base and configuration files. Implementation: Executed shell commands to check file structures, track Python module imports, and verify hook behavior, without modifying source code. Impact: Identified major flaws in the “standard execution” mechanism due to naming conflicts with sister repositories and inaccurate documentation. A protocol review of TokenMonitor revealed significant differences between the documentation claims and actual implementation in standard execution and Python import parsing.\nTasks Architecture and Strategy ✅ Protocol verification review — Confirmed whether the statements in AGENTS.md align with the actual implementation of the verification gate and specification management scripts. ✅ Hook behavior verification — Tested the execution paths of check_spec.py and verify.py to ensure they operate correctly according to the defined workflow. Issues and Solutions Key Issues 1. AGENTS.md claims hooks execute “verification + review”, but .claude/settings.json only triggers verification, resulting in the review generation not being enforced. Solution: Found missing hook configuration; suggested adding the call to review_generator to Stop hooks (if necessary).\nKey insight: Documentation often overstates the protection mechanisms implemented; clear configuration reviews are needed to ensure accuracy.\n2. Running python workflow/verify.py directly caused import errors, pulling code from sister repository D:\\GitHub\\gadget rather than TokenMonitor. Solution: Switch to python -m workflow.verify, which can correctly parse modules within the TokenMonitor context.\nKey insight: If no virtual environment or strict path isolation is used, sister repositories with the same package structure pose a hidden import hijacking risk.\nGeneral Issues 3. Documentation claims python workflow/active_spec.py generates specifications, but it is a library file that does not produce side effects. Solution: Clearly state that the file contains only logic; a CLI wrapper or explicit API usage instructions are required.\nKey insight: Library scripts usually lack entry point logic; assuming they are runnable CLIs leads to operational dead ends.\nHuman and AI Approaches Strategic Level Accuracy Analysis of Documentation Role Method Human No request for checking outdated specifications or import paths. AI The AI inferred that missing combined successful verification runs of active-spec.json indicate a virtual import source, thus identifying the repository conflict in gadget. Analysis difference: The AI identified a critical architectural flaw (outdated specifications allow writing), which stems from environment isolation issues, while typical text reviews ignore this issue.\nImport Parsing Debugging Role Method Human User asked a vague question “check if it’s correct”, relying on the AI to determine scope and depth. AI The AI autonomously decided to check shell output, track imports via sys.path, and compare documentation with runtime behavior. Analysis difference: The AI demonstrated deep diagnostic capabilities, able to detect brother repository hijacking issues that require understanding Python import priority rules, rather than just simple text search.\nAI Limitations General Limitations The initial shell command failed due to mismatched context path (located in D:\\Github instead of TokenMonitor), requiring iterative correction. The AI initially had parsing errors when handling JSON input here-string syntax in PowerShell, before switching to variables. Lessons Learned Key Experiences When auditing multi-repository workspaces, always verify Python import sources through sys.path and __file__ to prevent cross-contamination. Practical Experience Ensure the test environment dependencies (e.g., pytest) exist before running verification scripts that depend on them. Dialogue Summary ✅ Protocol and Standard Execution Review 18:27:29.007 | codex The user requested verification of the TokenMonitor workflow protocol. The AI performed actual code review on AGENTS.md and found that due to path issues, python workflow/verify.py imported code from sister repository (gadget), and the documentation exaggerated the execution capability of hooks in review generation.\nToken Usage AI Usage · 2026-05-20\rClaude Code + Codex\rTotal cost$106.27\rTotal tokens152M\rOutput tokens4M\rCache read87.2%\rCost split\rClaude Code $103 ·\rCodex $3\rToken character\rCache reads 87.2% ·\rActive 12.8%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
-  "wordCount" : "637",
+  "articleBody": "Daily Report — 2026-05-20 Daily Overview What was done: Audited the TokenMonitor repository’s agentic workflow protocol against its current codebase and configuration files. How it was done: Executed shell commands to inspect file structures, trace Python module imports, and verify hook behaviors without modifying source code. Impact: Exposed significant gaps in the ‘spec enforcement’ mechanism caused by naming conflicts with sibling repositories and documentation inaccuracies. Conducted a protocol review for TokenMonitor, identifying critical discrepancies between documentation claims and actual implementation states regarding spec enforcement and Python import resolution.\nTasks Architecture \u0026 Strategy ✅ Protocol Validation Audit — Verified if AGENTS.md claims matched actual implementation of verification gates and spec management scripts. ✅ Hook Behavior Verification — Tested check_spec.py and verify.py execution paths to ensure they function as intended by the defined workflow. Problems \u0026 Solutions Critical Issues 1. AGENTS.md claimed hooks enforce ‘verify + review’, but .claude/settings.json only triggers verify, leaving review generation unenforced. Solution: Identified the missing hook configuration; recommended adding review_generator invocation to Stop hooks if mandatory.\nKey Insight: Documentation often overstates implemented guardrails; explicit config audit is required for accuracy.\n2. Running python workflow/verify.py directly caused an import error, pulling code from sibling repo D:\\GitHub\\gadget instead of TokenMonitor. Solution: Switched to python -m workflow.verify which correctly resolved the module within TokenMonitor’s context.\nKey Insight: Sibling repos with identical package structures create silent import hijacking risks if not managed via virtualenvs or strict path isolation.\nGeneral Issues 3. Documentation claimed python workflow/active_spec.py creates specs, but it is a library file that exits silently without side effects. Solution: Clarified that this file contains logic only; a CLI wrapper or explicit instruction to use the API functions is needed.\nKey Insight: Library scripts often lack entry-point logic; assuming they are runnable CLIs leads to operational dead-ends.\nHuman vs AI Approaches Strategic Level Documentation Accuracy Analysis Role Approach Human User did not specify checking for stale specs or import paths. AI AI deduced that the active-spec.json absence combined with successful verify runs implied a phantom import source, leading to the discovery of the gadget repo conflict. Difference Analysis: The AI identified a critical architectural flaw (stale spec allowing writes) that stems from environmental isolation issues, which a generic text review would miss.\nImport Resolution Debugging Role Approach Human User provided vague request ‘check whether these are correct’, trusting the AI to determine scope and depth. AI AI autonomously decided to inspect shell outputs, trace imports via sys.path, and compare documentation against runtime behavior. Difference Analysis: The AI demonstrated deep diagnostic capability by detecting the sibling repo hijacking issue which requires understanding Python’s import precedence rules beyond simple text search.\nAI Limitations General Limitations Initial shell commands failed due to context path mismatches (landing in D:\\Github instead of TokenMonitor), requiring iterative correction. AI struggled with PowerShell here-string syntax for JSON input initially, leading to parsing errors before switching to variables. Learnings Key Learnings When auditing multi-repo workspaces, always verify Python import sources via sys.path and __file__ to prevent cross-contamination. Practical Learnings Ensure test environment dependencies (like pytest) are present before running verification scripts that depend on them. Conversation Summaries ✅ Protocol and Spec Enforcement Audit 18:27:29.007 | codex The user asked for a verification of the TokenMonitor workflow protocol. The AI audited AGENTS.md against actual code, revealing that python workflow/verify.py imports from a sibling repo (gadget) due to path issues, and that the documentation overstated hook enforcement capabilities regarding review generation.\nToken Usage AI Usage · 2026-05-20\rClaude Code + Codex\rTotal cost$107.05\rTotal tokens153M\rOutput tokens4M\rCache read87.2%\rCost split\rClaude Code $103 ·\rCodex $4\rToken character\rCache reads 87.2% ·\rActive 12.8%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "616",
   "inLanguage": "en",
-  "datePublished": "2026-05-20T00:00:00-05:00",
-  "dateModified": "2026-05-20T00:00:00-05:00",
+  "datePublished": "2026-05-20T00:00:00-04:00",
+  "dateModified": "2026-05-20T00:00:00-04:00",
   "mainEntityOfPage": {
     "@type": "WebPage",
     "@id": "https://tzj2006.github.io/bugjournal/daily/2026-05-20/"
@@ -254,99 +254,99 @@
     </h1>
     <div class="post-meta">
 
-<span title='2026-05-20 00:00:00 -0500 -0500'>May 20, 2026</span>&nbsp;·&nbsp;<span>3 min</span>
+<span title='2026-05-20 00:00:00 -0400 EDT'>May 20, 2026</span>&nbsp;·&nbsp;<span>3 min</span>
 
 </div>
   </header> 
   <div class="post-content md-content"><h1 id="daily-report--2026-05-20">Daily Report — 2026-05-20<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-05-20">#</a></h1>
-<h2 id="general-overview">General Overview<a hidden class="anchor" aria-hidden="true" href="#general-overview">#</a></h2>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
 <ul>
-<li><strong>Completed work:</strong> Reviewed the proxy workflow protocol in the TokenMonitor repository along with the current code base and configuration files.</li>
-<li><strong>Implementation:</strong> Executed shell commands to check file structures, track Python module imports, and verify hook behavior, without modifying source code.</li>
-<li><strong>Impact:</strong> Identified major flaws in the “standard execution” mechanism due to naming conflicts with sister repositories and inaccurate documentation.</li>
+<li><strong>What was done:</strong> Audited the TokenMonitor repository&rsquo;s agentic workflow protocol against its current codebase and configuration files.</li>
+<li><strong>How it was done:</strong> Executed shell commands to inspect file structures, trace Python module imports, and verify hook behaviors without modifying source code.</li>
+<li><strong>Impact:</strong> Exposed significant gaps in the &lsquo;spec enforcement&rsquo; mechanism caused by naming conflicts with sibling repositories and documentation inaccuracies.</li>
 </ul>
 <blockquote>
-<p>A protocol review of TokenMonitor revealed significant differences between the documentation claims and actual implementation in standard execution and Python import parsing.</p>
+<p>Conducted a protocol review for TokenMonitor, identifying critical discrepancies between documentation claims and actual implementation states regarding spec enforcement and Python import resolution.</p>
 </blockquote>
 <h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
-<h3 id="architecture-and-strategy">Architecture and Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture-and-strategy">#</a></h3>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
 <ul>
-<li>✅ <strong>Protocol verification review</strong> — Confirmed whether the statements in AGENTS.md align with the actual implementation of the verification gate and specification management scripts.</li>
-<li>✅ <strong>Hook behavior verification</strong> — Tested the execution paths of check_spec.py and verify.py to ensure they operate correctly according to the defined workflow.</li>
+<li>✅ <strong>Protocol Validation Audit</strong> — Verified if AGENTS.md claims matched actual implementation of verification gates and spec management scripts.</li>
+<li>✅ <strong>Hook Behavior Verification</strong> — Tested check_spec.py and verify.py execution paths to ensure they function as intended by the defined workflow.</li>
 </ul>
-<h2 id="issues-and-solutions">Issues and Solutions<a hidden class="anchor" aria-hidden="true" href="#issues-and-solutions">#</a></h2>
-<h3 id="key-issues">Key Issues<a hidden class="anchor" aria-hidden="true" href="#key-issues">#</a></h3>
-<h4 id="1-agentsmd-claims-hooks-execute-verification--review-but-claudesettingsjson-only-triggers-verification-resulting-in-the-review-generation-not-being-enforced">1. AGENTS.md claims hooks execute “verification + review”, but .claude/settings.json only triggers verification, resulting in the review generation not being enforced.<a hidden class="anchor" aria-hidden="true" href="#1-agentsmd-claims-hooks-execute-verification--review-but-claudesettingsjson-only-triggers-verification-resulting-in-the-review-generation-not-being-enforced">#</a></h4>
-<p><strong>Solution:</strong> Found missing hook configuration; suggested adding the call to review_generator to Stop hooks (if necessary).</p>
-<p><strong>Key insight:</strong> Documentation often overstates the protection mechanisms implemented; clear configuration reviews are needed to ensure accuracy.</p>
-<h4 id="2-running-python-workflowverifypy-directly-caused-import-errors-pulling-code-from-sister-repository-dgithubgadget-rather-than-tokenmonitor">2. Running <code>python workflow/verify.py</code> directly caused import errors, pulling code from sister repository <code>D:\GitHub\gadget</code> rather than TokenMonitor.<a hidden class="anchor" aria-hidden="true" href="#2-running-python-workflowverifypy-directly-caused-import-errors-pulling-code-from-sister-repository-dgithubgadget-rather-than-tokenmonitor">#</a></h4>
-<p><strong>Solution:</strong> Switch to <code>python -m workflow.verify</code>, which can correctly parse modules within the TokenMonitor context.</p>
-<p><strong>Key insight:</strong> If no virtual environment or strict path isolation is used, sister repositories with the same package structure pose a hidden import hijacking risk.</p>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-agentsmd-claimed-hooks-enforce-verify--review-but-claudesettingsjson-only-triggers-verify-leaving-review-generation-unenforced">1. AGENTS.md claimed hooks enforce &lsquo;verify + review&rsquo;, but .claude/settings.json only triggers verify, leaving review generation unenforced.<a hidden class="anchor" aria-hidden="true" href="#1-agentsmd-claimed-hooks-enforce-verify--review-but-claudesettingsjson-only-triggers-verify-leaving-review-generation-unenforced">#</a></h4>
+<p><strong>Solution:</strong> Identified the missing hook configuration; recommended adding review_generator invocation to Stop hooks if mandatory.</p>
+<p><strong>Key Insight:</strong> Documentation often overstates implemented guardrails; explicit config audit is required for accuracy.</p>
+<h4 id="2-running-python-workflowverifypy-directly-caused-an-import-error-pulling-code-from-sibling-repo-dgithubgadget-instead-of-tokenmonitor">2. Running <code>python workflow/verify.py</code> directly caused an import error, pulling code from sibling repo <code>D:\GitHub\gadget</code> instead of TokenMonitor.<a hidden class="anchor" aria-hidden="true" href="#2-running-python-workflowverifypy-directly-caused-an-import-error-pulling-code-from-sibling-repo-dgithubgadget-instead-of-tokenmonitor">#</a></h4>
+<p><strong>Solution:</strong> Switched to <code>python -m workflow.verify</code> which correctly resolved the module within TokenMonitor&rsquo;s context.</p>
+<p><strong>Key Insight:</strong> Sibling repos with identical package structures create silent import hijacking risks if not managed via virtualenvs or strict path isolation.</p>
 <h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
-<h4 id="3-documentation-claims-python-workflowactive_specpy-generates-specifications-but-it-is-a-library-file-that-does-not-produce-side-effects">3. Documentation claims <code>python workflow/active_spec.py</code> generates specifications, but it is a library file that does not produce side effects.<a hidden class="anchor" aria-hidden="true" href="#3-documentation-claims-python-workflowactive_specpy-generates-specifications-but-it-is-a-library-file-that-does-not-produce-side-effects">#</a></h4>
-<p><strong>Solution:</strong> Clearly state that the file contains only logic; a CLI wrapper or explicit API usage instructions are required.</p>
-<p><strong>Key insight:</strong> Library scripts usually lack entry point logic; assuming they are runnable CLIs leads to operational dead ends.</p>
-<h2 id="human-and-ai-approaches">Human and AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-and-ai-approaches">#</a></h2>
+<h4 id="3-documentation-claimed-python-workflowactive_specpy-creates-specs-but-it-is-a-library-file-that-exits-silently-without-side-effects">3. Documentation claimed <code>python workflow/active_spec.py</code> creates specs, but it is a library file that exits silently without side effects.<a hidden class="anchor" aria-hidden="true" href="#3-documentation-claimed-python-workflowactive_specpy-creates-specs-but-it-is-a-library-file-that-exits-silently-without-side-effects">#</a></h4>
+<p><strong>Solution:</strong> Clarified that this file contains logic only; a CLI wrapper or explicit instruction to use the API functions is needed.</p>
+<p><strong>Key Insight:</strong> Library scripts often lack entry-point logic; assuming they are runnable CLIs leads to operational dead-ends.</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
-<h4 id="accuracy-analysis-of-documentation">Accuracy Analysis of Documentation<a hidden class="anchor" aria-hidden="true" href="#accuracy-analysis-of-documentation">#</a></h4>
+<h4 id="documentation-accuracy-analysis">Documentation Accuracy Analysis<a hidden class="anchor" aria-hidden="true" href="#documentation-accuracy-analysis">#</a></h4>
 <table>
   <thead>
       <tr>
           <th>Role</th>
-          <th>Method</th>
+          <th>Approach</th>
       </tr>
   </thead>
   <tbody>
       <tr>
           <td>Human</td>
-          <td>No request for checking outdated specifications or import paths.</td>
+          <td>User did not specify checking for stale specs or import paths.</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>The AI inferred that missing combined successful verification runs of <code>active-spec.json</code> indicate a virtual import source, thus identifying the repository conflict in <code>gadget</code>.</td>
+          <td>AI deduced that the <code>active-spec.json</code> absence combined with successful verify runs implied a phantom import source, leading to the discovery of the <code>gadget</code> repo conflict.</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Analysis difference:</strong> The AI identified a critical architectural flaw (outdated specifications allow writing), which stems from environment isolation issues, while typical text reviews ignore this issue.</p>
-<h4 id="import-parsing-debugging">Import Parsing Debugging<a hidden class="anchor" aria-hidden="true" href="#import-parsing-debugging">#</a></h4>
+<p><strong>Difference Analysis:</strong> The AI identified a critical architectural flaw (stale spec allowing writes) that stems from environmental isolation issues, which a generic text review would miss.</p>
+<h4 id="import-resolution-debugging">Import Resolution Debugging<a hidden class="anchor" aria-hidden="true" href="#import-resolution-debugging">#</a></h4>
 <table>
   <thead>
       <tr>
           <th>Role</th>
-          <th>Method</th>
+          <th>Approach</th>
       </tr>
   </thead>
   <tbody>
       <tr>
           <td>Human</td>
-          <td>User asked a vague question “check if it’s correct”, relying on the AI to determine scope and depth.</td>
+          <td>User provided vague request &lsquo;check whether these are correct&rsquo;, trusting the AI to determine scope and depth.</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>The AI autonomously decided to check shell output, track imports via <code>sys.path</code>, and compare documentation with runtime behavior.</td>
+          <td>AI autonomously decided to inspect shell outputs, trace imports via <code>sys.path</code>, and compare documentation against runtime behavior.</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Analysis difference:</strong> The AI demonstrated deep diagnostic capabilities, able to detect brother repository hijacking issues that require understanding Python import priority rules, rather than just simple text search.</p>
+<p><strong>Difference Analysis:</strong> The AI demonstrated deep diagnostic capability by detecting the sibling repo hijacking issue which requires understanding Python&rsquo;s import precedence rules beyond simple text search.</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
 <ul>
-<li>The initial shell command failed due to mismatched context path (located in D:\Github instead of TokenMonitor), requiring iterative correction.</li>
-<li>The AI initially had parsing errors when handling JSON input here-string syntax in PowerShell, before switching to variables.</li>
+<li>Initial shell commands failed due to context path mismatches (landing in D:\Github instead of TokenMonitor), requiring iterative correction.</li>
+<li>AI struggled with PowerShell here-string syntax for JSON input initially, leading to parsing errors before switching to variables.</li>
 </ul>
-<h2 id="lessons-learned">Lessons Learned<a hidden class="anchor" aria-hidden="true" href="#lessons-learned">#</a></h2>
-<h3 id="key-experiences">Key Experiences<a hidden class="anchor" aria-hidden="true" href="#key-experiences">#</a></h3>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
 <ul>
-<li>When auditing multi-repository workspaces, always verify Python import sources through <code>sys.path</code> and <code>__file__</code> to prevent cross-contamination.</li>
+<li>When auditing multi-repo workspaces, always verify Python import sources via <code>sys.path</code> and <code>__file__</code> to prevent cross-contamination.</li>
 </ul>
-<h3 id="practical-experience">Practical Experience<a hidden class="anchor" aria-hidden="true" href="#practical-experience">#</a></h3>
+<h3 id="practical-learnings">Practical Learnings<a hidden class="anchor" aria-hidden="true" href="#practical-learnings">#</a></h3>
 <ul>
-<li>Ensure the test environment dependencies (e.g., pytest) exist before running verification scripts that depend on them.</li>
+<li>Ensure test environment dependencies (like pytest) are present before running verification scripts that depend on them.</li>
 </ul>
-<h2 id="dialogue-summary">Dialogue Summary<a hidden class="anchor" aria-hidden="true" href="#dialogue-summary">#</a></h2>
-<p><strong>✅ Protocol and Standard Execution Review</strong>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<p><strong>✅ Protocol and Spec Enforcement Audit</strong>
 <em>18:27:29.007 | codex</em>
-The user requested verification of the TokenMonitor workflow protocol. The AI performed actual code review on AGENTS.md and found that due to path issues, <code>python workflow/verify.py</code> imported code from sister repository (gadget), and the documentation exaggerated the execution capability of hooks in review generation.</p>
+The user asked for a verification of the TokenMonitor workflow protocol. The AI audited AGENTS.md against actual code, revealing that <code>python workflow/verify.py</code> imports from a sibling repo (gadget) due to path issues, and that the documentation overstated hook enforcement capabilities regarding review generation.</p>
 <h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
 <style>
   .usage-card {
@@ -409,8 +409,8 @@ The user requested verification of the TokenMonitor workflow protocol. The AI pe
         <span class="usage-card__source">Claude Code + Codex</span>
       </div>
       <dl class="usage-card__stats">
-        <div class="usage-card__stat"><dt>Total cost</dt><dd>$106.27</dd></div>
-        <div class="usage-card__stat"><dt>Total tokens</dt><dd>152M</dd></div>
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$107.05</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>153M</dd></div>
         <div class="usage-card__stat"><dt>Output tokens</dt><dd>4M</dd></div>
         <div class="usage-card__stat"><dt>Cache read</dt><dd>87.2%</dd></div>
       </dl>
@@ -419,12 +419,12 @@ The user requested verification of the TokenMonitor workflow protocol. The AI pe
           <span class="usage-card__row-name">Cost split</span>
           <span class="usage-card__row-detail">
             <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $103</span> ·
-            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $3</span>
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $4</span>
           </span>
         </div>
-        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (97.2%), Codex (2.8%)">
-          <span style="width:97.2%; background:var(--usage-cost-main)"></span>
-          <span style="width:2.8%; background:var(--usage-cost-secondary)"></span>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (96.5%), Codex (3.5%)">
+          <span style="width:96.5%; background:var(--usage-cost-main)"></span>
+          <span style="width:3.5%; background:var(--usage-cost-secondary)"></span>
         </div>
       </div>
       <div class="usage-card__row">
@@ -444,7 +444,8 @@ The user requested verification of the TokenMonitor workflow protocol. The AI pe
         Most token volume came from cache reads; Claude Code drove nearly all cost.
       </p>
 </footer>
-<!-- gadget:src-hash:9b93bd0400b0103e -->
+<!-- gadget:src-hash:v2:6c3c6c74a5ddd5cb -->
+
 
   </div>
 <p class="ai-generated-claim">

@@ -7,7 +7,7 @@
 <meta name="robots" content="index, follow">
 <title>Weekly Summary 2026-W19 | TzJ&#39;s Net</title>
 <meta name="keywords" content="Bug Journal, Weekly Summary">
-<meta name="description" content="本周的重点是TokenMonitor v0.13.1的最终发布与架构稳定化，同时进行了针对2026年NeurIPS上的ErrorRecoveryBench/RecoverBench论文提交的全面准备工作，包括全面的代码匿名处理、数据集验证、指标修正以及Croissant元数据的生成。平行的计算工作解决了持续的硬件稳定性问题——通过诊断并修复RTX 5090 PCIe驱动器的崩溃循环；同时修复了损坏的LeRobot数据集管道，采用可靠的JAX兼容错误处理方式，并对AdaptVision PPO训练架构进行了审计。本周的结束意味着代码库成功合并、学术提交材料得到验证、工作站可靠性恢复，以及本地开发基础设施得到优化。">
+<meta name="description" content="本周是一个涉及高风险准备与技术稳定化的多方面阶段。关键成果包括：通过 metadata 生成和数据验证，使 ErrorRecoveryBench 符合 NeurIPS 2026 的合规性要求；修复了 research paper 数据中的关键错误；并通过解决 video corruption 问题稳定了 LeRobot dataset。此外，TokenMonitor 项目在版本发布和架构重构方面取得了显著进展，同时完成了对 AdaptVision codebase 的深度分析，并计划进行环境迁移的系统维护。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w19-weekly/">
 <link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
@@ -79,16 +79,16 @@
 <meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w19-weekly/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="Weekly Summary 2026-W19">
-  <meta property="og:description" content="本周的重点是TokenMonitor v0.13.1的最终发布与架构稳定化，同时进行了针对2026年NeurIPS上的ErrorRecoveryBench/RecoverBench论文提交的全面准备工作，包括全面的代码匿名处理、数据集验证、指标修正以及Croissant元数据的生成。平行的计算工作解决了持续的硬件稳定性问题——通过诊断并修复RTX 5090 PCIe驱动器的崩溃循环；同时修复了损坏的LeRobot数据集管道，采用可靠的JAX兼容错误处理方式，并对AdaptVision PPO训练架构进行了审计。本周的结束意味着代码库成功合并、学术提交材料得到验证、工作站可靠性恢复，以及本地开发基础设施得到优化。">
+  <meta property="og:description" content="本周是一个涉及高风险准备与技术稳定化的多方面阶段。关键成果包括：通过 metadata 生成和数据验证，使 ErrorRecoveryBench 符合 NeurIPS 2026 的合规性要求；修复了 research paper 数据中的关键错误；并通过解决 video corruption 问题稳定了 LeRobot dataset。此外，TokenMonitor 项目在版本发布和架构重构方面取得了显著进展，同时完成了对 AdaptVision codebase 的深度分析，并计划进行环境迁移的系统维护。">
   <meta property="og:locale" content="zh_cn">
   <meta property="og:type" content="article">
     <meta property="article:section" content="bugjournal">
-    <meta property="article:published_time" content="2026-05-10T23:59:00-05:00">
-    <meta property="article:modified_time" content="2026-05-10T23:59:00-05:00">
+    <meta property="article:published_time" content="2026-05-10T23:59:00-04:00">
+    <meta property="article:modified_time" content="2026-05-10T23:59:00-04:00">
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Weekly Summary 2026-W19">
-  <meta name="twitter:description" content="本周的重点是TokenMonitor v0.13.1的最终发布与架构稳定化，同时进行了针对2026年NeurIPS上的ErrorRecoveryBench/RecoverBench论文提交的全面准备工作，包括全面的代码匿名处理、数据集验证、指标修正以及Croissant元数据的生成。平行的计算工作解决了持续的硬件稳定性问题——通过诊断并修复RTX 5090 PCIe驱动器的崩溃循环；同时修复了损坏的LeRobot数据集管道，采用可靠的JAX兼容错误处理方式，并对AdaptVision PPO训练架构进行了审计。本周的结束意味着代码库成功合并、学术提交材料得到验证、工作站可靠性恢复，以及本地开发基础设施得到优化。">
+  <meta name="twitter:description" content="本周是一个涉及高风险准备与技术稳定化的多方面阶段。关键成果包括：通过 metadata 生成和数据验证，使 ErrorRecoveryBench 符合 NeurIPS 2026 的合规性要求；修复了 research paper 数据中的关键错误；并通过解决 video corruption 问题稳定了 LeRobot dataset。此外，TokenMonitor 项目在版本发布和架构重构方面取得了显著进展，同时完成了对 AdaptVision codebase 的深度分析，并计划进行环境迁移的系统维护。">
 
 
 <script type="application/ld+json">
@@ -123,15 +123,15 @@
   "@type": "BlogPosting",
   "headline": "Weekly Summary 2026-W19",
   "name": "Weekly Summary 2026-W19",
-  "description": "本周的重点是TokenMonitor v0.13.1的最终发布与架构稳定化，同时进行了针对2026年NeurIPS上的ErrorRecoveryBench/RecoverBench论文提交的全面准备工作，包括全面的代码匿名处理、数据集验证、指标修正以及Croissant元数据的生成。平行的计算工作解决了持续的硬件稳定性问题——通过诊断并修复RTX 5090 PCIe驱动器的崩溃循环；同时修复了损坏的LeRobot数据集管道，采用可靠的JAX兼容错误处理方式，并对AdaptVision PPO训练架构进行了审计。本周的结束意味着代码库成功合并、学术提交材料得到验证、工作站可靠性恢复，以及本地开发基础设施得到优化。",
+  "description": "本周是一个涉及高风险准备与技术稳定化的多方面阶段。关键成果包括：通过 metadata 生成和数据验证，使 ErrorRecoveryBench 符合 NeurIPS 2026 的合规性要求；修复了 research paper 数据中的关键错误；并通过解决 video corruption 问题稳定了 LeRobot dataset。此外，TokenMonitor 项目在版本发布和架构重构方面取得了显著进展，同时完成了对 AdaptVision codebase 的深度分析，并计划进行环境迁移的系统维护。",
   "keywords": [
     "Bug Journal", "Weekly Summary"
   ],
-  "articleBody": "每周报告 — 2026-W19（2026-05-04 ~ 2026-05-10） 本周重点在于 TokenMonitor v0.13.1 的最终发布与架构稳定化，同时全力准备提交给 ErrorRecoveryBench/RecoverBench NeurIPS 2026 会议，包括全面的代码匿名处理、数据集验证、指标修正以及 Croissant 元数据生成。并行计算工作解决了持续存在的硬件稳定性问题，通过诊断并修复 RTX 5090 PCIe 驱动崩溃循环；同时利用可靠的 JAX 兼容错误处理修复了损坏的 LeRobot 数据集管道，并对 AdaptVision PPO 训练架构进行了审计。本周最后实现了代码库的成功合并、学术提交材料的验证、工作站可靠性的恢复以及本地开发基础设施的优化。\n每周概览 指标 数值 日期范围 2026-05-04 ~ 2026-05-10 活跃天数 7 / 7 总对话数 19 项目数 12 完成任务数 49 进行中任务数 2 总令牌数 1,929,559,195 总成本 $1,794.96 Claude 代码令牌数 1,481,708,943 Claude 代码成本 $1,367.30 Codex 令牌数 447,850,252 Codex 成本 $427.66 日平均成本 $256.42 项目进展 TokenMonitor（3天活跃） — 🔄 活跃 成果：\n执行了混合合并，同时保留本地 OAuth/Cursor 功能与上游状态栏架构 重构了多供应商芯片选择设置界面和统一的状态栏优先 fallback 链 修复了阻止 Codex 速率限制显示的关键 Windows 路径解析问题 同步了浮动球与主窗口的利用逻辑，消除数据不一致现象 成功发布 v0.13.0 及补丁 v0.13.1，测试无失败且自动同步了 Tauri 版本 阻碍：\n⚠️ 初始上游合并需要手动恢复已回退的功能，因分支历史不同 ⚠️ CSS Grid 塌陷动画导致盒子模型泄露，需 fallback 至最大高度模式 ⚠️ FloatBall 中的过期窗口过滤问题，在策略调整前隐藏了活跃的空闲会话 ErrorRecoveryBench / RecoverBench（NeurIPS 2026 E\u0026D）（5天活跃） — 🔄 活跃 成果：\n为双盲提交进行了代码库同步和匿名处理，去除了所有身份标识 使用并行代理将21个文件从中文翻译为英文，验证无残留非英文文本 将论文参考文献整理为包含23个结构化条目且支持 natbib 的 BibTeX格式 通过事实核查和策略行拆分纠正了关键 BC-RNN 指标差异 生成 Croissant JSON-LD 元数据并下载完整发布数据集以满足提交要求 按照科学颜色标准完成出版级图表、热图及验证可视化效果 整合了1,360个评估场景的数据集统计信息，验证了分类法/图表的一致性 阻碍：\n⚠️ MimicGen RPG 跨步转移成功率仍低于5%，需要统一检查点策略说明 ⚠️ 评估基准的匿名托管基础设施尚未部署 ⚠️ 作者在起草阶段更偏好手动引用管理，导致格式不一致 硬件系统 / 工作站诊断（2天活跃） — ✅ 完成 成果：\n诊断出 RTX 5090 间歇性的 BSOD 和 WHEA PCIe AER 不支持请求错误 确定空闲期间 NVIDIA Gen5↔Gen1 链接状态电源转换是根本原因 应用驱动级修复（优先最大性能）使运行时的 WHEA 错误降至零 阻碍：\n⚠️ 由于硬件/固件切换时机问题，启动时的初始化 UR 错误无法避免 LeRobot 数据管道与 PairedDataset（2天活跃） — 🔄 活跃 成果：\n诊断并修复了多个 OSS 数据集中的60个损坏的MP4片段 实施预检查黑名单、静默损坏掩蔽和动态JAX兼容损失掩蔽 整体解决干净数据集的潜在损坏问题，避免 DataLoader 运行时无效 阻碍：\n⚠️ 修复后的干净数据集（boss44_lerobot）仍需持续验证 AdaptVision 与 MIHD 开发（1天活跃） — 🔄 活跃 成果：\n映射了完整的PPO训练流程和多轮裁剪奖励机制 审计了 CLAUDE.md 文档的完整性及架构一致性 阻碍：\n⚠️ AdaptVision README中存在的硬编码API密钥需立即修复 本地开发环境（1天活跃） — 进行中 成果：\n将所有conda环境导出为YML文件，并安全部署Miniconda安装程序以便迁移 通过规划新的D盘安装解决C盘空间不足问题，避免路径损坏 关键任务 ✅ 上游TokenMonitor仓库的混合合并（2026-05-04）— 使用混合策略解决了20个冲突文件，同时保留本地OAuth/Cursor/Codex实现，并整合了上游状态栏模块和设置界面重新设计。 ✅ 修正论文表6中的关键BC-RNN数据错误（2026-05-07）— 将BC-RNN Normal SR从21%改为56%/42%（V1/V2），将单行拆分为两行策略行，并根据事实核查修正了Pi 0.5 Recovery Normal SR。 ✅ 同步UI面板的利用提取逻辑（2026-05-04）— 修复了窗口选择和过期宽限期，与前端逻辑一致，消除了浮动球与主应用数据不一致问题。 ✅ 诊断并解决RTX 5090 PCIe ASPM崩溃循环（2026-05-05）— 分析WHEA日志并测试GPU，确定NVIDIA驱动链接状态电源管理是间歇性的DPC看门狗BSOD的原因，应用了永久策略修复。 ✅ 生成Croissant元数据及NeurIPS提交图表（2026-05-07）— 创建包含数据集描述、FileObjects和RecordSets的必填croissant.json文件；迭代优化科学可视化效果，消除重叠并确保排版一致性。 ✅ 诊断LeRobot损坏的数据管道并实施PairedDataset错误处理（2026-05-08/09）— 创建诊断脚本识别并重新编码HDF5中的损坏片段；重构paired_dataset.py，加入预检查黑名单和JIT兼容损失掩蔽。 ✅ 解决Rust CI环境变量保护竞态问题（2026-05-05）— 将测试模块中的环境变量保护统一为单个全局锁，并重构测试以直接调用读取逻辑，避免复杂的macOS钥匙链 fallback链。 ✅ 映射AdaptVision PPO训练流程并审计MIHD文档（2026-05-08）— 在大型代码库中追踪执行路径，明确复杂的奖励机制。对 CLAUDE.md 进行了审计，以在重新生成前确保结构完整性。 问题与解决方案 1. 上游合并冲突导致不同分支产生差异，需实现架构对齐，同时不丢失本地实现 [TokenMonitor]（2026-05-04）解决方案： 采用混合合并策略隔离冲突模块，通过合并集成点保留两个分支的价值，并手动恢复已撤销的文件。 2. 学术论文中的关键 BC-RNN 指标差异（21% 对比实际 56%）及专业图表格式问题 [ErrorRecoveryBench / RecoverBench (NeurIPS 2026 E\u0026D)] (2026-05-07) 解决方案： 将所有表格数值与原始实验 JSON 进行交叉验证，修正策略行，并将 matplotlib 输出调整为科学配色方案，采用统一的排版方式。\n3. FloatBall 因激进的窗口过滤导致关键约束被隐藏而无法显示速率限制 [TokenMonitor] (2026-05-06) 解决方案： 将所有窗口的选择改为最大利用率策略，确保无论会话状态如何，最关键约束始终能够被呈现。\n4. RTX 5090 在空闲/启动过程中出现间歇性 BSOD 和 WHEA PCIe AER 不支持请求错误 [Hardware Systems / Workstation Diagnostics] (2026-05-05) 解决方案： 确定 NVIDIA 驱动程序链接状态下降为根本原因；通过调整驱动程序强制电源管理模式为“优先最大性能”来解决问题。\n5. LeRobot DataLoader 中损坏的 MP4 文件导致的运行时失效与 JAX JIT 约束冲突 [LeRobot Data Pipeline \u0026 PairedDataset] (2026-05-09) 解决方案： 创建诊断脚本从 HDF5 重新编码；实施动态 try-except 黑名单和损失掩码，以绕过静态图控制流限制。\n6. CSS Grid 折叠动画导致填充/边框在多个 UI 部分间出现视觉泄漏 [TokenMonitor] (2026-05-04) 解决方案： 将 grid-template-rows: 0fr 改为基于最大高度的动画，并在父容器上设置 overflow hidden，从而恢复跨浏览器的一致性行为。\n经验教训 system_architecture (system_architecture) 速率限制备用链应优先使用服务器权威/免费来源，而非付费/客户端侧估计。AI 在系统级架构评审和算法迭代兼容性方面存在困难，因此人工监督对于早期识别基本设计风险至关重要。 debugging_diagnostics (debugging_diagnostics) npm 全局安装产生双执行路径，需要在 Rust 进程启动时明确路径优先级。NVIDIA GPU 上的 PCIe AER 不支持请求标志通常源于驱动程序级别的 ASPM 链接状态转换，而非物理故障。与原始实验 JSON 进行事实核对至关重要；损坏的 MP4 文件在 PyAV 解码过程中失败，而非头信息检查问题，而 JAX JIT 需要独立于张量值的静态图控制流。 devops_tooling (devops_tooling) Tauri v2 强制 Rust 库和 npm 包之间严格符合 major.minor 规范；通过生命周期钩子自动化同步可防止构建碎片化。并行测试操纵环境变量需要单一全局互斥锁，以防止竞争条件。在受限 HPC 环境中，当现代工具失败时需要 POSIX fallback，而通过导出/重建迁移到 Conda 更简洁，无需文件夹复制。 academia_research_workflow (academia_research_workflow) NeurIPS 双盲投稿要求超出作者姓名范围的严格匿名化（路径、输出、硬编码基础设施标签），且出版图表需要零重叠布局的科学配色方案。学术声明必须严格反映实施实际情况；手动参考文献工作流在提交前通常提供协作灵活性，但按任务选择性检查点需要明确的评审者文档。 AI 使用注意事项 有效模式：\n✓ 在明确指导下采用混合 git 合并策略以保留不同的功能集 ✓ 并行代理部署用于大规模代码库转换和批处理文件处理 ✓ 跨 IPC 边界和大型代码库的系统化管道追踪比仅读取配置更有效地明确复杂数据/奖励流动 ✓ 交叉验证原始实验输出可防止学术写作中的关键事实错误 ✓ 对现有文档的结构化审计可在重新生成前验证稳定性，节省大量时间 限制：\n✗ 倾向于过度设计解决方案或在不验证用户工作流约束的情况下提出不必要的架构变更 ✗ 在执行批处理编辑或撰写声明之前未确认目标文件路径和外部 API 单元 ✗ 在学术草稿中初期不愿挑战未实现的功能，或在没有明确范围指导的情况下预期整个分布的数据损坏 ✗ 在等待实证压力测试验证之前就对硬件日志进行过早诊断 ✗ 缺乏机器人操作管道调试和架构风险评估的领域直觉；默认工具在需要手动备用策略的受限 HPC 环境中失效 下周计划 优先完成 NeurIPS ErrorRecoveryBench 投稿，实施强制的 Croissant 元数据扩展，解决 MimicGen RPG 跨步转移失败率低于 5% 的问题，并提供匿名评估托管服务。通过整合用户反馈、解决剩余的 CI/Clippy 警告并标准化多提供方速率限制备用链，对 TokenMonitor v0.13.1 进行发布后稳定化。完成 Conda 环境迁移到 D 盘以防止路径损坏，修复 AdaptVision 中硬编码的 API 密钥，并对按任务检查点策略进行整体验证，同时优化多轮作物奖励机制。在持续工作负载下监控工作站稳定性，并在 AI 辅助批处理操作期间执行明确的目标验证协议，以防止推测性重构。\n令牌使用统计 AI Usage · 2026-W19\rClaude Code + Codex\rTotal cost$1,794.96\rTotal tokens1.93B\rOutput tokens12M\rCache read89.9%\rCost split\rClaude Code $1,367 ·\rCodex $428\rToken character\rCache reads 89.9% ·\rActive 10.1%\rMost token volume came from cache reads.\r高峰日： 2026-05-06 — $695.86 / 692.4M 令牌\n每日平均： $256.42\n",
-  "wordCount" : "482",
+  "articleBody": "Weekly Report — 2026-W19 (2026-05-04 ~ 2026-05-10) 本周是一个集高强度准备与技术稳定化于一体的多维度阶段。关键成就包括：通过元数据生成和数据验证，使 ErrorRecoveryBench 符合 NeurIPS 2026 的合规性要求；修复了研究论文数据中的关键错误；并通过解决视频损坏问题稳定了 LeRobot 数据集。此外，TokenMonitor 项目在版本发布和架构重构方面取得了显著进展，同时完成了对 AdaptVision 代码库的深度分析，并计划进行环境迁移的系统维护。\nWeekly Overview Metric Value Date Range 2026-05-04 ~ 2026-05-10 Active Days 7 / 7 Total Conversations 19 Projects 12 Tasks Completed 49 Tasks In Progress 2 Total Tokens 1,929,559,195 Total Cost $1,794.96 Claude Code Token 1,481,708,943 Claude Code Cost $1,367.30 Codex Token 447,850,252 Codex Cost $427.66 Daily Average Cost $256.42 Project Progress TokenMonitor (3 days active) — 🔄 active Accomplishments:\n成功执行了混合上游合并（hybrid upstream merge），同时保留了本地的 OAuth/Cursor/Codex 功能 发布了 v0.13.0/v0.13.1 版本，采用了 statusline-first 的速率限制架构 解决了 Windows 下 Codex 路径解析以及 NVIDIA PCIe power-state 导致的崩溃问题 重构了 Settings UI 以支持多 provider ErrorRecoveryBench (NeurIPS Submission) (1 days active) — 🔄 active Accomplishments:\n生成了用于 NeurIPS E\u0026D 合规性的 Croissant 元数据 从 tianhe server 下载了 30GB 数据集 修正了关键的论文数据错误 (BC-RNN SR) 创建了出版质量的图表 (Fig 4-7) Blockers:\n⚠️ 正在诊断 MimicGen segmentation 和 filter 失败问题 LeRobot Dataset \u0026 Error Recovery (1 days active) — 🔄 active Accomplishments:\n开发了针对损坏 MP4 文件的诊断与修复脚本 在 PairedDataset 中实现了鲁棒的错误处理和黑名单机制 从原始 HDF5 源重新编码了损坏的 episodes AdaptVision Analysis (1 days active) — ✅ completed Accomplishments:\n梳理了完整的训练与评估流程 追踪了 PPO reward 逻辑（outcome vs turn-level scores） System Maintenance (1 days active) — 🔄 active Accomplishments:\n导出了 4 个用于迁移的 conda environments 为将 Miniconda 重新安装至 D: drive 做好了准备 Key Tasks ✅ NeurIPS 2026 Compliance \u0026 Data Integrity — 生成了 Croissant 元数据，修正了 Table 6 中关键的 BC-RNN 数据错误（修复了 167% 的误差差异），并传输了 30GB 的发布数据用于托管。 ✅ LeRobot Video Data Repair \u0026 Pipeline Optimization — 通过 HDF5 重新编码识别并修复了 60 个损坏的 episodes，并在 PairedDataset 中实现了鲁棒的错误处理/黑名单机制。 ✅ AdaptVision Codebase \u0026 Reward Logic Mapping — 梳理了用于 adaptive visual acquisition 的 PPO 训练流水线和 reward 计算机制。 ✅ TokenMonitor Architecture \u0026 Release — 发布了 v0.13.0/v0.13.1，重构了 Settings UI，并解决了关键的 Windows/NVIDIA 硬件相关崩溃问题。 ✅ Scientific Visualization — 使用标准化的排版和配色方案制作了出版质量的图表 (4-7)。 Problems \u0026 Solutions 1. BC-RNN Normal SR 在论文中严重错误 (21% vs 实际 56%) [ErrorRecoveryBench] Solution: 将所有表格数值与验证运行产生的 fact-check JSON 进行交叉验证，并将其拆分为两个 policy 行。\n2. 解码增强视频帧时出现 RuntimeError: InvalidDataError [LeRobot Dataset] Solution: 创建了修复脚本从 HDF5 重新编码损坏的 episodes，并在 DataLoader 中实现了动态 try-except/masking。\n3. 在 AdaptVision 的 README.md 中发现硬编码的 API keys [AdaptVision] Solution: 已识别并建议进行修复，并建议使用 environment variables。\n4. JAX JIT compilation 阻止了对损坏样本的条件跳过 [LeRobot Dataset] Solution: 确保 loss contribution 被 mask 为零，以符合 static graph 的要求。\n5. Windows Codex 路径解析和 NVIDIA PCIe power-state 崩溃 [TokenMonitor] Solution: 解决了关键的路径问题和驱动层面的 power state 冲突。\nLearnings Domain Knowledge (domain) 必须根据原始 JSON 输出对实验结果进行事实核查；论文中的数值可能与实际测量值有显著偏差。 在自定义 RL 中，reward engineering 逻辑通常是分布式的；追踪数据流比单纯阅读 config 更有效。 Debugging (debugging) 损坏的视频可能会通过 header 检查，但在 PyAV 解码期间失败；需要进行显式解码以进行彻底诊断。 Tools (tools) Conda environments 应该通过 export/rebuild 进行迁移，而不是直接复制文件夹，以避免硬编码路径问题。 AI Usage Notes Effective Patterns:\n✓ 使用 AI 从高层脚本追踪到具体的 reward functions 的复杂代码执行路径。 ✓ 利用 AI 进行安全审计（检测硬编码的 keys）和文档优化。 Limitations:\n✗ AI 缺乏对机器人操作流水线调试的领域直觉（例如，无法察觉算法版本的不兼容性）。 ✗ AI 倾向于信任现有的 LaTeX/文档内容，而没有对原始数据进行独立验证。 ✗ AI 会尝试使用不受支持/无权限的 shell tools（如在沙盒环境中使用 ‘rg’），且没有立即提供 fallback 方案。 Next Week Outlook 优先完成将 Conda 迁移至 D: drive 的工作。重点解决 MimicGen segmentation 和 filter 失败问题，以提高成功率。通过确保满足所有数据集元数据和托管要求，完成 NeurIPS submission 的最后准备。\nToken Usage Statistics AI Usage · 2026-W19\rClaude Code + Codex\rTotal cost$1,794.96\rTotal tokens1.93B\rOutput tokens12M\rCache read89.9%\rCost split\rClaude Code $1,367 ·\rCodex $428\rToken character\rCache reads 89.9% ·\rActive 10.1%\rMost token volume came from cache reads.\rPeak Day: 2026-05-06 — $695.86 / 692.4M tokens\nDaily Average: $256.42\n",
+  "wordCount" : "480",
   "inLanguage": "zh",
-  "datePublished": "2026-05-10T23:59:00-05:00",
-  "dateModified": "2026-05-10T23:59:00-05:00",
+  "datePublished": "2026-05-10T23:59:00-04:00",
+  "dateModified": "2026-05-10T23:59:00-04:00",
   "mainEntityOfPage": {
     "@type": "WebPage",
     "@id": "https://tzj2006.github.io/zh/bugjournal/weekly/2026-w19-weekly/"
@@ -254,208 +254,165 @@
     </h1>
     <div class="post-meta">
 
-<span title='2026-05-10 23:59:00 -0500 -0500'>2026年5月10日</span>&nbsp;·&nbsp;<span>3 分钟</span>
+<span title='2026-05-10 23:59:00 -0400 EDT'>2026年5月10日</span>&nbsp;·&nbsp;<span>3 分钟</span>
 
 </div>
   </header> 
-  <div class="post-content md-content"><h1 id="每周报告--2026-w192026-05-04--2026-05-10">每周报告 — 2026-W19（2026-05-04 ~ 2026-05-10）<a hidden class="anchor" aria-hidden="true" href="#每周报告--2026-w192026-05-04--2026-05-10">#</a></h1>
+  <div class="post-content md-content"><h1 id="weekly-report--2026-w19-2026-05-04--2026-05-10">Weekly Report — 2026-W19 (2026-05-04 ~ 2026-05-10)<a hidden class="anchor" aria-hidden="true" href="#weekly-report--2026-w19-2026-05-04--2026-05-10">#</a></h1>
 <blockquote>
-<p>本周重点在于 TokenMonitor v0.13.1 的最终发布与架构稳定化，同时全力准备提交给 ErrorRecoveryBench/RecoverBench NeurIPS 2026 会议，包括全面的代码匿名处理、数据集验证、指标修正以及 Croissant 元数据生成。并行计算工作解决了持续存在的硬件稳定性问题，通过诊断并修复 RTX 5090 PCIe 驱动崩溃循环；同时利用可靠的 JAX 兼容错误处理修复了损坏的 LeRobot 数据集管道，并对 AdaptVision PPO 训练架构进行了审计。本周最后实现了代码库的成功合并、学术提交材料的验证、工作站可靠性的恢复以及本地开发基础设施的优化。</p>
+<p>本周是一个集高强度准备与技术稳定化于一体的多维度阶段。关键成就包括：通过元数据生成和数据验证，使 ErrorRecoveryBench 符合 NeurIPS 2026 的合规性要求；修复了研究论文数据中的关键错误；并通过解决视频损坏问题稳定了 LeRobot 数据集。此外，TokenMonitor 项目在版本发布和架构重构方面取得了显著进展，同时完成了对 AdaptVision 代码库的深度分析，并计划进行环境迁移的系统维护。</p>
 </blockquote>
-<h2 id="每周概览">每周概览<a hidden class="anchor" aria-hidden="true" href="#每周概览">#</a></h2>
+<h2 id="weekly-overview">Weekly Overview<a hidden class="anchor" aria-hidden="true" href="#weekly-overview">#</a></h2>
 <table>
   <thead>
       <tr>
-          <th>指标</th>
-          <th>数值</th>
+          <th>Metric</th>
+          <th>Value</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>日期范围</td>
+          <td>Date Range</td>
           <td>2026-05-04 ~ 2026-05-10</td>
       </tr>
       <tr>
-          <td>活跃天数</td>
+          <td>Active Days</td>
           <td>7 / 7</td>
       </tr>
       <tr>
-          <td>总对话数</td>
+          <td>Total Conversations</td>
           <td>19</td>
       </tr>
       <tr>
-          <td>项目数</td>
+          <td>Projects</td>
           <td>12</td>
       </tr>
       <tr>
-          <td>完成任务数</td>
+          <td>Tasks Completed</td>
           <td>49</td>
       </tr>
       <tr>
-          <td>进行中任务数</td>
+          <td>Tasks In Progress</td>
           <td>2</td>
       </tr>
       <tr>
-          <td>总令牌数</td>
+          <td>Total Tokens</td>
           <td>1,929,559,195</td>
       </tr>
       <tr>
-          <td>总成本</td>
+          <td>Total Cost</td>
           <td>$1,794.96</td>
       </tr>
       <tr>
-          <td>Claude 代码令牌数</td>
+          <td>Claude Code Token</td>
           <td>1,481,708,943</td>
       </tr>
       <tr>
-          <td>Claude 代码成本</td>
+          <td>Claude Code Cost</td>
           <td>$1,367.30</td>
       </tr>
       <tr>
-          <td>Codex 令牌数</td>
+          <td>Codex Token</td>
           <td>447,850,252</td>
       </tr>
       <tr>
-          <td>Codex 成本</td>
+          <td>Codex Cost</td>
           <td>$427.66</td>
       </tr>
       <tr>
-          <td>日平均成本</td>
+          <td>Daily Average Cost</td>
           <td>$256.42</td>
       </tr>
   </tbody>
 </table>
-<h2 id="项目进展">项目进展<a hidden class="anchor" aria-hidden="true" href="#项目进展">#</a></h2>
-<h3 id="tokenmonitor3天活跃---活跃">TokenMonitor（3天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor3天活跃---活跃">#</a></h3>
-<p><strong>成果：</strong></p>
+<h2 id="project-progress">Project Progress<a hidden class="anchor" aria-hidden="true" href="#project-progress">#</a></h2>
+<h3 id="tokenmonitor-3-days-active---active">TokenMonitor (3 days active) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor-3-days-active---active">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
 <ul>
-<li>执行了混合合并，同时保留本地 OAuth/Cursor 功能与上游状态栏架构</li>
-<li>重构了多供应商芯片选择设置界面和统一的状态栏优先 fallback 链</li>
-<li>修复了阻止 Codex 速率限制显示的关键 Windows 路径解析问题</li>
-<li>同步了浮动球与主窗口的利用逻辑，消除数据不一致现象</li>
-<li>成功发布 v0.13.0 及补丁 v0.13.1，测试无失败且自动同步了 Tauri 版本</li>
+<li>成功执行了混合上游合并（hybrid upstream merge），同时保留了本地的 OAuth/Cursor/Codex 功能</li>
+<li>发布了 v0.13.0/v0.13.1 版本，采用了 statusline-first 的速率限制架构</li>
+<li>解决了 Windows 下 Codex 路径解析以及 NVIDIA PCIe power-state 导致的崩溃问题</li>
+<li>重构了 Settings UI 以支持多 provider</li>
 </ul>
-<p><strong>阻碍：</strong></p>
+<h3 id="errorrecoverybench-neurips-submission-1-days-active---active">ErrorRecoveryBench (NeurIPS Submission) (1 days active) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#errorrecoverybench-neurips-submission-1-days-active---active">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
 <ul>
-<li>⚠️ 初始上游合并需要手动恢复已回退的功能，因分支历史不同</li>
-<li>⚠️ CSS Grid 塌陷动画导致盒子模型泄露，需 fallback 至最大高度模式</li>
-<li>⚠️ FloatBall 中的过期窗口过滤问题，在策略调整前隐藏了活跃的空闲会话</li>
+<li>生成了用于 NeurIPS E&amp;D 合规性的 Croissant 元数据</li>
+<li>从 tianhe server 下载了 30GB 数据集</li>
+<li>修正了关键的论文数据错误 (BC-RNN SR)</li>
+<li>创建了出版质量的图表 (Fig 4-7)</li>
 </ul>
-<h3 id="errorrecoverybench--recoverbenchneurips-2026-ed5天活跃---活跃">ErrorRecoveryBench / RecoverBench（NeurIPS 2026 E&amp;D）（5天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#errorrecoverybench--recoverbenchneurips-2026-ed5天活跃---活跃">#</a></h3>
-<p><strong>成果：</strong></p>
+<p><strong>Blockers:</strong></p>
 <ul>
-<li>为双盲提交进行了代码库同步和匿名处理，去除了所有身份标识</li>
-<li>使用并行代理将21个文件从中文翻译为英文，验证无残留非英文文本</li>
-<li>将论文参考文献整理为包含23个结构化条目且支持 natbib 的 BibTeX格式</li>
-<li>通过事实核查和策略行拆分纠正了关键 BC-RNN 指标差异</li>
-<li>生成 Croissant JSON-LD 元数据并下载完整发布数据集以满足提交要求</li>
-<li>按照科学颜色标准完成出版级图表、热图及验证可视化效果</li>
-<li>整合了1,360个评估场景的数据集统计信息，验证了分类法/图表的一致性</li>
+<li>⚠️ 正在诊断 MimicGen segmentation 和 filter 失败问题</li>
 </ul>
-<p><strong>阻碍：</strong></p>
+<h3 id="lerobot-dataset--error-recovery-1-days-active---active">LeRobot Dataset &amp; Error Recovery (1 days active) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#lerobot-dataset--error-recovery-1-days-active---active">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
 <ul>
-<li>⚠️ MimicGen RPG 跨步转移成功率仍低于5%，需要统一检查点策略说明</li>
-<li>⚠️ 评估基准的匿名托管基础设施尚未部署</li>
-<li>⚠️ 作者在起草阶段更偏好手动引用管理，导致格式不一致</li>
+<li>开发了针对损坏 MP4 文件的诊断与修复脚本</li>
+<li>在 PairedDataset 中实现了鲁棒的错误处理和黑名单机制</li>
+<li>从原始 HDF5 源重新编码了损坏的 episodes</li>
 </ul>
-<h3 id="硬件系统--工作站诊断2天活跃---完成">硬件系统 / 工作站诊断（2天活跃） — ✅ 完成<a hidden class="anchor" aria-hidden="true" href="#硬件系统--工作站诊断2天活跃---完成">#</a></h3>
-<p><strong>成果：</strong></p>
+<h3 id="adaptvision-analysis-1-days-active---completed">AdaptVision Analysis (1 days active) — ✅ completed<a hidden class="anchor" aria-hidden="true" href="#adaptvision-analysis-1-days-active---completed">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
 <ul>
-<li>诊断出 RTX 5090 间歇性的 BSOD 和 WHEA PCIe AER 不支持请求错误</li>
-<li>确定空闲期间 NVIDIA Gen5↔Gen1 链接状态电源转换是根本原因</li>
-<li>应用驱动级修复（优先最大性能）使运行时的 WHEA 错误降至零</li>
+<li>梳理了完整的训练与评估流程</li>
+<li>追踪了 PPO reward 逻辑（outcome vs turn-level scores）</li>
 </ul>
-<p><strong>阻碍：</strong></p>
+<h3 id="system-maintenance-1-days-active---active">System Maintenance (1 days active) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#system-maintenance-1-days-active---active">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
 <ul>
-<li>⚠️ 由于硬件/固件切换时机问题，启动时的初始化 UR 错误无法避免</li>
+<li>导出了 4 个用于迁移的 conda environments</li>
+<li>为将 Miniconda 重新安装至 D: drive 做好了准备</li>
 </ul>
-<h3 id="lerobot-数据管道与-paireddataset2天活跃---活跃">LeRobot 数据管道与 PairedDataset（2天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#lerobot-数据管道与-paireddataset2天活跃---活跃">#</a></h3>
-<p><strong>成果：</strong></p>
+<h2 id="key-tasks">Key Tasks<a hidden class="anchor" aria-hidden="true" href="#key-tasks">#</a></h2>
 <ul>
-<li>诊断并修复了多个 OSS 数据集中的60个损坏的MP4片段</li>
-<li>实施预检查黑名单、静默损坏掩蔽和动态JAX兼容损失掩蔽</li>
-<li>整体解决干净数据集的潜在损坏问题，避免 DataLoader 运行时无效</li>
+<li>✅ <strong>NeurIPS 2026 Compliance &amp; Data Integrity</strong> — 生成了 Croissant 元数据，修正了 Table 6 中关键的 BC-RNN 数据错误（修复了 167% 的误差差异），并传输了 30GB 的发布数据用于托管。</li>
+<li>✅ <strong>LeRobot Video Data Repair &amp; Pipeline Optimization</strong> — 通过 HDF5 重新编码识别并修复了 60 个损坏的 episodes，并在 PairedDataset 中实现了鲁棒的错误处理/黑名单机制。</li>
+<li>✅ <strong>AdaptVision Codebase &amp; Reward Logic Mapping</strong> — 梳理了用于 adaptive visual acquisition 的 PPO 训练流水线和 reward 计算机制。</li>
+<li>✅ <strong>TokenMonitor Architecture &amp; Release</strong> — 发布了 v0.13.0/v0.13.1，重构了 Settings UI，并解决了关键的 Windows/NVIDIA 硬件相关崩溃问题。</li>
+<li>✅ <strong>Scientific Visualization</strong> — 使用标准化的排版和配色方案制作了出版质量的图表 (4-7)。</li>
 </ul>
-<p><strong>阻碍：</strong></p>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="1-bc-rnn-normal-sr-在论文中严重错误-21-vs-实际-56-errorrecoverybench">1. BC-RNN Normal SR 在论文中严重错误 (21% vs 实际 56%) [ErrorRecoveryBench]<a hidden class="anchor" aria-hidden="true" href="#1-bc-rnn-normal-sr-在论文中严重错误-21-vs-实际-56-errorrecoverybench">#</a></h3>
+<p><strong>Solution:</strong> 将所有表格数值与验证运行产生的 fact-check JSON 进行交叉验证，并将其拆分为两个 policy 行。</p>
+<h3 id="2-解码增强视频帧时出现-runtimeerror-invaliddataerror-lerobot-dataset">2. 解码增强视频帧时出现 RuntimeError: InvalidDataError [LeRobot Dataset]<a hidden class="anchor" aria-hidden="true" href="#2-解码增强视频帧时出现-runtimeerror-invaliddataerror-lerobot-dataset">#</a></h3>
+<p><strong>Solution:</strong> 创建了修复脚本从 HDF5 重新编码损坏的 episodes，并在 DataLoader 中实现了动态 try-except/masking。</p>
+<h3 id="3-在-adaptvision-的-readmemd-中发现硬编码的-api-keys-adaptvision">3. 在 AdaptVision 的 README.md 中发现硬编码的 API keys [AdaptVision]<a hidden class="anchor" aria-hidden="true" href="#3-在-adaptvision-的-readmemd-中发现硬编码的-api-keys-adaptvision">#</a></h3>
+<p><strong>Solution:</strong> 已识别并建议进行修复，并建议使用 environment variables。</p>
+<h3 id="4-jax-jit-compilation-阻止了对损坏样本的条件跳过-lerobot-dataset">4. JAX JIT compilation 阻止了对损坏样本的条件跳过 [LeRobot Dataset]<a hidden class="anchor" aria-hidden="true" href="#4-jax-jit-compilation-阻止了对损坏样本的条件跳过-lerobot-dataset">#</a></h3>
+<p><strong>Solution:</strong> 确保 loss contribution 被 mask 为零，以符合 static graph 的要求。</p>
+<h3 id="5-windows-codex-路径解析和-nvidia-pcie-power-state-崩溃-tokenmonitor">5. Windows Codex 路径解析和 NVIDIA PCIe power-state 崩溃 [TokenMonitor]<a hidden class="anchor" aria-hidden="true" href="#5-windows-codex-路径解析和-nvidia-pcie-power-state-崩溃-tokenmonitor">#</a></h3>
+<p><strong>Solution:</strong> 解决了关键的路径问题和驱动层面的 power state 冲突。</p>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="domain-knowledge-domain">Domain Knowledge (domain)<a hidden class="anchor" aria-hidden="true" href="#domain-knowledge-domain">#</a></h3>
 <ul>
-<li>⚠️ 修复后的干净数据集（boss44_lerobot）仍需持续验证</li>
+<li>必须根据原始 JSON 输出对实验结果进行事实核查；论文中的数值可能与实际测量值有显著偏差。</li>
+<li>在自定义 RL 中，reward engineering 逻辑通常是分布式的；追踪数据流比单纯阅读 config 更有效。</li>
 </ul>
-<h3 id="adaptvision-与-mihd-开发1天活跃---活跃">AdaptVision 与 MIHD 开发（1天活跃） — 🔄 活跃<a hidden class="anchor" aria-hidden="true" href="#adaptvision-与-mihd-开发1天活跃---活跃">#</a></h3>
-<p><strong>成果：</strong></p>
+<h3 id="debugging-debugging">Debugging (debugging)<a hidden class="anchor" aria-hidden="true" href="#debugging-debugging">#</a></h3>
 <ul>
-<li>映射了完整的PPO训练流程和多轮裁剪奖励机制</li>
-<li>审计了 CLAUDE.md 文档的完整性及架构一致性</li>
+<li>损坏的视频可能会通过 header 检查，但在 PyAV 解码期间失败；需要进行显式解码以进行彻底诊断。</li>
 </ul>
-<p><strong>阻碍：</strong></p>
+<h3 id="tools-tools">Tools (tools)<a hidden class="anchor" aria-hidden="true" href="#tools-tools">#</a></h3>
 <ul>
-<li>⚠️ AdaptVision README中存在的硬编码API密钥需立即修复</li>
+<li>Conda environments 应该通过 export/rebuild 进行迁移，而不是直接复制文件夹，以避免硬编码路径问题。</li>
 </ul>
-<h3 id="本地开发环境1天活跃--进行中">本地开发环境（1天活跃） — 进行中<a hidden class="anchor" aria-hidden="true" href="#本地开发环境1天活跃--进行中">#</a></h3>
-<p><strong>成果：</strong></p>
+<h2 id="ai-usage-notes">AI Usage Notes<a hidden class="anchor" aria-hidden="true" href="#ai-usage-notes">#</a></h2>
+<p><strong>Effective Patterns:</strong></p>
 <ul>
-<li>将所有conda环境导出为YML文件，并安全部署Miniconda安装程序以便迁移</li>
-<li>通过规划新的D盘安装解决C盘空间不足问题，避免路径损坏</li>
+<li>✓ 使用 AI 从高层脚本追踪到具体的 reward functions 的复杂代码执行路径。</li>
+<li>✓ 利用 AI 进行安全审计（检测硬编码的 keys）和文档优化。</li>
 </ul>
-<h2 id="关键任务">关键任务<a hidden class="anchor" aria-hidden="true" href="#关键任务">#</a></h2>
+<p><strong>Limitations:</strong></p>
 <ul>
-<li>✅ <strong>上游TokenMonitor仓库的混合合并</strong>（2026-05-04）— 使用混合策略解决了20个冲突文件，同时保留本地OAuth/Cursor/Codex实现，并整合了上游状态栏模块和设置界面重新设计。</li>
-<li>✅ <strong>修正论文表6中的关键BC-RNN数据错误</strong>（2026-05-07）— 将BC-RNN Normal SR从21%改为56%/42%（V1/V2），将单行拆分为两行策略行，并根据事实核查修正了Pi 0.5 Recovery Normal SR。</li>
-<li>✅ <strong>同步UI面板的利用提取逻辑</strong>（2026-05-04）— 修复了窗口选择和过期宽限期，与前端逻辑一致，消除了浮动球与主应用数据不一致问题。</li>
-<li>✅ <strong>诊断并解决RTX 5090 PCIe ASPM崩溃循环</strong>（2026-05-05）— 分析WHEA日志并测试GPU，确定NVIDIA驱动链接状态电源管理是间歇性的DPC看门狗BSOD的原因，应用了永久策略修复。</li>
-<li>✅ <strong>生成Croissant元数据及NeurIPS提交图表</strong>（2026-05-07）— 创建包含数据集描述、FileObjects和RecordSets的必填croissant.json文件；迭代优化科学可视化效果，消除重叠并确保排版一致性。</li>
-<li>✅ <strong>诊断LeRobot损坏的数据管道并实施PairedDataset错误处理</strong>（2026-05-08/09）— 创建诊断脚本识别并重新编码HDF5中的损坏片段；重构paired_dataset.py，加入预检查黑名单和JIT兼容损失掩蔽。</li>
-<li>✅ <strong>解决Rust CI环境变量保护竞态问题</strong>（2026-05-05）— 将测试模块中的环境变量保护统一为单个全局锁，并重构测试以直接调用读取逻辑，避免复杂的macOS钥匙链 fallback链。</li>
-<li>✅ <strong>映射AdaptVision PPO训练流程并审计MIHD文档</strong>（2026-05-08）— 在大型代码库中追踪执行路径，明确复杂的奖励机制。对 CLAUDE.md 进行了审计，以在重新生成前确保结构完整性。</li>
+<li>✗ AI 缺乏对机器人操作流水线调试的领域直觉（例如，无法察觉算法版本的不兼容性）。</li>
+<li>✗ AI 倾向于信任现有的 LaTeX/文档内容，而没有对原始数据进行独立验证。</li>
+<li>✗ AI 会尝试使用不受支持/无权限的 shell tools（如在沙盒环境中使用 &lsquo;rg&rsquo;），且没有立即提供 fallback 方案。</li>
 </ul>
-<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
-<h3 id="1-上游合并冲突导致不同分支产生差异需实现架构对齐同时不丢失本地实现-tokenmonitor2026-05-04解决方案-采用混合合并策略隔离冲突模块通过合并集成点保留两个分支的价值并手动恢复已撤销的文件">1. 上游合并冲突导致不同分支产生差异，需实现架构对齐，同时不丢失本地实现 [TokenMonitor]（2026-05-04）<strong>解决方案：</strong> 采用混合合并策略隔离冲突模块，通过合并集成点保留两个分支的价值，并手动恢复已撤销的文件。<a hidden class="anchor" aria-hidden="true" href="#1-上游合并冲突导致不同分支产生差异需实现架构对齐同时不丢失本地实现-tokenmonitor2026-05-04解决方案-采用混合合并策略隔离冲突模块通过合并集成点保留两个分支的价值并手动恢复已撤销的文件">#</a></h3>
-<h3 id="2-学术论文中的关键-bc-rnn-指标差异21-对比实际-56及专业图表格式问题-errorrecoverybench--recoverbench-neurips-2026-ed-2026-05-07">2. 学术论文中的关键 BC-RNN 指标差异（21% 对比实际 56%）及专业图表格式问题 [ErrorRecoveryBench / RecoverBench (NeurIPS 2026 E&amp;D)] (2026-05-07)<a hidden class="anchor" aria-hidden="true" href="#2-学术论文中的关键-bc-rnn-指标差异21-对比实际-56及专业图表格式问题-errorrecoverybench--recoverbench-neurips-2026-ed-2026-05-07">#</a></h3>
-<p><strong>解决方案：</strong> 将所有表格数值与原始实验 JSON 进行交叉验证，修正策略行，并将 matplotlib 输出调整为科学配色方案，采用统一的排版方式。</p>
-<h3 id="3-floatball-因激进的窗口过滤导致关键约束被隐藏而无法显示速率限制-tokenmonitor-2026-05-06">3. FloatBall 因激进的窗口过滤导致关键约束被隐藏而无法显示速率限制 [TokenMonitor] (2026-05-06)<a hidden class="anchor" aria-hidden="true" href="#3-floatball-因激进的窗口过滤导致关键约束被隐藏而无法显示速率限制-tokenmonitor-2026-05-06">#</a></h3>
-<p><strong>解决方案：</strong> 将所有窗口的选择改为最大利用率策略，确保无论会话状态如何，最关键约束始终能够被呈现。</p>
-<h3 id="4-rtx-5090-在空闲启动过程中出现间歇性-bsod-和-whea-pcie-aer-不支持请求错误-hardware-systems--workstation-diagnostics-2026-05-05">4. RTX 5090 在空闲/启动过程中出现间歇性 BSOD 和 WHEA PCIe AER 不支持请求错误 [Hardware Systems / Workstation Diagnostics] (2026-05-05)<a hidden class="anchor" aria-hidden="true" href="#4-rtx-5090-在空闲启动过程中出现间歇性-bsod-和-whea-pcie-aer-不支持请求错误-hardware-systems--workstation-diagnostics-2026-05-05">#</a></h3>
-<p><strong>解决方案：</strong> 确定 NVIDIA 驱动程序链接状态下降为根本原因；通过调整驱动程序强制电源管理模式为“优先最大性能”来解决问题。</p>
-<h3 id="5-lerobot-dataloader-中损坏的-mp4-文件导致的运行时失效与-jax-jit-约束冲突-lerobot-data-pipeline--paireddataset-2026-05-09">5. LeRobot DataLoader 中损坏的 MP4 文件导致的运行时失效与 JAX JIT 约束冲突 [LeRobot Data Pipeline &amp; PairedDataset] (2026-05-09)<a hidden class="anchor" aria-hidden="true" href="#5-lerobot-dataloader-中损坏的-mp4-文件导致的运行时失效与-jax-jit-约束冲突-lerobot-data-pipeline--paireddataset-2026-05-09">#</a></h3>
-<p><strong>解决方案：</strong> 创建诊断脚本从 HDF5 重新编码；实施动态 try-except 黑名单和损失掩码，以绕过静态图控制流限制。</p>
-<h3 id="6-css-grid-折叠动画导致填充边框在多个-ui-部分间出现视觉泄漏-tokenmonitor-2026-05-04">6. CSS Grid 折叠动画导致填充/边框在多个 UI 部分间出现视觉泄漏 [TokenMonitor] (2026-05-04)<a hidden class="anchor" aria-hidden="true" href="#6-css-grid-折叠动画导致填充边框在多个-ui-部分间出现视觉泄漏-tokenmonitor-2026-05-04">#</a></h3>
-<p><strong>解决方案：</strong> 将 grid-template-rows: 0fr 改为基于最大高度的动画，并在父容器上设置 overflow hidden，从而恢复跨浏览器的一致性行为。</p>
-<h2 id="经验教训">经验教训<a hidden class="anchor" aria-hidden="true" href="#经验教训">#</a></h2>
-<h3 id="system_architecture-system_architecture">system_architecture (system_architecture)<a hidden class="anchor" aria-hidden="true" href="#system_architecture-system_architecture">#</a></h3>
-<ul>
-<li>速率限制备用链应优先使用服务器权威/免费来源，而非付费/客户端侧估计。AI 在系统级架构评审和算法迭代兼容性方面存在困难，因此人工监督对于早期识别基本设计风险至关重要。</li>
-</ul>
-<h3 id="debugging_diagnostics-debugging_diagnostics">debugging_diagnostics (debugging_diagnostics)<a hidden class="anchor" aria-hidden="true" href="#debugging_diagnostics-debugging_diagnostics">#</a></h3>
-<ul>
-<li>npm 全局安装产生双执行路径，需要在 Rust 进程启动时明确路径优先级。NVIDIA GPU 上的 PCIe AER 不支持请求标志通常源于驱动程序级别的 ASPM 链接状态转换，而非物理故障。与原始实验 JSON 进行事实核对至关重要；损坏的 MP4 文件在 PyAV 解码过程中失败，而非头信息检查问题，而 JAX JIT 需要独立于张量值的静态图控制流。</li>
-</ul>
-<h3 id="devops_tooling-devops_tooling">devops_tooling (devops_tooling)<a hidden class="anchor" aria-hidden="true" href="#devops_tooling-devops_tooling">#</a></h3>
-<ul>
-<li>Tauri v2 强制 Rust 库和 npm 包之间严格符合 major.minor 规范；通过生命周期钩子自动化同步可防止构建碎片化。并行测试操纵环境变量需要单一全局互斥锁，以防止竞争条件。在受限 HPC 环境中，当现代工具失败时需要 POSIX  fallback，而通过导出/重建迁移到 Conda 更简洁，无需文件夹复制。</li>
-</ul>
-<h3 id="academia_research_workflow-academia_research_workflow">academia_research_workflow (academia_research_workflow)<a hidden class="anchor" aria-hidden="true" href="#academia_research_workflow-academia_research_workflow">#</a></h3>
-<ul>
-<li>NeurIPS 双盲投稿要求超出作者姓名范围的严格匿名化（路径、输出、硬编码基础设施标签），且出版图表需要零重叠布局的科学配色方案。学术声明必须严格反映实施实际情况；手动参考文献工作流在提交前通常提供协作灵活性，但按任务选择性检查点需要明确的评审者文档。</li>
-</ul>
-<h2 id="ai-使用注意事项">AI 使用注意事项<a hidden class="anchor" aria-hidden="true" href="#ai-使用注意事项">#</a></h2>
-<p><strong>有效模式：</strong></p>
-<ul>
-<li>✓ 在明确指导下采用混合 git 合并策略以保留不同的功能集</li>
-<li>✓ 并行代理部署用于大规模代码库转换和批处理文件处理</li>
-<li>✓ 跨 IPC 边界和大型代码库的系统化管道追踪比仅读取配置更有效地明确复杂数据/奖励流动</li>
-<li>✓ 交叉验证原始实验输出可防止学术写作中的关键事实错误</li>
-<li>✓ 对现有文档的结构化审计可在重新生成前验证稳定性，节省大量时间</li>
-</ul>
-<p><strong>限制：</strong></p>
-<ul>
-<li>✗ 倾向于过度设计解决方案或在不验证用户工作流约束的情况下提出不必要的架构变更</li>
-<li>✗ 在执行批处理编辑或撰写声明之前未确认目标文件路径和外部 API 单元</li>
-<li>✗ 在学术草稿中初期不愿挑战未实现的功能，或在没有明确范围指导的情况下预期整个分布的数据损坏</li>
-<li>✗ 在等待实证压力测试验证之前就对硬件日志进行过早诊断</li>
-<li>✗ 缺乏机器人操作管道调试和架构风险评估的领域直觉；默认工具在需要手动备用策略的受限 HPC 环境中失效</li>
-</ul>
-<h2 id="下周计划">下周计划<a hidden class="anchor" aria-hidden="true" href="#下周计划">#</a></h2>
-<p>优先完成 NeurIPS ErrorRecoveryBench 投稿，实施强制的 Croissant 元数据扩展，解决 MimicGen RPG 跨步转移失败率低于 5% 的问题，并提供匿名评估托管服务。通过整合用户反馈、解决剩余的 CI/Clippy 警告并标准化多提供方速率限制备用链，对 TokenMonitor v0.13.1 进行发布后稳定化。完成 Conda 环境迁移到 D 盘以防止路径损坏，修复 AdaptVision 中硬编码的 API 密钥，并对按任务检查点策略进行整体验证，同时优化多轮作物奖励机制。在持续工作负载下监控工作站稳定性，并在 AI 辅助批处理操作期间执行明确的目标验证协议，以防止推测性重构。</p>
-<h2 id="令牌使用统计">令牌使用统计<a hidden class="anchor" aria-hidden="true" href="#令牌使用统计">#</a></h2>
+<h2 id="next-week-outlook">Next Week Outlook<a hidden class="anchor" aria-hidden="true" href="#next-week-outlook">#</a></h2>
+<p>优先完成将 Conda 迁移至 D: drive 的工作。重点解决 MimicGen segmentation 和 filter 失败问题，以提高成功率。通过确保满足所有数据集元数据和托管要求，完成 NeurIPS submission 的最后准备。</p>
+<h2 id="token-usage-statistics">Token Usage Statistics<a hidden class="anchor" aria-hidden="true" href="#token-usage-statistics">#</a></h2>
 <style>
   .usage-card {
     --usage-bg: #fafaf9;
@@ -552,9 +509,9 @@
         Most token volume came from cache reads.
       </p>
 </footer>
-<p><strong>高峰日：</strong> 2026-05-06 — $695.86 / 692.4M 令牌</p>
-<p><strong>每日平均：</strong> $256.42</p>
-<!-- gadget:src-hash:f07de93902ba64c8 -->
+<p><strong>Peak Day:</strong> 2026-05-06 — $695.86 / 692.4M tokens</p>
+<p><strong>Daily Average:</strong> $256.42</p>
+<!-- gadget:src-hash:v2:838230984d722038 -->
 
 
   </div>
