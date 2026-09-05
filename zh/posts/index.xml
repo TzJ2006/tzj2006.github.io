@@ -9,6 +9,30 @@
     <lastBuildDate>Wed, 26 Aug 2026 10:00:00 -0400</lastBuildDate>
     <atom:link href="https://tzj2006.github.io/zh/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>模型中文能力大比拼</title>
+      <link>https://tzj2006.github.io/zh/posts/chinese-writing-benchmark/</link>
+      <pubDate>Wed, 26 Aug 2026 10:00:00 -0400</pubDate>
+      <guid>https://tzj2006.github.io/zh/posts/chinese-writing-benchmark/</guid>
+      <description>&lt;p&gt;同一条 prompt，4 个本地 Ollama 模型 + 三家 Agent CLI 的 12 个云端模型，各写一遍。
+下面是全部原始输出，以及每次运行记录到的速度、显存、延迟和 token 数据。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;英文版不是这一页的翻译，而是同样设置下换成英文 prompt、要求写英文小说开头的另一次实验。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;题目&#34;&gt;题目&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;请用中文写一个约500字的小说开头，以一位在战争爆炸中失去一条腿的芭蕾舞演员为主角，通过描写她在战后生活来侧面体现出她的挣扎。
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;运行条件&#34;&gt;运行条件&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;16 个模型收到的是完全相同的一句 prompt&lt;/strong&gt;，没有任何前缀或 system prompt。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;本地（Ollama）&lt;/strong&gt; — RTX 5090 / 32 GB。&lt;code&gt;POST 127.0.0.1:11434/api/chat&lt;/code&gt;，&lt;code&gt;stream: false&lt;/code&gt;。
+&lt;strong&gt;不指定任何采样参数&lt;/strong&gt;，temperature、num_predict、context 全部走模型 Modelfile 和 ollama 的默认值
+（&lt;code&gt;ollama ps&lt;/code&gt; 显示四个模型的 context 都是 65536，显存里的 KV cache 按这个尺寸分配）。
+每个模型跑之前先 &lt;code&gt;ollama stop&lt;/code&gt; 清空显存，所以加载时间是冷启动。
+显存取 &lt;code&gt;nvidia-smi&lt;/code&gt; 峰值减去桌面基线（2.5–3.3 GB）。
+速度直接读响应体的 &lt;code&gt;eval_count / eval_duration&lt;/code&gt;，不含 HTTP 和 Python 开销。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;云端（Agent CLI）&lt;/strong&gt; — &lt;code&gt;codex exec&lt;/code&gt;、&lt;code&gt;claude -p&lt;/code&gt;、&lt;code&gt;cursor-agent --print&lt;/code&gt;，
+全部串行、&lt;code&gt;--output-format json&lt;/code&gt;，工作目录是一个空的临时文件夹。
+总耗时用 &lt;code&gt;perf_counter&lt;/code&gt; 掐整个进程，token 数和 API 耗时从各家 JSON 的 usage 字段读。&lt;/p&gt;</description>
+    </item>
+    <item>
       <title>十六个模型，同一份 README</title>
       <link>https://tzj2006.github.io/zh/posts/readme-tutorial-benchmark/</link>
       <pubDate>Wed, 26 Aug 2026 10:00:00 -0400</pubDate>
@@ -32,27 +56,6 @@
 每个模型跑之前先 &lt;code&gt;ollama stop&lt;/code&gt; 清空显存，所以加载时间是冷启动。
 显存取 &lt;code&gt;nvidia-smi&lt;/code&gt; 峰值减去桌面基线（2.2–2.6 GB）。
 速度直接读响应体的 &lt;code&gt;eval_count / eval_duration&lt;/code&gt;，不含 HTTP 和 Python 开销。&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>十六个模型，同一条中文写作题</title>
-      <link>https://tzj2006.github.io/zh/posts/chinese-writing-benchmark/</link>
-      <pubDate>Wed, 26 Aug 2026 10:00:00 -0400</pubDate>
-      <guid>https://tzj2006.github.io/zh/posts/chinese-writing-benchmark/</guid>
-      <description>&lt;p&gt;同一条 prompt，4 个本地 Ollama 模型 + 三家 Agent CLI 的 12 个云端模型，各写一遍。
-下面是全部原始输出，以及每次运行记录到的速度、显存、延迟和 token 数据。&lt;/p&gt;
-&lt;h2 id=&#34;题目&#34;&gt;题目&lt;/h2&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;请用中文写一个约500字的小说开头，以一位在战争爆炸中失去一条腿的芭蕾舞演员为主角，通过描写她在战后生活来侧面体现出她的挣扎。
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;运行条件&#34;&gt;运行条件&lt;/h2&gt;
-&lt;p&gt;&lt;strong&gt;十六个模型收到的是完全相同的一句 prompt&lt;/strong&gt;，没有任何前缀或 system prompt。&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;本地（Ollama）&lt;/strong&gt; — RTX 5090 / 32 GB。&lt;code&gt;POST 127.0.0.1:11434/api/chat&lt;/code&gt;，&lt;code&gt;stream: false&lt;/code&gt;。
-&lt;strong&gt;不指定任何采样参数&lt;/strong&gt;，temperature、num_predict、context 全部走模型 Modelfile 和 ollama 的默认值
-（&lt;code&gt;ollama ps&lt;/code&gt; 显示四个模型的 context 都是 65536，显存里的 KV cache 按这个尺寸分配）。
-每个模型跑之前先 &lt;code&gt;ollama stop&lt;/code&gt; 清空显存，所以加载时间是冷启动。
-显存取 &lt;code&gt;nvidia-smi&lt;/code&gt; 峰值减去桌面基线（2.5–3.3 GB）。
-速度直接读响应体的 &lt;code&gt;eval_count / eval_duration&lt;/code&gt;，不含 HTTP 和 Python 开销。&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;云端（Agent CLI）&lt;/strong&gt; — &lt;code&gt;codex exec&lt;/code&gt;、&lt;code&gt;claude -p&lt;/code&gt;、&lt;code&gt;cursor-agent --print&lt;/code&gt;，
-全部串行、&lt;code&gt;--output-format json&lt;/code&gt;，工作目录是一个空的临时文件夹。
-总耗时用 &lt;code&gt;perf_counter&lt;/code&gt; 掐整个进程，token 数和 API 耗时从各家 JSON 的 usage 字段读。&lt;/p&gt;</description>
     </item>
     <item>
       <title>LLM 学习笔记</title>

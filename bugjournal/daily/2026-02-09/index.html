@@ -7,7 +7,7 @@
 <meta name="robots" content="index, follow">
 <title>Bug Journal 2026-02-09 | TzJ&#39;s Net</title>
 <meta name="keywords" content="Bug Journal">
-<meta name="description" content="An enhanced MIHD visualization workflow adopting the dynamic metric overlay function was used, and large-scale benchmark tests were conducted on multiple DLPFC spatial transcriptomics sections.">
+<meta name="description" content="Enhanced MIHD visualization pipelines with dynamic metric overlays and executed large-scale benchmarking across multiple DLPFC spatial transcriptomics slides.">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/bugjournal/daily/2026-02-09/">
 <link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
@@ -79,7 +79,7 @@
 <meta property="og:url" content="https://tzj2006.github.io/bugjournal/daily/2026-02-09/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="Bug Journal 2026-02-09">
-  <meta property="og:description" content="An enhanced MIHD visualization workflow adopting the dynamic metric overlay function was used, and large-scale benchmark tests were conducted on multiple DLPFC spatial transcriptomics sections.">
+  <meta property="og:description" content="Enhanced MIHD visualization pipelines with dynamic metric overlays and executed large-scale benchmarking across multiple DLPFC spatial transcriptomics slides.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="bugjournal">
@@ -88,7 +88,7 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Bug Journal 2026-02-09">
-  <meta name="twitter:description" content="An enhanced MIHD visualization workflow adopting the dynamic metric overlay function was used, and large-scale benchmark tests were conducted on multiple DLPFC spatial transcriptomics sections.">
+  <meta name="twitter:description" content="Enhanced MIHD visualization pipelines with dynamic metric overlays and executed large-scale benchmarking across multiple DLPFC spatial transcriptomics slides.">
 
 
 <script type="application/ld+json">
@@ -123,12 +123,12 @@
   "@type": "BlogPosting",
   "headline": "Bug Journal 2026-02-09",
   "name": "Bug Journal 2026-02-09",
-  "description": "An enhanced MIHD visualization workflow adopting the dynamic metric overlay function was used, and large-scale benchmark tests were conducted on multiple DLPFC spatial transcriptomics sections.",
+  "description": "Enhanced MIHD visualization pipelines with dynamic metric overlays and executed large-scale benchmarking across multiple DLPFC spatial transcriptomics slides.",
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-02-09 Overview of Daily Work Completed Work: Direct metric annotation was implemented on the spatial clustering plot, and a wide range of embedding alignment evaluation benchmarks were successfully run. Implementation: The matplotlib subplot layout was refactored, ARI/NMI text was directly injected into the PNG output, and bash jobs were run in parallel to perform RM-Ideal niche evaluations. Impact: A visual association between model scores and spatial clustering was established immediately, and critical data path dependencies that hindered comprehensive slicing analysis were systematically resolved. The MIHD visualization process was enhanced through dynamic metric overlay, and large-scale benchmarks were executed on multiple DLPFC spatial transcriptomics sections.\nTasks Architecture and Strategy ✅ Add metric overlay to MIHD spatial visualization — utils/visualization.py and evaluate_rm_ideal.py were refactored, and manually built matplotlib figures so that real-time ARI, NMI, contour coefficient, and Spearman p-values could be directly overlaid on the output PNG. ✅ Execute full DLPFC benchmarks and RM-Ideal evaluations — A comprehensive benchmark process (PCA/UNI/GCN + STAIG fusion) was run across all available sections, data path failures in specific regions (151510, 151672, etc.) were identified, and parallel RM-Ideal niche capture evaluations were performed on the successfully processed parts. Issues and Solutions Key Issues 1. The benchmark script throws a “staig_fusion requires spatial coordinates” error in section 151510, and OpenCV errors occur in sections 151672/151674. Solution: The code logic was reviewed to diagnose missing spatial CSV or corrupted image header information in the shared data directory. Subsequent runs were configured to skip these specific failed sections without interrupting the entire process.\nKey Insight: Data integrity across multi-center spatial datasets is inconsistent; a robust process must check data availability for each slice before starting recalculation tasks like STAIG alignment.\nGeneral Issues 2. The initial attempt to run all benchmark variants simultaneously caused GPU OOM failures, interrupting the background PCA process. Solution: Parallel tasks were stopped, and the benchmarks were rerun sequentially to manage system resources safely without crashes.\nKey Insight: Complex multi-modal embedding extraction (STAIG fusion + UNI2) severely consumes VRAM; sequential execution is crucial for stability in HPC environments with multiple active models.\n3. The repeated function definition create_clustering_visualization hides the import in run_benchmark.py, preventing the updated metrics from appearing initially. Solution: Local inline definitions and main tool files were identified and refactored, ensuring consistent metric injection during execution.\nKey Insight: Inlining functions in large benchmark scripts is a common trap that bypasses modular code paths; always verify the parsing status of call points before running full tests.\nHuman and AI Approaches Strategic Level Design dynamic text overlay for Scanpy/Plots Role Method Human Realized the need to bypass automatic saving (which locks the figure) so that quantitative data text boxes can be added after generation. AI AI switched the scanpy sc.pl.spatial(..., save=) mode to a clear fig, ax = plt.subplots() layout mode and manually used bounding boxes to render metrics clearly. Analysis of Differences: Humans focus on analytical needs (displaying scores directly on images), while AI provides a library-level solution that safely breaks out of scanpy’s encapsulation.\nImplementation Level Prioritize handling historical and current benchmark results Role Method Human The user pointed out that the current output does not match the best historical score, strictly instructing not to overwrite existing pca_uni_staig_fusion results or use overrides. AI AI changed from attempting new parallel generation to incremental execution for missing cache sections, keeping the configuration identical to history to maintain data integrity. Analysis of Differences: Humans impose strict constraints to prevent overwriting old data, avoiding the common AI error of blindly choosing the latest code path while ignoring established validation benchmarks.\nAI Limitations General Limitations When three heavy benchmark scripts were started simultaneously initially, the available HPC node VRAM limit was not checked, causing an OOM signal (137) and indicating inadequate environment state awareness before execution. AI initially had difficulty determining which local file scripts/run_benchmark.py and utils/visualization.py is handling function calls, resulting in a slight delay before both were fixed. Learning Outcomes Key Learnings In multi-center spatial transcriptomic embedding benchmarks like DLPFC, data inconsistency (e.g., missing .txt coordinates or corrupted H\u0026E images) is highly probable; automated processes must include validity checks for each section so that the process can smoothly handle healthy slices. Dialogue Summary ✅ Enhanced benchmark visualization through metric overlay 21:46:17.845 | claude_code The user requested extending standard MIHD clustering plots and RM-Ideal evaluations by displaying quantitative performance metrics (ARI, NMI, contour coefficient) directly on the visual images. I successfully refactored utils/visualization.py, removed scanpy’s default file saving method, and manually built matplotlib subplots with annotated bounding boxes. I also modified run_benchmark.py and evaluate_rm_ideal.py loads to ensure metrics are injected into these new plotting functions.\n✅ Execute comprehensive slice benchmarks and RM-Ideal evaluations 21:50:31.276 | claude_code After the visual refactoring, I was asked to use various embeddings (PCA, UNI2, GCN) with STAIG alignment fusion for extensive benchmarks on all 11+ DLPFC slices. The initial attempt to run them in parallel failed due to GPU OOM issues. I changed to sequential execution of historically good configurations and correctly skipped segments with damaged or missing spatial coordinates (151510, 151672-4). Additionally, I started background processes to evaluate RM-Ideal niche scoring capabilities to measure organizational structure capture under these embeddings.\nToken Usage AI Usage · 2026-02-09\rClaude Code + Codex\rTotal cost$0.45\rTotal tokens819K\rOutput tokens5K\rCache read77.5%\rCost split\rClaude Code $0 ·\rCodex $0\rToken character\rCache reads 77.5% ·\rActive 22.5%\rMost token volume came from cache reads.\r",
-  "wordCount" : "902",
+  "articleBody": "Daily Report — 2026-02-09 Daily Overview What was done: Implemented direct metrics annotation on spatial clustering plots and successfully ran extensive benchmarks for embedding alignment evaluation. How it was done: Refactored matplotlib subplot layouts to inject ARI/NMI text directly into PNG outputs, while orchestrating multi-parallel bash jobs for RM-Ideal niche evaluations. Impact: Enabled immediate visual correlation between model scores and spatial clusterings, and systematically resolved critical data path dependencies blocking comprehensive slide analysis. Enhanced MIHD visualization pipelines with dynamic metric overlays and executed large-scale benchmarking across multiple DLPFC spatial transcriptomics slides.\nTasks Architecture \u0026 Strategy ✅ Add Metrics Overlay to MIHD Spatial Visualizations — Refactored utils/visualization.py and evaluate_rm_ideal.py to manually construct matplotlib figures, allowing the superposition of real-time ARI, NMI, Silhouette, and Spearman P-values directly onto output PNGs. ✅ Execute Full DLPFC Benchmarking and RM-Ideal Evaluation — Ran comprehensive benchmark pipelines (PCA/UNI/GCN + STAIG Fusion) across all available slides, identified data path failures in specific sections (151510, 151672, etc.), and launched parallel RM-Ideal niche capture evaluations for the successfully processed segments. Problems \u0026 Solutions Critical Issues 1. Benchmark script threw ‘staig_fusion fusion requires spatial coordinates’ on section 151510 and OpenCV cvtColor errors on 151672/151674. Solution: Reviewed the code logic to diagnose missing spatial CSVs or corrupted image headers in the shared data directory. Configured subsequent runs to bypass these specific failed sections without aborting the entire pipeline.\nKey Insight: Data integrity in multi-center spatial datasets is inconsistent; robust pipelines must implement per-slide data availability checks before launching heavy computational tasks like STAIG alignment.\nGeneral Issues 2. Initial attempts to run all benchmark variants simultaneously caused GPU OOM failures, killing the background PCA process. Solution: Interrupted parallel tasks and re-executed benchmarks sequentially to manage system resources safely without crashes.\nKey Insight: Complex multi-modal embedding extractions (STAIG fusion + UNI2) heavily saturate VRAM; sequential execution is necessary for stability on HPC environments with multiple active models.\n3. Duplicate function definitions (create_clustering_visualization) shadowing imports in run_benchmark.py prevented updated metrics from appearing initially. Solution: Identified and refactored both the local inline definition and the primary utility file to ensure metric injection was applied consistently during execution.\nKey Insight: Inlining functions within large benchmark scripts is a common pitfall that bypasses modular code paths; always verify call-site resolution before running full tests.\nHuman vs AI Approaches Strategic Level Designing Dynamic Text Overlays for Scanpy/Plots Role Approach Human Identified the need to bypass automated saving (which locks the figure) in order to append quantitative data text boxes post-generation. AI AI resolved this by switching scanpy’s sc.pl.spatial(..., save=) mode to an explicit fig, ax = plt.subplots() layout pattern with manual bounding boxes for rendering metrics cleanly. Difference Analysis: The human focused on the analytical requirement (seeing scores directly on the image), while the AI provided the specific library-level workaround to break scanpy’s encapsulation safely.\nImplementation Level Prioritizing Historical vs. Current Benchmark Results Role Approach Human User noted that current outputs didn’t match the best historical scores and strictly instructed not to overwrite existing pca_uni_staig_fusion results or use overrides. AI AI switched from attempting fresh parallel generation to a targeted incremental run on missing cached sections, aligning exactly with historical configurations to preserve data integrity. Difference Analysis: The human provided strong constraints against overwriting legacy data, preventing a common AI mistake of blindly prioritizing newest code paths over established validation baselines.\nAI Limitations General Limitations The initial parallel launching of three heavy benchmark scripts without checking available HPC node VRAM limits resulted in OOM signal (137) kills, demonstrating imperfect environmental state awareness before execution. AI struggled initially to identify which local file (scripts/run_benchmark.py vs utils/visualization.py) was actively handling the function call, leading to a minor delay before both were successfully patched. Learnings Key Learnings When dealing with spatial transcriptomics embedding benchmarks on multi-center datasets like DLPFC, data inconsistencies (like missing .txt coordinates or corrupted H\u0026E images) are highly probabilistic; automated pipelines must include per-section validity gates to allow the pipeline to finish gracefully for healthy slides. Conversation Summaries ✅ Enhancing Benchmark Visualization with Metrics Overlay 21:46:17.845 | claude_code User requested augmenting standard MIHD clustering plots and RM-Ideal evaluations by displaying quantitative performance metrics (ARI, NMI, Silhouette) directly on the visualization images. I successfully refactored utils/visualization.py, breaking away from scanpy’s default file-saver method to manually construct matplotlib subplots with annotated bounding boxes. I also modified run_benchmark.py and evaluate_rm_ideal.py payloads to ensure metrics are fed into these new plotting functions.\n✅ Running Comprehensive Slide Benchmarks and RM-Ideal Evaluations 21:50:31.276 | claude_code Following the visualization refactor, I was instructed to run extensive benchmarks across all 11+ DLPFC slides using various embeddings (PCA, UNI2, GCN) fused with STAIG alignment. Initial attempts at parallel execution failed due to GPU OOM issues. I pivoted to running historically strong configurations sequentially and correctly skipped sections with corrupted or missing spatial coordinates (151510, 151672-4). Additionally, I launched background processes to evaluate RM-Ideal niche scoring capabilities to measure exact tissue structure capture across these embeddings.\nToken Usage AI Usage · 2026-02-09\rClaude Code + Codex\rTotal cost$0.45\rTotal tokens819K\rOutput tokens5K\rCache read77.5%\rCost split\rClaude Code $0 ·\rCodex $0\rToken character\rCache reads 77.5% ·\rActive 22.5%\rMost token volume came from cache reads.\r",
+  "wordCount" : "859",
   "inLanguage": "en",
   "datePublished": "2026-02-09T00:00:00-05:00",
   "dateModified": "2026-02-09T00:00:00-05:00",
@@ -259,94 +259,94 @@
 </div>
   </header> 
   <div class="post-content md-content"><h1 id="daily-report--2026-02-09">Daily Report — 2026-02-09<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-02-09">#</a></h1>
-<h2 id="overview-of-daily-work">Overview of Daily Work<a hidden class="anchor" aria-hidden="true" href="#overview-of-daily-work">#</a></h2>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
 <ul>
-<li><strong>Completed Work:</strong> Direct metric annotation was implemented on the spatial clustering plot, and a wide range of embedding alignment evaluation benchmarks were successfully run.</li>
-<li><strong>Implementation:</strong> The matplotlib subplot layout was refactored, ARI/NMI text was directly injected into the PNG output, and bash jobs were run in parallel to perform RM-Ideal niche evaluations.</li>
-<li><strong>Impact:</strong> A visual association between model scores and spatial clustering was established immediately, and critical data path dependencies that hindered comprehensive slicing analysis were systematically resolved.</li>
+<li><strong>What was done:</strong> Implemented direct metrics annotation on spatial clustering plots and successfully ran extensive benchmarks for embedding alignment evaluation.</li>
+<li><strong>How it was done:</strong> Refactored matplotlib subplot layouts to inject ARI/NMI text directly into PNG outputs, while orchestrating multi-parallel bash jobs for RM-Ideal niche evaluations.</li>
+<li><strong>Impact:</strong> Enabled immediate visual correlation between model scores and spatial clusterings, and systematically resolved critical data path dependencies blocking comprehensive slide analysis.</li>
 </ul>
 <blockquote>
-<p>The MIHD visualization process was enhanced through dynamic metric overlay, and large-scale benchmarks were executed on multiple DLPFC spatial transcriptomics sections.</p>
+<p>Enhanced MIHD visualization pipelines with dynamic metric overlays and executed large-scale benchmarking across multiple DLPFC spatial transcriptomics slides.</p>
 </blockquote>
 <h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
-<h3 id="architecture-and-strategy">Architecture and Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture-and-strategy">#</a></h3>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
 <ul>
-<li>✅ <strong>Add metric overlay to MIHD spatial visualization</strong> — <code>utils/visualization.py</code> and <code>evaluate_rm_ideal.py</code> were refactored, and manually built matplotlib figures so that real-time ARI, NMI, contour coefficient, and Spearman p-values could be directly overlaid on the output PNG.</li>
-<li>✅ <strong>Execute full DLPFC benchmarks and RM-Ideal evaluations</strong> — A comprehensive benchmark process (PCA/UNI/GCN + STAIG fusion) was run across all available sections, data path failures in specific regions (151510, 151672, etc.) were identified, and parallel RM-Ideal niche capture evaluations were performed on the successfully processed parts.</li>
+<li>✅ <strong>Add Metrics Overlay to MIHD Spatial Visualizations</strong> — Refactored <code>utils/visualization.py</code> and <code>evaluate_rm_ideal.py</code> to manually construct matplotlib figures, allowing the superposition of real-time ARI, NMI, Silhouette, and Spearman P-values directly onto output PNGs.</li>
+<li>✅ <strong>Execute Full DLPFC Benchmarking and RM-Ideal Evaluation</strong> — Ran comprehensive benchmark pipelines (PCA/UNI/GCN + STAIG Fusion) across all available slides, identified data path failures in specific sections (151510, 151672, etc.), and launched parallel RM-Ideal niche capture evaluations for the successfully processed segments.</li>
 </ul>
-<h2 id="issues-and-solutions">Issues and Solutions<a hidden class="anchor" aria-hidden="true" href="#issues-and-solutions">#</a></h2>
-<h3 id="key-issues">Key Issues<a hidden class="anchor" aria-hidden="true" href="#key-issues">#</a></h3>
-<h4 id="1-the-benchmark-script-throws-a-staig_fusion-requires-spatial-coordinates-error-in-section-151510-and-opencv-errors-occur-in-sections-151672151674">1. The benchmark script throws a “staig_fusion requires spatial coordinates” error in section 151510, and OpenCV errors occur in sections 151672/151674.<a hidden class="anchor" aria-hidden="true" href="#1-the-benchmark-script-throws-a-staig_fusion-requires-spatial-coordinates-error-in-section-151510-and-opencv-errors-occur-in-sections-151672151674">#</a></h4>
-<p><strong>Solution:</strong> The code logic was reviewed to diagnose missing spatial CSV or corrupted image header information in the shared data directory. Subsequent runs were configured to skip these specific failed sections without interrupting the entire process.</p>
-<p><strong>Key Insight:</strong> Data integrity across multi-center spatial datasets is inconsistent; a robust process must check data availability for each slice before starting recalculation tasks like STAIG alignment.</p>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-benchmark-script-threw-staig_fusion-fusion-requires-spatial-coordinates-on-section-151510-and-opencv-cvtcolor-errors-on-151672151674">1. Benchmark script threw &lsquo;staig_fusion fusion requires spatial coordinates&rsquo; on section 151510 and OpenCV <code>cvtColor</code> errors on 151672/151674.<a hidden class="anchor" aria-hidden="true" href="#1-benchmark-script-threw-staig_fusion-fusion-requires-spatial-coordinates-on-section-151510-and-opencv-cvtcolor-errors-on-151672151674">#</a></h4>
+<p><strong>Solution:</strong> Reviewed the code logic to diagnose missing spatial CSVs or corrupted image headers in the shared data directory. Configured subsequent runs to bypass these specific failed sections without aborting the entire pipeline.</p>
+<p><strong>Key Insight:</strong> Data integrity in multi-center spatial datasets is inconsistent; robust pipelines must implement per-slide data availability checks before launching heavy computational tasks like STAIG alignment.</p>
 <h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
-<h4 id="2-the-initial-attempt-to-run-all-benchmark-variants-simultaneously-caused-gpu-oom-failures-interrupting-the-background-pca-process">2. The initial attempt to run all benchmark variants simultaneously caused GPU OOM failures, interrupting the background PCA process.<a hidden class="anchor" aria-hidden="true" href="#2-the-initial-attempt-to-run-all-benchmark-variants-simultaneously-caused-gpu-oom-failures-interrupting-the-background-pca-process">#</a></h4>
-<p><strong>Solution:</strong> Parallel tasks were stopped, and the benchmarks were rerun sequentially to manage system resources safely without crashes.</p>
-<p><strong>Key Insight:</strong> Complex multi-modal embedding extraction (STAIG fusion + UNI2) severely consumes VRAM; sequential execution is crucial for stability in HPC environments with multiple active models.</p>
-<h4 id="3-the-repeated-function-definition-create_clustering_visualization-hides-the-import-in-run_benchmarkpy-preventing-the-updated-metrics-from-appearing-initially">3. The repeated function definition <code>create_clustering_visualization</code> hides the import in <code>run_benchmark.py</code>, preventing the updated metrics from appearing initially.<a hidden class="anchor" aria-hidden="true" href="#3-the-repeated-function-definition-create_clustering_visualization-hides-the-import-in-run_benchmarkpy-preventing-the-updated-metrics-from-appearing-initially">#</a></h4>
-<p><strong>Solution:</strong> Local inline definitions and main tool files were identified and refactored, ensuring consistent metric injection during execution.</p>
-<p><strong>Key Insight:</strong> Inlining functions in large benchmark scripts is a common trap that bypasses modular code paths; always verify the parsing status of call points before running full tests.</p>
-<h2 id="human-and-ai-approaches">Human and AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-and-ai-approaches">#</a></h2>
+<h4 id="2-initial-attempts-to-run-all-benchmark-variants-simultaneously-caused-gpu-oom-failures-killing-the-background-pca-process">2. Initial attempts to run all benchmark variants simultaneously caused GPU OOM failures, killing the background PCA process.<a hidden class="anchor" aria-hidden="true" href="#2-initial-attempts-to-run-all-benchmark-variants-simultaneously-caused-gpu-oom-failures-killing-the-background-pca-process">#</a></h4>
+<p><strong>Solution:</strong> Interrupted parallel tasks and re-executed benchmarks sequentially to manage system resources safely without crashes.</p>
+<p><strong>Key Insight:</strong> Complex multi-modal embedding extractions (STAIG fusion + UNI2) heavily saturate VRAM; sequential execution is necessary for stability on HPC environments with multiple active models.</p>
+<h4 id="3-duplicate-function-definitions-create_clustering_visualization-shadowing-imports-in-run_benchmarkpy-prevented-updated-metrics-from-appearing-initially">3. Duplicate function definitions (<code>create_clustering_visualization</code>) shadowing imports in <code>run_benchmark.py</code> prevented updated metrics from appearing initially.<a hidden class="anchor" aria-hidden="true" href="#3-duplicate-function-definitions-create_clustering_visualization-shadowing-imports-in-run_benchmarkpy-prevented-updated-metrics-from-appearing-initially">#</a></h4>
+<p><strong>Solution:</strong> Identified and refactored both the local inline definition and the primary utility file to ensure metric injection was applied consistently during execution.</p>
+<p><strong>Key Insight:</strong> Inlining functions within large benchmark scripts is a common pitfall that bypasses modular code paths; always verify call-site resolution before running full tests.</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
-<h4 id="design-dynamic-text-overlay-for-scanpyplots">Design dynamic text overlay for Scanpy/Plots<a hidden class="anchor" aria-hidden="true" href="#design-dynamic-text-overlay-for-scanpyplots">#</a></h4>
+<h4 id="designing-dynamic-text-overlays-for-scanpyplots">Designing Dynamic Text Overlays for Scanpy/Plots<a hidden class="anchor" aria-hidden="true" href="#designing-dynamic-text-overlays-for-scanpyplots">#</a></h4>
 <table>
   <thead>
       <tr>
           <th>Role</th>
-          <th>Method</th>
+          <th>Approach</th>
       </tr>
   </thead>
   <tbody>
       <tr>
           <td>Human</td>
-          <td>Realized the need to bypass automatic saving (which locks the figure) so that quantitative data text boxes can be added after generation.</td>
+          <td>Identified the need to bypass automated saving (which locks the figure) in order to append quantitative data text boxes post-generation.</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>AI switched the scanpy <code>sc.pl.spatial(..., save=)</code> mode to a clear <code>fig, ax = plt.subplots()</code> layout mode and manually used bounding boxes to render metrics clearly.</td>
+          <td>AI resolved this by switching scanpy&rsquo;s <code>sc.pl.spatial(..., save=)</code> mode to an explicit <code>fig, ax = plt.subplots()</code> layout pattern with manual bounding boxes for rendering metrics cleanly.</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Analysis of Differences:</strong> Humans focus on analytical needs (displaying scores directly on images), while AI provides a library-level solution that safely breaks out of scanpy’s encapsulation.</p>
+<p><strong>Difference Analysis:</strong> The human focused on the analytical requirement (seeing scores directly on the image), while the AI provided the specific library-level workaround to break scanpy&rsquo;s encapsulation safely.</p>
 <h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
-<h4 id="prioritize-handling-historical-and-current-benchmark-results">Prioritize handling historical and current benchmark results<a hidden class="anchor" aria-hidden="true" href="#prioritize-handling-historical-and-current-benchmark-results">#</a></h4>
+<h4 id="prioritizing-historical-vs-current-benchmark-results">Prioritizing Historical vs. Current Benchmark Results<a hidden class="anchor" aria-hidden="true" href="#prioritizing-historical-vs-current-benchmark-results">#</a></h4>
 <table>
   <thead>
       <tr>
           <th>Role</th>
-          <th>Method</th>
+          <th>Approach</th>
       </tr>
   </thead>
   <tbody>
       <tr>
           <td>Human</td>
-          <td>The user pointed out that the current output does not match the best historical score, strictly instructing not to overwrite existing <code>pca_uni_staig_fusion</code> results or use overrides.</td>
+          <td>User noted that current outputs didn&rsquo;t match the best historical scores and strictly instructed not to overwrite existing <code>pca_uni_staig_fusion</code> results or use overrides.</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>AI changed from attempting new parallel generation to incremental execution for missing cache sections, keeping the configuration identical to history to maintain data integrity.</td>
+          <td>AI switched from attempting fresh parallel generation to a targeted incremental run on missing cached sections, aligning exactly with historical configurations to preserve data integrity.</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Analysis of Differences:</strong> Humans impose strict constraints to prevent overwriting old data, avoiding the common AI error of blindly choosing the latest code path while ignoring established validation benchmarks.</p>
+<p><strong>Difference Analysis:</strong> The human provided strong constraints against overwriting legacy data, preventing a common AI mistake of blindly prioritizing newest code paths over established validation baselines.</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
 <ul>
-<li>When three heavy benchmark scripts were started simultaneously initially, the available HPC node VRAM limit was not checked, causing an OOM signal (137) and indicating inadequate environment state awareness before execution.</li>
-<li>AI initially had difficulty determining which local file <code>scripts/run_benchmark.py</code> and <code>utils/visualization.py</code> is handling function calls, resulting in a slight delay before both were fixed.</li>
+<li>The initial parallel launching of three heavy benchmark scripts without checking available HPC node VRAM limits resulted in OOM signal (137) kills, demonstrating imperfect environmental state awareness before execution.</li>
+<li>AI struggled initially to identify which local file (<code>scripts/run_benchmark.py</code> vs <code>utils/visualization.py</code>) was actively handling the function call, leading to a minor delay before both were successfully patched.</li>
 </ul>
-<h2 id="learning-outcomes">Learning Outcomes<a hidden class="anchor" aria-hidden="true" href="#learning-outcomes">#</a></h2>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
 <h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
 <ul>
-<li>In multi-center spatial transcriptomic embedding benchmarks like DLPFC, data inconsistency (e.g., missing <code>.txt</code> coordinates or corrupted H&amp;E images) is highly probable; automated processes must include validity checks for each section so that the process can smoothly handle healthy slices.</li>
+<li>When dealing with spatial transcriptomics embedding benchmarks on multi-center datasets like DLPFC, data inconsistencies (like missing <code>.txt</code> coordinates or corrupted H&amp;E images) are highly probabilistic; automated pipelines must include per-section validity gates to allow the pipeline to finish gracefully for healthy slides.</li>
 </ul>
-<h2 id="dialogue-summary">Dialogue Summary<a hidden class="anchor" aria-hidden="true" href="#dialogue-summary">#</a></h2>
-<p><strong>✅ Enhanced benchmark visualization through metric overlay</strong>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<p><strong>✅ Enhancing Benchmark Visualization with Metrics Overlay</strong>
 <em>21:46:17.845 | claude_code</em>
-The user requested extending standard MIHD clustering plots and RM-Ideal evaluations by displaying quantitative performance metrics (ARI, NMI, contour coefficient) directly on the visual images. I successfully refactored <code>utils/visualization.py</code>, removed scanpy’s default file saving method, and manually built matplotlib subplots with annotated bounding boxes. I also modified <code>run_benchmark.py</code> and <code>evaluate_rm_ideal.py</code> loads to ensure metrics are injected into these new plotting functions.</p>
-<p><strong>✅ Execute comprehensive slice benchmarks and RM-Ideal evaluations</strong>
+User requested augmenting standard MIHD clustering plots and RM-Ideal evaluations by displaying quantitative performance metrics (ARI, NMI, Silhouette) directly on the visualization images. I successfully refactored <code>utils/visualization.py</code>, breaking away from scanpy&rsquo;s default file-saver method to manually construct matplotlib subplots with annotated bounding boxes. I also modified <code>run_benchmark.py</code> and <code>evaluate_rm_ideal.py</code> payloads to ensure metrics are fed into these new plotting functions.</p>
+<p><strong>✅ Running Comprehensive Slide Benchmarks and RM-Ideal Evaluations</strong>
 <em>21:50:31.276 | claude_code</em>
-After the visual refactoring, I was asked to use various embeddings (PCA, UNI2, GCN) with STAIG alignment fusion for extensive benchmarks on all 11+ DLPFC slices. The initial attempt to run them in parallel failed due to GPU OOM issues. I changed to sequential execution of historically good configurations and correctly skipped segments with damaged or missing spatial coordinates (151510, 151672-4). Additionally, I started background processes to evaluate RM-Ideal niche scoring capabilities to measure organizational structure capture under these embeddings.</p>
+Following the visualization refactor, I was instructed to run extensive benchmarks across all 11+ DLPFC slides using various embeddings (PCA, UNI2, GCN) fused with STAIG alignment. Initial attempts at parallel execution failed due to GPU OOM issues. I pivoted to running historically strong configurations sequentially and correctly skipped sections with corrupted or missing spatial coordinates (151510, 151672-4). Additionally, I launched background processes to evaluate RM-Ideal niche scoring capabilities to measure exact tissue structure capture across these embeddings.</p>
 <h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
 <style>
   .usage-card {
@@ -444,7 +444,8 @@ After the visual refactoring, I was asked to use various embeddings (PCA, UNI2, 
         Most token volume came from cache reads.
       </p>
 </footer>
-<!-- gadget:src-hash:3b4fd47cca1e75bf -->
+<!-- gadget:src-hash:v2:3b4fd47cca1e75bf -->
+
 
   </div>
 <p class="ai-generated-claim">

@@ -7,7 +7,7 @@
 <meta name="robots" content="index, follow">
 <title>Bug Journal 2026-04-20 | TzJ&#39;s Net</title>
 <meta name="keywords" content="Bug Journal">
-<meta name="description" content="在小工具网站构建流程中解决了多个问题：图片同步、前序内容语言验证、翻译提示词优化以及图表样式设计。">
+<meta name="description" content="修复并解决了 gadget website build pipeline 中的多个问题：image sync、frontmatter language validation、translation prompt optimization 以及 chart styling">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-04-20/">
 <link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
@@ -79,16 +79,16 @@
 <meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-04-20/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="Bug Journal 2026-04-20">
-  <meta property="og:description" content="在小工具网站构建流程中解决了多个问题：图片同步、前序内容语言验证、翻译提示词优化以及图表样式设计。">
+  <meta property="og:description" content="修复并解决了 gadget website build pipeline 中的多个问题：image sync、frontmatter language validation、translation prompt optimization 以及 chart styling">
   <meta property="og:locale" content="zh_cn">
   <meta property="og:type" content="article">
     <meta property="article:section" content="bugjournal">
-    <meta property="article:published_time" content="2026-04-20T00:00:00-05:00">
-    <meta property="article:modified_time" content="2026-04-20T00:00:00-05:00">
+    <meta property="article:published_time" content="2026-04-20T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-04-20T00:00:00-04:00">
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Bug Journal 2026-04-20">
-  <meta name="twitter:description" content="在小工具网站构建流程中解决了多个问题：图片同步、前序内容语言验证、翻译提示词优化以及图表样式设计。">
+  <meta name="twitter:description" content="修复并解决了 gadget website build pipeline 中的多个问题：image sync、frontmatter language validation、translation prompt optimization 以及 chart styling">
 
 
 <script type="application/ld+json">
@@ -123,15 +123,15 @@
   "@type": "BlogPosting",
   "headline": "Bug Journal 2026-04-20",
   "name": "Bug Journal 2026-04-20",
-  "description": "在小工具网站构建流程中解决了多个问题：图片同步、前序内容语言验证、翻译提示词优化以及图表样式设计。",
+  "description": "修复并解决了 gadget website build pipeline 中的多个问题：image sync、frontmatter language validation、translation prompt optimization 以及 chart styling",
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "每日报告 — 2026-04-20 日常概述 已完成工作： 修复了 gadget 网站构建流程中的关键问题，包括缺失的每日图表图片、英文报告中中文摘要、BUILD 阻塞错误以及图表样式问题 实现方式： 在 preflight_check.py 中添加了新的验证规则，优化了小模型的翻译提示，实现了针对 staging 的修复函数，调整了图表生成参数，并增加了图表填充逻辑 影响： 恢复了网站完整性，所有 65 个每日图表都能正确显示，消除了双语报告中的语言不一致问题，并建立了可靠的双阶段修复机制（网站 + staging），避免同步覆盖 调试并修复了 gadget 网站构建流程中的多个问题：图片同步、前序信息语言验证、翻译提示优化以及图表样式\n任务 架构与策略 ✅ 修复网站中缺失的每日图表图片 — 在 sync_staging.py 的 MANAGED_PATHS 中添加 static/images/daily，在每日部署中实现图表填充，重新生成所有 65 个具有正确样式的图表 ✅ 修复英文 .md 文件中的中文摘要 — 扩展 check_language() 以验证摘要/描述字段，将翻译提示改为英文以适应 en 目标（解决 1.8B 模型上下文切换问题），使 fix_language_issues() 也修复 staging 源文件 ✅ 修复相对图表图片链接 — 添加 check_chart_links() 将相对路径（2026-04-10-usage.png）转换为绝对路径（/images/daily/2026-04-10-usage.png），适用于 en/zh 版本 实施与修复 ✅ 修复 BUILD 阻塞错误 — 从前序信息验证中排除 Resume.md/Resume.zh.md，修复了 2026-03-25.zh.md 中损坏的多行摘要 ✅ 标准化 bugJournal 标题 — 实现 check_bug_journal_titles() 强制格式为：‘Bug Journal YYYY-MM-DD’，‘Weekly Report YYYY-WXX’，‘Monthly Report YYYY-MM’ ✅ 调整图表样式 — 将字体改为 Times New Roman，标题设为 32pt/其他设为 24pt，修复 x 轴始终显示 Claude Code + Codex（数据缺失时显示 0），移除条形标签的粗体，设置 xlim 以防止边缘被压缩 问题与解决方案 关键问题 1. 翻译引擎（1.8B 模型）无法将长中文摘要翻译成英文，始终输出中文 解决方案： 修改 build_translation_prompt()，当 target_lang==‘en’ 时使用英文指令，而不是全中文指令，使模型能够脱离中文上下文并切换为英文输出\n关键洞察： 小型翻译模型（1.8B）对上下文敏感——中文提示会将其锁定在中文输出模式，使用目标语言指令有助于其切换输出语言\n2. preflight 修复（摘要语言、图表链接）在 update.sh 过程中被 sync_staging.py 撤销 解决方案： 修改所有修复函数（fix_language_issues、fix_title_issues、fix_chart_links）以同时修复 staging 源文件（outputs/site/content/），而不仅仅是网站/content/\n关键洞察： 在双阶段 staging 流程中，修复必须同时应用于双方才能避免同步覆盖。staging 源文件是权威副本\n3. 尽管生成于 outputs/images/summarize/，但网站上缺少每日图表 解决方案： 在 cmd_deploy() 中添加图表填充逻辑——过滤出已部署日期后，在 staging 中扫描缺失图表并重新生成复制，无需重新翻译内容\n关键洞察： Deploy 的“已部署”检查仅检查内容是否存在，忽略图表 staging 状态。资源部署应独立于内容部署状态\n4. Deploy 中的图片链接替换（../images/ → /images/daily/）与实际 markdown 不符（纯文件名） 解决方案： 修改替换规则以匹配两种模式：(../images/xxx) 和 (xxx-usage.png) → ‘/images/daily/xxx’，在翻译前执行，使 en/zh 都获得绝对路径\n关键洞察： 字符串替换必须匹配实际数据模式，而非假设模式。图片链接重写应在翻译前进行，以确保不同语言变体下的一致性\n一般问题 5. 图表 x 轴仅显示一种平台（Claude Code），无数据时 Codex 被压缩到右侧 解决方案： 固定平台列表始终包含 [‘Claude Code’, ‘Codex’]，添加 ax.set_xlim(-0.5, 1.5) 使条形居中，缺失数据时显示 ‘0.0M’/’$0.00’\n关键洞察： Matplotlib 的 tight_layout + 右侧图例导致动态平台列表时 x 轴压缩。固定 xlim 和固定平台顺序可防止布局偏移\n人类与 AI 方法 战略层面 意识到 preflight 修复需针对 staging 源文件 角色 方法 人类 用户指出“摘要中文问题又出现了”，经过多次修复尝试后发现 AI AI 持续修复网站/content/文件，未意识到 sync_staging.py 每次都会从 outputs/site/content/覆盖它们 差异分析： 人类的模式识别（问题重复出现）迫使 AI 追踪完整的同步流程并发现 staging 源文件问题。AI 应更早映射数据流依赖关系\n诊断部署后图表链接为何仍为相对路径 角色 方法 人类 用户直接检查 HTML 输出，报告链接仍错误，直接进行中间调试 AI AI 假设部署时的替换逻辑有效，尝试验证中间状态 差异分析： 人类的经验验证（检查最终 HTML）比 AI 的假设性调试更快发现问题。AI 应在庆祝中间修复前验证最终状态\n实施层面 图表字体大小迭代 角色 方法 人类 用户通过试错视觉检查要求特定字体大小（2.5x、1.5x、32pt） AI AI 直接执行每个缩放请求，未提前建议最优值 差异分析： 人类的基于视觉反馈的迭代与 AI 的“执行后等待”方式不同。对于主观样式，迭代是必要的，但 AI 可以建议参考范围\nAI 限制 关键限制 未能立即意识到 preflight 修复必须覆盖 staging 源文件，导致多次“修复→被覆盖→再次修复”的过程，直到理解双阶段同步架构 诊断翻译提示问题耗时过长——最初尝试分块、模型参数、 fallback 策略，直到发现根本原因是中文指令将模型锁定在中文输出模式 一般限制 未主动建议图表样式的理想字体大小或参考标准，需要用户多次调整大小要求 学习成果 关键学习点- 对于多阶段流水线（staging → deployment），修复措施必须应用于权威源（staging），而不仅仅是部署目标，以支撑同步操作 小型翻译模型（约1-2B参数）对上下文非常敏感：指令语言比明确的目标语言说明更为重要。使用目标语言指令可实现更好的输出切换 在调试重复问题时，需追踪从生成 → staging → sync → deployment的完整数据流，以找出状态被覆盖的位置 资产部署（图片、静态文件）应独立于内容部署状态。使用独立的“资产存在”检查，而非从内容存在情况推断 对于双语内容，在翻译前进行路径归一化（相对路径 → 绝对路径），使两种语言变体拥有一致的引用方式。URL/路径重写与语言无关，应在翻译之前完成 对话总结 ✅ 多系统调试：图片同步、语言验证、图表样式 04:42:09.324 | claude_code 用户报告网站上缺失每日图表图片。调查发现一系列问题：sync_staging.py中缺少MANAGED_PATHS条目，preflight_check中的语言验证不足（仅检查正文/标题，未检查摘要/描述），中文翻译提示导致小型模型无法输出英文，相对图表图片链接以及图表字体过小。通过扩展preflight检查、优化翻译提示、实现考虑staging的修复函数、添加图表补位逻辑以及调整图表样式（Times New Roman字体，标题32pt/正文24pt，固定X轴）解决了这些问题。最终结果：所有65个每日图表正确显示，具备一致的双语支持及统一绝对路径\nToken使用 AI Usage · 2026-04-20\rClaude Code + Codex\rTotal cost$152.93\rTotal tokens328M\rOutput tokens1M\rCache read78.2%\rCost split\rClaude Code $107 ·\rCodex $46\rToken character\rCache reads 78.2% ·\rActive 21.8%\rMost token volume came from cache reads.\r",
-  "wordCount" : "325",
+  "articleBody": "Daily Report — 2026-04-20 Daily Overview 完成工作： 修复了 gadget website build pipeline 中的关键问题，包括缺失的 daily chart images、English reports 中的 Chinese summaries、BUILD BLOCKED 错误以及 chart styling 问题 实现方式： 使用新的 validation rules 扩展了 preflight_check.py，优化了针对 small models 的 translation prompts，实现了 staging-aware fix functions，调整了 chart generation parameters，并添加了 chart backfill logic 影响： 恢复了 website 的完整性，所有 65 张 daily charts 均已正常显示，消除了 bilingual reports 中的语言不一致问题，并建立了一套稳健的两阶段修复机制 (website + staging) 以防止 sync overwrites 调试并修复了 gadget website build pipeline 中的多个问题：image sync、frontmatter language validation、translation prompt optimization 以及 chart styling\nTasks Architecture \u0026 Strategy ✅ 修复 website 上缺失的 daily chart images — 在 sync_staging.py 中将 static/images/daily 添加到 MANAGED_PATHS，在 daily deploy 中实现了 chart backfill，并使用正确的 styling 重新生成了所有 65 张 charts ✅ 修复 English .md 文件中的 Chinese summaries — 扩展了 check_language() 以验证 summary/description 字段，将 en target 的 translation prompt 改为 English（修复了 1.8B model 的 context switching 问题），并使 fix_language_issues() 同时修复 staging sources ✅ 修复 relative chart image links — 添加了 check_chart_links()，将 en/zh 版本的相对路径 (2026-04-10-usage.png) 转换为绝对路径 (/images/daily/2026-04-10-usage.png) Implementation \u0026 Fixes ✅ 修复 BUILD BLOCKED error — 将 Resume.md/Resume.zh.md 从 frontmatter validation 中排除，修复了 2026-03-25.zh.md 中损坏的 multi-line summary ✅ 标准化 bugJournal titles — 实现了 check_bug_journal_titles() 以强制执行格式：‘Bug Journal YYYY-MM-DD’, ‘Weekly Report YYYY-WXX’, ‘Monthly Report YYYY-MM’ ✅ 调整 chart styling — 将字体更改为 Times New Roman，title 为 32pt / 其他为 24pt，固定 x-axis 始终显示 Claude Code + Codex（对于缺失数据显示 0），移除了 bar labels 的 bold 效果，设置了 xlim 以防止边缘挤压 Problems \u0026 Solutions Critical Issues 1. Translation engine (1.8B model) 无法将长篇 Chinese summaries 翻译成 English，始终输出 Chinese Solution: 修改 build_translation_prompt()，在 target_lang==‘en’ 时使用 English instructions 而不是全中文指令，从而允许模型脱离 Chinese context 并切换到 English output\nKey Insight: Small translation models (1.8B) 对 context 非常敏感 —— Chinese prompts 会将它们困在 Chinese output mode 中。使用 target-language instructions 有助于它们切换输出语言\n2. Preflight fixes (summary language, chart links) 在执行 update.sh 时不断被 sync_staging.py 还原 Solution: 修改了所有 fix functions (fix_language_issues, fix_title_issues, fix_chart_links)，使其不仅修复 website/content/，同时也修复 staging source files (outputs/site/content/)\nKey Insight: 在两阶段的 staging pipeline (staging → website) 中，修复措施必须同时应用于两侧才能在 sync overwrites 中幸存。Staging source 是权威副本 (authoritative copy)\n3. 尽管在 outputs/images/summarize/ 中已生成，但 website 上仍缺失 daily charts Solution: 在 cmd_deploy() 中添加了 chart backfill logic —— 在过滤已部署日期后，扫描 staging 中缺失的 charts，并在不重新翻译内容的情况下进行 regenerate+copy\nKey Insight: Deploy 的 ‘already deployed’ 检查仅查看了 content 的存在性，忽略了 chart 的 staging 状态。Asset deployment 应当独立于 content deployment 状态\n4. Deploy 的 image link replacement (../images/ → /images/daily/) 与实际的 markdown (bare filename) 不匹配 Solution: 修改了 replacement 以同时匹配两种模式：’(../images/xxx)’ 和 ‘(xxx-usage.png)’ → ‘(/images/daily/xxx)’，并在 translation 之前应用，以确保 en/zh 版本都获得 absolute paths\nKey Insight: String replacements 必须匹配实际的数据模式，而不是假设的模式。Image link rewriting 应当在 pre-translation 阶段进行，以确保不同语言变体之间的一致性\nGeneral Issues 5. Chart x-axis 仅显示一个 platform (Claude Code)，当无数据时 Codex 被挤压到右边缘 Solution: 固定了 platforms list 以始终包含 [‘Claude Code’, ‘Codex’]，添加了 ax.set_xlim(-0.5, 1.5) 以保持 bars 居中，并为缺失数据显示 ‘0.0M’/’$0.00’\nKey Insight: Matplotlib 的 tight_layout + right legend 会导致动态 platform lists 下的 x-axis 压缩。通过固定 xlim + 固定 platform order 可以防止 layout shifts\nHuman vs AI Approaches Strategic Level 意识到 preflight fixes 需要针对 staging sources Role Approach Human 在多次修复尝试后，用户指出 ‘summary 中文问题又出现了’ AI AI 一直在修复 website/content/ 文件，没有意识到 sync_staging.py 每次都会从 outputs/site/content/ 覆盖它们 Difference Analysis: Human 的模式识别能力（问题反复出现）迫使 AI 追踪完整的 sync pipeline 并发现了 staging source 问题。AI 本应更早地映射数据流依赖关系\n诊断为什么 deploy 后 chart links 仍然是 relative 的 Role Approach Human 用户直接检查 HTML output 并报告 links 仍然错误，直接切中了问题的核心，跳过了中间的 debugging 过程 AI AI 假设 deploy-time replace logic 是有效的，并试图验证中间状态 Difference Analysis: Human 的经验验证（检查最终的 HTML）比 AI 基于假设的 debugging 更快地抓住了问题。AI 在庆祝中间修复成功之前应当验证最终状态 (end state)\nImplementation Level Chart font size 迭代 Role Approach Human 用户通过 trial-and-error 的视觉检查，请求了特定的 font size (2.5x, 然后 1.5x, 然后 32pt) AI AI 字面执行了每一次 scaling request，而没有预先建议 optimal values Difference Analysis: Human 基于视觉反馈进行 iterative refinement，而 AI 采用 execute-then-wait 的方式。对于主观的 styling，迭代是必要的，但 AI 可以尝试建议参考范围\nAI Limitations Critical Limitations 未能立即意识到 preflight fixes 必须覆盖 staging sources，导致在理解两阶段 sync architecture 之前，经历了多次 ‘fix → gets overwritten → fix again’ 的循环 诊断 translation prompt 问题耗时过长 —— 最初在意识到根源是 Chinese instructions 将模型困在 Chinese output mode 之前，尝试了 chunking、model parameters 和 fallback strategies General Limitations 没有主动为 chart styling 建议 optimal font sizes 或参考标准，需要用户通过多次 size requests 进行迭代 Learnings Key Learnings- 对于 multi-stage pipelines (staging → deployment)，修复必须应用于 authoritative source (staging)，而不仅仅是 deployment target，以在 sync operations 中得以保留 小型 translation models (~1-2B params) 对 context 非常敏感：instruction language 比显式的 target language specification 更重要。使用 target-language instructions 以获得更好的 output switching 效果 在调试 recurring issues 时，追踪从 generation → staging → sync → deployment 的完整 data flow，以识别 state 在何处被 overwrite Asset deployment (images, static files) 应独立于 content deployment state。使用独立的 ‘asset exists’ checks，而不是通过 content existence 进行推断 对于 bilingual content，在 translation 之前应用 path normalization (relative → absolute)，以便两种语言变体都能继承一致的 references。URL/path rewriting 是 language-agnostic 的，应在 pre-translation 阶段完成 Conversation Summaries ✅ Multi-system debugging: image sync, language validation, chart styling 04:42:09.324 | claude_code 用户报告网站上缺失 daily chart images。调查发现了一系列级联问题：sync_staging.py 中缺失 MANAGED_PATHS entry，preflight_check 中的 language validation 不充分（仅检查了 body/title，未检查 summary/description），Chinese translation prompts 导致 small model 无法输出 English，relative chart image links，以及 chart fonts 过小。通过扩展 preflight checks、优化 translation prompts、实现 staging-aware fix functions、添加 chart backfill logic 以及调整 chart styling (Times New Roman, 32pt title / 24pt body, fixed x-axis) 完成了修复。最终结果：所有 65 张 daily charts 均正确显示，并具备完善的 bilingual support 和一致的 absolute paths。\nToken Usage AI Usage · 2026-04-20\rClaude Code + Codex\rTotal cost$152.93\rTotal tokens328M\rOutput tokens1M\rCache read78.2%\rCost split\rClaude Code $107 ·\rCodex $46\rToken character\rCache reads 78.2% ·\rActive 21.8%\rMost token volume came from cache reads.\r",
+  "wordCount" : "795",
   "inLanguage": "zh",
-  "datePublished": "2026-04-20T00:00:00-05:00",
-  "dateModified": "2026-04-20T00:00:00-05:00",
+  "datePublished": "2026-04-20T00:00:00-04:00",
+  "dateModified": "2026-04-20T00:00:00-04:00",
   "mainEntityOfPage": {
     "@type": "WebPage",
     "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-04-20/"
@@ -254,137 +254,137 @@
     </h1>
     <div class="post-meta">
 
-<span title='2026-04-20 00:00:00 -0500 -0500'>2026年4月20日</span>&nbsp;·&nbsp;<span>2 分钟</span>
+<span title='2026-04-20 00:00:00 -0400 EDT'>2026年4月20日</span>&nbsp;·&nbsp;<span>4 分钟</span>
 
 </div>
   </header> 
-  <div class="post-content md-content"><h1 id="每日报告--2026-04-20">每日报告 — 2026-04-20<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-04-20">#</a></h1>
-<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+  <div class="post-content md-content"><h1 id="daily-report--2026-04-20">Daily Report — 2026-04-20<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-04-20">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
 <ul>
-<li><strong>已完成工作：</strong> 修复了 gadget 网站构建流程中的关键问题，包括缺失的每日图表图片、英文报告中中文摘要、BUILD 阻塞错误以及图表样式问题</li>
-<li><strong>实现方式：</strong> 在 preflight_check.py 中添加了新的验证规则，优化了小模型的翻译提示，实现了针对 staging 的修复函数，调整了图表生成参数，并增加了图表填充逻辑</li>
-<li><strong>影响：</strong> 恢复了网站完整性，所有 65 个每日图表都能正确显示，消除了双语报告中的语言不一致问题，并建立了可靠的双阶段修复机制（网站 + staging），避免同步覆盖</li>
+<li><strong>完成工作：</strong> 修复了 gadget website build pipeline 中的关键问题，包括缺失的 daily chart images、English reports 中的 Chinese summaries、BUILD BLOCKED 错误以及 chart styling 问题</li>
+<li><strong>实现方式：</strong> 使用新的 validation rules 扩展了 preflight_check.py，优化了针对 small models 的 translation prompts，实现了 staging-aware fix functions，调整了 chart generation parameters，并添加了 chart backfill logic</li>
+<li><strong>影响：</strong> 恢复了 website 的完整性，所有 65 张 daily charts 均已正常显示，消除了 bilingual reports 中的语言不一致问题，并建立了一套稳健的两阶段修复机制 (website + staging) 以防止 sync overwrites</li>
 </ul>
 <blockquote>
-<p>调试并修复了 gadget 网站构建流程中的多个问题：图片同步、前序信息语言验证、翻译提示优化以及图表样式</p>
+<p>调试并修复了 gadget website build pipeline 中的多个问题：image sync、frontmatter language validation、translation prompt optimization 以及 chart styling</p>
 </blockquote>
-<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
-<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
 <ul>
-<li>✅ <strong>修复网站中缺失的每日图表图片</strong> — 在 sync_staging.py 的 MANAGED_PATHS 中添加 static/images/daily，在每日部署中实现图表填充，重新生成所有 65 个具有正确样式的图表</li>
-<li>✅ <strong>修复英文 .md 文件中的中文摘要</strong> — 扩展 check_language() 以验证摘要/描述字段，将翻译提示改为英文以适应 en 目标（解决 1.8B 模型上下文切换问题），使 fix_language_issues() 也修复 staging 源文件</li>
-<li>✅ <strong>修复相对图表图片链接</strong> — 添加 check_chart_links() 将相对路径（2026-04-10-usage.png）转换为绝对路径（/images/daily/2026-04-10-usage.png），适用于 en/zh 版本</li>
+<li>✅ <strong>修复 website 上缺失的 daily chart images</strong> — 在 sync_staging.py 中将 static/images/daily 添加到 MANAGED_PATHS，在 daily deploy 中实现了 chart backfill，并使用正确的 styling 重新生成了所有 65 张 charts</li>
+<li>✅ <strong>修复 English .md 文件中的 Chinese summaries</strong> — 扩展了 check_language() 以验证 summary/description 字段，将 en target 的 translation prompt 改为 English（修复了 1.8B model 的 context switching 问题），并使 fix_language_issues() 同时修复 staging sources</li>
+<li>✅ <strong>修复 relative chart image links</strong> — 添加了 check_chart_links()，将 en/zh 版本的相对路径 (2026-04-10-usage.png) 转换为绝对路径 (/images/daily/2026-04-10-usage.png)</li>
 </ul>
-<h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
+<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
 <ul>
-<li>✅ <strong>修复 BUILD 阻塞错误</strong> — 从前序信息验证中排除 Resume.md/Resume.zh.md，修复了 2026-03-25.zh.md 中损坏的多行摘要</li>
-<li>✅ <strong>标准化 bugJournal 标题</strong> — 实现 check_bug_journal_titles() 强制格式为：&lsquo;Bug Journal YYYY-MM-DD&rsquo;，&lsquo;Weekly Report YYYY-WXX&rsquo;，&lsquo;Monthly Report YYYY-MM&rsquo;</li>
-<li>✅ <strong>调整图表样式</strong> — 将字体改为 Times New Roman，标题设为 32pt/其他设为 24pt，修复 x 轴始终显示 Claude Code + Codex（数据缺失时显示 0），移除条形标签的粗体，设置 xlim 以防止边缘被压缩</li>
+<li>✅ <strong>修复 BUILD BLOCKED error</strong> — 将 Resume.md/Resume.zh.md 从 frontmatter validation 中排除，修复了 2026-03-25.zh.md 中损坏的 multi-line summary</li>
+<li>✅ <strong>标准化 bugJournal titles</strong> — 实现了 check_bug_journal_titles() 以强制执行格式：&lsquo;Bug Journal YYYY-MM-DD&rsquo;, &lsquo;Weekly Report YYYY-WXX&rsquo;, &lsquo;Monthly Report YYYY-MM&rsquo;</li>
+<li>✅ <strong>调整 chart styling</strong> — 将字体更改为 Times New Roman，title 为 32pt / 其他为 24pt，固定 x-axis 始终显示 Claude Code + Codex（对于缺失数据显示 0），移除了 bar labels 的 bold 效果，设置了 xlim 以防止边缘挤压</li>
 </ul>
-<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
-<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
-<h4 id="1-翻译引擎18b-模型无法将长中文摘要翻译成英文始终输出中文">1. 翻译引擎（1.8B 模型）无法将长中文摘要翻译成英文，始终输出中文<a hidden class="anchor" aria-hidden="true" href="#1-翻译引擎18b-模型无法将长中文摘要翻译成英文始终输出中文">#</a></h4>
-<p><strong>解决方案：</strong> 修改 build_translation_prompt()，当 target_lang==&lsquo;en&rsquo; 时使用英文指令，而不是全中文指令，使模型能够脱离中文上下文并切换为英文输出</p>
-<p><strong>关键洞察：</strong> 小型翻译模型（1.8B）对上下文敏感——中文提示会将其锁定在中文输出模式，使用目标语言指令有助于其切换输出语言</p>
-<h4 id="2-preflight-修复摘要语言图表链接在-updatesh-过程中被-sync_stagingpy-撤销">2. preflight 修复（摘要语言、图表链接）在 update.sh 过程中被 sync_staging.py 撤销<a hidden class="anchor" aria-hidden="true" href="#2-preflight-修复摘要语言图表链接在-updatesh-过程中被-sync_stagingpy-撤销">#</a></h4>
-<p><strong>解决方案：</strong> 修改所有修复函数（fix_language_issues、fix_title_issues、fix_chart_links）以同时修复 staging 源文件（outputs/site/content/），而不仅仅是网站/content/</p>
-<p><strong>关键洞察：</strong> 在双阶段 staging 流程中，修复必须同时应用于双方才能避免同步覆盖。staging 源文件是权威副本</p>
-<h4 id="3-尽管生成于-outputsimagessummarize但网站上缺少每日图表">3. 尽管生成于 outputs/images/summarize/，但网站上缺少每日图表<a hidden class="anchor" aria-hidden="true" href="#3-尽管生成于-outputsimagessummarize但网站上缺少每日图表">#</a></h4>
-<p><strong>解决方案：</strong> 在 cmd_deploy() 中添加图表填充逻辑——过滤出已部署日期后，在 staging 中扫描缺失图表并重新生成复制，无需重新翻译内容</p>
-<p><strong>关键洞察：</strong> Deploy 的“已部署”检查仅检查内容是否存在，忽略图表 staging 状态。资源部署应独立于内容部署状态</p>
-<h4 id="4-deploy-中的图片链接替换images--imagesdaily与实际-markdown-不符纯文件名">4. Deploy 中的图片链接替换（../images/ → /images/daily/）与实际 markdown 不符（纯文件名）<a hidden class="anchor" aria-hidden="true" href="#4-deploy-中的图片链接替换images--imagesdaily与实际-markdown-不符纯文件名">#</a></h4>
-<p><strong>解决方案：</strong> 修改替换规则以匹配两种模式：(../images/xxx) 和 (xxx-usage.png) → &lsquo;/images/daily/xxx&rsquo;，在翻译前执行，使 en/zh 都获得绝对路径</p>
-<p><strong>关键洞察：</strong> 字符串替换必须匹配实际数据模式，而非假设模式。图片链接重写应在翻译前进行，以确保不同语言变体下的一致性</p>
-<h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
-<h4 id="5-图表-x-轴仅显示一种平台claude-code无数据时-codex-被压缩到右侧">5. 图表 x 轴仅显示一种平台（Claude Code），无数据时 Codex 被压缩到右侧<a hidden class="anchor" aria-hidden="true" href="#5-图表-x-轴仅显示一种平台claude-code无数据时-codex-被压缩到右侧">#</a></h4>
-<p><strong>解决方案：</strong> 固定平台列表始终包含 [&lsquo;Claude Code&rsquo;, &lsquo;Codex&rsquo;]，添加 ax.set_xlim(-0.5, 1.5) 使条形居中，缺失数据时显示 &lsquo;0.0M&rsquo;/&rsquo;$0.00&rsquo;</p>
-<p><strong>关键洞察：</strong> Matplotlib 的 tight_layout + 右侧图例导致动态平台列表时 x 轴压缩。固定 xlim 和固定平台顺序可防止布局偏移</p>
-<h2 id="人类与-ai-方法">人类与 AI 方法<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法">#</a></h2>
-<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
-<h4 id="意识到-preflight-修复需针对-staging-源文件">意识到 preflight 修复需针对 staging 源文件<a hidden class="anchor" aria-hidden="true" href="#意识到-preflight-修复需针对-staging-源文件">#</a></h4>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-translation-engine-18b-model-无法将长篇-chinese-summaries-翻译成-english始终输出-chinese">1. Translation engine (1.8B model) 无法将长篇 Chinese summaries 翻译成 English，始终输出 Chinese<a hidden class="anchor" aria-hidden="true" href="#1-translation-engine-18b-model-无法将长篇-chinese-summaries-翻译成-english始终输出-chinese">#</a></h4>
+<p><strong>Solution:</strong> 修改 build_translation_prompt()，在 target_lang==&lsquo;en&rsquo; 时使用 English instructions 而不是全中文指令，从而允许模型脱离 Chinese context 并切换到 English output</p>
+<p><strong>Key Insight:</strong> Small translation models (1.8B) 对 context 非常敏感 —— Chinese prompts 会将它们困在 Chinese output mode 中。使用 target-language instructions 有助于它们切换输出语言</p>
+<h4 id="2-preflight-fixes-summary-language-chart-links-在执行-updatesh-时不断被-sync_stagingpy-还原">2. Preflight fixes (summary language, chart links) 在执行 update.sh 时不断被 sync_staging.py 还原<a hidden class="anchor" aria-hidden="true" href="#2-preflight-fixes-summary-language-chart-links-在执行-updatesh-时不断被-sync_stagingpy-还原">#</a></h4>
+<p><strong>Solution:</strong> 修改了所有 fix functions (fix_language_issues, fix_title_issues, fix_chart_links)，使其不仅修复 website/content/，同时也修复 staging source files (outputs/site/content/)</p>
+<p><strong>Key Insight:</strong> 在两阶段的 staging pipeline (staging → website) 中，修复措施必须同时应用于两侧才能在 sync overwrites 中幸存。Staging source 是权威副本 (authoritative copy)</p>
+<h4 id="3-尽管在-outputsimagessummarize-中已生成但-website-上仍缺失-daily-charts">3. 尽管在 outputs/images/summarize/ 中已生成，但 website 上仍缺失 daily charts<a hidden class="anchor" aria-hidden="true" href="#3-尽管在-outputsimagessummarize-中已生成但-website-上仍缺失-daily-charts">#</a></h4>
+<p><strong>Solution:</strong> 在 cmd_deploy() 中添加了 chart backfill logic —— 在过滤已部署日期后，扫描 staging 中缺失的 charts，并在不重新翻译内容的情况下进行 regenerate+copy</p>
+<p><strong>Key Insight:</strong> Deploy 的 &lsquo;already deployed&rsquo; 检查仅查看了 content 的存在性，忽略了 chart 的 staging 状态。Asset deployment 应当独立于 content deployment 状态</p>
+<h4 id="4-deploy-的-image-link-replacement-images--imagesdaily-与实际的-markdown-bare-filename-不匹配">4. Deploy 的 image link replacement (../images/ → /images/daily/) 与实际的 markdown (bare filename) 不匹配<a hidden class="anchor" aria-hidden="true" href="#4-deploy-的-image-link-replacement-images--imagesdaily-与实际的-markdown-bare-filename-不匹配">#</a></h4>
+<p><strong>Solution:</strong> 修改了 replacement 以同时匹配两种模式：&rsquo;(../images/xxx)&rsquo; 和 &lsquo;(xxx-usage.png)&rsquo; → &lsquo;(/images/daily/xxx)&rsquo;，并在 translation 之前应用，以确保 en/zh 版本都获得 absolute paths</p>
+<p><strong>Key Insight:</strong> String replacements 必须匹配实际的数据模式，而不是假设的模式。Image link rewriting 应当在 pre-translation 阶段进行，以确保不同语言变体之间的一致性</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="5-chart-x-axis-仅显示一个-platform-claude-code当无数据时-codex-被挤压到右边缘">5. Chart x-axis 仅显示一个 platform (Claude Code)，当无数据时 Codex 被挤压到右边缘<a hidden class="anchor" aria-hidden="true" href="#5-chart-x-axis-仅显示一个-platform-claude-code当无数据时-codex-被挤压到右边缘">#</a></h4>
+<p><strong>Solution:</strong> 固定了 platforms list 以始终包含 [&lsquo;Claude Code&rsquo;, &lsquo;Codex&rsquo;]，添加了 ax.set_xlim(-0.5, 1.5) 以保持 bars 居中，并为缺失数据显示 &lsquo;0.0M&rsquo;/&rsquo;$0.00&rsquo;</p>
+<p><strong>Key Insight:</strong> Matplotlib 的 tight_layout + right legend 会导致动态 platform lists 下的 x-axis 压缩。通过固定 xlim + 固定 platform order 可以防止 layout shifts</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="意识到-preflight-fixes-需要针对-staging-sources">意识到 preflight fixes 需要针对 staging sources<a hidden class="anchor" aria-hidden="true" href="#意识到-preflight-fixes-需要针对-staging-sources">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>角色</th>
-          <th>方法</th>
+          <th>Role</th>
+          <th>Approach</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>人类</td>
-          <td>用户指出“摘要中文问题又出现了”，经过多次修复尝试后发现</td>
+          <td>Human</td>
+          <td>在多次修复尝试后，用户指出 &lsquo;summary 中文问题又出现了&rsquo;</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>AI 持续修复网站/content/文件，未意识到 sync_staging.py 每次都会从 outputs/site/content/覆盖它们</td>
+          <td>AI 一直在修复 website/content/ 文件，没有意识到 sync_staging.py 每次都会从 outputs/site/content/ 覆盖它们</td>
       </tr>
   </tbody>
 </table>
-<p><strong>差异分析：</strong> 人类的模式识别（问题重复出现）迫使 AI 追踪完整的同步流程并发现 staging 源文件问题。AI 应更早映射数据流依赖关系</p>
-<h4 id="诊断部署后图表链接为何仍为相对路径">诊断部署后图表链接为何仍为相对路径<a hidden class="anchor" aria-hidden="true" href="#诊断部署后图表链接为何仍为相对路径">#</a></h4>
+<p><strong>Difference Analysis:</strong> Human 的模式识别能力（问题反复出现）迫使 AI 追踪完整的 sync pipeline 并发现了 staging source 问题。AI 本应更早地映射数据流依赖关系</p>
+<h4 id="诊断为什么-deploy-后-chart-links-仍然是-relative-的">诊断为什么 deploy 后 chart links 仍然是 relative 的<a hidden class="anchor" aria-hidden="true" href="#诊断为什么-deploy-后-chart-links-仍然是-relative-的">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>角色</th>
-          <th>方法</th>
+          <th>Role</th>
+          <th>Approach</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>人类</td>
-          <td>用户直接检查 HTML 输出，报告链接仍错误，直接进行中间调试</td>
+          <td>Human</td>
+          <td>用户直接检查 HTML output 并报告 links 仍然错误，直接切中了问题的核心，跳过了中间的 debugging 过程</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>AI 假设部署时的替换逻辑有效，尝试验证中间状态</td>
+          <td>AI 假设 deploy-time replace logic 是有效的，并试图验证中间状态</td>
       </tr>
   </tbody>
 </table>
-<p><strong>差异分析：</strong> 人类的经验验证（检查最终 HTML）比 AI 的假设性调试更快发现问题。AI 应在庆祝中间修复前验证最终状态</p>
-<h3 id="实施层面">实施层面<a hidden class="anchor" aria-hidden="true" href="#实施层面">#</a></h3>
-<h4 id="图表字体大小迭代">图表字体大小迭代<a hidden class="anchor" aria-hidden="true" href="#图表字体大小迭代">#</a></h4>
+<p><strong>Difference Analysis:</strong> Human 的经验验证（检查最终的 HTML）比 AI 基于假设的 debugging 更快地抓住了问题。AI 在庆祝中间修复成功之前应当验证最终状态 (end state)</p>
+<h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
+<h4 id="chart-font-size-迭代">Chart font size 迭代<a hidden class="anchor" aria-hidden="true" href="#chart-font-size-迭代">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>角色</th>
-          <th>方法</th>
+          <th>Role</th>
+          <th>Approach</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>人类</td>
-          <td>用户通过试错视觉检查要求特定字体大小（2.5x、1.5x、32pt）</td>
+          <td>Human</td>
+          <td>用户通过 trial-and-error 的视觉检查，请求了特定的 font size (2.5x, 然后 1.5x, 然后 32pt)</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>AI 直接执行每个缩放请求，未提前建议最优值</td>
+          <td>AI 字面执行了每一次 scaling request，而没有预先建议 optimal values</td>
       </tr>
   </tbody>
 </table>
-<p><strong>差异分析：</strong> 人类的基于视觉反馈的迭代与 AI 的“执行后等待”方式不同。对于主观样式，迭代是必要的，但 AI 可以建议参考范围</p>
-<h2 id="ai-限制">AI 限制<a hidden class="anchor" aria-hidden="true" href="#ai-限制">#</a></h2>
-<h3 id="关键限制">关键限制<a hidden class="anchor" aria-hidden="true" href="#关键限制">#</a></h3>
+<p><strong>Difference Analysis:</strong> Human 基于视觉反馈进行 iterative refinement，而 AI 采用 execute-then-wait 的方式。对于主观的 styling，迭代是必要的，但 AI 可以尝试建议参考范围</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
 <ul>
-<li>未能立即意识到 preflight 修复必须覆盖 staging 源文件，导致多次“修复→被覆盖→再次修复”的过程，直到理解双阶段同步架构</li>
-<li>诊断翻译提示问题耗时过长——最初尝试分块、模型参数、 fallback 策略，直到发现根本原因是中文指令将模型锁定在中文输出模式</li>
+<li>未能立即意识到 preflight fixes 必须覆盖 staging sources，导致在理解两阶段 sync architecture 之前，经历了多次 &lsquo;fix → gets overwritten → fix again&rsquo; 的循环</li>
+<li>诊断 translation prompt 问题耗时过长 —— 最初在意识到根源是 Chinese instructions 将模型困在 Chinese output mode 之前，尝试了 chunking、model parameters 和 fallback strategies</li>
 </ul>
-<h3 id="一般限制">一般限制<a hidden class="anchor" aria-hidden="true" href="#一般限制">#</a></h3>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
 <ul>
-<li>未主动建议图表样式的理想字体大小或参考标准，需要用户多次调整大小要求</li>
+<li>没有主动为 chart styling 建议 optimal font sizes 或参考标准，需要用户通过多次 size requests 进行迭代</li>
 </ul>
-<h2 id="学习成果">学习成果<a hidden class="anchor" aria-hidden="true" href="#学习成果">#</a></h2>
-<h3 id="关键学习点--对于多阶段流水线staging--deployment修复措施必须应用于权威源staging而不仅仅是部署目标以支撑同步操作">关键学习点- 对于多阶段流水线（staging → deployment），修复措施必须应用于权威源（staging），而不仅仅是部署目标，以支撑同步操作<a hidden class="anchor" aria-hidden="true" href="#关键学习点--对于多阶段流水线staging--deployment修复措施必须应用于权威源staging而不仅仅是部署目标以支撑同步操作">#</a></h3>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings--对于-multi-stage-pipelines-staging--deployment修复必须应用于-authoritative-source-staging而不仅仅是-deployment-target以在-sync-operations-中得以保留">Key Learnings- 对于 multi-stage pipelines (staging → deployment)，修复必须应用于 authoritative source (staging)，而不仅仅是 deployment target，以在 sync operations 中得以保留<a hidden class="anchor" aria-hidden="true" href="#key-learnings--对于-multi-stage-pipelines-staging--deployment修复必须应用于-authoritative-source-staging而不仅仅是-deployment-target以在-sync-operations-中得以保留">#</a></h3>
 <ul>
-<li>小型翻译模型（约1-2B参数）对上下文非常敏感：指令语言比明确的目标语言说明更为重要。使用目标语言指令可实现更好的输出切换</li>
-<li>在调试重复问题时，需追踪从生成 → staging → sync → deployment的完整数据流，以找出状态被覆盖的位置</li>
-<li>资产部署（图片、静态文件）应独立于内容部署状态。使用独立的“资产存在”检查，而非从内容存在情况推断</li>
-<li>对于双语内容，在翻译前进行路径归一化（相对路径 → 绝对路径），使两种语言变体拥有一致的引用方式。URL/路径重写与语言无关，应在翻译之前完成</li>
+<li>小型 translation models (~1-2B params) 对 context 非常敏感：instruction language 比显式的 target language specification 更重要。使用 target-language instructions 以获得更好的 output switching 效果</li>
+<li>在调试 recurring issues 时，追踪从 generation → staging → sync → deployment 的完整 data flow，以识别 state 在何处被 overwrite</li>
+<li>Asset deployment (images, static files) 应独立于 content deployment state。使用独立的 &lsquo;asset exists&rsquo; checks，而不是通过 content existence 进行推断</li>
+<li>对于 bilingual content，在 translation 之前应用 path normalization (relative → absolute)，以便两种语言变体都能继承一致的 references。URL/path rewriting 是 language-agnostic 的，应在 pre-translation 阶段完成</li>
 </ul>
-<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
-<p><strong>✅ 多系统调试：图片同步、语言验证、图表样式</strong>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<p><strong>✅ Multi-system debugging: image sync, language validation, chart styling</strong>
 <em>04:42:09.324 | claude_code</em>
-用户报告网站上缺失每日图表图片。调查发现一系列问题：sync_staging.py中缺少MANAGED_PATHS条目，preflight_check中的语言验证不足（仅检查正文/标题，未检查摘要/描述），中文翻译提示导致小型模型无法输出英文，相对图表图片链接以及图表字体过小。通过扩展preflight检查、优化翻译提示、实现考虑staging的修复函数、添加图表补位逻辑以及调整图表样式（Times New Roman字体，标题32pt/正文24pt，固定X轴）解决了这些问题。最终结果：所有65个每日图表正确显示，具备一致的双语支持及统一绝对路径</p>
-<h2 id="token使用">Token使用<a hidden class="anchor" aria-hidden="true" href="#token使用">#</a></h2>
+用户报告网站上缺失 daily chart images。调查发现了一系列级联问题：sync_staging.py 中缺失 MANAGED_PATHS entry，preflight_check 中的 language validation 不充分（仅检查了 body/title，未检查 summary/description），Chinese translation prompts 导致 small model 无法输出 English，relative chart image links，以及 chart fonts 过小。通过扩展 preflight checks、优化 translation prompts、实现 staging-aware fix functions、添加 chart backfill logic 以及调整 chart styling (Times New Roman, 32pt title / 24pt body, fixed x-axis) 完成了修复。最终结果：所有 65 张 daily charts 均正确显示，并具备完善的 bilingual support 和一致的 absolute paths。</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
 <style>
   .usage-card {
     --usage-bg: #fafaf9;
@@ -481,7 +481,7 @@
         Most token volume came from cache reads.
       </p>
 </footer>
-<!-- gadget:src-hash:8d6d5b61575748e3 -->
+<!-- gadget:src-hash:v2:4d5a56bf01794d88 -->
 
 
   </div>

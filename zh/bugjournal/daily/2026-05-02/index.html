@@ -7,7 +7,7 @@
 <meta name="robots" content="index, follow">
 <title>Bug Journal 2026-05-02 | TzJ&#39;s Net</title>
 <meta name="keywords" content="Bug Journal">
-<meta name="description" content="分析了机器人模型性能波动问题以及固定的TokenMonitor光标使用显示漏洞">
+<meta name="description" content="分析了 robotics model 性能回归，并修复了 TokenMonitor Cursor 利用率显示 bug">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-05-02/">
 <link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
@@ -79,16 +79,16 @@
 <meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-05-02/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="Bug Journal 2026-05-02">
-  <meta property="og:description" content="分析了机器人模型性能波动问题以及固定的TokenMonitor光标使用显示漏洞">
+  <meta property="og:description" content="分析了 robotics model 性能回归，并修复了 TokenMonitor Cursor 利用率显示 bug">
   <meta property="og:locale" content="zh_cn">
   <meta property="og:type" content="article">
     <meta property="article:section" content="bugjournal">
-    <meta property="article:published_time" content="2026-05-02T00:00:00-05:00">
-    <meta property="article:modified_time" content="2026-05-02T00:00:00-05:00">
+    <meta property="article:published_time" content="2026-05-02T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-05-02T00:00:00-04:00">
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Bug Journal 2026-05-02">
-  <meta name="twitter:description" content="分析了机器人模型性能波动问题以及固定的TokenMonitor光标使用显示漏洞">
+  <meta name="twitter:description" content="分析了 robotics model 性能回归，并修复了 TokenMonitor Cursor 利用率显示 bug">
 
 
 <script type="application/ld+json">
@@ -123,15 +123,15 @@
   "@type": "BlogPosting",
   "headline": "Bug Journal 2026-05-02",
   "name": "Bug Journal 2026-05-02",
-  "description": "分析了机器人模型性能波动问题以及固定的TokenMonitor光标使用显示漏洞",
+  "description": "分析了 robotics model 性能回归，并修复了 TokenMonitor Cursor 利用率显示 bug",
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "每日报告 — 2026-05-02 日常概述 已完成工作： 评估了 pi0.5 模型 v2 在 Clean Rollout 和 Error Recovery 任务中的性能；调试并修复了 TokenMonitor FloatBall Cursor 使用显示问题 实施方式： 对基准数据进行统计分析，计算差值并识别回归现象；对 Rust 后端进行了修改，增加了回退逻辑并实现了全面测试覆盖 影响： 发现了 pick_place 任务中的关键回归模式，需要进一步调查；为没有 spend_limit_usage 数据的用户恢复了正常的 Cursor 使用率限制显示 MacBook 已完成工作： 多次登录但未进行实质性操作 实施方式： 尝试与 Claude Code 交互但遇到认证障碍 影响： 无有效输出；会话仅停留在登录界面 TzJsDesktop 已完成工作： 分析了 pi0.5 v1/v2 模型在6项机器人任务中的对比情况；修复了 TokenMonitor Cursor FloatBall N/A 显示错误 实施方式： 使用差值列格式化性能表格，计算汇总统计值，识别任务特定模式；修改了 tray.rs 中的利用提取逻辑，将 extra_usage→primary_window 作为回退方案 影响： 发现 Clean Rollout 中 v2 的回归（-5.6pp）以及 pick_place 任务中的回归（-24.1pp 在 Error Recovery 中），已标记待调查；为只有 plan_usage 数据的用户恢复了 Cursor 使用显示 分析了机器人模型性能回归情况并修复了 TokenMonitor Cursor 使用显示错误\n任务 架构与策略 ✅ 分析 pi0.5 模型 v2 与 v1 的性能对比 — 为 BCRNN 和 pi0.5 模型格式化了 Clean Rollout 和 Error Recovery 场景下的基准表格，计算差值并识别 v2 中的回归现象 实施与修复 ✅ 修复 TokenMonitor Cursor FloatBall N/A 显示问题 — 修改了 tray.rs 中 Cursor 的利用提取逻辑，从 extra_usage_utilization 回退到 primary_window_utilization，增加了两项测试，通过21项测试并满足 clippy 规范 问题与解决方案 关键问题 1. pi0.5 v2 在 Clean Rollout 中整体出现回归（平均 -5.6pp），尽管线程任务表现改善（+24pp） 解决方案： 使用差值列格式化的对比表格以分离任务特定的性能变化；识别出 pick_place、coffee、stack 和 stack_three 为表现下降的任务\n关键洞察： 模型 v2 存在任务特定的性能差异：线程任务的显著改善与操作任务中的广泛回归形成对比，表明这是架构层面的权衡而非均匀退化\n2. pick_place 任务在 Error Recovery 场景中出现严重回归：pi0.5 v2 下降 -24.1pp（42.9% → 18.8%） 解决方案： 在分析总结中将 pick_place 标记为关键调查优先级；未立即实施修复，等待更深入诊断\n关键洞察： 即使基础任务完成率尚可，Error Recovery 性能也可能显著下降，表明 v2 对干扰的鲁棒性可能降低\n一般问题 3. TokenMonitor FloatBall 显示 Cursor 使用率为 N/A，因为只有 plan_usage 数据的用户中 extra_usage 字段为 None 解决方案： 在 tray_utilization_from_rate_limits() 中修改了 Cursor 利用提取逻辑，从仅检查 extra_usage 改为回退链：extra_usage_utilization().or_else(|| primary_window_utilization())\n关键洞察： 大多数 Cursor 用户有 plan_usage（基于窗口且包含 auto_percent_used/api_percent_used），但缺乏 spend_limit_usage（基于 extra_usage）；之前的代码仅检查 extra_usage，导致 None → N/A 显示\n人类与 AI 方法 战略层面 模型性能对比方法 角色 方法 人类 用户提供包含运行/完成标记的原始基准表格，要求对 v2-v1 进行格式化的对比及差值分析 AI Claude 添加差值列、运行任务的表情符号指示、突出显示各任务中表现更好的版本、计算汇总统计值，并提供回归现象的书面解释 差异分析： 人类关注视觉呈现和高级对比需求；AI 在未被要求的情况下添加了统计深度分析（汇总变化、任务特定模式分析）和诊断建议\nAI 限制 一般限制 多个 MacBook 会话显示 Claude 未登录，但未提供解决认证问题的主动指导 学习成果 关键学习点 模型版本改进可能是任务特定的而非统一的：pi0.5 v2 在线程任务中改善了 +24pp，但在其他4项 Clean Rollout 任务中表现下降，表明需要针对每个任务进行架构权衡分析 Error Recovery 性能可能与基础任务成功率分离：尽管 Clean Rollout 状态未知，pick_place 在 Error Recovery 中下降 -24.1pp，凸显鲁棒性是一个独立的评估维度 实际学习点 速率限制数据来源因用户等级而异：Cursor 用户可能有 plan_usage（基于窗口），但缺乏 spend_limit_usage（基于 extra_usage），需要在 UI 数据提取中添加回退逻辑以避免 null/N/A 显示 对话总结 机器人模型基准测试 ✅ pi0.5 v2 与 v1 在6项任务中的性能评估 05:56:19.034 | claude_code 用户提供了 BCRNN 和 pi0.5 模型（v1/v2）的原始基准表格，涵盖 Clean Rollout 和 Error Recovery 场景。Claude 格式化了数据并添加差值列，计算了汇总统计值，发现 pi0.5 v2 在 Clean Rollout 中整体下降（-5.6pp），但线程任务改善（+24pp），pick_place 在 Error Recovery 中严重下降（-24.1pp）。建议调查 v2 的 pick_place 和 coffee 任务回归情况。\nTokenMonitor ✅ 修复 Cursor FloatBall N/A 显示错误 05:57:21.549 | claude_code 继续前一次会话，修复了 FloatBall 小部件中 Cursor 速率限制利用显示为 N/A 的问题。根本原因：tray_utilization_from_rate_limits() 仅检查 extra_usage_utilization（来自 spend_limit_usage），但大多数 Cursor 用户只有 plan_usage（primary_window 数据）。修改了 Cursor 提取逻辑，从 extra_usage 回退到 primary_window。增加了两项测试，所有21项测试通过，clippy 规范满足。\n令牌使用 AI Usage · 2026-05-02\rClaude Code + Codex\rTotal cost$62.31\rTotal tokens81M\rOutput tokens481K\rCache read86.8%\rCost split\rClaude Code $9 ·\rCodex $53\rToken character\rCache reads 86.8% ·\rActive 13.2%\rMost token volume came from cache reads; Codex drove nearly all cost.\r",
-  "wordCount" : "368",
+  "articleBody": "Daily Report — 2026-05-02 Daily Overview 完成工作: 在 Clean Rollout 和 Error Recovery 任务中评估了 pi0.5 model v2 的性能；调试并修复了 TokenMonitor FloatBall Cursor 利用率显示问题 实施方式: 对 benchmark 数据进行统计分析，包含 delta 计算和 regression 识别；修改 Rust backend 并添加了 fallback 逻辑及全面的测试覆盖 影响: 识别出 pick_place 任务中需要调查的关键 regression 模式；为仅有 plan_usage data 的用户恢复了 Cursor rate limit 监控功能 MacBook 完成工作: 多次尝试登录但未进行实质性工作 实施方式: 尝试与 Claude Code 交互但遇到了身份验证障碍 影响: 无生产性输出；session 未能越过登录界面 TzJsDesktop 完成工作: 分析了 pi0.5 v1/v2 model 在 6 个 robotics 任务中的对比情况；修复了 TokenMonitor Cursor FloatBall 显示 N/A 的 bug 实施方式: 使用 delta 列格式化性能表格，计算了 aggregate statistics，并识别了特定任务的模式；修改了 tray.rs 的 utilization 提取逻辑，增加了 extra_usage→primary_window 的 fallback 影响: 发现 v2 在 Clean Rollout (-5.6pp) 和 pick_place 任务 (-24.1pp in Error Recovery) 中存在 regression，已标记待调查；为仅有 plan_usage data 的用户恢复了 Cursor utilization 显示 分析了 robotics model 性能 regression 并修复了 TokenMonitor Cursor utilization 显示 bug\nTasks Architecture \u0026 Strategy ✅ Analyze pi0.5 model v2 performance vs v1 — 为 BCRNN 和 pi0.5 models 在 Clean Rollout 和 Error Recovery 场景下的 benchmark 表格进行了格式化，计算了 deltas，并识别了 v2 中的 regression 模式 Implementation \u0026 Fixes ✅ Fix TokenMonitor Cursor FloatBall N/A display — 修改了 tray.rs，使 Cursor 的利用率从 extra_usage_utilization fallback 到 primary_window_utilization，增加了两个测试，并通过 21 个测试且 clippy clean Problems \u0026 Solutions Critical Issues 1. pi0.5 v2 在 Clean Rollout 中表现出整体 regression (-5.6pp average)，尽管在 threading task 中有所提升 (+24pp) Solution: 使用带有 delta 列的对比表格来隔离特定任务的性能变化；识别出 pick_place, coffee, stack, 和 stack_three 为 regressing 任务\nKey Insight: Model v2 具有任务特定的性能差异：threading 的显著提升与 manipulation 任务中的广泛 regression 形成对比，这表明是架构上的 trade-offs 而非统一的退化\n2. pick_place 任务在 Error Recovery 场景中表现出严重的 regression：pi0.5 v2 下降了 -24.1pp (42.9% → 18.8%) Solution: 在分析摘要中将 pick_place 标记为关键调查优先级；尚未实施即时修复，等待更深入的诊断\nKey Insight: 即使基础任务完成率尚可，Error recovery 性能也可能显著下降，这表明 v2 可能降低了对 perturbations 的 robustness\nGeneral Issues 3. TokenMonitor FloatBall 对 Cursor utilization 显示 N/A，因为对于仅有 plan_usage data 的用户，extra_usage 字段为 None Solution: 将 tray_utilization_from_rate_limits() 中的 Cursor utilization 提取逻辑从仅限 extra_usage 改为 fallback 链：extra_usage_utilization().or_else(|| primary_window_utilization())\nKey Insight: 大多数 Cursor 用户拥有 plan_usage (基于 windows 的 auto_percent_used/api_percent_used)，但缺乏 spend_limit_usage (基于 extra_usage)；之前的代码仅检查 extra_usage，导致 None → N/A 显示\nHuman vs AI Approaches Strategic Level Model performance comparison methodology Role Approach Human 用户提供了带有 running/completed 标记的原始 benchmark tables，并要求进行带有 v2-v1 delta analysis 的格式化对比 AI Claude 添加了 delta 列、用于 running 任务的 emoji 指示器、突出了每个任务中表现更好的版本、计算了 aggregate statistics，并提供了关于 regression 模式的书面解读 Difference Analysis: Human 侧重于视觉呈现和高层级的对比请求；AI 在未被要求的情况下增加了统计深度 (aggregate changes, task-specific pattern analysis) 和诊断性建议\nAI Limitations General Limitations 多个 MacBook sessions 显示 Claude 未登录，但未针对解决身份验证问题提供主动指导 Learnings Key Learnings Model version 的改进可能是任务特定的而非统一的：pi0.5 v2 在 threading 上提升了 +24pp，但在其他 4 个 Clean Rollout 任务中出现 regression，这表明存在值得进行 per-task 调查的架构 trade-offs Error recovery 性能可能与基础任务成功率脱钩：尽管 Clean Rollout 状态未知，但 pick_place 在 Error Recovery 中 regressed -24.1pp，突显了 robustness 是一个独立的评估维度 Practical Learnings Rate limit 数据源因用户层级而异：Cursor 用户可能有 plan_usage (基于 windows) 但没有 spend_limit_usage (基于 extra_usage)，这需要在 UI 数据提取中添加 fallback 逻辑以避免 null/N/A 显示 Conversation Summaries Robotics Model Benchmarking ✅ pi0.5 v2 performance evaluation vs v1 across 6 tasks 05:56:19.034 | claude_code 用户提供了 BCRNN 和 pi0.5 models (v1/v2) 在 Clean Rollout 和 Error Recovery 场景下的原始 benchmark tables。Claude 使用 delta 列格式化了数据，计算了 aggregate statistics，并识别出 pi0.5 v2 在 Clean Rollout 中整体 regression (-5.6pp)，除了 threading (+24pp) 之外，其中 pick_place 显示出严重的 Error Recovery regression (-24.1pp)。建议调查 v2 的 pick_place 和 coffee 任务的 regression。\nTokenMonitor ✅ Fix Cursor FloatBall N/A display bug 05:57:21.549 | claude_code 延续之前的 session 以修复 Cursor rate limit utilization 在 FloatBall widget 中显示 N/A 的问题。根本原因：tray_utilization_from_rate_limits() 仅检查 extra_usage_utilization (来自 spend_limit_usage)，但大多数 Cursor 用户只有 plan_usage (primary_window data)。修改了 Cursor 提取逻辑，使其从 extra_usage fallback 到 primary_window。增加了两个测试，所有 21 个测试均通过，clippy clean。\nToken Usage AI Usage · 2026-05-02\rClaude Code + Codex\rTotal cost$62.31\rTotal tokens81M\rOutput tokens481K\rCache read86.8%\rCost split\rClaude Code $9 ·\rCodex $53\rToken character\rCache reads 86.8% ·\rActive 13.2%\rMost token volume came from cache reads; Codex drove nearly all cost.\r",
+  "wordCount" : "553",
   "inLanguage": "zh",
-  "datePublished": "2026-05-02T00:00:00-05:00",
-  "dateModified": "2026-05-02T00:00:00-05:00",
+  "datePublished": "2026-05-02T00:00:00-04:00",
+  "dateModified": "2026-05-02T00:00:00-04:00",
   "mainEntityOfPage": {
     "@type": "WebPage",
     "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-05-02/"
@@ -254,100 +254,100 @@
     </h1>
     <div class="post-meta">
 
-<span title='2026-05-02 00:00:00 -0500 -0500'>2026年5月2日</span>&nbsp;·&nbsp;<span>2 分钟</span>
+<span title='2026-05-02 00:00:00 -0400 EDT'>2026年5月2日</span>&nbsp;·&nbsp;<span>3 分钟</span>
 
 </div>
   </header> 
-  <div class="post-content md-content"><h1 id="每日报告--2026-05-02">每日报告 — 2026-05-02<a hidden class="anchor" aria-hidden="true" href="#每日报告--2026-05-02">#</a></h1>
-<h2 id="日常概述">日常概述<a hidden class="anchor" aria-hidden="true" href="#日常概述">#</a></h2>
+  <div class="post-content md-content"><h1 id="daily-report--2026-05-02">Daily Report — 2026-05-02<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-05-02">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
 <ul>
-<li><strong>已完成工作：</strong> 评估了 pi0.5 模型 v2 在 Clean Rollout 和 Error Recovery 任务中的性能；调试并修复了 TokenMonitor FloatBall Cursor 使用显示问题</li>
-<li><strong>实施方式：</strong> 对基准数据进行统计分析，计算差值并识别回归现象；对 Rust 后端进行了修改，增加了回退逻辑并实现了全面测试覆盖</li>
-<li><strong>影响：</strong> 发现了 pick_place 任务中的关键回归模式，需要进一步调查；为没有 spend_limit_usage 数据的用户恢复了正常的 Cursor 使用率限制显示</li>
+<li><strong>完成工作:</strong> 在 Clean Rollout 和 Error Recovery 任务中评估了 pi0.5 model v2 的性能；调试并修复了 TokenMonitor FloatBall Cursor 利用率显示问题</li>
+<li><strong>实施方式:</strong> 对 benchmark 数据进行统计分析，包含 delta 计算和 regression 识别；修改 Rust backend 并添加了 fallback 逻辑及全面的测试覆盖</li>
+<li><strong>影响:</strong> 识别出 pick_place 任务中需要调查的关键 regression 模式；为仅有 plan_usage data 的用户恢复了 Cursor rate limit 监控功能</li>
 </ul>
 <h3 id="macbook">MacBook<a hidden class="anchor" aria-hidden="true" href="#macbook">#</a></h3>
 <ul>
-<li><strong>已完成工作：</strong> 多次登录但未进行实质性操作</li>
-<li><strong>实施方式：</strong> 尝试与 Claude Code 交互但遇到认证障碍</li>
-<li><strong>影响：</strong> 无有效输出；会话仅停留在登录界面</li>
+<li><strong>完成工作:</strong> 多次尝试登录但未进行实质性工作</li>
+<li><strong>实施方式:</strong> 尝试与 Claude Code 交互但遇到了身份验证障碍</li>
+<li><strong>影响:</strong> 无生产性输出；session 未能越过登录界面</li>
 </ul>
 <h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
 <ul>
-<li><strong>已完成工作：</strong> 分析了 pi0.5 v1/v2 模型在6项机器人任务中的对比情况；修复了 TokenMonitor Cursor FloatBall N/A 显示错误</li>
-<li><strong>实施方式：</strong> 使用差值列格式化性能表格，计算汇总统计值，识别任务特定模式；修改了 tray.rs 中的利用提取逻辑，将 extra_usage→primary_window 作为回退方案</li>
-<li><strong>影响：</strong> 发现 Clean Rollout 中 v2 的回归（-5.6pp）以及 pick_place 任务中的回归（-24.1pp 在 Error Recovery 中），已标记待调查；为只有 plan_usage 数据的用户恢复了 Cursor 使用显示</li>
+<li><strong>完成工作:</strong> 分析了 pi0.5 v1/v2 model 在 6 个 robotics 任务中的对比情况；修复了 TokenMonitor Cursor FloatBall 显示 N/A 的 bug</li>
+<li><strong>实施方式:</strong> 使用 delta 列格式化性能表格，计算了 aggregate statistics，并识别了特定任务的模式；修改了 tray.rs 的 utilization 提取逻辑，增加了 extra_usage→primary_window 的 fallback</li>
+<li><strong>影响:</strong> 发现 v2 在 Clean Rollout (-5.6pp) 和 pick_place 任务 (-24.1pp in Error Recovery) 中存在 regression，已标记待调查；为仅有 plan_usage data 的用户恢复了 Cursor utilization 显示</li>
 </ul>
 <blockquote>
-<p>分析了机器人模型性能回归情况并修复了 TokenMonitor Cursor 使用显示错误</p>
+<p>分析了 robotics model 性能 regression 并修复了 TokenMonitor Cursor utilization 显示 bug</p>
 </blockquote>
-<h2 id="任务">任务<a hidden class="anchor" aria-hidden="true" href="#任务">#</a></h2>
-<h3 id="架构与策略">架构与策略<a hidden class="anchor" aria-hidden="true" href="#架构与策略">#</a></h3>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
 <ul>
-<li>✅ <strong>分析 pi0.5 模型 v2 与 v1 的性能对比</strong> — 为 BCRNN 和 pi0.5 模型格式化了 Clean Rollout 和 Error Recovery 场景下的基准表格，计算差值并识别 v2 中的回归现象</li>
+<li>✅ <strong>Analyze pi0.5 model v2 performance vs v1</strong> — 为 BCRNN 和 pi0.5 models 在 Clean Rollout 和 Error Recovery 场景下的 benchmark 表格进行了格式化，计算了 deltas，并识别了 v2 中的 regression 模式</li>
 </ul>
-<h3 id="实施与修复">实施与修复<a hidden class="anchor" aria-hidden="true" href="#实施与修复">#</a></h3>
+<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
 <ul>
-<li>✅ <strong>修复 TokenMonitor Cursor FloatBall N/A 显示问题</strong> — 修改了 tray.rs 中 Cursor 的利用提取逻辑，从 extra_usage_utilization 回退到 primary_window_utilization，增加了两项测试，通过21项测试并满足 clippy 规范</li>
+<li>✅ <strong>Fix TokenMonitor Cursor FloatBall N/A display</strong> — 修改了 tray.rs，使 Cursor 的利用率从 extra_usage_utilization fallback 到 primary_window_utilization，增加了两个测试，并通过 21 个测试且 clippy clean</li>
 </ul>
-<h2 id="问题与解决方案">问题与解决方案<a hidden class="anchor" aria-hidden="true" href="#问题与解决方案">#</a></h2>
-<h3 id="关键问题">关键问题<a hidden class="anchor" aria-hidden="true" href="#关键问题">#</a></h3>
-<h4 id="1-pi05-v2-在-clean-rollout-中整体出现回归平均--56pp尽管线程任务表现改善24pp">1. pi0.5 v2 在 Clean Rollout 中整体出现回归（平均 -5.6pp），尽管线程任务表现改善（+24pp）<a hidden class="anchor" aria-hidden="true" href="#1-pi05-v2-在-clean-rollout-中整体出现回归平均--56pp尽管线程任务表现改善24pp">#</a></h4>
-<p><strong>解决方案：</strong> 使用差值列格式化的对比表格以分离任务特定的性能变化；识别出 pick_place、coffee、stack 和 stack_three 为表现下降的任务</p>
-<p><strong>关键洞察：</strong> 模型 v2 存在任务特定的性能差异：线程任务的显著改善与操作任务中的广泛回归形成对比，表明这是架构层面的权衡而非均匀退化</p>
-<h4 id="2-pick_place-任务在-error-recovery-场景中出现严重回归pi05-v2-下降--241pp429--188">2. pick_place 任务在 Error Recovery 场景中出现严重回归：pi0.5 v2 下降 -24.1pp（42.9% → 18.8%）<a hidden class="anchor" aria-hidden="true" href="#2-pick_place-任务在-error-recovery-场景中出现严重回归pi05-v2-下降--241pp429--188">#</a></h4>
-<p><strong>解决方案：</strong> 在分析总结中将 pick_place 标记为关键调查优先级；未立即实施修复，等待更深入诊断</p>
-<p><strong>关键洞察：</strong> 即使基础任务完成率尚可，Error Recovery 性能也可能显著下降，表明 v2 对干扰的鲁棒性可能降低</p>
-<h3 id="一般问题">一般问题<a hidden class="anchor" aria-hidden="true" href="#一般问题">#</a></h3>
-<h4 id="3-tokenmonitor-floatball-显示-cursor-使用率为-na因为只有-plan_usage-数据的用户中-extra_usage-字段为-none">3. TokenMonitor FloatBall 显示 Cursor 使用率为 N/A，因为只有 plan_usage 数据的用户中 extra_usage 字段为 None<a hidden class="anchor" aria-hidden="true" href="#3-tokenmonitor-floatball-显示-cursor-使用率为-na因为只有-plan_usage-数据的用户中-extra_usage-字段为-none">#</a></h4>
-<p><strong>解决方案：</strong> 在 tray_utilization_from_rate_limits() 中修改了 Cursor 利用提取逻辑，从仅检查 extra_usage 改为回退链：extra_usage_utilization().or_else(|| primary_window_utilization())</p>
-<p><strong>关键洞察：</strong> 大多数 Cursor 用户有 plan_usage（基于窗口且包含 auto_percent_used/api_percent_used），但缺乏 spend_limit_usage（基于 extra_usage）；之前的代码仅检查 extra_usage，导致 None → N/A 显示</p>
-<h2 id="人类与-ai-方法">人类与 AI 方法<a hidden class="anchor" aria-hidden="true" href="#人类与-ai-方法">#</a></h2>
-<h3 id="战略层面">战略层面<a hidden class="anchor" aria-hidden="true" href="#战略层面">#</a></h3>
-<h4 id="模型性能对比方法">模型性能对比方法<a hidden class="anchor" aria-hidden="true" href="#模型性能对比方法">#</a></h4>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-pi05-v2-在-clean-rollout-中表现出整体-regression--56pp-average尽管在-threading-task-中有所提升-24pp">1. pi0.5 v2 在 Clean Rollout 中表现出整体 regression (-5.6pp average)，尽管在 threading task 中有所提升 (+24pp)<a hidden class="anchor" aria-hidden="true" href="#1-pi05-v2-在-clean-rollout-中表现出整体-regression--56pp-average尽管在-threading-task-中有所提升-24pp">#</a></h4>
+<p><strong>Solution:</strong> 使用带有 delta 列的对比表格来隔离特定任务的性能变化；识别出 pick_place, coffee, stack, 和 stack_three 为 regressing 任务</p>
+<p><strong>Key Insight:</strong> Model v2 具有任务特定的性能差异：threading 的显著提升与 manipulation 任务中的广泛 regression 形成对比，这表明是架构上的 trade-offs 而非统一的退化</p>
+<h4 id="2-pick_place-任务在-error-recovery-场景中表现出严重的-regressionpi05-v2-下降了--241pp-429--188">2. pick_place 任务在 Error Recovery 场景中表现出严重的 regression：pi0.5 v2 下降了 -24.1pp (42.9% → 18.8%)<a hidden class="anchor" aria-hidden="true" href="#2-pick_place-任务在-error-recovery-场景中表现出严重的-regressionpi05-v2-下降了--241pp-429--188">#</a></h4>
+<p><strong>Solution:</strong> 在分析摘要中将 pick_place 标记为关键调查优先级；尚未实施即时修复，等待更深入的诊断</p>
+<p><strong>Key Insight:</strong> 即使基础任务完成率尚可，Error recovery 性能也可能显著下降，这表明 v2 可能降低了对 perturbations 的 robustness</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="3-tokenmonitor-floatball-对-cursor-utilization-显示-na因为对于仅有-plan_usage-data-的用户extra_usage-字段为-none">3. TokenMonitor FloatBall 对 Cursor utilization 显示 N/A，因为对于仅有 plan_usage data 的用户，extra_usage 字段为 None<a hidden class="anchor" aria-hidden="true" href="#3-tokenmonitor-floatball-对-cursor-utilization-显示-na因为对于仅有-plan_usage-data-的用户extra_usage-字段为-none">#</a></h4>
+<p><strong>Solution:</strong> 将 tray_utilization_from_rate_limits() 中的 Cursor utilization 提取逻辑从仅限 extra_usage 改为 fallback 链：extra_usage_utilization().or_else(|| primary_window_utilization())</p>
+<p><strong>Key Insight:</strong> 大多数 Cursor 用户拥有 plan_usage (基于 windows 的 auto_percent_used/api_percent_used)，但缺乏 spend_limit_usage (基于 extra_usage)；之前的代码仅检查 extra_usage，导致 None → N/A 显示</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="model-performance-comparison-methodology">Model performance comparison methodology<a hidden class="anchor" aria-hidden="true" href="#model-performance-comparison-methodology">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>角色</th>
-          <th>方法</th>
+          <th>Role</th>
+          <th>Approach</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>人类</td>
-          <td>用户提供包含运行/完成标记的原始基准表格，要求对 v2-v1 进行格式化的对比及差值分析</td>
+          <td>Human</td>
+          <td>用户提供了带有 running/completed 标记的原始 benchmark tables，并要求进行带有 v2-v1 delta analysis 的格式化对比</td>
       </tr>
       <tr>
           <td>AI</td>
-          <td>Claude 添加差值列、运行任务的表情符号指示、突出显示各任务中表现更好的版本、计算汇总统计值，并提供回归现象的书面解释</td>
+          <td>Claude 添加了 delta 列、用于 running 任务的 emoji 指示器、突出了每个任务中表现更好的版本、计算了 aggregate statistics，并提供了关于 regression 模式的书面解读</td>
       </tr>
   </tbody>
 </table>
-<p><strong>差异分析：</strong> 人类关注视觉呈现和高级对比需求；AI 在未被要求的情况下添加了统计深度分析（汇总变化、任务特定模式分析）和诊断建议</p>
-<h2 id="ai-限制">AI 限制<a hidden class="anchor" aria-hidden="true" href="#ai-限制">#</a></h2>
-<h3 id="一般限制">一般限制<a hidden class="anchor" aria-hidden="true" href="#一般限制">#</a></h3>
+<p><strong>Difference Analysis:</strong> Human 侧重于视觉呈现和高层级的对比请求；AI 在未被要求的情况下增加了统计深度 (aggregate changes, task-specific pattern analysis) 和诊断性建议</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
 <ul>
-<li>多个 MacBook 会话显示 Claude 未登录，但未提供解决认证问题的主动指导</li>
+<li>多个 MacBook sessions 显示 Claude 未登录，但未针对解决身份验证问题提供主动指导</li>
 </ul>
-<h2 id="学习成果">学习成果<a hidden class="anchor" aria-hidden="true" href="#学习成果">#</a></h2>
-<h3 id="关键学习点">关键学习点<a hidden class="anchor" aria-hidden="true" href="#关键学习点">#</a></h3>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
 <ul>
-<li>模型版本改进可能是任务特定的而非统一的：pi0.5 v2 在线程任务中改善了 +24pp，但在其他4项 Clean Rollout 任务中表现下降，表明需要针对每个任务进行架构权衡分析</li>
-<li>Error Recovery 性能可能与基础任务成功率分离：尽管 Clean Rollout 状态未知，pick_place 在 Error Recovery 中下降 -24.1pp，凸显鲁棒性是一个独立的评估维度</li>
+<li>Model version 的改进可能是任务特定的而非统一的：pi0.5 v2 在 threading 上提升了 +24pp，但在其他 4 个 Clean Rollout 任务中出现 regression，这表明存在值得进行 per-task 调查的架构 trade-offs</li>
+<li>Error recovery 性能可能与基础任务成功率脱钩：尽管 Clean Rollout 状态未知，但 pick_place 在 Error Recovery 中 regressed -24.1pp，突显了 robustness 是一个独立的评估维度</li>
 </ul>
-<h3 id="实际学习点">实际学习点<a hidden class="anchor" aria-hidden="true" href="#实际学习点">#</a></h3>
+<h3 id="practical-learnings">Practical Learnings<a hidden class="anchor" aria-hidden="true" href="#practical-learnings">#</a></h3>
 <ul>
-<li>速率限制数据来源因用户等级而异：Cursor 用户可能有 plan_usage（基于窗口），但缺乏 spend_limit_usage（基于 extra_usage），需要在 UI 数据提取中添加回退逻辑以避免 null/N/A 显示</li>
+<li>Rate limit 数据源因用户层级而异：Cursor 用户可能有 plan_usage (基于 windows) 但没有 spend_limit_usage (基于 extra_usage)，这需要在 UI 数据提取中添加 fallback 逻辑以避免 null/N/A 显示</li>
 </ul>
-<h2 id="对话总结">对话总结<a hidden class="anchor" aria-hidden="true" href="#对话总结">#</a></h2>
-<h3 id="机器人模型基准测试">机器人模型基准测试<a hidden class="anchor" aria-hidden="true" href="#机器人模型基准测试">#</a></h3>
-<p><strong>✅ pi0.5 v2 与 v1 在6项任务中的性能评估</strong>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<h3 id="robotics-model-benchmarking">Robotics Model Benchmarking<a hidden class="anchor" aria-hidden="true" href="#robotics-model-benchmarking">#</a></h3>
+<p><strong>✅ pi0.5 v2 performance evaluation vs v1 across 6 tasks</strong>
 <em>05:56:19.034 | claude_code</em>
-用户提供了 BCRNN 和 pi0.5 模型（v1/v2）的原始基准表格，涵盖 Clean Rollout 和 Error Recovery 场景。Claude 格式化了数据并添加差值列，计算了汇总统计值，发现 pi0.5 v2 在 Clean Rollout 中整体下降（-5.6pp），但线程任务改善（+24pp），pick_place 在 Error Recovery 中严重下降（-24.1pp）。建议调查 v2 的 pick_place 和 coffee 任务回归情况。</p>
+用户提供了 BCRNN 和 pi0.5 models (v1/v2) 在 Clean Rollout 和 Error Recovery 场景下的原始 benchmark tables。Claude 使用 delta 列格式化了数据，计算了 aggregate statistics，并识别出 pi0.5 v2 在 Clean Rollout 中整体 regression (-5.6pp)，除了 threading (+24pp) 之外，其中 pick_place 显示出严重的 Error Recovery regression (-24.1pp)。建议调查 v2 的 pick_place 和 coffee 任务的 regression。</p>
 <h3 id="tokenmonitor">TokenMonitor<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor">#</a></h3>
-<p><strong>✅ 修复 Cursor FloatBall N/A 显示错误</strong>
+<p><strong>✅ Fix Cursor FloatBall N/A display bug</strong>
 <em>05:57:21.549 | claude_code</em>
-继续前一次会话，修复了 FloatBall 小部件中 Cursor 速率限制利用显示为 N/A 的问题。根本原因：tray_utilization_from_rate_limits() 仅检查 extra_usage_utilization（来自 spend_limit_usage），但大多数 Cursor 用户只有 plan_usage（primary_window 数据）。修改了 Cursor 提取逻辑，从 extra_usage 回退到 primary_window。增加了两项测试，所有21项测试通过，clippy 规范满足。</p>
-<h2 id="令牌使用">令牌使用<a hidden class="anchor" aria-hidden="true" href="#令牌使用">#</a></h2>
+延续之前的 session 以修复 Cursor rate limit utilization 在 FloatBall widget 中显示 N/A 的问题。根本原因：tray_utilization_from_rate_limits() 仅检查 extra_usage_utilization (来自 spend_limit_usage)，但大多数 Cursor 用户只有 plan_usage (primary_window data)。修改了 Cursor 提取逻辑，使其从 extra_usage fallback 到 primary_window。增加了两个测试，所有 21 个测试均通过，clippy clean。</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
 <style>
   .usage-card {
     --usage-bg: #fafaf9;
@@ -444,7 +444,7 @@
         Most token volume came from cache reads; Codex drove nearly all cost.
       </p>
 </footer>
-<!-- gadget:src-hash:ea1ffe6717c7cd58 -->
+<!-- gadget:src-hash:v2:53586b904e1f5e64 -->
 
 
   </div>
