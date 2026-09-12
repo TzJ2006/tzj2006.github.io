@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh" dir="auto" data-theme="auto">
+<html lang="zh" dir="auto" data-theme="light">
 
 <head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -27,7 +27,7 @@
 总耗时用 perf_counter 掐整个进程，token 数和 API 耗时从各家 JSON 的 usage 字段读。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/posts/chinese-writing-benchmark/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.b44fe7786b2d49cebc4822d56498329f711172897efc0f8404a35f7048beeb6d.css" integrity="sha256-tE/neGstSc68SCLVZJgyn3ERcol&#43;/A&#43;EBKNfcEi&#43;620=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -45,41 +45,10 @@
         }
 
     </style>
-    <style>
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --theme: rgb(29, 30, 32);
-                --entry: rgb(46, 46, 51);
-                --primary: rgb(218, 218, 219);
-                --secondary: rgb(155, 156, 157);
-                --tertiary: rgb(65, 66, 68);
-                --content: rgb(196, 196, 197);
-                --code-block-bg: rgb(46, 46, 51);
-                --code-bg: rgb(55, 56, 62);
-                --border: rgb(51, 51, 51);
-                color-scheme: dark;
-            }
-
-            .list {
-                background: var(--theme);
-            }
-
-            .toc {
-                background: var(--entry);
-            }
-        }
-
-    </style>
 </noscript>
 <script>
     if (localStorage.getItem("pref-theme") === "dark") {
         document.querySelector("html").dataset.theme = 'dark';
-    } else if (localStorage.getItem("pref-theme") === "light") {
-       document.querySelector("html").dataset.theme = 'light';
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.querySelector("html").dataset.theme = 'dark';
-    } else {
-        document.querySelector("html").dataset.theme = 'light';
     }
 
 </script>
@@ -170,7 +139,7 @@
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="companion. (Alt + H)">companion.</a>
             <div class="logo-switches">
                 <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
                     <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
@@ -194,7 +163,7 @@
                 </button><span class="nav-sep">|</span>
                     <ul class="lang-menu">
                         <li>
-                            <a href="https://tzj2006.github.io/" title="English"
+                            <a href="https://tzj2006.github.io/posts/chinese-writing-benchmark/" title="English"
                                 aria-label="English">English</a>
                         </li>
                     </ul>
@@ -271,7 +240,45 @@
 <span title='2026-08-26 10:00:00 -0400 EDT'>2026年8月26日</span>&nbsp;·&nbsp;<span>5 分钟</span>
 
 </div>
-  </header> 
+  </header> <details class="toc" >
+    <summary accesskey="c" title="(Alt + C)">
+        <span class="title">目录</span>
+    </summary>
+
+    <div class="inner"><ul><ul>
+            <li>
+                <a href="#%e9%a2%98%e7%9b%ae" aria-label="题目">题目</a></li>
+            <li>
+                <a href="#%e8%bf%90%e8%a1%8c%e6%9d%a1%e4%bb%b6" aria-label="运行条件">运行条件</a><ul>
+                    
+            <li>
+                <a href="#%e4%b8%89%e6%9d%a1%e5%bd%b1%e5%93%8d%e8%af%bb%e6%95%b0%e7%9a%84%e4%ba%8b%e5%ae%9e" aria-label="三条影响读数的事实">三条影响读数的事实</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e8%a1%a8%e4%b8%80%e6%9c%ac%e5%9c%b0%e6%a8%a1%e5%9e%8b" aria-label="表一：本地模型">表一：本地模型</a></li>
+            <li>
+                <a href="#%e8%a1%a8%e4%ba%8cagent-cli" aria-label="表二：Agent CLI">表二：Agent CLI</a></li>
+            <li>
+                <a href="#%e8%a1%a8%e4%b8%89%e4%b8%ad%e6%96%87%e8%be%93%e5%87%ba%e7%9a%84%e5%ae%a2%e8%a7%82%e7%bb%9f%e8%ae%a1" aria-label="表三：中文输出的客观统计">表三：中文输出的客观统计</a></li>
+            <li>
+                <a href="#%e5%85%a8%e9%83%a8%e6%ad%a3%e6%96%87" aria-label="全部正文">全部正文</a></li></ul>
+                
+            <li>
+                <a href="#%e7%a2%8e%e7%89%87" aria-label="碎片">碎片</a></li>
+            <li>
+                <a href="#%e9%9b%a8%e5%90%8e%e7%9a%84%e9%95%9c%e5%ad%90" aria-label="雨后的镜子">雨后的镜子</a></li>
+            <li>
+                <a href="#%e7%ac%ac%e4%b8%80%e8%af%be" aria-label="第一课">第一课</a><ul>
+                    
+            <li>
+                <a href="#%e5%a4%8d%e7%8e%b0" aria-label="复现">复现</a>
+            </li>
+        </ul>
+        </li>
+        </ul>
+    </div>
+</details>
+
   <div class="post-content md-content"><p>同一条 prompt，4 个本地 Ollama 模型 + 三家 Agent CLI 的 12 个云端模型，各写一遍。
 下面是全部原始输出，以及每次运行记录到的速度、显存、延迟和 token 数据。</p>
 <blockquote>
@@ -917,6 +924,13 @@
   <footer class="post-footer">
     <ul class="post-tags">
     </ul>
+<nav class="paginav">
+  <a class="next" href="https://tzj2006.github.io/zh/posts/readme-tutorial-benchmark/">
+    <span class="title">下一页 »</span>
+    <span>十六个模型，同一份 README</span>
+  </a>
+</nav>
+
   </footer>
 </article>
     </main>

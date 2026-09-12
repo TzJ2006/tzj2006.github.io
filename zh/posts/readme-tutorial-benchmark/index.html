@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh" dir="auto" data-theme="auto">
+<html lang="zh" dir="auto" data-theme="light">
 
 <head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -28,7 +28,7 @@ README 全文接在这段说明之后一起送进去，整条 prompt 共 20 768 
 速度直接读响应体的 eval_count / eval_duration，不含 HTTP 和 Python 开销。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/posts/readme-tutorial-benchmark/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.f1ee051d7e7518d2012e3f23fe6b7cb28f1571c53f010c5cd9d59e5e3b448208.css" integrity="sha256-8e4FHX51GNIBLj8j/mt8so8VccU/AQxc2dWeXjtEggg=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.b44fe7786b2d49cebc4822d56498329f711172897efc0f8404a35f7048beeb6d.css" integrity="sha256-tE/neGstSc68SCLVZJgyn3ERcol&#43;/A&#43;EBKNfcEi&#43;620=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -46,41 +46,10 @@ README 全文接在这段说明之后一起送进去，整条 prompt 共 20 768 
         }
 
     </style>
-    <style>
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --theme: rgb(29, 30, 32);
-                --entry: rgb(46, 46, 51);
-                --primary: rgb(218, 218, 219);
-                --secondary: rgb(155, 156, 157);
-                --tertiary: rgb(65, 66, 68);
-                --content: rgb(196, 196, 197);
-                --code-block-bg: rgb(46, 46, 51);
-                --code-bg: rgb(55, 56, 62);
-                --border: rgb(51, 51, 51);
-                color-scheme: dark;
-            }
-
-            .list {
-                background: var(--theme);
-            }
-
-            .toc {
-                background: var(--entry);
-            }
-        }
-
-    </style>
 </noscript>
 <script>
     if (localStorage.getItem("pref-theme") === "dark") {
         document.querySelector("html").dataset.theme = 'dark';
-    } else if (localStorage.getItem("pref-theme") === "light") {
-       document.querySelector("html").dataset.theme = 'light';
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.querySelector("html").dataset.theme = 'dark';
-    } else {
-        document.querySelector("html").dataset.theme = 'light';
     }
 
 </script>
@@ -169,7 +138,7 @@ README 全文接在这段说明之后一起送进去，整条 prompt 共 20 768 
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="companion. (Alt + H)">companion.</a>
             <div class="logo-switches">
                 <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
                     <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
@@ -193,7 +162,7 @@ README 全文接在这段说明之后一起送进去，整条 prompt 共 20 768 
                 </button><span class="nav-sep">|</span>
                     <ul class="lang-menu">
                         <li>
-                            <a href="https://tzj2006.github.io/" title="English"
+                            <a href="https://tzj2006.github.io/posts/readme-tutorial-benchmark/" title="English"
                                 aria-label="English">English</a>
                         </li>
                     </ul>
@@ -270,7 +239,823 @@ README 全文接在这段说明之后一起送进去，整条 prompt 共 20 768 
 <span title='2026-08-26 10:00:00 -0400 EDT'>2026年8月26日</span>&nbsp;·&nbsp;<span>66 分钟</span>
 
 </div>
-  </header> 
+  </header> <details class="toc" >
+    <summary accesskey="c" title="(Alt + C)">
+        <span class="title">目录</span>
+    </summary>
+
+    <div class="inner"><ul><ul>
+            <li>
+                <a href="#%e9%a2%98%e7%9b%ae" aria-label="题目">题目</a></li>
+            <li>
+                <a href="#%e8%bf%90%e8%a1%8c%e6%9d%a1%e4%bb%b6" aria-label="运行条件">运行条件</a><ul>
+                    
+            <li>
+                <a href="#%e4%b8%89%e6%9d%a1%e5%bd%b1%e5%93%8d%e8%af%bb%e6%95%b0%e7%9a%84%e4%ba%8b%e5%ae%9e" aria-label="三条影响读数的事实">三条影响读数的事实</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e8%a1%a8%e4%b8%80%e6%9c%ac%e5%9c%b0%e6%a8%a1%e5%9e%8b%e4%bf%a1%e6%81%af" aria-label="表一：本地模型信息">表一：本地模型信息</a></li>
+            <li>
+                <a href="#%e8%a1%a8%e4%ba%8c%e6%9c%ac%e5%9c%b0%e8%bf%90%e8%a1%8c%e6%8c%87%e6%a0%87" aria-label="表二：本地运行指标">表二：本地运行指标</a></li>
+            <li>
+                <a href="#%e8%a1%a8%e4%b8%89agent-cli" aria-label="表三：Agent CLI">表三：Agent CLI</a></li>
+            <li>
+                <a href="#%e8%a1%a8%e5%9b%9b%e8%be%93%e5%87%ba%e6%96%87%e6%a1%a3%e7%9a%84%e7%bb%93%e6%9e%84%e7%bb%9f%e8%ae%a1" aria-label="表四：输出文档的结构统计">表四：输出文档的结构统计</a><ul>
+                    
+            <li>
+                <a href="#readme-%e4%b8%ad%e6%97%a0%e5%8e%9f%e6%96%87%e7%9a%84%e5%91%bd%e4%bb%a4" aria-label="「README 中无原文」的命令">「README 中无原文」的命令</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e8%a1%a8%e4%ba%94readme-%e4%ba%8b%e5%ae%9e%e7%82%b9%e8%a6%86%e7%9b%96" aria-label="表五：README 事实点覆盖">表五：README 事实点覆盖</a></li>
+            <li>
+                <a href="#%e5%85%a8%e9%83%a8%e8%be%93%e5%87%ba" aria-label="全部输出">全部输出</a><ul>
+                    
+            <li>
+                <a href="#%e9%a1%b9%e7%9b%ae%e6%80%bb%e7%bb%93" aria-label="项目总结">项目总结</a><ul>
+                    
+            <li>
+                <a href="#%e4%bb%93%e5%ba%93%e7%bb%93%e6%9e%84" aria-label="仓库结构">仓库结构</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b" aria-label="使用教程">使用教程</a><ul>
+                    
+            <li>
+                <a href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="1. 环境准备">1. 环境准备</a></li>
+            <li>
+                <a href="#2-%e5%ae%89%e8%a3%85%e4%b8%8e%e5%88%9d%e5%a7%8b%e5%8c%96" aria-label="2. 安装与初始化">2. 安装与初始化</a></li>
+            <li>
+                <a href="#3-%e6%a0%b8%e5%bf%83%e5%b7%a5%e5%85%b7%e4%bd%bf%e7%94%a8%e6%8c%87%e5%8d%97" aria-label="3. 核心工具使用指南">3. 核心工具使用指南</a><ul>
+                    
+            <li>
+                <a href="#a-ai-%e5%af%b9%e8%af%9d%e6%80%bb%e7%bb%93-summarize" aria-label="A. AI 对话总结 (Summarize)">A. AI 对话总结 (Summarize)</a></li>
+            <li>
+                <a href="#b-%e5%ad%a6%e6%9c%af%e7%a0%94%e7%a9%b6-research" aria-label="B. 学术研究 (Research)">B. 学术研究 (Research)</a></li>
+            <li>
+                <a href="#c-%e6%80%a7%e8%83%bd%e5%9f%ba%e5%87%86%e6%b5%8b%e8%af%95-benchmark" aria-label="C. 性能基准测试 (Benchmark)">C. 性能基准测试 (Benchmark)</a></li>
+            <li>
+                <a href="#d-%e6%96%87%e6%a1%a3%e7%bf%bb%e8%af%91-translator" aria-label="D. 文档翻译 (Translator)">D. 文档翻译 (Translator)</a></li>
+            <li>
+                <a href="#e-%e5%8d%9a%e5%ae%a2%e5%90%8c%e6%ad%a5%e4%b8%8e%e9%83%a8%e7%bd%b2-website" aria-label="E. 博客同步与部署 (Website)">E. 博客同步与部署 (Website)</a></li></ul>
+            </li>
+            <li>
+                <a href="#4-%e5%85%b6%e4%bb%96%e5%b8%b8%e7%94%a8%e6%93%8d%e4%bd%9c" aria-label="4. 其他常用操作">4. 其他常用操作</a></li>
+            <li>
+                <a href="#5-%e6%b3%a8%e6%84%8f%e4%ba%8b%e9%a1%b9" aria-label="5. 注意事项">5. 注意事项</a></li></ul>
+            </li>
+            <li>
+                <a href="#1-%e9%a1%b9%e7%9b%ae%e6%80%bb%e7%bb%93" aria-label="1. 项目总结">1. 项目总结</a><ul>
+                    
+            <li>
+                <a href="#%e4%bb%93%e5%ba%93%e7%bb%93%e6%9e%84-1" aria-label="仓库结构">仓库结构</a></li>
+            <li>
+                <a href="#%e5%b7%a5%e5%85%b7%e5%8a%9f%e8%83%bd%e6%a6%82%e8%a7%88" aria-label="工具功能概览">工具功能概览</a></li></ul>
+            </li>
+            <li>
+                <a href="#2-%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b" aria-label="2. 使用教程">2. 使用教程</a><ul>
+                    
+            <li>
+                <a href="#%e4%b8%80-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="一、 环境准备">一、 环境准备</a></li>
+            <li>
+                <a href="#%e4%ba%8c-%e5%ae%89%e8%a3%85%e4%b8%8e%e9%85%8d%e7%bd%ae" aria-label="二、 安装与配置">二、 安装与配置</a></li>
+            <li>
+                <a href="#%e4%b8%89-%e5%b7%a5%e5%85%b7%e5%85%b8%e5%9e%8b%e7%94%a8%e6%b3%95" aria-label="三、 工具典型用法">三、 工具典型用法</a><ul>
+                    
+            <li>
+                <a href="#1-summarize-%e5%af%b9%e8%af%9d%e6%80%bb%e7%bb%93" aria-label="1. Summarize (对话总结)">1. Summarize (对话总结)</a></li>
+            <li>
+                <a href="#2-research-%e5%ad%a6%e6%9c%af%e7%a0%94%e7%a9%b6" aria-label="2. Research (学术研究)">2. Research (学术研究)</a></li>
+            <li>
+                <a href="#3-benchmark-%e6%80%a7%e8%83%bd%e6%b5%8b%e8%af%95" aria-label="3. Benchmark (性能测试)">3. Benchmark (性能测试)</a></li>
+            <li>
+                <a href="#4-website-%e5%8d%9a%e5%ae%a2%e7%ae%a1%e7%90%86" aria-label="4. Website (博客管理)">4. Website (博客管理)</a></li>
+            <li>
+                <a href="#5-translator-%e6%96%87%e6%a1%a3%e7%bf%bb%e8%af%91" aria-label="5. Translator (文档翻译)">5. Translator (文档翻译)</a></li></ul>
+            </li></ul>
+            </li></ul>
+            </li></ul>
+                
+            <li>
+                <a href="#1-%e9%a1%b9%e7%9b%ae%e6%80%bb%e7%bb%93gadget-%e6%98%af%e4%bb%80%e4%b9%88" aria-label="1. 项目总结：Gadget 是什么？">1. 项目总结：Gadget 是什么？</a><ul>
+                    
+            <li>
+                <a href="#%e4%bb%93%e5%ba%93%e7%bb%93%e6%9e%84%e6%a6%82%e8%a7%88" aria-label="仓库结构概览">仓库结构概览</a></li>
+            <li>
+                <a href="#%e5%90%84%e5%b7%a5%e5%85%b7%e5%8a%9f%e8%83%bd%e8%af%a6%e8%a7%a3" aria-label="各工具功能详解">各工具功能详解</a></li></ul>
+            </li>
+            <li>
+                <a href="#2-gadget-%e8%af%a6%e7%bb%86%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b" aria-label="2. Gadget 详细使用教程">2. Gadget 详细使用教程</a><ul>
+                    
+            <li>
+                <a href="#%e7%ac%ac%e4%b8%80%e9%98%b6%e6%ae%b5%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87%e4%b8%8e%e5%ae%89%e8%a3%85" aria-label="第一阶段：环境准备与安装">第一阶段：环境准备与安装</a><ul>
+                    
+            <li>
+                <a href="#11-%e7%8e%af%e5%a2%83%e8%a6%81%e6%b1%82" aria-label="1.1 环境要求">1.1 环境要求</a></li>
+            <li>
+                <a href="#12-%e5%85%8b%e9%9a%86%e4%bb%93%e5%ba%93" aria-label="1.2 克隆仓库">1.2 克隆仓库</a></li>
+            <li>
+                <a href="#13-%e5%ae%89%e8%a3%85-python-%e4%be%9d%e8%b5%96" aria-label="1.3 安装 Python 依赖">1.3 安装 Python 依赖</a></li>
+            <li>
+                <a href="#14-%e9%85%8d%e7%bd%ae%e9%85%8d%e7%bd%ae%e6%96%87%e4%bb%b6" aria-label="1.4 配置配置文件">1.4 配置配置文件</a></li>
+            <li>
+                <a href="#15-%e6%96%b0%e6%9c%ba%e5%99%a8%e4%b8%80%e9%94%ae%e5%88%9d%e5%a7%8b%e5%8c%96%e5%8f%af%e9%80%89" aria-label="1.5 新机器一键初始化（可选）">1.5 新机器一键初始化（可选）</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e7%ac%ac%e4%ba%8c%e9%98%b6%e6%ae%b5%e5%90%84%e5%b7%a5%e5%85%b7%e5%85%b8%e5%9e%8b%e7%94%a8%e6%b3%95" aria-label="第二阶段：各工具典型用法">第二阶段：各工具典型用法</a><ul>
+                    
+            <li>
+                <a href="#21-summarizeai-%e5%af%b9%e8%af%9d%e6%97%a5%e6%8a%a5%e5%91%a8%e6%8a%a5%e6%9c%88%e6%8a%a5" aria-label="2.1 Summarize：AI 对话日报/周报/月报">2.1 Summarize：AI 对话日报/周报/月报</a></li>
+            <li>
+                <a href="#22-research%e7%a7%91%e7%a0%94%e5%8a%a9%e6%89%8b" aria-label="2.2 Research：科研助手">2.2 Research：科研助手</a></li>
+            <li>
+                <a href="#23-benchmark%e6%80%a7%e8%83%bd%e5%9f%ba%e5%87%86%e6%b5%8b%e8%af%95" aria-label="2.3 Benchmark：性能基准测试">2.3 Benchmark：性能基准测试</a></li>
+            <li>
+                <a href="#24-websitehugo-%e5%8d%9a%e5%ae%a2%e8%87%aa%e5%8a%a8%e5%8c%96" aria-label="2.4 Website：Hugo 博客自动化">2.4 Website：Hugo 博客自动化</a></li>
+            <li>
+                <a href="#25-translator%e6%9c%ac%e5%9c%b0%e6%96%87%e6%a1%a3%e7%bf%bb%e8%af%91" aria-label="2.5 Translator：本地文档翻译">2.5 Translator：本地文档翻译</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e7%ac%ac%e4%b8%89%e9%98%b6%e6%ae%b5%e8%bf%90%e7%bb%b4%e4%b8%8e%e6%95%b0%e6%8d%ae%e5%90%8c%e6%ad%a5" aria-label="第三阶段：运维与数据同步">第三阶段：运维与数据同步</a><ul>
+                    
+            <li>
+                <a href="#31-%e6%95%b0%e6%8d%ae%e5%90%8c%e6%ad%a5-rclone" aria-label="3.1 数据同步 (Rclone)">3.1 数据同步 (Rclone)</a></li>
+            <li>
+                <a href="#32-%e5%86%92%e7%83%9f%e6%b5%8b%e8%af%95-smoke-test" aria-label="3.2 冒烟测试 (Smoke Test)">3.2 冒烟测试 (Smoke Test)</a></li>
+            <li>
+                <a href="#33-%e8%be%93%e5%87%ba%e7%9b%ae%e5%bd%95%e7%ae%a1%e7%90%86" aria-label="3.3 输出目录管理">3.3 输出目录管理</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e5%b8%b8%e8%a7%81%e9%97%ae%e9%a2%98-faq" aria-label="常见问题 (FAQ)">常见问题 (FAQ)</a></li>
+            <li>
+                <a href="#%e7%ac%ac%e4%b8%80%e9%83%a8%e5%88%86%e9%a1%b9%e7%9b%ae%e6%80%bb%e7%bb%93" aria-label="第一部分：项目总结">第一部分：项目总结</a><ul>
+                    
+            <li>
+                <a href="#1-%e5%ae%83%e6%98%af%e4%bb%80%e4%b9%88" aria-label="1. 它是什么？">1. 它是什么？</a></li>
+            <li>
+                <a href="#2-%e4%bb%93%e5%ba%93%e7%bb%93%e6%9e%84" aria-label="2. 仓库结构">2. 仓库结构</a></li>
+            <li>
+                <a href="#3-%e6%af%8f%e4%b8%aa%e5%b7%a5%e5%85%b7%e5%88%86%e5%88%ab%e5%81%9a%e4%bb%80%e4%b9%88" aria-label="3. 每个工具分别做什么？">3. 每个工具分别做什么？</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e7%ac%ac%e4%ba%8c%e9%83%a8%e5%88%86%e8%af%a6%e7%bb%86%e4%b8%ad%e6%96%87%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b" aria-label="第二部分：详细中文使用教程">第二部分：详细中文使用教程</a><ul>
+                    
+            <li>
+                <a href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87-1" aria-label="1. 环境准备">1. 环境准备</a></li>
+            <li>
+                <a href="#2-%e5%ae%89%e8%a3%85%e4%b8%8e%e5%88%9d%e5%a7%8b%e5%8c%96-1" aria-label="2. 安装与初始化">2. 安装与初始化</a><ul>
+                    
+            <li>
+                <a href="#%e7%ac%ac%e4%b8%80%e6%ad%a5%e5%85%8b%e9%9a%86%e4%bb%93%e5%ba%93%e5%b9%b6%e5%87%86%e5%a4%87%e4%be%9d%e8%b5%96" aria-label="第一步：克隆仓库并准备依赖">第一步：克隆仓库并准备依赖</a></li>
+            <li>
+                <a href="#%e7%ac%ac%e4%ba%8c%e6%ad%a5%e9%85%8d%e7%bd%ae%e6%96%87%e4%bb%b6%e4%b8%8e%e5%af%86%e9%92%a5" aria-label="第二步：配置文件与密钥">第二步：配置文件与密钥</a></li></ul>
+            </li>
+            <li>
+                <a href="#3-%e5%b7%a5%e5%85%b7%e8%af%a6%e7%bb%86%e7%94%a8%e6%b3%95" aria-label="3. 工具详细用法">3. 工具详细用法</a><ul>
+                    
+            <li>
+                <a href="#a-summarize-ai-%e5%af%b9%e8%af%9d%e6%8a%a5%e5%91%8a%e7%94%9f%e6%88%90" aria-label="A. Summarize: AI 对话报告生成">A. Summarize: AI 对话报告生成</a></li>
+            <li>
+                <a href="#b-research-%e5%ad%a6%e6%9c%af%e7%a0%94%e7%a9%b6%e5%8a%a9%e6%89%8b" aria-label="B. Research: 学术研究助手">B. Research: 学术研究助手</a></li>
+            <li>
+                <a href="#c-benchmark-%e6%80%a7%e8%83%bd%e5%9f%ba%e5%87%86%e6%b5%8b%e8%af%95" aria-label="C. Benchmark: 性能基准测试">C. Benchmark: 性能基准测试</a></li>
+            <li>
+                <a href="#d-website-hugo-%e5%8d%9a%e5%ae%a2%e7%ae%a1%e7%90%86" aria-label="D. Website: Hugo 博客管理">D. Website: Hugo 博客管理</a></li>
+            <li>
+                <a href="#e-translator-%e6%96%87%e6%a1%a3%e7%bf%bb%e8%af%91%e5%99%a8" aria-label="E. Translator: 文档翻译器">E. Translator: 文档翻译器</a></li></ul>
+            </li>
+            <li>
+                <a href="#4-%e8%bf%90%e7%bb%b4%e4%b8%8e%e7%bb%b4%e6%8a%a4-scripts" aria-label="4. 运维与维护 (Scripts)">4. 运维与维护 (Scripts)</a><ul>
+                    
+            <li>
+                <a href="#%e6%95%b0%e6%8d%ae%e5%90%8c%e6%ad%a5-sync" aria-label="数据同步 (Sync)">数据同步 (Sync)</a></li>
+            <li>
+                <a href="#%e6%96%b0%e6%9c%ba%e5%bf%ab%e9%80%9f%e9%85%8d%e7%bd%ae-onboarding" aria-label="新机快速配置 (Onboarding)">新机快速配置 (Onboarding)</a></li>
+            <li>
+                <a href="#%e6%9c%8d%e5%8a%a1%e5%99%a8%e7%ba%a7%e4%b8%80%e9%94%ae%e9%83%a8%e7%bd%b2" aria-label="服务器级一键部署">服务器级一键部署</a></li></ul>
+            </li>
+            <li>
+                <a href="#5-%e8%be%93%e5%87%ba%e4%b8%8e%e6%b3%a8%e6%84%8f%e4%ba%8b%e9%a1%b9" aria-label="5. 输出与注意事项">5. 输出与注意事项</a></li></ul>
+            </li></ul>
+            </li>
+            <li>
+                <a href="#gadget-%e9%a1%b9%e7%9b%ae%e5%ae%8c%e5%85%a8%e6%8c%87%e5%8d%97" aria-label="Gadget 项目完全指南">Gadget 项目完全指南</a><ul>
+                    
+            <li>
+                <a href="#%e4%b8%80%e9%a1%b9%e7%9b%ae%e6%80%bb%e7%bb%93" aria-label="一、项目总结">一、项目总结</a><ul>
+                    
+            <li>
+                <a href="#11-%e9%a1%b9%e7%9b%ae%e6%a6%82%e8%bf%b0" aria-label="1.1 项目概述">1.1 项目概述</a></li>
+            <li>
+                <a href="#12-%e4%bb%93%e5%ba%93%e7%bb%93%e6%9e%84" aria-label="1.2 仓库结构">1.2 仓库结构</a></li>
+            <li>
+                <a href="#13-%e6%af%8f%e4%b8%aa%e5%b7%a5%e5%85%b7%e7%9a%84%e5%8a%9f%e8%83%bd" aria-label="1.3 每个工具的功能">1.3 每个工具的功能</a></li>
+            <li>
+                <a href="#14-%e5%9f%ba%e7%a1%80%e8%ae%be%e6%96%bd" aria-label="1.4 基础设施">1.4 基础设施</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e4%ba%8c%e8%af%a6%e7%bb%86%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b" aria-label="二、详细使用教程">二、详细使用教程</a><ul>
+                    
+            <li>
+                <a href="#21-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="2.1 环境准备">2.1 环境准备</a><ul>
+                    
+            <li>
+                <a href="#%e7%b3%bb%e7%bb%9f%e8%a6%81%e6%b1%82" aria-label="系统要求">系统要求</a></li>
+            <li>
+                <a href="#%e5%88%9b%e5%bb%bapython%e7%8e%af%e5%a2%83" aria-label="创建Python环境">创建Python环境</a></li></ul>
+            </li>
+            <li>
+                <a href="#22-%e5%ae%89%e8%a3%85%e6%ad%a5%e9%aa%a4" aria-label="2.2 安装步骤">2.2 安装步骤</a><ul>
+                    
+            <li>
+                <a href="#%e7%ac%ac%e4%b8%80%e6%ad%a5%e5%85%8b%e9%9a%86%e4%bb%93%e5%ba%93" aria-label="第一步：克隆仓库">第一步：克隆仓库</a></li>
+            <li>
+                <a href="#%e7%ac%ac%e4%ba%8c%e6%ad%a5%e5%ae%89%e8%a3%85%e5%85%ac%e5%85%b1%e5%8c%85%e5%92%8c%e6%89%80%e6%9c%89%e5%b7%a5%e5%85%b7" aria-label="第二步：安装公共包和所有工具">第二步：安装公共包和所有工具</a></li>
+            <li>
+                <a href="#%e7%ac%ac%e4%b8%89%e6%ad%a5%e5%87%86%e5%a4%87api%e5%af%86%e9%92%a5%e5%92%8c%e9%85%8d%e7%bd%ae" aria-label="第三步：准备API密钥和配置">第三步：准备API密钥和配置</a></li>
+            <li>
+                <a href="#%e7%ac%ac%e5%9b%9b%e6%ad%a5%e4%b8%80%e6%ac%a1%e6%80%a7%e6%9c%ba%e5%99%a8%e5%88%9d%e5%a7%8b%e5%8c%96%e5%8f%af%e9%80%89%e4%bd%86%e6%8e%a8%e8%8d%90" aria-label="第四步：一次性机器初始化（可选但推荐）">第四步：一次性机器初始化（可选但推荐）</a></li>
+            <li>
+                <a href="#%e7%ac%ac%e4%ba%94%e6%ad%a5%e9%aa%8c%e8%af%81%e5%ae%89%e8%a3%85" aria-label="第五步：验证安装">第五步：验证安装</a></li></ul>
+            </li>
+            <li>
+                <a href="#23-%e5%b7%a5%e5%85%b7%e9%85%8d%e7%bd%ae" aria-label="2.3 工具配置">2.3 工具配置</a><ul>
+                    
+            <li>
+                <a href="#%e5%85%a8%e5%b1%80llm%e5%90%8e%e7%ab%af%e9%85%8d%e7%bd%ae" aria-label="全局LLM后端配置">全局LLM后端配置</a></li>
+            <li>
+                <a href="#%e7%bf%bb%e8%af%91%e5%bc%95%e6%93%8e%e9%85%8d%e7%bd%ae" aria-label="翻译引擎配置">翻译引擎配置</a></li>
+            <li>
+                <a href="#ollama%e6%9c%ac%e5%9c%b0llm%e6%9c%8d%e5%8a%a1%e6%8e%a8%e8%8d%90" aria-label="Ollama本地LLM服务（推荐）">Ollama本地LLM服务（推荐）</a></li></ul>
+            </li>
+            <li>
+                <a href="#24-%e5%90%84%e5%b7%a5%e5%85%b7%e8%af%a6%e7%bb%86%e7%94%a8%e6%b3%95" aria-label="2.4 各工具详细用法">2.4 各工具详细用法</a><ul>
+                    
+            <li>
+                <a href="#241-summarize--ai%e5%af%b9%e8%af%9d%e6%97%a5%e5%91%a8%e6%9c%88%e6%8a%a5%e5%91%8a" aria-label="2.4.1 Summarize — AI对话日/周/月报告">2.4.1 Summarize — AI对话日/周/月报告</a></li>
+            <li>
+                <a href="#242-research--%e8%ae%ba%e6%96%87%e5%8f%91%e7%8e%b0%e4%b8%8e%e7%a0%94%e7%a9%b6%e8%80%85%e5%88%86%e6%9e%90" aria-label="2.4.2 Research — 论文发现与研究者分析">2.4.2 Research — 论文发现与研究者分析</a></li>
+            <li>
+                <a href="#243-benchmark--%e6%80%a7%e8%83%bd%e5%9f%ba%e5%87%86%e6%b5%8b%e8%af%95" aria-label="2.4.3 Benchmark — 性能基准测试">2.4.3 Benchmark — 性能基准测试</a></li>
+            <li>
+                <a href="#244-website--hugo%e5%8d%9a%e5%ae%a2%e8%87%aa%e5%8a%a8%e5%8c%96" aria-label="2.4.4 Website — Hugo博客自动化">2.4.4 Website — Hugo博客自动化</a></li>
+            <li>
+                <a href="#245-translator--gradio%e6%96%87%e6%a1%a3%e7%bf%bb%e8%af%91%e5%99%a8" aria-label="2.4.5 Translator — Gradio文档翻译器">2.4.5 Translator — Gradio文档翻译器</a></li></ul>
+            </li>
+            <li>
+                <a href="#25-%e8%b7%a8%e8%ae%be%e5%a4%87%e6%95%b0%e6%8d%ae%e5%90%8c%e6%ad%a5" aria-label="2.5 跨设备数据同步">2.5 跨设备数据同步</a></li>
+            <li>
+                <a href="#26-%e8%be%93%e5%87%ba%e7%9b%ae%e5%bd%95%e7%bb%93%e6%9e%84" aria-label="2.6 输出目录结构">2.6 输出目录结构</a></li>
+            <li>
+                <a href="#27-%e5%b8%b8%e7%94%a8%e6%8a%80%e5%b7%a7%e5%92%8c%e6%b3%a8%e6%84%8f%e4%ba%8b%e9%a1%b9" aria-label="2.7 常用技巧和注意事项">2.7 常用技巧和注意事项</a><ul>
+                    
+            <li>
+                <a href="#%e7%8e%af%e5%a2%83%e5%8f%98%e9%87%8f%e5%bf%ab%e9%80%9f%e5%8f%82%e8%80%83" aria-label="环境变量快速参考">环境变量快速参考</a></li>
+            <li>
+                <a href="#%e9%a6%96%e6%ac%a1%e4%bd%bf%e7%94%a8%e6%a3%80%e6%9f%a5%e6%b8%85%e5%8d%95" aria-label="首次使用检查清单">首次使用检查清单</a></li>
+            <li>
+                <a href="#%e5%b8%b8%e8%a7%81%e9%97%ae%e9%a2%98%e5%a4%84%e7%90%86" aria-label="常见问题处理">常见问题处理</a></li></ul>
+            </li>
+            <li>
+                <a href="#28-ai-companion%e9%9b%86%e6%88%90%e5%8f%af%e9%80%89" aria-label="2.8 AI Companion集成（可选）">2.8 AI Companion集成（可选）</a></li>
+            <li>
+                <a href="#29-%e5%bf%ab%e9%80%9f%e5%bc%80%e5%a7%8b%e7%a4%ba%e4%be%8b" aria-label="2.9 快速开始示例">2.9 快速开始示例</a><ul>
+                    
+            <li>
+                <a href="#%e5%9c%ba%e6%99%af1%e7%94%9f%e6%88%90%e8%bf%99%e5%91%a8%e7%9a%84ai%e5%af%b9%e8%af%9d%e5%91%a8%e6%8a%a5" aria-label="场景1：生成这周的AI对话周报">场景1：生成这周的AI对话周报</a></li>
+            <li>
+                <a href="#%e5%9c%ba%e6%99%af2%e6%90%9c%e7%b4%a2%e6%9c%80%e6%96%b0%e7%9a%84%e6%9c%ba%e5%99%a8%e5%ad%a6%e4%b9%a0%e8%ae%ba%e6%96%87" aria-label="场景2：搜索最新的机器学习论文">场景2：搜索最新的机器学习论文</a></li>
+            <li>
+                <a href="#%e5%9c%ba%e6%99%af3%e6%b5%8b%e8%af%95gpu%e6%80%a7%e8%83%bd%e5%b9%b6%e7%94%9f%e6%88%90%e6%8a%a5%e5%91%8a" aria-label="场景3：测试GPU性能并生成报告">场景3：测试GPU性能并生成报告</a></li>
+            <li>
+                <a href="#%e5%9c%ba%e6%99%af4%e5%90%af%e5%8a%a8%e6%9c%ac%e5%9c%b0%e6%96%87%e6%a1%a3%e7%bf%bb%e8%af%91%e5%99%a8" aria-label="场景4：启动本地文档翻译器">场景4：启动本地文档翻译器</a></li></ul>
+            </li></ul>
+            </li></ul>
+            </li>
+            <li>
+                <a href="#%e4%b8%80%e9%a1%b9%e7%9b%ae%e6%80%bb%e7%bb%93-1" aria-label="一、项目总结">一、项目总结</a><ul>
+                    
+            <li>
+                <a href="#1-gadget-%e6%98%af%e4%bb%80%e4%b9%88" aria-label="1. Gadget 是什么">1. Gadget 是什么</a></li>
+            <li>
+                <a href="#2-%e4%bb%93%e5%ba%93%e7%bb%93%e6%9e%84-1" aria-label="2. 仓库结构">2. 仓库结构</a></li>
+            <li>
+                <a href="#3-%e5%90%84%e5%b7%a5%e5%85%b7%e5%88%86%e5%88%ab%e5%81%9a%e4%bb%80%e4%b9%88" aria-label="3. 各工具分别做什么">3. 各工具分别做什么</a><ul>
+                    
+            <li>
+                <a href="#summarize" aria-label="Summarize">Summarize</a></li>
+            <li>
+                <a href="#research" aria-label="Research">Research</a></li>
+            <li>
+                <a href="#benchmark" aria-label="Benchmark">Benchmark</a></li>
+            <li>
+                <a href="#website" aria-label="Website">Website</a></li>
+            <li>
+                <a href="#translator" aria-label="Translator">Translator</a></li></ul>
+            </li>
+            <li>
+                <a href="#4-%e5%85%ac%e5%85%b1%e6%a8%a1%e5%9d%97%e5%92%8c%e8%bf%90%e7%bb%b4%e8%84%9a%e6%9c%ac" aria-label="4. 公共模块和运维脚本">4. 公共模块和运维脚本</a><ul>
+                    
+            <li>
+                <a href="#common" aria-label="common/">common/</a></li>
+            <li>
+                <a href="#scripts" aria-label="scripts/">scripts/</a></li>
+            <li>
+                <a href="#ai-companion" aria-label="AI Companion">AI Companion</a></li></ul>
+            </li></ul>
+            </li>
+            <li>
+                <a href="#%e4%ba%8c%e7%ac%ac%e4%b8%80%e6%ac%a1%e4%bd%bf%e7%94%a8-gadget-%e7%9a%84%e6%95%99%e7%a8%8b" aria-label="二、第一次使用 Gadget 的教程">二、第一次使用 Gadget 的教程</a><ul>
+                    
+            <li>
+                <a href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87-2" aria-label="1. 环境准备">1. 环境准备</a><ul>
+                    
+            <li>
+                <a href="#python" aria-label="Python">Python</a></li>
+            <li>
+                <a href="#nodejs" aria-label="Node.js">Node.js</a></li>
+            <li>
+                <a href="#%e5%85%b6%e4%bb%96%e5%a4%96%e9%83%a8%e7%bb%84%e4%bb%b6" aria-label="其他外部组件">其他外部组件</a></li></ul>
+            </li>
+            <li>
+                <a href="#2-%e5%ae%89%e8%a3%85" aria-label="2. 安装">2. 安装</a><ul>
+                    
+            <li>
+                <a href="#%e5%ae%89%e8%a3%85%e5%85%ac%e5%85%b1%e5%8c%85" aria-label="安装公共包">安装公共包</a></li>
+            <li>
+                <a href="#%e5%ae%89%e8%a3%85%e4%b8%bb%e8%a6%81%e5%b7%a5%e5%85%b7%e7%9a%84%e5%85%a8%e9%83%a8-extras" aria-label="安装主要工具的全部 extras">安装主要工具的全部 extras</a></li>
+            <li>
+                <a href="#%e5%8d%95%e7%8b%ac%e5%ae%89%e8%a3%85-translator" aria-label="单独安装 Translator">单独安装 Translator</a></li>
+            <li>
+                <a href="#%e5%8f%aa%e5%ae%89%e8%a3%85-website-%e7%9b%b8%e5%85%b3%e4%be%9d%e8%b5%96" aria-label="只安装 Website 相关依赖">只安装 Website 相关依赖</a></li></ul>
+            </li>
+            <li>
+                <a href="#3-%e5%9f%ba%e7%a1%80%e9%85%8d%e7%bd%ae" aria-label="3. 基础配置">3. 基础配置</a><ul>
+                    
+            <li>
+                <a href="#%e6%a0%b9%e9%85%8d%e7%bd%ae%e6%96%87%e4%bb%b6" aria-label="根配置文件">根配置文件</a></li>
+            <li>
+                <a href="#llm-%e5%90%8e%e7%ab%af" aria-label="LLM 后端">LLM 后端</a></li>
+            <li>
+                <a href="#%e7%bf%bb%e8%af%91%e9%85%8d%e7%bd%ae" aria-label="翻译配置">翻译配置</a></li>
+            <li>
+                <a href="#token-%e5%92%8c%e5%88%9d%e5%a7%8b%e5%8c%96%e9%85%8d%e7%bd%ae" aria-label="Token 和初始化配置">Token 和初始化配置</a></li></ul>
+            </li>
+            <li>
+                <a href="#4-summarize-%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b" aria-label="4. Summarize 使用教程">4. Summarize 使用教程</a><ul>
+                    
+            <li>
+                <a href="#%e7%ac%ac%e4%b8%80%e6%ad%a5%e5%9c%a8%e5%bd%93%e5%89%8d%e8%ae%be%e5%a4%87%e5%af%bc%e5%87%ba%e5%af%b9%e8%af%9d%e8%ae%b0%e5%bd%95" aria-label="第一步：在当前设备导出对话记录">第一步：在当前设备导出对话记录</a></li>
+            <li>
+                <a href="#%e7%ac%ac%e4%ba%8c%e6%ad%a5%e5%90%8c%e6%ad%a5%e5%b9%b6%e6%8c%89%e6%97%a5%e5%90%88%e5%b9%b6" aria-label="第二步：同步并按日合并">第二步：同步并按日合并</a></li>
+            <li>
+                <a href="#%e7%94%9f%e6%88%90%e6%8c%87%e5%ae%9a%e5%91%a8%e7%9a%84%e5%91%a8%e6%8a%a5" aria-label="生成指定周的周报">生成指定周的周报</a></li>
+            <li>
+                <a href="#%e7%94%9f%e6%88%90%e6%8c%87%e5%ae%9a%e6%9c%88%e4%bb%bd%e7%9a%84%e6%9c%88%e6%8a%a5" aria-label="生成指定月份的月报">生成指定月份的月报</a></li>
+            <li>
+                <a href="#%e4%b8%80%e9%94%ae%e8%bf%90%e8%a1%8c%e5%ae%8c%e6%95%b4%e6%b5%81%e7%a8%8b" aria-label="一键运行完整流程">一键运行完整流程</a></li>
+            <li>
+                <a href="#%e6%97%a7%e7%89%88%e5%85%a5%e5%8f%a3" aria-label="旧版入口">旧版入口</a></li></ul>
+            </li>
+            <li>
+                <a href="#5-research-%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b" aria-label="5. Research 使用教程">5. Research 使用教程</a><ul>
+                    
+            <li>
+                <a href="#%e5%ae%8c%e6%95%b4%e8%ae%ba%e6%96%87%e6%90%9c%e7%b4%a2%e5%92%8c%e6%8a%a5%e5%91%8a%e6%b5%81%e7%a8%8b" aria-label="完整论文搜索和报告流程">完整论文搜索和报告流程</a></li>
+            <li>
+                <a href="#%e4%bd%bf%e7%94%a8%e8%87%aa%e7%84%b6%e8%af%ad%e8%a8%80%e6%90%9c%e7%b4%a2%e8%ae%ba%e6%96%87" aria-label="使用自然语言搜索论文">使用自然语言搜索论文</a></li>
+            <li>
+                <a href="#%e7%94%9f%e6%88%90%e7%a0%94%e7%a9%b6%e8%80%85%e7%94%bb%e5%83%8f" aria-label="生成研究者画像">生成研究者画像</a></li>
+            <li>
+                <a href="#%e5%88%86%e6%9e%90%e8%ae%ba%e6%96%87%e5%bc%95%e7%94%a8%e5%9b%be%e8%b0%b1" aria-label="分析论文引用图谱">分析论文引用图谱</a></li>
+            <li>
+                <a href="#%e5%b0%86%e6%8a%a5%e5%91%8a%e9%83%a8%e7%bd%b2%e5%88%b0-hugo" aria-label="将报告部署到 Hugo">将报告部署到 Hugo</a></li>
+            <li>
+                <a href="#%e6%b7%b1%e5%ba%a6%e8%ae%ba%e6%96%87%e6%b4%9e%e5%af%9f" aria-label="深度论文洞察">深度论文洞察</a></li></ul>
+            </li>
+            <li>
+                <a href="#6-benchmark-%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b" aria-label="6. Benchmark 使用教程">6. Benchmark 使用教程</a><ul>
+                    
+            <li>
+                <a href="#%e6%89%a7%e8%a1%8c%e5%85%a8%e9%83%a8-benchmark" aria-label="执行全部 benchmark">执行全部 benchmark</a></li>
+            <li>
+                <a href="#%e5%8f%aa%e6%b5%8b-cpu" aria-label="只测 CPU">只测 CPU</a></li>
+            <li>
+                <a href="#%e5%8f%aa%e6%b5%8b-gpu" aria-label="只测 GPU">只测 GPU</a></li>
+            <li>
+                <a href="#%e6%89%a7%e8%a1%8c%e6%b5%8b%e8%af%95%e5%b9%b6%e7%94%9f%e6%88%90-html-%e6%8a%a5%e5%91%8a" aria-label="执行测试并生成 HTML 报告">执行测试并生成 HTML 报告</a></li>
+            <li>
+                <a href="#%e6%89%a7%e8%a1%8c%e6%b5%8b%e8%af%95%e7%94%9f%e6%88%90%e6%8a%a5%e5%91%8a%e5%b9%b6%e9%83%a8%e7%bd%b2" aria-label="执行测试、生成报告并部署">执行测试、生成报告并部署</a></li></ul>
+            </li>
+            <li>
+                <a href="#7-website-%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b" aria-label="7. Website 使用教程">7. Website 使用教程</a><ul>
+                    
+            <li>
+                <a href="#%e5%ae%89%e8%a3%85%e7%bd%91%e7%ab%99%e4%be%9d%e8%b5%96" aria-label="安装网站依赖">安装网站依赖</a></li>
+            <li>
+                <a href="#macoslinux%e6%9e%84%e5%bb%ba%e5%b9%b6%e5%8f%91%e5%b8%83" aria-label="macOS/Linux：构建并发布">macOS/Linux：构建并发布</a></li>
+            <li>
+                <a href="#windows%e6%9e%84%e5%bb%ba%e5%b9%b6%e5%8f%91%e5%b8%83" aria-label="Windows：构建并发布">Windows：构建并发布</a></li>
+            <li>
+                <a href="#%e6%9c%ac%e5%9c%b0%e9%a2%84%e8%a7%88" aria-label="本地预览">本地预览</a></li>
+            <li>
+                <a href="#%e7%bd%91%e7%ab%99%e6%96%87%e4%bb%b6%e6%b3%a8%e6%84%8f%e4%ba%8b%e9%a1%b9" aria-label="网站文件注意事项">网站文件注意事项</a></li></ul>
+            </li>
+            <li>
+                <a href="#8-translator-%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b" aria-label="8. Translator 使用教程">8. Translator 使用教程</a><ul>
+                    
+            <li>
+                <a href="#%e5%ae%89%e8%a3%85%e4%be%9d%e8%b5%96" aria-label="安装依赖">安装依赖</a></li>
+            <li>
+                <a href="#%e5%90%af%e5%8a%a8%e7%bf%bb%e8%af%91%e7%95%8c%e9%9d%a2" aria-label="启动翻译界面">启动翻译界面</a></li></ul>
+            </li>
+            <li>
+                <a href="#9-%e6%95%b0%e6%8d%ae%e5%90%8c%e6%ad%a5" aria-label="9. 数据同步">9. 数据同步</a></li>
+            <li>
+                <a href="#10-%e6%9c%ac%e5%9c%b0-summarize-ollama-%e7%8e%af%e5%a2%83" aria-label="10. 本地 Summarize Ollama 环境">10. 本地 Summarize Ollama 环境</a></li>
+            <li>
+                <a href="#11-%e8%bf%90%e8%a1%8c%e5%8f%aa%e8%af%bb-smoke-test" aria-label="11. 运行只读 smoke test">11. 运行只读 smoke test</a></li>
+            <li>
+                <a href="#12-%e8%be%93%e5%87%ba%e6%96%87%e4%bb%b6%e5%9c%a8%e5%93%aa%e9%87%8c" aria-label="12. 输出文件在哪里">12. 输出文件在哪里</a></li>
+            <li>
+                <a href="#13-%e4%bd%bf%e7%94%a8%e6%97%b6%e5%bf%85%e9%a1%bb%e6%b3%a8%e6%84%8f" aria-label="13. 使用时必须注意">13. 使用时必须注意</a></li>
+            <li>
+                <a href="#%e9%a1%b9%e7%9b%ae%e6%a6%82%e8%bf%b0" aria-label="项目概述">项目概述</a></li>
+            <li>
+                <a href="#%e4%bb%93%e5%ba%93%e7%bb%93%e6%9e%84-2" aria-label="仓库结构">仓库结构</a></li>
+            <li>
+                <a href="#%e5%90%84%e5%b7%a5%e5%85%b7%e7%94%a8%e9%80%94" aria-label="各工具用途">各工具用途</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b-1" aria-label="使用教程">使用教程</a><ul>
+                    
+            <li>
+                <a href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87-3" aria-label="1. 环境准备">1. 环境准备</a></li>
+            <li>
+                <a href="#2-%e5%ae%89%e8%a3%85%e4%be%9d%e8%b5%96" aria-label="2. 安装依赖">2. 安装依赖</a></li>
+            <li>
+                <a href="#3-llm-%e4%b8%8e%e7%bf%bb%e8%af%91%e5%90%8e%e7%ab%af%e9%85%8d%e7%bd%ae" aria-label="3. LLM 与翻译后端配置">3. LLM 与翻译后端配置</a></li></ul>
+            </li>
+            <li>
+                <a href="#4-%e4%bd%bf%e7%94%a8%e5%af%b9%e8%af%9d%e6%80%bb%e7%bb%93%e5%b7%a5%e5%85%b7summarize" aria-label="4. 使用对话总结工具：Summarize">4. 使用对话总结工具：Summarize</a></li>
+            <li>
+                <a href="#5-%e4%bd%bf%e7%94%a8%e8%ae%ba%e6%96%87%e7%a0%94%e7%a9%b6%e5%b7%a5%e5%85%b7research" aria-label="5. 使用论文研究工具：Research">5. 使用论文研究工具：Research</a></li>
+            <li>
+                <a href="#6-%e4%bd%bf%e7%94%a8%e6%80%a7%e8%83%bd%e6%b5%8b%e8%af%95%e5%b7%a5%e5%85%b7benchmark" aria-label="6. 使用性能测试工具：Benchmark">6. 使用性能测试工具：Benchmark</a></li>
+            <li>
+                <a href="#7-%e4%bd%bf%e7%94%a8-hugo-%e7%bd%91%e7%ab%99%e5%b7%a5%e5%85%b7website" aria-label="7. 使用 Hugo 网站工具：Website">7. 使用 Hugo 网站工具：Website</a></li>
+            <li>
+                <a href="#8-%e4%bd%bf%e7%94%a8%e6%96%87%e6%a1%a3%e7%bf%bb%e8%af%91%e5%99%a8translator" aria-label="8. 使用文档翻译器：Translator">8. 使用文档翻译器：Translator</a></li>
+            <li>
+                <a href="#9-%e8%bf%90%e7%bb%b4%e4%b8%8e%e5%90%8c%e6%ad%a5%e8%84%9a%e6%9c%ac" aria-label="9. 运维与同步脚本">9. 运维与同步脚本</a></li>
+            <li>
+                <a href="#%e4%b8%80%e9%a1%b9%e7%9b%ae%e6%80%bb%e7%bb%93-2" aria-label="一、项目总结">一、项目总结</a><ul>
+                    
+            <li>
+                <a href="#1-gadget-%e6%98%af%e4%bb%80%e4%b9%88-1" aria-label="1. Gadget 是什么">1. Gadget 是什么</a></li>
+            <li>
+                <a href="#2-%e4%bb%93%e5%ba%93%e7%bb%93%e6%9e%84-2" aria-label="2. 仓库结构">2. 仓库结构</a></li>
+            <li>
+                <a href="#3-%e5%90%84%e5%b7%a5%e5%85%b7%e5%8a%9f%e8%83%bd" aria-label="3. 各工具功能">3. 各工具功能</a><ul>
+                    
+            <li>
+                <a href="#summarize-1" aria-label="summarize">summarize</a></li>
+            <li>
+                <a href="#research-1" aria-label="research">research</a></li>
+            <li>
+                <a href="#benchmark-1" aria-label="benchmark">benchmark</a></li>
+            <li>
+                <a href="#website-1" aria-label="website">website</a></li>
+            <li>
+                <a href="#translator-1" aria-label="translator">translator</a></li></ul>
+            </li>
+            <li>
+                <a href="#4-commonscripts-%e5%92%8c-outputs" aria-label="4. common/、scripts/ 和 outputs/">4. common/、scripts/ 和 outputs/</a><ul>
+                    
+            <li>
+                <a href="#common-1" aria-label="common/">common/</a></li>
+            <li>
+                <a href="#scripts-1" aria-label="scripts/">scripts/</a></li>
+            <li>
+                <a href="#outputs" aria-label="outputs/">outputs/</a></li></ul>
+            </li></ul>
+            </li>
+            <li>
+                <a href="#%e4%ba%8c%e4%b8%ad%e6%96%87%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b" aria-label="二、中文使用教程">二、中文使用教程</a><ul>
+                    
+            <li>
+                <a href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87-4" aria-label="1. 环境准备">1. 环境准备</a></li>
+            <li>
+                <a href="#2-%e5%ae%89%e8%a3%85%e5%9f%ba%e7%a1%80%e4%be%9d%e8%b5%96" aria-label="2. 安装基础依赖">2. 安装基础依赖</a></li>
+            <li>
+                <a href="#3-%e9%85%8d%e7%bd%ae%e6%96%87%e4%bb%b6%e5%92%8c%e5%af%86%e9%92%a5" aria-label="3. 配置文件和密钥">3. 配置文件和密钥</a></li>
+            <li>
+                <a href="#4-%e6%96%b0%e6%9c%ba%e5%99%a8%e5%88%9d%e5%a7%8b%e5%8c%96" aria-label="4. 新机器初始化">4. 新机器初始化</a></li>
+            <li>
+                <a href="#5-%e6%95%b0%e6%8d%ae%e5%90%8c%e6%ad%a5%e5%92%8c%e5%9f%ba%e7%a1%80%e6%a3%80%e6%9f%a5" aria-label="5. 数据同步和基础检查">5. 数据同步和基础检查</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e4%b8%89%e5%90%84%e5%b7%a5%e5%85%b7%e4%bd%bf%e7%94%a8%e6%96%b9%e6%b3%95" aria-label="三、各工具使用方法">三、各工具使用方法</a><ul>
+                    
+            <li>
+                <a href="#1-summarize%e7%94%9f%e6%88%90-ai-%e5%af%b9%e8%af%9d%e6%8a%a5%e5%91%8a" aria-label="1. Summarize：生成 AI 对话报告">1. Summarize：生成 AI 对话报告</a><ul>
+                    
+            <li>
+                <a href="#%e6%97%a5%e6%8a%a5%e6%b5%81%e7%a8%8b" aria-label="日报流程">日报流程</a></li>
+            <li>
+                <a href="#%e4%b8%80%e9%94%ae%e6%89%a7%e8%a1%8c%e5%ae%8c%e6%95%b4%e6%b5%81%e7%a8%8b" aria-label="一键执行完整流程">一键执行完整流程</a></li>
+            <li>
+                <a href="#llm-%e5%90%8e%e7%ab%af-1" aria-label="LLM 后端">LLM 后端</a></li></ul>
+            </li>
+            <li>
+                <a href="#2-research%e8%ae%ba%e6%96%87%e6%90%9c%e7%b4%a2%e4%b8%8e%e7%a0%94%e7%a9%b6%e8%80%85%e5%88%86%e6%9e%90" aria-label="2. Research：论文搜索与研究者分析">2. Research：论文搜索与研究者分析</a><ul>
+                    
+            <li>
+                <a href="#%e7%94%9f%e6%88%90%e7%a0%94%e7%a9%b6%e9%a1%b9%e7%9b%ae%e6%8a%a5%e5%91%8a" aria-label="生成研究项目报告">生成研究项目报告</a></li>
+            <li>
+                <a href="#%e4%bd%bf%e7%94%a8%e8%87%aa%e7%84%b6%e8%af%ad%e8%a8%80%e6%90%9c%e7%b4%a2%e8%ae%ba%e6%96%87-1" aria-label="使用自然语言搜索论文">使用自然语言搜索论文</a></li>
+            <li>
+                <a href="#%e7%94%9f%e6%88%90%e7%a0%94%e7%a9%b6%e8%80%85%e7%94%bb%e5%83%8f-1" aria-label="生成研究者画像">生成研究者画像</a></li>
+            <li>
+                <a href="#%e5%88%86%e6%9e%90%e8%ae%ba%e6%96%87%e5%bc%95%e7%94%a8%e5%9b%be%e8%b0%b1-1" aria-label="分析论文引用图谱">分析论文引用图谱</a></li>
+            <li>
+                <a href="#%e9%83%a8%e7%bd%b2%e7%a0%94%e7%a9%b6%e6%8a%a5%e5%91%8a" aria-label="部署研究报告">部署研究报告</a></li></ul>
+            </li>
+            <li>
+                <a href="#3-benchmark%e8%bf%90%e8%a1%8c-cpugpu-%e6%80%a7%e8%83%bd%e6%b5%8b%e8%af%95" aria-label="3. Benchmark：运行 CPU/GPU 性能测试">3. Benchmark：运行 CPU/GPU 性能测试</a></li>
+            <li>
+                <a href="#4-website%e6%9e%84%e5%bb%ba%e5%92%8c%e9%a2%84%e8%a7%88-hugo-%e7%bd%91%e7%ab%99" aria-label="4. Website：构建和预览 Hugo 网站">4. Website：构建和预览 Hugo 网站</a><ul>
+                    
+            <li>
+                <a href="#macoslinux%e6%9e%84%e5%bb%ba%e5%b9%b6%e5%8f%91%e5%b8%83-1" aria-label="macOS/Linux：构建并发布">macOS/Linux：构建并发布</a></li>
+            <li>
+                <a href="#windows%e6%9e%84%e5%bb%ba%e5%b9%b6%e5%8f%91%e5%b8%83-1" aria-label="Windows：构建并发布">Windows：构建并发布</a></li>
+            <li>
+                <a href="#%e6%9c%ac%e5%9c%b0%e9%a2%84%e8%a7%88-1" aria-label="本地预览">本地预览</a></li></ul>
+            </li>
+            <li>
+                <a href="#5-translator%e5%90%af%e5%8a%a8%e6%9c%ac%e5%9c%b0%e6%96%87%e6%a1%a3%e7%bf%bb%e8%af%91%e5%99%a8" aria-label="5. Translator：启动本地文档翻译器">5. Translator：启动本地文档翻译器</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e5%9b%9b%e5%b8%b8%e8%a7%81%e6%b3%a8%e6%84%8f%e4%ba%8b%e9%a1%b9" aria-label="四、常见注意事项">四、常见注意事项</a><ul>
+                    <ul>
+                    
+            <li>
+                <a href="#41-summarizeai-%e5%af%b9%e8%af%9d%e6%97%a5%e6%8a%a5--%e5%91%a8%e6%8a%a5--%e6%9c%88%e6%8a%a5" aria-label="4.1 summarize：AI 对话日报 / 周报 / 月报">4.1 summarize：AI 对话日报 / 周报 / 月报</a></li>
+            <li>
+                <a href="#42-research%e8%ae%ba%e6%96%87%e5%8f%91%e7%8e%b0%e7%a0%94%e7%a9%b6%e8%80%85%e5%88%86%e6%9e%90citation-graph" aria-label="4.2 research：论文发现、研究者分析、citation graph">4.2 research：论文发现、研究者分析、citation graph</a></li>
+            <li>
+                <a href="#43-benchmark%e6%80%a7%e8%83%bd%e5%9f%ba%e5%87%86%e6%b5%8b%e8%af%95" aria-label="4.3 benchmark：性能基准测试">4.3 benchmark：性能基准测试</a></li>
+            <li>
+                <a href="#44-websitehugo-%e5%8d%9a%e5%ae%a2" aria-label="4.4 website：Hugo 博客">4.4 website：Hugo 博客</a></li>
+            <li>
+                <a href="#45-translatorgradio-%e6%96%87%e6%a1%a3%e7%bf%bb%e8%af%91%e5%99%a8" aria-label="4.5 translator：Gradio 文档翻译器">4.5 translator：Gradio 文档翻译器</a></li></ul>
+                </ul>
+            </li>
+            <li>
+                <a href="#%e4%b8%80%e9%a1%b9%e7%9b%ae%e6%80%bb%e7%bb%93-3" aria-label="一、项目总结">一、项目总结</a><ul>
+                    
+            <li>
+                <a href="#%e6%98%af%e4%bb%80%e4%b9%88" aria-label="是什么">是什么</a></li>
+            <li>
+                <a href="#%e4%bb%93%e5%ba%93%e7%bb%93%e6%9e%84-3" aria-label="仓库结构">仓库结构</a></li>
+            <li>
+                <a href="#%e5%90%84%e5%b7%a5%e5%85%b7%e5%81%9a%e4%bb%80%e4%b9%88" aria-label="各工具做什么">各工具做什么</a><ul>
+                    
+            <li>
+                <a href="#toolssummarize--ai-%e5%af%b9%e8%af%9d%e6%97%a5%e6%8a%a5%e5%91%a8%e6%8a%a5%e6%9c%88%e6%8a%a5" aria-label="tools/summarize/ —— AI 对话日报/周报/月报">tools/summarize/ —— AI 对话日报/周报/月报</a></li>
+            <li>
+                <a href="#toolsresearch--%e8%ae%ba%e6%96%87%e5%8f%91%e7%8e%b0%e4%b8%8e%e7%a0%94%e7%a9%b6%e8%80%85%e5%88%86%e6%9e%90" aria-label="tools/research/ —— 论文发现与研究者分析">tools/research/ —— 论文发现与研究者分析</a></li>
+            <li>
+                <a href="#toolsbenchmark--%e6%80%a7%e8%83%bd%e5%9f%ba%e5%87%86%e6%b5%8b%e8%af%95%e5%a5%97%e4%bb%b6" aria-label="tools/benchmark/ —— 性能基准测试套件">tools/benchmark/ —— 性能基准测试套件</a></li>
+            <li>
+                <a href="#toolswebsite--hugo-%e5%8d%9a%e5%ae%a2" aria-label="tools/website/ —— Hugo 博客">tools/website/ —— Hugo 博客</a></li>
+            <li>
+                <a href="#toolstranslator--gradio-%e6%96%87%e6%a1%a3%e7%bf%bb%e8%af%91%e5%99%a8" aria-label="tools/translator/ —— Gradio 文档翻译器">tools/translator/ —— Gradio 文档翻译器</a></li>
+            <li>
+                <a href="#common--%e5%85%b1%e4%ba%ab%e5%9f%ba%e7%a1%80%e8%ae%be%e6%96%bd%e5%8c%85" aria-label="common/ —— 共享基础设施包">common/ —— 共享基础设施包</a></li>
+            <li>
+                <a href="#scripts--%e8%bf%90%e7%bb%b4%e4%b8%8e%e7%bb%b4%e6%8a%a4%e8%84%9a%e6%9c%ac" aria-label="scripts/ —— 运维与维护脚本">scripts/ —— 运维与维护脚本</a></li>
+            <li>
+                <a href="#ai-companion--%e7%8b%ac%e7%ab%8b%e4%bb%93%e5%ba%93" aria-label="../ai-companion/ —— 独立仓库">../ai-companion/ —— 独立仓库</a></li>
+            <li>
+                <a href="#outputs--%e8%be%93%e5%87%ba%e7%9b%ae%e5%bd%95" aria-label="outputs/ —— 输出目录">outputs/ —— 输出目录</a></li></ul>
+            </li></ul>
+            </li>
+            <li>
+                <a href="#%e4%ba%8c%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b%e9%9d%a2%e5%90%91%e7%ac%ac%e4%b8%80%e6%ac%a1%e6%8e%a5%e8%a7%a6%e7%9a%84%e4%ba%ba" aria-label="二、使用教程(面向第一次接触的人)">二、使用教程(面向第一次接触的人)</a><ul>
+                    
+            <li>
+                <a href="#%e7%ac%ac-0-%e6%ad%a5%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="第 0 步:环境准备">第 0 步:环境准备</a></li>
+            <li>
+                <a href="#%e7%ac%ac-1-%e6%ad%a5%e5%ae%89%e8%a3%85" aria-label="第 1 步:安装">第 1 步:安装</a></li>
+            <li>
+                <a href="#%e7%ac%ac-2-%e6%ad%a5%e9%85%8d%e7%bd%ae" aria-label="第 2 步:配置">第 2 步:配置</a></li>
+            <li>
+                <a href="#%e7%ac%ac-3-%e6%ad%a5%e5%8f%af%e9%80%89%e6%96%b0%e6%9c%ba%e5%99%a8%e4%b8%80%e6%ac%a1%e6%80%a7%e5%88%9d%e5%a7%8b%e5%8c%96" aria-label="第 3 步(可选):新机器一次性初始化">第 3 步(可选):新机器一次性初始化</a></li>
+            <li>
+                <a href="#%e7%ac%ac-4-%e6%ad%a5%e5%85%88%e8%b7%91%e4%b8%80%e6%ac%a1%e5%86%92%e7%83%9f%e6%a3%80%e6%9f%a5" aria-label="第 4 步:先跑一次冒烟检查">第 4 步:先跑一次冒烟检查</a></li>
+            <li>
+                <a href="#%e5%b7%a5%e5%85%b7-1summarize--ai-%e5%af%b9%e8%af%9d%e6%97%a5%e6%8a%a5%e5%91%a8%e6%8a%a5%e6%9c%88%e6%8a%a5" aria-label="工具 1:Summarize —— AI 对话日报/周报/月报">工具 1:Summarize —— AI 对话日报/周报/月报</a></li>
+            <li>
+                <a href="#%e5%b7%a5%e5%85%b7-2research--%e8%ae%ba%e6%96%87%e5%8f%91%e7%8e%b0%e4%b8%8e%e7%a0%94%e7%a9%b6%e8%80%85%e5%88%86%e6%9e%90" aria-label="工具 2:Research —— 论文发现与研究者分析">工具 2:Research —— 论文发现与研究者分析</a></li>
+            <li>
+                <a href="#%e5%b7%a5%e5%85%b7-3benchmark--%e6%80%a7%e8%83%bd%e5%9f%ba%e5%87%86%e6%b5%8b%e8%af%95" aria-label="工具 3:Benchmark —— 性能基准测试">工具 3:Benchmark —— 性能基准测试</a></li>
+            <li>
+                <a href="#%e5%b7%a5%e5%85%b7-4website--hugo-%e5%8d%9a%e5%ae%a2" aria-label="工具 4:Website —— Hugo 博客">工具 4:Website —— Hugo 博客</a></li>
+            <li>
+                <a href="#%e5%b7%a5%e5%85%b7-5translator--gradio-%e6%96%87%e6%a1%a3%e7%bf%bb%e8%af%91%e5%99%a8" aria-label="工具 5:Translator —— Gradio 文档翻译器">工具 5:Translator —— Gradio 文档翻译器</a></li>
+            <li>
+                <a href="#%e8%b7%a8%e8%ae%be%e5%a4%87%e6%95%b0%e6%8d%ae%e5%90%8c%e6%ad%a5" aria-label="跨设备数据同步">跨设备数据同步</a></li>
+            <li>
+                <a href="#%e5%b8%b8%e8%a7%81%e6%b3%a8%e6%84%8f%e4%ba%8b%e9%a1%b9%e5%8a%a1%e5%bf%85%e9%81%b5%e5%ae%88" aria-label="常见注意事项(务必遵守)">常见注意事项(务必遵守)</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e9%a1%b9%e7%9b%ae%e6%80%bb%e7%bb%93-1" aria-label="项目总结">项目总结</a><ul>
+                    
+            <li>
+                <a href="#%e4%bb%93%e5%ba%93%e7%bb%93%e6%9e%84-4" aria-label="仓库结构">仓库结构</a></li>
+            <li>
+                <a href="#%e6%af%8f%e4%b8%aa%e5%b7%a5%e5%85%b7%e5%81%9a%e4%bb%80%e4%b9%88" aria-label="每个工具做什么">每个工具做什么</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b-2" aria-label="使用教程">使用教程</a><ul>
+                    
+            <li>
+                <a href="#%e4%b8%80%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="一、环境准备">一、环境准备</a></li>
+            <li>
+                <a href="#%e4%ba%8c%e5%ae%89%e8%a3%85" aria-label="二、安装">二、安装</a></li>
+            <li>
+                <a href="#%e4%b8%89%e9%85%8d%e7%bd%ae" aria-label="三、配置">三、配置</a></li>
+            <li>
+                <a href="#%e5%9b%9b%e5%90%84%e5%b7%a5%e5%85%b7%e5%85%b8%e5%9e%8b%e7%94%a8%e6%b3%95" aria-label="四、各工具典型用法">四、各工具典型用法</a><ul>
+                    
+            <li>
+                <a href="#1-summarize--ai-%e5%af%b9%e8%af%9d%e6%97%a5%e5%91%a8%e6%9c%88%e6%8a%a5" aria-label="1. Summarize —— AI 对话日/周/月报">1. Summarize —— AI 对话日/周/月报</a></li>
+            <li>
+                <a href="#2-research--%e8%ae%ba%e6%96%87%e5%8f%91%e7%8e%b0%e4%b8%8e%e7%a0%94%e7%a9%b6%e8%80%85%e5%88%86%e6%9e%90" aria-label="2. Research —— 论文发现与研究者分析">2. Research —— 论文发现与研究者分析</a></li>
+            <li>
+                <a href="#3-benchmark--%e6%80%a7%e8%83%bd%e6%b5%8b%e8%af%84" aria-label="3. Benchmark —— 性能测评">3. Benchmark —— 性能测评</a></li>
+            <li>
+                <a href="#4-website--hugo-%e5%8d%9a%e5%ae%a2" aria-label="4. Website —— Hugo 博客">4. Website —— Hugo 博客</a></li>
+            <li>
+                <a href="#5-translator--%e6%96%87%e6%a1%a3%e7%bf%bb%e8%af%91%e5%99%a8" aria-label="5. Translator —— 文档翻译器">5. Translator —— 文档翻译器</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e4%ba%94%e5%b8%b8%e7%94%a8%e8%bf%90%e7%bb%b4%e8%84%9a%e6%9c%ac" aria-label="五、常用运维脚本">五、常用运维脚本</a></li>
+            <li>
+                <a href="#%e5%85%ad%e5%85%b6%e4%bb%96%e8%af%b4%e6%98%8e" aria-label="六、其他说明">六、其他说明</a></li></ul>
+            </li>
+            <li>
+                <a href="#gadget-%e9%a1%b9%e7%9b%ae%e6%80%bb%e7%bb%93%e4%b8%8e%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b" aria-label="Gadget 项目总结与使用教程">Gadget 项目总结与使用教程</a><ul>
+                    
+            <li>
+                <a href="#%e4%b8%80%e9%a1%b9%e7%9b%ae%e6%80%bb%e7%bb%93-4" aria-label="一、项目总结">一、项目总结</a><ul>
+                    
+            <li>
+                <a href="#1-%e8%bf%99%e6%98%af%e4%bb%80%e4%b9%88" aria-label="1. 这是什么？">1. 这是什么？</a></li>
+            <li>
+                <a href="#2-%e4%bb%93%e5%ba%93%e7%bb%93%e6%9e%84-3" aria-label="2. 仓库结构">2. 仓库结构</a></li>
+            <li>
+                <a href="#3-%e5%90%84%e5%b7%a5%e5%85%b7%e4%b8%80%e8%a7%88" aria-label="3. 各工具一览">3. 各工具一览</a></li>
+            <li>
+                <a href="#4-%e6%af%8f%e4%b8%aa%e5%b7%a5%e5%85%b7%e5%88%86%e5%88%ab%e5%81%9a%e4%bb%80%e4%b9%88" aria-label="4. 每个工具分别做什么？">4. 每个工具分别做什么？</a><ul>
+                    
+            <li>
+                <a href="#summarize--ai-%e5%af%b9%e8%af%9d%e6%97%a5%e6%8a%a5%e5%91%a8%e6%8a%a5%e6%9c%88%e6%8a%a5" aria-label="Summarize — AI 对话日报/周报/月报">Summarize — AI 对话日报/周报/月报</a></li>
+            <li>
+                <a href="#research--%e8%ae%ba%e6%96%87%e5%8f%91%e7%8e%b0%e4%b8%8e%e7%a0%94%e7%a9%b6%e5%88%86%e6%9e%90" aria-label="Research — 论文发现与研究分析">Research — 论文发现与研究分析</a></li>
+            <li>
+                <a href="#benchmark--%e6%80%a7%e8%83%bd%e5%9f%ba%e5%87%86%e6%b5%8b%e8%af%95%e5%a5%97%e4%bb%b6" aria-label="Benchmark — 性能基准测试套件">Benchmark — 性能基准测试套件</a></li>
+            <li>
+                <a href="#website--hugo-%e5%8d%9a%e5%ae%a2" aria-label="Website — Hugo 博客">Website — Hugo 博客</a></li>
+            <li>
+                <a href="#translator--gradio-%e6%96%87%e6%a1%a3%e7%bf%bb%e8%af%91%e5%99%a8" aria-label="Translator — Gradio 文档翻译器">Translator — Gradio 文档翻译器</a></li></ul>
+            </li>
+            <li>
+                <a href="#5-common--scripts--ai-companion" aria-label="5. common / scripts / ai-companion">5. common / scripts / ai-companion</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e4%ba%8c%e8%af%a6%e7%bb%86%e4%b8%ad%e6%96%87%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b%e9%a6%96%e6%ac%a1%e4%b8%8a%e6%89%8b" aria-label="二、详细中文使用教程（首次上手）">二、详细中文使用教程（首次上手）</a><ul>
+                    
+            <li>
+                <a href="#%e7%ac%ac-0-%e6%ad%a5%e4%ba%86%e8%a7%a3%e8%be%93%e5%87%ba%e4%b8%8e%e9%85%8d%e7%bd%ae%e4%bd%8d%e7%bd%ae" aria-label="第 0 步：了解输出与配置位置">第 0 步：了解输出与配置位置</a></li>
+            <li>
+                <a href="#%e7%ac%ac-1-%e6%ad%a5%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="第 1 步：环境准备">第 1 步：环境准备</a></li>
+            <li>
+                <a href="#%e7%ac%ac-2-%e6%ad%a5%e6%96%b0%e6%9c%ba%e5%99%a8%e4%b8%80%e6%ac%a1%e6%80%a7%e9%85%8d%e7%bd%ae%e6%8e%a8%e8%8d%90" aria-label="第 2 步：新机器一次性配置（推荐）">第 2 步：新机器一次性配置（推荐）</a></li>
+            <li>
+                <a href="#%e7%ac%ac-3-%e6%ad%a5%e6%95%b0%e6%8d%ae%e5%90%8c%e6%ad%a5%e5%a4%9a%e8%ae%be%e5%a4%87--%e5%a4%9a%e6%9c%ba%e5%99%a8" aria-label="第 3 步：数据同步（多设备 / 多机器）">第 3 步：数据同步（多设备 / 多机器）</a></li>
+            <li>
+                <a href="#%e7%ac%ac-4-%e6%ad%a5summarize--ai-%e5%af%b9%e8%af%9d%e6%97%a5%e6%8a%a5%e5%91%a8%e6%8a%a5%e6%9c%88%e6%8a%a5" aria-label="第 4 步：Summarize — AI 对话日报/周报/月报">第 4 步：Summarize — AI 对话日报/周报/月报</a></li>
+            <li>
+                <a href="#%e7%ac%ac-5-%e6%ad%a5research--%e8%ae%ba%e6%96%87%e5%8f%91%e7%8e%b0%e4%b8%8e%e7%a0%94%e7%a9%b6%e5%88%86%e6%9e%90" aria-label="第 5 步：Research — 论文发现与研究分析">第 5 步：Research — 论文发现与研究分析</a></li>
+            <li>
+                <a href="#%e7%ac%ac-6-%e6%ad%a5benchmark--cpugpu-%e6%80%a7%e8%83%bd%e6%b5%8b%e8%af%95" aria-label="第 6 步：Benchmark — CPU/GPU 性能测试">第 6 步：Benchmark — CPU/GPU 性能测试</a></li>
+            <li>
+                <a href="#%e7%ac%ac-7-%e6%ad%a5website--hugo-%e5%8d%9a%e5%ae%a2" aria-label="第 7 步：Website — Hugo 博客">第 7 步：Website — Hugo 博客</a></li>
+            <li>
+                <a href="#%e7%ac%ac-8-%e6%ad%a5translator--gradio-%e6%96%87%e6%a1%a3%e7%bf%bb%e8%af%91" aria-label="第 8 步：Translator — Gradio 文档翻译">第 8 步：Translator — Gradio 文档翻译</a></li>
+            <li>
+                <a href="#%e7%ac%ac-9-%e6%ad%a5%e5%85%b6%e4%bb%96%e5%b8%b8%e7%94%a8%e8%bf%90%e7%bb%b4%e5%91%bd%e4%bb%a4" aria-label="第 9 步：其他常用运维命令">第 9 步：其他常用运维命令</a></li>
+            <li>
+                <a href="#%e9%87%8d%e8%a6%81%e6%b3%a8%e6%84%8f%e4%ba%8b%e9%a1%b9readme-notes-%e6%91%98%e8%a6%81" aria-label="重要注意事项（README Notes 摘要）">重要注意事项（README Notes 摘要）</a></li>
+            <li>
+                <a href="#%e5%bb%b6%e4%bc%b8%e9%98%85%e8%af%bbreadme-%e4%b8%ad%e6%8c%87%e5%90%91%e7%9a%84%e6%96%87%e6%a1%a3" aria-label="延伸阅读（README 中指向的文档）">延伸阅读（README 中指向的文档）</a></li></ul>
+            </li>
+            <li>
+                <a href="#1-%e9%a1%b9%e7%9b%ae%e6%80%bb%e7%bb%93-1" aria-label="1. 项目总结">1. 项目总结</a><ul>
+                    
+            <li>
+                <a href="#%e5%ae%83%e6%98%af%e4%bb%80%e4%b9%88" aria-label="它是什么">它是什么</a></li>
+            <li>
+                <a href="#%e4%bb%93%e5%ba%93%e7%bb%93%e6%9e%84-5" aria-label="仓库结构">仓库结构</a></li>
+            <li>
+                <a href="#%e6%af%8f%e4%b8%aa%e5%b7%a5%e5%85%b7%e5%88%86%e5%88%ab%e5%81%9a%e4%bb%80%e4%b9%88" aria-label="每个工具分别做什么">每个工具分别做什么</a></li></ul>
+            </li>
+            <li>
+                <a href="#2-%e9%9d%a2%e5%90%91%e7%ac%ac%e4%b8%80%e6%ac%a1%e6%8e%a5%e8%a7%a6%e7%9a%84%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b" aria-label="2. 面向第一次接触的使用教程">2. 面向第一次接触的使用教程</a><ul>
+                    
+            <li>
+                <a href="#21-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87-1" aria-label="2.1 环境准备">2.1 环境准备</a></li>
+            <li>
+                <a href="#22-%e5%ae%89%e8%a3%85" aria-label="2.2 安装">2.2 安装</a></li>
+            <li>
+                <a href="#23-%e9%85%8d%e7%bd%ae" aria-label="2.3 配置">2.3 配置</a></li>
+            <li>
+                <a href="#24-%e5%90%84%e5%b7%a5%e5%85%b7%e5%85%b8%e5%9e%8b%e7%94%a8%e6%b3%95" aria-label="2.4 各工具典型用法">2.4 各工具典型用法</a><ul>
+                    
+            <li>
+                <a href="#summarizeai-%e5%af%b9%e8%af%9d%e6%97%a5%e5%91%a8%e6%9c%88%e6%8a%a5" aria-label="Summarize：AI 对话日/周/月报">Summarize：AI 对话日/周/月报</a></li>
+            <li>
+                <a href="#research%e8%ae%ba%e6%96%87%e5%8f%91%e7%8e%b0%e4%b8%8e%e7%a0%94%e7%a9%b6%e8%80%85%e5%88%86%e6%9e%90" aria-label="Research：论文发现与研究者分析">Research：论文发现与研究者分析</a></li>
+            <li>
+                <a href="#benchmark%e6%80%a7%e8%83%bd%e5%9f%ba%e5%87%86%e5%a5%97%e4%bb%b6" aria-label="Benchmark：性能基准套件">Benchmark：性能基准套件</a></li>
+            <li>
+                <a href="#websitehugo-%e5%8d%9a%e5%ae%a2" aria-label="Website：Hugo 博客">Website：Hugo 博客</a></li>
+            <li>
+                <a href="#translatorgradio-%e6%96%87%e6%a1%a3%e7%bf%bb%e8%af%91%e5%99%a8" aria-label="Translator：Gradio 文档翻译器">Translator：Gradio 文档翻译器</a></li></ul>
+            </li>
+            <li>
+                <a href="#25-%e5%bb%ba%e8%ae%ae%e7%9a%84%e7%ac%ac%e4%b8%80%e6%ac%a1%e4%b8%8a%e6%89%8b%e9%a1%ba%e5%ba%8f" aria-label="2.5 建议的第一次上手顺序">2.5 建议的第一次上手顺序</a></li></ul>
+            </li></ul>
+            </li>
+            <li>
+                <a href="#%e7%ac%ac%e4%b8%80%e9%83%a8%e5%88%86%e5%bc%80%e6%ba%90%e9%a1%b9%e7%9b%ae-gadgets-%e6%80%bb%e7%bb%93" aria-label="第一部分：开源项目 Gadgets 总结">第一部分：开源项目 Gadgets 总结</a><ul>
+                    
+            <li>
+                <a href="#1-%e9%a1%b9%e7%9b%ae%e7%ae%80%e4%bb%8b" aria-label="1. 项目简介">1. 项目简介</a></li>
+            <li>
+                <a href="#2-%e4%bb%93%e5%ba%93%e7%bb%93%e6%9e%84%e8%af%b4%e6%98%8e" aria-label="2. 仓库结构说明">2. 仓库结构说明</a></li>
+            <li>
+                <a href="#3-%e5%90%84%e5%b7%a5%e5%85%b7%e5%8f%8a%e6%a8%a1%e5%9d%97%e5%8a%9f%e8%83%bd%e4%bb%8b%e7%bb%8d" aria-label="3. 各工具及模块功能介绍">3. 各工具及模块功能介绍</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e7%ac%ac%e4%ba%8c%e9%83%a8%e5%88%86gadgets-%e8%af%a6%e7%bb%86%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b" aria-label="第二部分：Gadgets 详细使用教程">第二部分：Gadgets 详细使用教程</a><ul>
+                    
+            <li>
+                <a href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87-5" aria-label="1. 环境准备">1. 环境准备</a></li>
+            <li>
+                <a href="#2-%e5%ae%89%e8%a3%85%e4%b8%8e%e5%88%9d%e5%a7%8b%e5%8c%96-2" aria-label="2. 安装与初始化">2. 安装与初始化</a><ul>
+                    
+            <li>
+                <a href="#21-%e5%ae%89%e8%a3%85%e5%85%ac%e5%85%b1%e5%9f%ba%e7%a1%80%e5%8c%85%e4%b8%8e%e5%a4%a7%e9%83%a8%e5%88%86%e5%b7%a5%e5%85%b7%e4%be%9d%e8%b5%96" aria-label="2.1 安装公共基础包与大部分工具依赖">2.1 安装公共基础包与大部分工具依赖</a></li>
+            <li>
+                <a href="#22-%e5%ae%89%e8%a3%85%e7%89%b9%e5%ae%9a%e5%b7%a5%e5%85%b7%e4%be%9d%e8%b5%96" aria-label="2.2 安装特定工具依赖">2.2 安装特定工具依赖</a></li>
+            <li>
+                <a href="#23-%e8%bf%90%e8%a1%8c%e5%8f%aa%e8%af%bb%e5%86%92%e7%83%9f%e6%b5%8b%e8%af%95" aria-label="2.3 运行只读冒烟测试">2.3 运行只读冒烟测试</a></li></ul>
+            </li>
+            <li>
+                <a href="#3-%e9%85%8d%e7%bd%ae%e8%af%b4%e6%98%8e" aria-label="3. 配置说明">3. 配置说明</a></li>
+            <li>
+                <a href="#4-%e5%90%84%e5%b7%a5%e5%85%b7%e5%85%b8%e5%9e%8b%e4%bd%bf%e7%94%a8%e6%96%b9%e6%b3%95%e7%9b%b4%e6%8e%a5%e5%8f%af%e8%bf%90%e8%a1%8c%e5%91%bd%e4%bb%a4" aria-label="4. 各工具典型使用方法（直接可运行命令）">4. 各工具典型使用方法（直接可运行命令）</a><ul>
+                    
+            <li>
+                <a href="#41-summarize--ai-%e5%af%b9%e8%af%9d%e6%8a%a5%e5%91%8a%e7%94%9f%e6%88%90" aria-label="4.1 Summarize —— AI 对话报告生成">4.1 Summarize —— AI 对话报告生成</a></li>
+            <li>
+                <a href="#42-research--%e5%ad%a6%e6%9c%af%e8%ae%ba%e6%96%87%e4%b8%8e%e5%ad%a6%e8%80%85%e8%b0%83%e7%a0%94" aria-label="4.2 Research —— 学术论文与学者调研">4.2 Research —— 学术论文与学者调研</a></li>
+            <li>
+                <a href="#43-benchmark--%e6%80%a7%e8%83%bd%e5%9f%ba%e5%87%86%e6%b5%8b%e8%af%95" aria-label="4.3 Benchmark —— 性能基准测试">4.3 Benchmark —— 性能基准测试</a></li>
+            <li>
+                <a href="#44-website--hugo-%e5%8d%9a%e5%ae%a2%e6%9e%84%e5%bb%ba%e4%b8%8e%e5%8f%91%e5%b8%83" aria-label="4.4 Website —— Hugo 博客构建与发布">4.4 Website —— Hugo 博客构建与发布</a></li>
+            <li>
+                <a href="#45-translator--%e6%9c%ac%e5%9c%b0%e6%96%87%e6%a1%a3%e7%bf%bb%e8%af%91-web-%e7%95%8c%e9%9d%a2" aria-label="4.5 Translator —— 本地文档翻译 Web 界面">4.5 Translator —— 本地文档翻译 Web 界面</a></li>
+            <li>
+                <a href="#46-%e8%bf%90%e7%bb%b4%e4%b8%8e%e8%84%9a%e6%9c%ac%e5%b7%a5%e5%85%b7" aria-label="4.6 运维与脚本工具">4.6 运维与脚本工具</a></li></ul>
+            </li>
+            <li>
+                <a href="#5-%e4%ba%a7%e7%89%a9%e8%be%93%e5%87%ba%e4%b8%8e%e6%95%b0%e6%8d%ae%e6%b5%81%e5%90%91" aria-label="5. 产物输出与数据流向">5. 产物输出与数据流向</a></li>
+            <li>
+                <a href="#%e4%b8%80%e9%a1%b9%e7%9b%ae%e6%80%bb%e7%bb%93-5" aria-label="一、项目总结">一、项目总结</a></li>
+            <li>
+                <a href="#%e4%ba%8c%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b" aria-label="二、使用教程">二、使用教程</a></li>
+            <li>
+                <a href="#%e5%a4%8d%e7%8e%b0" aria-label="复现">复现</a>
+            </li>
+        </ul>
+        </li>
+        </ul>
+    </div>
+</details>
+
   <div class="post-content md-content"><p>把 gadget 仓库的 <code>README.md</code>（20 768 字符）原样交给 4 个本地 Ollama 模型和三家 Agent CLI 的
 12 个云端模型，要求先总结项目、再写一份中文使用教程。
 下面是每次运行记录到的模型信息、速度、显存、延迟、token 数据，文档结构统计，以及全部原始输出。</p>
@@ -5748,6 +6533,17 @@ Hugo 静态博客站点（“TzJ&rsquo;s Net”，PaperMod 主题），部署到
   <footer class="post-footer">
     <ul class="post-tags">
     </ul>
+<nav class="paginav">
+  <a class="prev" href="https://tzj2006.github.io/zh/posts/chinese-writing-benchmark/">
+    <span class="title">« 上一页</span>
+    <span>模型中文能力大比拼</span>
+  </a>
+  <a class="next" href="https://tzj2006.github.io/zh/leetcode/2025-12-05/">
+    <span class="title">下一页 »</span>
+    <span>LeetCode 每日一题 2025-12-05</span>
+  </a>
+</nav>
+
   </footer>
 </article>
     </main>
