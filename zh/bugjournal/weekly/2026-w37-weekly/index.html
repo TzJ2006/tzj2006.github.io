@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="light">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Weekly Summary 2026-W37 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal, Weekly Summary">
+<meta name="description" content="这是一个专注于深度架构重构的高强度周，实现了从实验性研究向 production-ready systems 的转型。主要成果包括：成功重写了 LifeCopilot engine；对 AI Companion guard system 进行了重大的 security refactor 以支持 developer workflows；在 HPC clusters 上完成了大规模 data migrations；并在基于 RL 的 tile-matching decision policies 以及 VLM memory tasks 方面取得了显著进展。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w37-weekly/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.b44fe7786b2d49cebc4822d56498329f711172897efc0f8404a35f7048beeb6d.css" integrity="sha256-tE/neGstSc68SCLVZJgyn3ERcol&#43;/A&#43;EBKNfcEi&#43;620=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/weekly/2026-w37-weekly/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w37-weekly/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w37-weekly/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Weekly Summary 2026-W37">
+  <meta property="og:description" content="这是一个专注于深度架构重构的高强度周，实现了从实验性研究向 production-ready systems 的转型。主要成果包括：成功重写了 LifeCopilot engine；对 AI Companion guard system 进行了重大的 security refactor 以支持 developer workflows；在 HPC clusters 上完成了大规模 data migrations；并在基于 RL 的 tile-matching decision policies 以及 VLM memory tasks 方面取得了显著进展。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-09-13T23:59:00-04:00">
+    <meta property="article:modified_time" content="2026-09-13T23:59:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Weekly Summary 2026-W37">
+  <meta name="twitter:description" content="这是一个专注于深度架构重构的高强度周，实现了从实验性研究向 production-ready systems 的转型。主要成果包括：成功重写了 LifeCopilot engine；对 AI Companion guard system 进行了重大的 security refactor 以支持 developer workflows；在 HPC clusters 上完成了大规模 data migrations；并在基于 RL 的 tile-matching decision policies 以及 VLM memory tasks 方面取得了显著进展。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Weekly Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/weekly/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Weekly Summary 2026-W37",
+      "item": "https://tzj2006.github.io/zh/bugjournal/weekly/2026-w37-weekly/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Weekly Summary 2026-W37",
+  "name": "Weekly Summary 2026-W37",
+  "description": "这是一个专注于深度架构重构的高强度周，实现了从实验性研究向 production-ready systems 的转型。主要成果包括：成功重写了 LifeCopilot engine；对 AI Companion guard system 进行了重大的 security refactor 以支持 developer workflows；在 HPC clusters 上完成了大规模 data migrations；并在基于 RL 的 tile-matching decision policies 以及 VLM memory tasks 方面取得了显著进展。",
+  "keywords": [
+    "Bug Journal", "Weekly Summary"
+  ],
+  "articleBody": "Weekly Report — 2026-W37 (2026-09-07 ~ 2026-09-13) 一个高强度的一周，重点在于深度的架构重构，从实验性研究向生产就绪系统转型。关键成就包括成功重写 LifeCopilot engine，对 AI Companion guard system 进行重大安全重构以支持开发者工作流，在 HPC clusters 上进行大规模数据迁移，以及在基于 RL 的 tile-matching 决策策略和 VLM memory 任务方面取得显著进展。\nWeekly Overview Metric Value Date Range 2026-09-07 ~ 2026-09-13 Active Days 7 / 7 Total Conversations 36 Projects 27 Tasks Completed 51 Tasks In Progress 20 Total Tokens 1,573,799,660 Total Cost $1,570.74 Claude Code Token 1,536,339,525 Claude Code Cost $1,507.99 Codex Token 37,460,135 Codex Cost $62.75 Daily Average Cost $224.39 Project Progress AI Companion Engine \u0026 Security (7 days active) — 🔄 active Accomplishments:\n迁移至 bundled、repo-specific 架构 实现了安全的 hierarchical enforcement 和 engine-side approval pathways 重构了 security guard，在允许 scp/python 的同时，通过 substring scanning 加固了 ledger path protection 添加了 git-sync serving 能力 Blockers:\n⚠️ Repository-specific ‘companion guard’ 在 fail-closed 模式下需要手动 IDE 干预 LifeCopilotBeta (4 days active) — 🔄 active Accomplishments:\n完成了完整的 engine 重写 (core + adapters model) 实现了 multi-channel sync (Plane, Google Calendar, Discord) 开发了 web portal 和 FastAPI integration Blockers:\n⚠️ 需要正式化 multi-repo management portal 的架构细节 RoboMME \u0026 VLM Evaluation (4 days active) — 🔄 active Accomplishments:\n开发了用于任务分类的 ‘Quad-Writer’ hierarchy 建立了用于远程 cluster evaluation 的 reverse-tunnel pipeline 验证了 Gemini 3.1 Pro 在 trajectory writing 上的性能 Blockers:\n⚠️ jump-hosts 与 local VPN 之间的连接稳定性 Reinforcement Learning (Tile-Matching) (3 days active) — 🔄 active Accomplishments:\n将决策策略升级为基于 simulation 的 planning (98% success) 使用 Deep Sets 重构了 Actor network 以实现 permutation invariance 实现了带有 entropy annealing 和 logit shrinking 的 PPO Blockers:\n⚠️ ‘ultra-hard’ 关卡中的 structural bottlenecks 阻碍了 policy breakthrough HPC Data \u0026 Infrastructure (3 days active) — ✅ completed Accomplishments:\n使用 8-way parallel rsync 迁移了 2.3TB 的研究数据 统一了 remote paths，并更新了 XYFS02 上所有的 environment shebangs/paths PhD Application \u0026 Personal Branding (2 days active) — 🔄 active Accomplishments:\n完成了个人网站的完整视觉 rebranding 审计了 146 名 robotics faculty 和 44 个 university profiles 生成了初始 SOP drafts 和战略 roadmap Key Tasks ✅ LifeCopilotBeta Rewrite — 使用精简的 adapters model 完成 core engine、data models 和 web portal 的完整重写。 ✅ AI Companion Engine Migration — 将项目从 shared absolute-path engines 迁移到 bundled、repo-specific 架构。 ✅ PhD Application Strategy \u0026 SOP Audit — 对 faculty profiles 进行全面审计并生成定制化的 SOP 段落。 ✅ Data Migration (XYFS01 to XYFS02) — 成功迁移了 2.3TB 的 RoboMemory 和 benchmark datasets。 ✅ I-144: Interpreter wall removal and scp unblocking — 安全重构，使开发者能够在保持 ledger protection 的同时使用标准工具。 🔄 MIHD Manuscript Preparation — 将实验数据合成为正式的论文结构。 ✅ Establish Reverse Tunnel for Gemini — 通过 local VPN 设置了对 Duke LiteLLM proxy 的远程 cluster 访问。 Problems \u0026 Solutions 1. 4-bit activation conversion (W4A4) failing in the closed-source quantizer. [VLA Quantization Research] Solution: 进行了 boundary probes；确认成功的编译往往掩盖了 silent fallback 到 float 的现象。\n2. AI Companion/Security guard was silently failing due to non-existent absolute paths. [AI Companion Engine] Solution: 迁移至使用 .companion 目录内 relative paths 的 bundled architecture。\n3. Decision instability in RL due to pattern ID dependency and one-hot encoding. [Tile-Matching RL] Solution: 切换到受 Deep Sets 启发的架构，使用 numerical features 和 symmetric relation matrices。\n4. VLM inaccuracy in distinguishing between arm motion and scene changes. [RoboMME/VLM] Solution: 引入 ‘Quad-Writer’ hierarchy，在进行 visual grounding 之前对 task context 进行分类。\n5. Inefficient migration of 477k small pkl files via single-stream rsync. [Infrastructure] Solution: 通过按 name prefixes 切分文件，实现了 8-way parallel rsync 策略。\n6. Security bypass by passing paths as quoted substrings after interpreter wall removal. [AI Companion Security] Solution: 实施了第三次 scanning pass，使用 ‘mentionedLedger’ 来检测作为 substrings 的敏感路径。\nLearnings Architecture (architecture) 依赖 ’layering’ 的安全屏障可能会产生虚假的安全感；移除一层后可能会发现后续层之所以有效仅仅是因为第一层的存在。 在无序集合（如 game tiles）中，symmetric aggregation (Deep Sets) 优于 one-hot encoding，因为它消除了任意的 ID dependency。 Debugging (debugging) 低 FPS 结合低 resource usage 通常指向 thread synchronization 或 display buffer blocking (glfwSwapBuffers)，而非 hardware capacity 问题。 Domain Knowledge (domain) VLA quantization 的复杂度在很大程度上取决于 GPU-level quantization 与 NPU-specific compilation rules 之间的差距。 对于高风险写作 (SoP)，‘generic core’ 必须足够强大，能够连接多个不同的 ‘customized hooks’ 以防止 logical drift。 Tools (tools) 在 HPC clusters 上迁移大规模数据集时，使用 parallel rsync script 对于避免 single-stream bottlenecks 至关重要。 AI Usage Notes Effective Patterns:\n✓ 使用 multi-agent workflows 进行大规模数据审计 ✓ 应用 ‘red-waiver’ workflows 来管理 implementation/test sequencing deadlocks ✓ 利用 parallel rsync 策略进行高速数据传输 Limitations:\n✗ 无法在没有 IDE 手动用户干预的情况下诊断 ‘fail-closed’ security hooks ✗ 由于 window focus/context 问题，难以进行精确的 browser interactions (Overleaf) ✗ 未能意识到移除一个 security layer 必须重新设计其他层 Next Week Outlook下周的优先级包括：1. 完成 MIHD 手稿并决定是否提交至 CVPR 2027；2. 完成 50-episode 的 VLM 验证 (Gemini/Qwen)；3. 开发 multi-repo management terminal；4. 解决 ‘ultra-hard’ RL levels 中的结构性瓶颈；以及 5. 继续 PhD application 准备工作，包括导师咨询。 Token Usage Statistics AI Usage · 2026-W37\rClaude Code + Codex\rTotal cost$1,570.74\rTotal tokens1.57B\rOutput tokens9M\rCache read96.1%\rCost split\rClaude Code $1,508 ·\rCodex $63\rToken character\rCache reads 96.1% ·\rActive 3.9%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\rPeak Day: 2026-09-12 — $574.19 / 631.1M tokens\nDaily Average: $224.39\n",
+  "wordCount" : "727",
+  "inLanguage": "zh",
+  "datePublished": "2026-09-13T23:59:00-04:00",
+  "dateModified": "2026-09-13T23:59:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/weekly/2026-w37-weekly/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="companion. (Alt + H)">companion.</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/bugjournal/weekly/2026-w37-weekly/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span>bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">Weekly Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Weekly Summary 2026-W37
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-09-13 23:59:00 -0400 EDT'>2026年9月13日</span>&nbsp;·&nbsp;<span>4 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="weekly-report--2026-w37-2026-09-07--2026-09-13">Weekly Report — 2026-W37 (2026-09-07 ~ 2026-09-13)<a hidden class="anchor" aria-hidden="true" href="#weekly-report--2026-w37-2026-09-07--2026-09-13">#</a></h1>
+<blockquote>
+<p>一个高强度的一周，重点在于深度的架构重构，从实验性研究向生产就绪系统转型。关键成就包括成功重写 LifeCopilot engine，对 AI Companion guard system 进行重大安全重构以支持开发者工作流，在 HPC clusters 上进行大规模数据迁移，以及在基于 RL 的 tile-matching 决策策略和 VLM memory 任务方面取得显著进展。</p>
+</blockquote>
+<h2 id="weekly-overview">Weekly Overview<a hidden class="anchor" aria-hidden="true" href="#weekly-overview">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>Metric</th>
+          <th>Value</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Date Range</td>
+          <td>2026-09-07 ~ 2026-09-13</td>
+      </tr>
+      <tr>
+          <td>Active Days</td>
+          <td>7 / 7</td>
+      </tr>
+      <tr>
+          <td>Total Conversations</td>
+          <td>36</td>
+      </tr>
+      <tr>
+          <td>Projects</td>
+          <td>27</td>
+      </tr>
+      <tr>
+          <td>Tasks Completed</td>
+          <td>51</td>
+      </tr>
+      <tr>
+          <td>Tasks In Progress</td>
+          <td>20</td>
+      </tr>
+      <tr>
+          <td>Total Tokens</td>
+          <td>1,573,799,660</td>
+      </tr>
+      <tr>
+          <td>Total Cost</td>
+          <td>$1,570.74</td>
+      </tr>
+      <tr>
+          <td>Claude Code Token</td>
+          <td>1,536,339,525</td>
+      </tr>
+      <tr>
+          <td>Claude Code Cost</td>
+          <td>$1,507.99</td>
+      </tr>
+      <tr>
+          <td>Codex Token</td>
+          <td>37,460,135</td>
+      </tr>
+      <tr>
+          <td>Codex Cost</td>
+          <td>$62.75</td>
+      </tr>
+      <tr>
+          <td>Daily Average Cost</td>
+          <td>$224.39</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="project-progress">Project Progress<a hidden class="anchor" aria-hidden="true" href="#project-progress">#</a></h2>
+<h3 id="ai-companion-engine--security-7-days-active---active">AI Companion Engine &amp; Security (7 days active) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#ai-companion-engine--security-7-days-active---active">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
+<ul>
+<li>迁移至 bundled、repo-specific 架构</li>
+<li>实现了安全的 hierarchical enforcement 和 engine-side approval pathways</li>
+<li>重构了 security guard，在允许 scp/python 的同时，通过 substring scanning 加固了 ledger path protection</li>
+<li>添加了 git-sync serving 能力</li>
+</ul>
+<p><strong>Blockers:</strong></p>
+<ul>
+<li>⚠️ Repository-specific &lsquo;companion guard&rsquo; 在 fail-closed 模式下需要手动 IDE 干预</li>
+</ul>
+<h3 id="lifecopilotbeta-4-days-active---active">LifeCopilotBeta (4 days active) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#lifecopilotbeta-4-days-active---active">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
+<ul>
+<li>完成了完整的 engine 重写 (core + adapters model)</li>
+<li>实现了 multi-channel sync (Plane, Google Calendar, Discord)</li>
+<li>开发了 web portal 和 FastAPI integration</li>
+</ul>
+<p><strong>Blockers:</strong></p>
+<ul>
+<li>⚠️ 需要正式化 multi-repo management portal 的架构细节</li>
+</ul>
+<h3 id="robomme--vlm-evaluation-4-days-active---active">RoboMME &amp; VLM Evaluation (4 days active) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#robomme--vlm-evaluation-4-days-active---active">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
+<ul>
+<li>开发了用于任务分类的 &lsquo;Quad-Writer&rsquo; hierarchy</li>
+<li>建立了用于远程 cluster evaluation 的 reverse-tunnel pipeline</li>
+<li>验证了 Gemini 3.1 Pro 在 trajectory writing 上的性能</li>
+</ul>
+<p><strong>Blockers:</strong></p>
+<ul>
+<li>⚠️ jump-hosts 与 local VPN 之间的连接稳定性</li>
+</ul>
+<h3 id="reinforcement-learning-tile-matching-3-days-active---active">Reinforcement Learning (Tile-Matching) (3 days active) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#reinforcement-learning-tile-matching-3-days-active---active">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
+<ul>
+<li>将决策策略升级为基于 simulation 的 planning (98% success)</li>
+<li>使用 Deep Sets 重构了 Actor network 以实现 permutation invariance</li>
+<li>实现了带有 entropy annealing 和 logit shrinking 的 PPO</li>
+</ul>
+<p><strong>Blockers:</strong></p>
+<ul>
+<li>⚠️ &lsquo;ultra-hard&rsquo; 关卡中的 structural bottlenecks 阻碍了 policy breakthrough</li>
+</ul>
+<h3 id="hpc-data--infrastructure-3-days-active---completed">HPC Data &amp; Infrastructure (3 days active) — ✅ completed<a hidden class="anchor" aria-hidden="true" href="#hpc-data--infrastructure-3-days-active---completed">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
+<ul>
+<li>使用 8-way parallel rsync 迁移了 2.3TB 的研究数据</li>
+<li>统一了 remote paths，并更新了 XYFS02 上所有的 environment shebangs/paths</li>
+</ul>
+<h3 id="phd-application--personal-branding-2-days-active---active">PhD Application &amp; Personal Branding (2 days active) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#phd-application--personal-branding-2-days-active---active">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
+<ul>
+<li>完成了个人网站的完整视觉 rebranding</li>
+<li>审计了 146 名 robotics faculty 和 44 个 university profiles</li>
+<li>生成了初始 SOP drafts 和战略 roadmap</li>
+</ul>
+<h2 id="key-tasks">Key Tasks<a hidden class="anchor" aria-hidden="true" href="#key-tasks">#</a></h2>
+<ul>
+<li>✅ <strong>LifeCopilotBeta Rewrite</strong> — 使用精简的 adapters model 完成 core engine、data models 和 web portal 的完整重写。</li>
+<li>✅ <strong>AI Companion Engine Migration</strong> — 将项目从 shared absolute-path engines 迁移到 bundled、repo-specific 架构。</li>
+<li>✅ <strong>PhD Application Strategy &amp; SOP Audit</strong> — 对 faculty profiles 进行全面审计并生成定制化的 SOP 段落。</li>
+<li>✅ <strong>Data Migration (XYFS01 to XYFS02)</strong> — 成功迁移了 2.3TB 的 RoboMemory 和 benchmark datasets。</li>
+<li>✅ <strong>I-144: Interpreter wall removal and scp unblocking</strong> — 安全重构，使开发者能够在保持 ledger protection 的同时使用标准工具。</li>
+<li>🔄 <strong>MIHD Manuscript Preparation</strong> — 将实验数据合成为正式的论文结构。</li>
+<li>✅ <strong>Establish Reverse Tunnel for Gemini</strong> — 通过 local VPN 设置了对 Duke LiteLLM proxy 的远程 cluster 访问。</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="1-4-bit-activation-conversion-w4a4-failing-in-the-closed-source-quantizer-vla-quantization-research">1. 4-bit activation conversion (W4A4) failing in the closed-source quantizer. [VLA Quantization Research]<a hidden class="anchor" aria-hidden="true" href="#1-4-bit-activation-conversion-w4a4-failing-in-the-closed-source-quantizer-vla-quantization-research">#</a></h3>
+<p><strong>Solution:</strong> 进行了 boundary probes；确认成功的编译往往掩盖了 silent fallback 到 float 的现象。</p>
+<h3 id="2-ai-companionsecurity-guard-was-silently-failing-due-to-non-existent-absolute-paths-ai-companion-engine">2. AI Companion/Security guard was silently failing due to non-existent absolute paths. [AI Companion Engine]<a hidden class="anchor" aria-hidden="true" href="#2-ai-companionsecurity-guard-was-silently-failing-due-to-non-existent-absolute-paths-ai-companion-engine">#</a></h3>
+<p><strong>Solution:</strong> 迁移至使用 .companion 目录内 relative paths 的 bundled architecture。</p>
+<h3 id="3-decision-instability-in-rl-due-to-pattern-id-dependency-and-one-hot-encoding-tile-matching-rl">3. Decision instability in RL due to pattern ID dependency and one-hot encoding. [Tile-Matching RL]<a hidden class="anchor" aria-hidden="true" href="#3-decision-instability-in-rl-due-to-pattern-id-dependency-and-one-hot-encoding-tile-matching-rl">#</a></h3>
+<p><strong>Solution:</strong> 切换到受 Deep Sets 启发的架构，使用 numerical features 和 symmetric relation matrices。</p>
+<h3 id="4-vlm-inaccuracy-in-distinguishing-between-arm-motion-and-scene-changes-robommevlm">4. VLM inaccuracy in distinguishing between arm motion and scene changes. [RoboMME/VLM]<a hidden class="anchor" aria-hidden="true" href="#4-vlm-inaccuracy-in-distinguishing-between-arm-motion-and-scene-changes-robommevlm">#</a></h3>
+<p><strong>Solution:</strong> 引入 &lsquo;Quad-Writer&rsquo; hierarchy，在进行 visual grounding 之前对 task context 进行分类。</p>
+<h3 id="5-inefficient-migration-of-477k-small-pkl-files-via-single-stream-rsync-infrastructure">5. Inefficient migration of 477k small pkl files via single-stream rsync. [Infrastructure]<a hidden class="anchor" aria-hidden="true" href="#5-inefficient-migration-of-477k-small-pkl-files-via-single-stream-rsync-infrastructure">#</a></h3>
+<p><strong>Solution:</strong> 通过按 name prefixes 切分文件，实现了 8-way parallel rsync 策略。</p>
+<h3 id="6-security-bypass-by-passing-paths-as-quoted-substrings-after-interpreter-wall-removal-ai-companion-security">6. Security bypass by passing paths as quoted substrings after interpreter wall removal. [AI Companion Security]<a hidden class="anchor" aria-hidden="true" href="#6-security-bypass-by-passing-paths-as-quoted-substrings-after-interpreter-wall-removal-ai-companion-security">#</a></h3>
+<p><strong>Solution:</strong> 实施了第三次 scanning pass，使用 &lsquo;mentionedLedger&rsquo; 来检测作为 substrings 的敏感路径。</p>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="architecture-architecture">Architecture (architecture)<a hidden class="anchor" aria-hidden="true" href="#architecture-architecture">#</a></h3>
+<ul>
+<li>依赖 &rsquo;layering&rsquo; 的安全屏障可能会产生虚假的安全感；移除一层后可能会发现后续层之所以有效仅仅是因为第一层的存在。</li>
+<li>在无序集合（如 game tiles）中，symmetric aggregation (Deep Sets) 优于 one-hot encoding，因为它消除了任意的 ID dependency。</li>
+</ul>
+<h3 id="debugging-debugging">Debugging (debugging)<a hidden class="anchor" aria-hidden="true" href="#debugging-debugging">#</a></h3>
+<ul>
+<li>低 FPS 结合低 resource usage 通常指向 thread synchronization 或 display buffer blocking (glfwSwapBuffers)，而非 hardware capacity 问题。</li>
+</ul>
+<h3 id="domain-knowledge-domain">Domain Knowledge (domain)<a hidden class="anchor" aria-hidden="true" href="#domain-knowledge-domain">#</a></h3>
+<ul>
+<li>VLA quantization 的复杂度在很大程度上取决于 GPU-level quantization 与 NPU-specific compilation rules 之间的差距。</li>
+<li>对于高风险写作 (SoP)，&lsquo;generic core&rsquo; 必须足够强大，能够连接多个不同的 &lsquo;customized hooks&rsquo; 以防止 logical drift。</li>
+</ul>
+<h3 id="tools-tools">Tools (tools)<a hidden class="anchor" aria-hidden="true" href="#tools-tools">#</a></h3>
+<ul>
+<li>在 HPC clusters 上迁移大规模数据集时，使用 parallel rsync script 对于避免 single-stream bottlenecks 至关重要。</li>
+</ul>
+<h2 id="ai-usage-notes">AI Usage Notes<a hidden class="anchor" aria-hidden="true" href="#ai-usage-notes">#</a></h2>
+<p><strong>Effective Patterns:</strong></p>
+<ul>
+<li>✓ 使用 multi-agent workflows 进行大规模数据审计</li>
+<li>✓ 应用 &lsquo;red-waiver&rsquo; workflows 来管理 implementation/test sequencing deadlocks</li>
+<li>✓ 利用 parallel rsync 策略进行高速数据传输</li>
+</ul>
+<p><strong>Limitations:</strong></p>
+<ul>
+<li>✗ 无法在没有 IDE 手动用户干预的情况下诊断 &lsquo;fail-closed&rsquo; security hooks</li>
+<li>✗ 由于 window focus/context 问题，难以进行精确的 browser interactions (Overleaf)</li>
+<li>✗ 未能意识到移除一个 security layer 必须重新设计其他层</li>
+</ul>
+<h2 id="next-week-outlook下周的优先级包括1-完成-mihd-手稿并决定是否提交至-cvpr-20272-完成-50-episode-的-vlm-验证-geminiqwen3-开发-multi-repo-management-terminal4-解决-ultra-hard-rl-levels-中的结构性瓶颈以及-5-继续-phd-application-准备工作包括导师咨询">Next Week Outlook下周的优先级包括：1. 完成 MIHD 手稿并决定是否提交至 CVPR 2027；2. 完成 50-episode 的 VLM 验证 (Gemini/Qwen)；3. 开发 multi-repo management terminal；4. 解决 &lsquo;ultra-hard&rsquo; RL levels 中的结构性瓶颈；以及 5. 继续 PhD application 准备工作，包括导师咨询。<a hidden class="anchor" aria-hidden="true" href="#next-week-outlook下周的优先级包括1-完成-mihd-手稿并决定是否提交至-cvpr-20272-完成-50-episode-的-vlm-验证-geminiqwen3-开发-multi-repo-management-terminal4-解决-ultra-hard-rl-levels-中的结构性瓶颈以及-5-继续-phd-application-准备工作包括导师咨询">#</a></h2>
+<h2 id="token-usage-statistics">Token Usage Statistics<a hidden class="anchor" aria-hidden="true" href="#token-usage-statistics">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-W37</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$1,570.74</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>1.57B</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>9M</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>96.1%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $1,508</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $63</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (96.0%), Codex (4.0%)">
+          <span style="width:96.0%; background:var(--usage-cost-main)"></span>
+          <span style="width:4.0%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 96.1%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 3.9%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (96.1%), active tokens (3.9%)">
+          <span style="width:96.1%; background:var(--usage-cache)"></span>
+          <span style="width:3.9%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<p><strong>Peak Day:</strong> 2026-09-12 — $574.19 / 631.1M tokens</p>
+<p><strong>Daily Average:</strong> $224.39</p>
+<!-- gadget:src-hash:v2:83f7045f7c768660 -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
