@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="light">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-09-07 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="为 AI Companion engine 执行了高风险的架构迁移，对 4-bit quantization 极限进行了决定性的硬件探测，从零开始重写了 LifeCopilot 核心，并为 tile-matching 和学术工作流开发了复杂的自动化程序。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-07/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.b44fe7786b2d49cebc4822d56498329f711172897efc0f8404a35f7048beeb6d.css" integrity="sha256-tE/neGstSc68SCLVZJgyn3ERcol&#43;/A&#43;EBKNfcEi&#43;620=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-09-07/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-07/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-07/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-09-07">
+  <meta property="og:description" content="为 AI Companion engine 执行了高风险的架构迁移，对 4-bit quantization 极限进行了决定性的硬件探测，从零开始重写了 LifeCopilot 核心，并为 tile-matching 和学术工作流开发了复杂的自动化程序。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-09-07T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-09-07T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-09-07">
+  <meta name="twitter:description" content="为 AI Companion engine 执行了高风险的架构迁移，对 4-bit quantization 极限进行了决定性的硬件探测，从零开始重写了 LifeCopilot 核心，并为 tile-matching 和学术工作流开发了复杂的自动化程序。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-09-07",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-09-07/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-09-07",
+  "name": "Bug Journal 2026-09-07",
+  "description": "为 AI Companion engine 执行了高风险的架构迁移，对 4-bit quantization 极限进行了决定性的硬件探测，从零开始重写了 LifeCopilot 核心，并为 tile-matching 和学术工作流开发了复杂的自动化程序。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-09-07 Daily Overview What was done: 今日重点在于多个领域的结构性重构：将项目管理迁移至 bundled AI Companion 架构，针对 VLA quantization 进行深入的硬件验证，并为 LifeCopilot engine 的可扩展性进行了重新架构。 How it was done: 技术方法包括对 quantization 进行经验性的边界探测，实施了带有强制人工审批的严格分层 ‘idea-first’ 工作流，并利用多阶段 vision/simulation pipelines 来处理自动化任务。 Impact: 成功修复了开发 engine 中的关键安全漏洞，为停止死胡同式的 4-bit activation 研究提供了决定性证据，并为所有进行中的项目建立了稳健、可审计的基础。 MacOS What was done: 在 MacOS 上没有记录到显著工作。 How it was done: N/A Impact: N/A TzJsDesktop What was done: 用于复杂架构重新设计、研究执行以及基于 vision 的自动化开发的主要工作站。 How it was done: 利用 Python (OpenCV/PyTorch), Node.js/TypeScript, 以及带有 AI Companion hooks 的 Claude Code 来执行 TDD 周期并管理大规模数据审计。 Impact: 成功实现了 LifeCopilot core，通过 simulation 将 tile-matching 决策策略的成功率提升至 98%，并完成了密集的 VLA quantization 研究。 lighthouse What was done: 对 qualcomm-proj 仓库进行了高风险迁移，并管理了 engine deployment。 How it was done: 使用 multi-agent workflows 应对新的强制审批/guard 系统，以修复损坏的安全 hooks 并过渡到可移植的 bundled 架构。 Impact: 恢复了项目的 security/audit guard，并成功过渡到可移植的 bundled engine 架构，为活跃的开发想法扫清了障碍。 今日执行了 AI Companion engine 的高风险架构迁移、针对 4-bit quantization 极限的决定性硬件探测、LifeCopilot core 的从零重写，以及针对 tile-matching 和学术工作流的高级自动化开发。\nTasks Architecture \u0026 Strategy 🔄 I-086: 4-bit conversion capability probe — 通过仅编译探测（A4 base + float islands vs. float base + 4-bit punctures）研究 4-bit activation conversion 是否可行，以寻找 W4A4 的路径。 ✅ AI Companion Engine Migration — 将项目（qualcomm-proj, MIHD）从共享的 absolute-path engines 迁移到 bundled、repo-specific 架构，并更新了 idea graph 格式。 ✅ LifeCopilot Core Engine Rewrite (I-002) — 实现了 settings, models, sqlite3 store 以及纯粹的 plan_day 函数，从臃肿的 service model 过渡到精简的 ‘core + adapters’ model。 ✅ I-135 Implement Hierarchical Enforcement — 防止父节点在所有子节点完成前被标记为 ‘done’，强化了工作流的完整性。 ✅ Upgrade decision policy to ‘Plan-based’ (Tile Matching) — 用基于 simulation 的策略取代了 greedy search，该策略考虑了翻开 tiles 的 ‘cost’，将胜率提升至 98%。 ✅ I-071: π0.5 FP16 feasibility investigation — 验证了 FP16 backbone 在 Dragonwing 上由于 serialization limits 和 Hexagon PD mapping constraints 而失败。 ✅ ECE661 HW1 Content Audit — 验证了作业报告中的数学公式、逻辑表和英语语法。 ✅ Data Source Clients (I-003) — 为 LifeCopilotBeta 实现了 Plane API client, multi-repo graph scanner 和 Google Calendar service。 ✅ Idea Graph Restructuring — 修剪了 idea graph，并将剩余节点重新组织为结构化的分层树，以便更好地管理。 ✅ Implement dark tile recognition — 使用带有 quadrant crops 的 template matching 来识别部分覆盖的 tiles。 🔄 VLA Quantization Research — 正在调查 QuantVLA 声称的 per-token dynamic quantization 与其实际的 per-channel static implementation 之间的差异。 ✅ Remote Path Unification — 重新配置了 Tianhe3 server layout，将 RoboMemory paths 统一在稳定的目录结构下。 ✅ Portal and API (I-004) — 为 LifeCopilot 实现了 FastAPI flow 和一个 vanilla JS single-page portal。 ✅ Channels Implementation (I-005) — 实现了 Discord triage 和 LLM fallback chains。 ✅ Push implemented ideas to DONE — 通过正式的 engine 路径，将 31 个 ideas (I-007 到 I-038) 移至 ‘done’ 状态，将项目前沿推进至 I-040。 • Define Benchmark Spec (I-040) — 定义 benchmark line specifications，包括重复性和报告标准。 Implementation \u0026 Fixes ✅ Amber v1.2.0 Release — 更新了版本号，修复了 build scripts，并通过 GitHub Release 发布了 universal binary。 🔄 Overleaf Project Migration — 尝试通过 browser automation 将压缩的 LaTeX 项目上传到 Overleaf。 🔄 I-130 Fix Flaky Test Timeouts — 增加了 sub-process spawning tests 的 timeout。 ✅ RoboMemory Data Audit — 审计了 491GB 的 H5 datasets，以验证结构和 symlink integrity。 🔄 AI Companion Uninstall Documentation — 解决现有 uninstall command 缺乏面向用户的文档的问题。 Problems \u0026 Solutions Critical Issues 1. 4-bit activation conversion (W4A4) is failing in the closed-source quantizer. Solution: 进行了三种情况的边界探测；确认了成功的编译往往掩盖了整个 operator chain 静默回退到 float 的情况。\n2. AI Companion/Security guard 因为 hooks 指向不存在的 absolute paths 而在静默失败。 Solution: 迁移到了 bundled architecture，其中 engine 通过 relative paths 驻留在项目的 .companion 目录中。\n3. Tile-matching game 中的 dark tiles 被错误地识别为可以立即进行游戏。 Solution: 实现了一个用于追踪 occlusion relationships 的 ‘blockers’ list，并将其集成到基于 simulation 的 plan 中。\n4. ECE661 HW1 中关于 Adaline biases 和 NAND logic 的数学错误。 Solution: AI 执行了 content audit 以修正 bias values 和 truth table 的不准确之处。\n5. Idea graph 由于 concurrent sessions 或 extreme flatness 而被清空或变得混乱。 Solution: 从 .runtime/ 备份中恢复，并实现了一个带有 ‘parent’ attributes 的 hierarchical tree structure。\n6. companion installer 拒绝覆盖包含 legacy ‘agent: claude’ key 的 graph。 Solution: 手动将 ‘ideas/graph.yaml’ 重命名为 ‘ideas/graph.claude.yaml’ 以满足 migration requirements。\n7. 新的 AI Companion ‘Interpreter Wall’ (D21) 阻碍了 shell redirections、heredocs 和 standard file moves。 Solution: 使用 editor tools 进行文件修改，并指定特定的 companion CLI commands 来进行 state changes。\n8. Search depth 5 对于 real-time tile-matching 使用来说太慢了。Solution: 实施了激进的 pruning 和 state deduplication。 General Issues 9. AI 尝试自动上传文件到 Overleaf 失败，原因是无法检测到系统级 file chooser window。 Solution: 需要人工干预在浏览器中选择文件。\n10. 由于 script 编辑，ideas/graph.yaml 中的 code line ranges 已过时。 Solution: 系统性地更新了所有 line ranges 以匹配当前文件内容。\nHuman vs AI Approaches Strategic Level Project Architecture Role Approach Human 提议进行完整的 ’tear down and rebuild’，以转向精简的 ‘core + adapters’ 模型。 AI 试图沿用现有的 file structures 并在旧的 repository 中规划 files。 Difference Analysis: Human 的战略方向通过将 core logic 与 peripheral services 解耦，防止了进一步的技术债积累。\n4-bit probe interpretation Role Approach Human 质疑 compiler 输出中的 ‘SUCCESS’ 是否真的意味着 4-bit quantization 已激活。 AI 最初直接采信了 compiler logs 中的 ‘SUCCESS’。 Difference Analysis: Human 的怀疑态度引发了一次技术审计，揭示了 compiler 实际上正在执行 silent fallback 到 float。\nDecision Strategy Role Approach Human 识别出 AI 的逻辑未能考虑到挖掘（填满 tray）的 ‘cost’。 AI 针对最大化即时 removals 进行优化，而未考虑中间的 tray constraints。 Difference Analysis: Human 强制实现了从 ‘greedy removal’ 到 ‘under constraints 的 safe planning’ 的转变。\nQuantVLA Granularity Discrepancy Role Approach Human 通过要求进行 code-level investigation，挑战了 AI 关于 per-token dynamic quantization 的说法。 AI 接受了论文中的说法并将其视为事实，并打算据此更新 documentation。 Difference Analysis: Human 的怀疑揭示了论文与其自身的实现相矛盾（实际上是 per-channel static）。\nTile Recognition Methodology Role Approach Human 提议使用 sub-tile template matching (quadrants/halves) 来处理低可见度的 dark tiles。 AI 建议使用标准的 CNN 或 HSV thresholding，这在处理 occlusion 时表现不佳。 Difference Analysis: 相比 AI 的通用 ML 建议，Human 的细粒度方法更稳健地解决了 occlusion 问题。\nHierarchical Graph Structure Role Approach Human 请求特定的功能改进，如 summaries 和 sub-node visibility。 AI 提议对 idea tree 进行战略性的 re-leveling，以遵守 ‘max-7-nodes-per-layer’ 规则。 Difference Analysis: AI 通过智能地重新分组用户需求，防止了架构约束违规。\nProject Cleanup Strategy Role Approach Human 决定归档 legacy content，统一 remote paths，并简化 vision graph。 AI 尝试使用直接的 shell commands 进行文件移动，但被 guard mechanism 拦截。 Difference Analysis: Human 提供了战略方向，而 AI 则专注于在安全约束内处理技术细节。\nIdea Completion Definition Role Approach Human 特别定义了 ‘Done’，以确保 benchmark lines 的可复现性。 AI 在提供人工批准码后，实现了 batch processing 的自动化。 Difference Analysis: Human 定义了质量标准；AI 执行了工程落地。\nImplementation Level Assignment Formatting Role Approach Human 请求一个简化且以 utility 为中心的报告版本。 AI 最初准备了一个带有大量格式化的全面版本。 Difference Analysis: Human 强调简洁性而非美学复杂性。\nAI Limitations Critical Limitations AI 在处理新的强制性 manual approval (D7) 和 guard (D21) 规则时感到困难，导致 tool 尝试被拒绝以及 shell commands 被拦截。 General Limitations AI 最初相信 documentation 中的说法（如 per-token quantization），而没有验证底层的 implementation code。 AI 通过 heredocs 生成的代码经常因为 escaping issues 和 shell redirection blocks 导致 SyntaxErrors。 由于自动化环境中的 window focus/context mismatches，AI 无法与系统级 file dialogs 进行交互。 read 工具无法读取目录 (EISDIR)，导致在扫描 worktree paths 时产生 warnings。 Learnings Key Learnings 在 HTP 上针对 mixed-precision (float islands) 的成功编译并不保证 4-bit execution；它通常会触发整个 operator chains 向 float 的 silent fallback。 对于 partially observable games，一个模拟 ‘cost-to-uncover’ 的 simulation 比纯 RL 或 greedy heuristics 要有效得多。 当在 engine/logic level (setStatus/applyApproval) 而非仅仅在 UI level 实现强制执行时，效果会更好。 通过 AI guardrails 严格执行 ‘idea-first’ 工作流可以防止不受控制的 code sprawl，但这要求 AI 对 graph 的 ‘status’ 和 ‘doing’ 状态具有高度感知。 ‘clean’ 和 ‘dirty’ memory 之间的区别对于解释 peak memory metrics 至关重要：weights 是 file-mapped clean pages，不计入 non-clean ‘memory footprint’。 在神经网络中，step function 缺乏 gradient 是至关重要的，因为其导数几乎处处为零，而不仅仅是在 threshold 处。 通过 ‘coord’ 进行 multi-session coordination 是可用的，但 agents 不会自动使用它；需要手动协调以防止同时进行 graph 写入。 在大规模项目中，“container ideas”对于防止认知过载和维持可管理的 graph 层级的重要性。 Conversation Summaries Qualcomm Project ✅ W4A4 Research and Engine Migration 通过 boundary probes 研究了 4-bit 转换支持。确认 SDK 限制导致无法进行 4-bit activation 转换。迁移到了新的 AI Companion engine，这需要新的审批工作流，并解决了由于并发 session 干扰导致的 empty graph 问题。\nai-companion ✅ Architectural migration and guard repair 成功将 qualcomm-proj 仓库迁移到新的 bundled architecture，修复了损坏的 security hooks，并重新授权了四个待处理的 ideas。\nLifeCopilot/LifeCopilotBeta ✅ Strategic Redesign and Implementation 从零开始重写了 LifeCopilot，以创建一个包含 Web portal 和多仓库 Companion 集成的精简“core”。遵循严格的 idea 驱动工作流，实现了核心的 SQLite/Planner engine、data clients、API/Portal 以及 Channels。\nTile Matching Automation**✅ Pipeline Development and Strategy Optimization** 开发了一套用于自动化 tile matching 的完整 pipeline，实现了从基础识别到基于 quadrant 的 template matching，以及基于 plan 的 rollout simulation 的演进，成功率达到 98%。\nAmber ✅ v1.2.0 Production Release 管理了 Amber v1.2.0 的完整发布周期，包括 README parity checks、CI verification 以及 GitHub Release 的创建。\nECE661 🔄 HW1 Content Review and Overleaf Upload 审查了 HW1.md 的技术准确性，修正了 Adaline logic、truth tables 和 backpropagation 中的错误。尝试进行 Overleaf upload，但遇到了需要人工协助的 UI automation 问题。\nRoboMemory ✅ Project Refactoring and Data Audit 进行了大规模的清理工作，包括在 Tianhe3 上进行 remote path unification、归档 legacy experiments，并通过 remote SSH audit 验证了 491GB 的 H5 datasets。\nToken Usage AI Usage · 2026-09-07\rClaude Code + Codex\rTotal cost$351.67\rTotal tokens435M\rOutput tokens2M\rCache read97.3%\rCost split\rClaude Code $339 ·\rCodex $13\rToken character\rCache reads 97.3% ·\rActive 2.7%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "1211",
+  "inLanguage": "zh",
+  "datePublished": "2026-09-07T00:00:00-04:00",
+  "dateModified": "2026-09-07T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-09-07/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="companion. (Alt + H)">companion.</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/bugjournal/daily/2026-09-07/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-09-07
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-09-07 00:00:00 -0400 EDT'>2026年9月7日</span>&nbsp;·&nbsp;<span>6 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-09-07">Daily Report — 2026-09-07<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-09-07">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>What was done:</strong> 今日重点在于多个领域的结构性重构：将项目管理迁移至 bundled AI Companion 架构，针对 VLA quantization 进行深入的硬件验证，并为 LifeCopilot engine 的可扩展性进行了重新架构。</li>
+<li><strong>How it was done:</strong> 技术方法包括对 quantization 进行经验性的边界探测，实施了带有强制人工审批的严格分层 &lsquo;idea-first&rsquo; 工作流，并利用多阶段 vision/simulation pipelines 来处理自动化任务。</li>
+<li><strong>Impact:</strong> 成功修复了开发 engine 中的关键安全漏洞，为停止死胡同式的 4-bit activation 研究提供了决定性证据，并为所有进行中的项目建立了稳健、可审计的基础。</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>What was done:</strong> 在 MacOS 上没有记录到显著工作。</li>
+<li><strong>How it was done:</strong> N/A</li>
+<li><strong>Impact:</strong> N/A</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>What was done:</strong> 用于复杂架构重新设计、研究执行以及基于 vision 的自动化开发的主要工作站。</li>
+<li><strong>How it was done:</strong> 利用 Python (OpenCV/PyTorch), Node.js/TypeScript, 以及带有 AI Companion hooks 的 Claude Code 来执行 TDD 周期并管理大规模数据审计。</li>
+<li><strong>Impact:</strong> 成功实现了 LifeCopilot core，通过 simulation 将 tile-matching 决策策略的成功率提升至 98%，并完成了密集的 VLA quantization 研究。</li>
+</ul>
+<h3 id="lighthouse">lighthouse<a hidden class="anchor" aria-hidden="true" href="#lighthouse">#</a></h3>
+<ul>
+<li><strong>What was done:</strong> 对 qualcomm-proj 仓库进行了高风险迁移，并管理了 engine deployment。</li>
+<li><strong>How it was done:</strong> 使用 multi-agent workflows 应对新的强制审批/guard 系统，以修复损坏的安全 hooks 并过渡到可移植的 bundled 架构。</li>
+<li><strong>Impact:</strong> 恢复了项目的 security/audit guard，并成功过渡到可移植的 bundled engine 架构，为活跃的开发想法扫清了障碍。</li>
+</ul>
+<blockquote>
+<p>今日执行了 AI Companion engine 的高风险架构迁移、针对 4-bit quantization 极限的决定性硬件探测、LifeCopilot core 的从零重写，以及针对 tile-matching 和学术工作流的高级自动化开发。</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<ul>
+<li>🔄 <strong>I-086: 4-bit conversion capability probe</strong> — 通过仅编译探测（A4 base + float islands vs. float base + 4-bit punctures）研究 4-bit activation conversion 是否可行，以寻找 W4A4 的路径。</li>
+<li>✅ <strong>AI Companion Engine Migration</strong> — 将项目（qualcomm-proj, MIHD）从共享的 absolute-path engines 迁移到 bundled、repo-specific 架构，并更新了 idea graph 格式。</li>
+<li>✅ <strong>LifeCopilot Core Engine Rewrite (I-002)</strong> — 实现了 settings, models, sqlite3 store 以及纯粹的 plan_day 函数，从臃肿的 service model 过渡到精简的 &lsquo;core + adapters&rsquo; model。</li>
+<li>✅ <strong>I-135 Implement Hierarchical Enforcement</strong> — 防止父节点在所有子节点完成前被标记为 &lsquo;done&rsquo;，强化了工作流的完整性。</li>
+<li>✅ <strong>Upgrade decision policy to &lsquo;Plan-based&rsquo; (Tile Matching)</strong> — 用基于 simulation 的策略取代了 greedy search，该策略考虑了翻开 tiles 的 &lsquo;cost&rsquo;，将胜率提升至 98%。</li>
+<li>✅ <strong>I-071: π0.5 FP16 feasibility investigation</strong> — 验证了 FP16 backbone 在 Dragonwing 上由于 serialization limits 和 Hexagon PD mapping constraints 而失败。</li>
+<li>✅ <strong>ECE661 HW1 Content Audit</strong> — 验证了作业报告中的数学公式、逻辑表和英语语法。</li>
+<li>✅ <strong>Data Source Clients (I-003)</strong> — 为 LifeCopilotBeta 实现了 Plane API client, multi-repo graph scanner 和 Google Calendar service。</li>
+<li>✅ <strong>Idea Graph Restructuring</strong> — 修剪了 idea graph，并将剩余节点重新组织为结构化的分层树，以便更好地管理。</li>
+<li>✅ <strong>Implement dark tile recognition</strong> — 使用带有 quadrant crops 的 template matching 来识别部分覆盖的 tiles。</li>
+<li>🔄 <strong>VLA Quantization Research</strong> — 正在调查 QuantVLA 声称的 per-token dynamic quantization 与其实际的 per-channel static implementation 之间的差异。</li>
+<li>✅ <strong>Remote Path Unification</strong> — 重新配置了 Tianhe3 server layout，将 RoboMemory paths 统一在稳定的目录结构下。</li>
+<li>✅ <strong>Portal and API (I-004)</strong> — 为 LifeCopilot 实现了 FastAPI flow 和一个 vanilla JS single-page portal。</li>
+<li>✅ <strong>Channels Implementation (I-005)</strong> — 实现了 Discord triage 和 LLM fallback chains。</li>
+<li>✅ <strong>Push implemented ideas to DONE</strong> — 通过正式的 engine 路径，将 31 个 ideas (I-007 到 I-038) 移至 &lsquo;done&rsquo; 状态，将项目前沿推进至 I-040。</li>
+<li>• <strong>Define Benchmark Spec (I-040)</strong> — 定义 benchmark line specifications，包括重复性和报告标准。</li>
+</ul>
+<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<ul>
+<li>✅ <strong>Amber v1.2.0 Release</strong> — 更新了版本号，修复了 build scripts，并通过 GitHub Release 发布了 universal binary。</li>
+<li>🔄 <strong>Overleaf Project Migration</strong> — 尝试通过 browser automation 将压缩的 LaTeX 项目上传到 Overleaf。</li>
+<li>🔄 <strong>I-130 Fix Flaky Test Timeouts</strong> — 增加了 sub-process spawning tests 的 timeout。</li>
+<li>✅ <strong>RoboMemory Data Audit</strong> — 审计了 491GB 的 H5 datasets，以验证结构和 symlink integrity。</li>
+<li>🔄 <strong>AI Companion Uninstall Documentation</strong> — 解决现有 uninstall command 缺乏面向用户的文档的问题。</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-4-bit-activation-conversion-w4a4-is-failing-in-the-closed-source-quantizer">1. 4-bit activation conversion (W4A4) is failing in the closed-source quantizer.<a hidden class="anchor" aria-hidden="true" href="#1-4-bit-activation-conversion-w4a4-is-failing-in-the-closed-source-quantizer">#</a></h4>
+<p><strong>Solution:</strong> 进行了三种情况的边界探测；确认了成功的编译往往掩盖了整个 operator chain 静默回退到 float 的情况。</p>
+<h4 id="2-ai-companionsecurity-guard-因为-hooks-指向不存在的-absolute-paths-而在静默失败">2. AI Companion/Security guard 因为 hooks 指向不存在的 absolute paths 而在静默失败。<a hidden class="anchor" aria-hidden="true" href="#2-ai-companionsecurity-guard-因为-hooks-指向不存在的-absolute-paths-而在静默失败">#</a></h4>
+<p><strong>Solution:</strong> 迁移到了 bundled architecture，其中 engine 通过 relative paths 驻留在项目的 .companion 目录中。</p>
+<h4 id="3-tile-matching-game-中的-dark-tiles-被错误地识别为可以立即进行游戏">3. Tile-matching game 中的 dark tiles 被错误地识别为可以立即进行游戏。<a hidden class="anchor" aria-hidden="true" href="#3-tile-matching-game-中的-dark-tiles-被错误地识别为可以立即进行游戏">#</a></h4>
+<p><strong>Solution:</strong> 实现了一个用于追踪 occlusion relationships 的 &lsquo;blockers&rsquo; list，并将其集成到基于 simulation 的 plan 中。</p>
+<h4 id="4-ece661-hw1-中关于-adaline-biases-和-nand-logic-的数学错误">4. ECE661 HW1 中关于 Adaline biases 和 NAND logic 的数学错误。<a hidden class="anchor" aria-hidden="true" href="#4-ece661-hw1-中关于-adaline-biases-和-nand-logic-的数学错误">#</a></h4>
+<p><strong>Solution:</strong> AI 执行了 content audit 以修正 bias values 和 truth table 的不准确之处。</p>
+<h4 id="5-idea-graph-由于-concurrent-sessions-或-extreme-flatness-而被清空或变得混乱">5. Idea graph 由于 concurrent sessions 或 extreme flatness 而被清空或变得混乱。<a hidden class="anchor" aria-hidden="true" href="#5-idea-graph-由于-concurrent-sessions-或-extreme-flatness-而被清空或变得混乱">#</a></h4>
+<p><strong>Solution:</strong> 从 .runtime/ 备份中恢复，并实现了一个带有 &lsquo;parent&rsquo; attributes 的 hierarchical tree structure。</p>
+<h4 id="6-companion-installer-拒绝覆盖包含-legacy-agent-claude-key-的-graph">6. companion installer 拒绝覆盖包含 legacy &lsquo;agent: claude&rsquo; key 的 graph。<a hidden class="anchor" aria-hidden="true" href="#6-companion-installer-拒绝覆盖包含-legacy-agent-claude-key-的-graph">#</a></h4>
+<p><strong>Solution:</strong> 手动将 &lsquo;ideas/graph.yaml&rsquo; 重命名为 &lsquo;ideas/graph.claude.yaml&rsquo; 以满足 migration requirements。</p>
+<h4 id="7-新的-ai-companion-interpreter-wall-d21-阻碍了-shell-redirectionsheredocs-和-standard-file-moves">7. 新的 AI Companion &lsquo;Interpreter Wall&rsquo; (D21) 阻碍了 shell redirections、heredocs 和 standard file moves。<a hidden class="anchor" aria-hidden="true" href="#7-新的-ai-companion-interpreter-wall-d21-阻碍了-shell-redirectionsheredocs-和-standard-file-moves">#</a></h4>
+<p><strong>Solution:</strong> 使用 editor tools 进行文件修改，并指定特定的 companion CLI commands 来进行 state changes。</p>
+<h4 id="8-search-depth-5-对于-real-time-tile-matching-使用来说太慢了solution-实施了激进的-pruning-和-state-deduplication">8. Search depth 5 对于 real-time tile-matching 使用来说太慢了。<strong>Solution:</strong> 实施了激进的 pruning 和 state deduplication。<a hidden class="anchor" aria-hidden="true" href="#8-search-depth-5-对于-real-time-tile-matching-使用来说太慢了solution-实施了激进的-pruning-和-state-deduplication">#</a></h4>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="9-ai-尝试自动上传文件到-overleaf-失败原因是无法检测到系统级-file-chooser-window">9. AI 尝试自动上传文件到 Overleaf 失败，原因是无法检测到系统级 file chooser window。<a hidden class="anchor" aria-hidden="true" href="#9-ai-尝试自动上传文件到-overleaf-失败原因是无法检测到系统级-file-chooser-window">#</a></h4>
+<p><strong>Solution:</strong> 需要人工干预在浏览器中选择文件。</p>
+<h4 id="10-由于-script-编辑ideasgraphyaml-中的-code-line-ranges-已过时">10. 由于 script 编辑，ideas/graph.yaml 中的 code line ranges 已过时。<a hidden class="anchor" aria-hidden="true" href="#10-由于-script-编辑ideasgraphyaml-中的-code-line-ranges-已过时">#</a></h4>
+<p><strong>Solution:</strong> 系统性地更新了所有 line ranges 以匹配当前文件内容。</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="project-architecture">Project Architecture<a hidden class="anchor" aria-hidden="true" href="#project-architecture">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>提议进行完整的 &rsquo;tear down and rebuild&rsquo;，以转向精简的 &lsquo;core + adapters&rsquo; 模型。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>试图沿用现有的 file structures 并在旧的 repository 中规划 files。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 的战略方向通过将 core logic 与 peripheral services 解耦，防止了进一步的技术债积累。</p>
+<h4 id="4-bit-probe-interpretation">4-bit probe interpretation<a hidden class="anchor" aria-hidden="true" href="#4-bit-probe-interpretation">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>质疑 compiler 输出中的 &lsquo;SUCCESS&rsquo; 是否真的意味着 4-bit quantization 已激活。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初直接采信了 compiler logs 中的 &lsquo;SUCCESS&rsquo;。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 的怀疑态度引发了一次技术审计，揭示了 compiler 实际上正在执行 silent fallback 到 float。</p>
+<h4 id="decision-strategy">Decision Strategy<a hidden class="anchor" aria-hidden="true" href="#decision-strategy">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>识别出 AI 的逻辑未能考虑到挖掘（填满 tray）的 &lsquo;cost&rsquo;。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>针对最大化即时 removals 进行优化，而未考虑中间的 tray constraints。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 强制实现了从 &lsquo;greedy removal&rsquo; 到 &lsquo;under constraints 的 safe planning&rsquo; 的转变。</p>
+<h4 id="quantvla-granularity-discrepancy">QuantVLA Granularity Discrepancy<a hidden class="anchor" aria-hidden="true" href="#quantvla-granularity-discrepancy">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>通过要求进行 code-level investigation，挑战了 AI 关于 per-token dynamic quantization 的说法。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>接受了论文中的说法并将其视为事实，并打算据此更新 documentation。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 的怀疑揭示了论文与其自身的实现相矛盾（实际上是 per-channel static）。</p>
+<h4 id="tile-recognition-methodology">Tile Recognition Methodology<a hidden class="anchor" aria-hidden="true" href="#tile-recognition-methodology">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>提议使用 sub-tile template matching (quadrants/halves) 来处理低可见度的 dark tiles。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>建议使用标准的 CNN 或 HSV thresholding，这在处理 occlusion 时表现不佳。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> 相比 AI 的通用 ML 建议，Human 的细粒度方法更稳健地解决了 occlusion 问题。</p>
+<h4 id="hierarchical-graph-structure">Hierarchical Graph Structure<a hidden class="anchor" aria-hidden="true" href="#hierarchical-graph-structure">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>请求特定的功能改进，如 summaries 和 sub-node visibility。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>提议对 idea tree 进行战略性的 re-leveling，以遵守 &lsquo;max-7-nodes-per-layer&rsquo; 规则。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> AI 通过智能地重新分组用户需求，防止了架构约束违规。</p>
+<h4 id="project-cleanup-strategy">Project Cleanup Strategy<a hidden class="anchor" aria-hidden="true" href="#project-cleanup-strategy">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>决定归档 legacy content，统一 remote paths，并简化 vision graph。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>尝试使用直接的 shell commands 进行文件移动，但被 guard mechanism 拦截。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 提供了战略方向，而 AI 则专注于在安全约束内处理技术细节。</p>
+<h4 id="idea-completion-definition">Idea Completion Definition<a hidden class="anchor" aria-hidden="true" href="#idea-completion-definition">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>特别定义了 &lsquo;Done&rsquo;，以确保 benchmark lines 的可复现性。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>在提供人工批准码后，实现了 batch processing 的自动化。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 定义了质量标准；AI 执行了工程落地。</p>
+<h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
+<h4 id="assignment-formatting">Assignment Formatting<a hidden class="anchor" aria-hidden="true" href="#assignment-formatting">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>请求一个简化且以 utility 为中心的报告版本。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初准备了一个带有大量格式化的全面版本。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 强调简洁性而非美学复杂性。</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
+<ul>
+<li>AI 在处理新的强制性 manual approval (D7) 和 guard (D21) 规则时感到困难，导致 tool 尝试被拒绝以及 shell commands 被拦截。</li>
+</ul>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<ul>
+<li>AI 最初相信 documentation 中的说法（如 per-token quantization），而没有验证底层的 implementation code。</li>
+<li>AI 通过 heredocs 生成的代码经常因为 escaping issues 和 shell redirection blocks 导致 SyntaxErrors。</li>
+<li>由于自动化环境中的 window focus/context mismatches，AI 无法与系统级 file dialogs 进行交互。</li>
+<li><code>read</code> 工具无法读取目录 (EISDIR)，导致在扫描 worktree paths 时产生 warnings。</li>
+</ul>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<ul>
+<li>在 HTP 上针对 mixed-precision (float islands) 的成功编译并不保证 4-bit execution；它通常会触发整个 operator chains 向 float 的 silent fallback。</li>
+<li>对于 partially observable games，一个模拟 &lsquo;cost-to-uncover&rsquo; 的 simulation 比纯 RL 或 greedy heuristics 要有效得多。</li>
+<li>当在 engine/logic level (setStatus/applyApproval) 而非仅仅在 UI level 实现强制执行时，效果会更好。</li>
+<li>通过 AI guardrails 严格执行 &lsquo;idea-first&rsquo; 工作流可以防止不受控制的 code sprawl，但这要求 AI 对 graph 的 &lsquo;status&rsquo; 和 &lsquo;doing&rsquo; 状态具有高度感知。</li>
+<li>&lsquo;clean&rsquo; 和 &lsquo;dirty&rsquo; memory 之间的区别对于解释 peak memory metrics 至关重要：weights 是 file-mapped clean pages，不计入 non-clean &lsquo;memory footprint&rsquo;。</li>
+<li>在神经网络中，step function 缺乏 gradient 是至关重要的，因为其导数几乎处处为零，而不仅仅是在 threshold 处。</li>
+<li>通过 &lsquo;coord&rsquo; 进行 multi-session coordination 是可用的，但 agents 不会自动使用它；需要手动协调以防止同时进行 graph 写入。</li>
+<li>在大规模项目中，“container ideas”对于防止认知过载和维持可管理的 graph 层级的重要性。</li>
+</ul>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<h3 id="qualcomm-project">Qualcomm Project<a hidden class="anchor" aria-hidden="true" href="#qualcomm-project">#</a></h3>
+<p><strong>✅ W4A4 Research and Engine Migration</strong>
+通过 boundary probes 研究了 4-bit 转换支持。确认 SDK 限制导致无法进行 4-bit activation 转换。迁移到了新的 AI Companion engine，这需要新的审批工作流，并解决了由于并发 session 干扰导致的 empty graph 问题。</p>
+<h3 id="ai-companion">ai-companion<a hidden class="anchor" aria-hidden="true" href="#ai-companion">#</a></h3>
+<p><strong>✅ Architectural migration and guard repair</strong>
+成功将 qualcomm-proj 仓库迁移到新的 bundled architecture，修复了损坏的 security hooks，并重新授权了四个待处理的 ideas。</p>
+<h3 id="lifecopilotlifecopilotbeta">LifeCopilot/LifeCopilotBeta<a hidden class="anchor" aria-hidden="true" href="#lifecopilotlifecopilotbeta">#</a></h3>
+<p><strong>✅ Strategic Redesign and Implementation</strong>
+从零开始重写了 LifeCopilot，以创建一个包含 Web portal 和多仓库 Companion 集成的精简“core”。遵循严格的 idea 驱动工作流，实现了核心的 SQLite/Planner engine、data clients、API/Portal 以及 Channels。</p>
+<h3 id="tile-matching-automation-pipeline-development-and-strategy-optimization">Tile Matching Automation**✅ Pipeline Development and Strategy Optimization**<a hidden class="anchor" aria-hidden="true" href="#tile-matching-automation-pipeline-development-and-strategy-optimization">#</a></h3>
+<p>开发了一套用于自动化 tile matching 的完整 pipeline，实现了从基础识别到基于 quadrant 的 template matching，以及基于 plan 的 rollout simulation 的演进，成功率达到 98%。</p>
+<h3 id="amber">Amber<a hidden class="anchor" aria-hidden="true" href="#amber">#</a></h3>
+<p><strong>✅ v1.2.0 Production Release</strong>
+管理了 Amber v1.2.0 的完整发布周期，包括 README parity checks、CI verification 以及 GitHub Release 的创建。</p>
+<h3 id="ece661">ECE661<a hidden class="anchor" aria-hidden="true" href="#ece661">#</a></h3>
+<p><strong>🔄 HW1 Content Review and Overleaf Upload</strong>
+审查了 HW1.md 的技术准确性，修正了 Adaline logic、truth tables 和 backpropagation 中的错误。尝试进行 Overleaf upload，但遇到了需要人工协助的 UI automation 问题。</p>
+<h3 id="robomemory">RoboMemory<a hidden class="anchor" aria-hidden="true" href="#robomemory">#</a></h3>
+<p><strong>✅ Project Refactoring and Data Audit</strong>
+进行了大规模的清理工作，包括在 Tianhe3 上进行 remote path unification、归档 legacy experiments，并通过 remote SSH audit 验证了 491GB 的 H5 datasets。</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-09-07</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$351.67</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>435M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>2M</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>97.3%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $339</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $13</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (96.4%), Codex (3.6%)">
+          <span style="width:96.4%; background:var(--usage-cost-main)"></span>
+          <span style="width:3.6%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 97.3%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 2.7%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (97.3%), active tokens (2.7%)">
+          <span style="width:97.3%; background:var(--usage-cache)"></span>
+          <span style="width:2.7%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:71a9cad70cd9817f -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

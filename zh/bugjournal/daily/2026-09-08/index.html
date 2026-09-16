@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="light">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-09-08 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="完成了针对消除类游戏的 Phase-5 PPO v2 RL framework 的全面重构，为 RoboMME 中的 VLM memory tasks 实现了一个 quad-writer module，并完成了 MIHD 项目的 benchmarking 实验。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-08/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.b44fe7786b2d49cebc4822d56498329f711172897efc0f8404a35f7048beeb6d.css" integrity="sha256-tE/neGstSc68SCLVZJgyn3ERcol&#43;/A&#43;EBKNfcEi&#43;620=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-09-08/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-08/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-08/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-09-08">
+  <meta property="og:description" content="完成了针对消除类游戏的 Phase-5 PPO v2 RL framework 的全面重构，为 RoboMME 中的 VLM memory tasks 实现了一个 quad-writer module，并完成了 MIHD 项目的 benchmarking 实验。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-09-08T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-09-08T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-09-08">
+  <meta name="twitter:description" content="完成了针对消除类游戏的 Phase-5 PPO v2 RL framework 的全面重构，为 RoboMME 中的 VLM memory tasks 实现了一个 quad-writer module，并完成了 MIHD 项目的 benchmarking 实验。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-09-08",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-09-08/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-09-08",
+  "name": "Bug Journal 2026-09-08",
+  "description": "完成了针对消除类游戏的 Phase-5 PPO v2 RL framework 的全面重构，为 RoboMME 中的 VLM memory tasks 实现了一个 quad-writer module，并完成了 MIHD 项目的 benchmarking 实验。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-09-08 Daily Overview 工作内容： 今日工作涉及对一个 tile-game RL framework 进行深度的架构重构，以解决探索和特征依赖问题；为 VLM memory recording 实现了一个新的 quad-writer；并将 MIHD 项目从实验分析阶段转向 manuscript 准备阶段。 实现方式： 通过使用 Deep Sets 原理重新设计 observation spaces、应用 logit shrinking 以防止 BC 驱动的 policy saturation、为 VLM 任务实现 classification-then-tracking 层级结构，以及综合 Visium HD benchmarking 数据来实现改进。 影响： 这些工作显著提高了游戏决策的可靠性，为多样化的 VLM memory 任务建立了稳健的 protocol，并为 MIHD manuscript 提供了严谨的基础。 完成了针对 tile-matching game 的 Phase-5 PPO v2 RL framework 的全面重构，为 RoboMME 中的 VLM memory 任务实现了 quad-writer 模块，并完成了 MIHD 项目的 benchmarking 实验。\nTasks Architecture \u0026 Strategy 🔄 MIHD Manuscript Preparation (I-033) — 将实验数据（DLPFC clustering、Visium HD scaling 和 cross-section protocols）整合进正式的论文结构中。 🔄 Implement Quad-Writer (I-141) — 开发了一个 VLM writer，在执行特定的 tracking 和 glyph drawing 之前，将 16 个 RoboMME 任务分类到一个 2x2 矩阵中（Arm/Object × Before/During）。 ✅ HD k-sensitivity Sweep (I-038) — 提交了一个 SLURM array job，以验证 Visium HD ’narrow band’ 的发现是否为固定 k=4 产生的 artifacts。 • Architecture Redesign (v2) \u0026 RL Observation Reform — 使用 ‘Deep Sets’ 方法重建了 Actor network：用数值特征和对称关系矩阵取代了 pattern ID one-hot encodings，以实现 permutation invariance 并防止 pattern collision。修正了空间编码错误 (grid_x/y) 以确保有效的 feature inputs。 • Simulator \u0026 Solver Expansion/Fixes — 扩展了 simulator 以包含复杂规则（buffer zones、item counts、auto-remove），并修复了关键的 solver bugs，包括错误的 tray occupancy counting（将未知 tiles 视为已占用）和不准确的 plan cost estimation。 🔄 Training \u0026 Exploration Optimization — 完成了 3M steps 的 PPO training。为了解决由 Behavior Cloning (BC) weights 导致的 policy saturation，正在实现 ‘Logit Shrink’ (policy smoothing) 并增加了 entropy coefficients 以恢复探索能力。 • Real-world Inference (capture.py) — 升级了 real-world recognition pipeline，增加了 item detection、buffer state recognition 以及基于 action outcomes 的 session logging。 Implementation \u0026 Fixes ✅ Administrative \u0026 Miscellaneous — 创建了 AGENTS.md contributor guide，将 Idea Graph 迁移到了 project-level 结构，并协助完成了 ECE661 homework 的 LaTeX 迁移。 Problems \u0026 Solutions Critical Issues 1. 由于 pattern ID 依赖和 one-hot encoding 限制导致的决策不稳定和碰撞。 Solution: 切换到受 Deep Sets 启发的架构，使用数值特征和对称关系矩阵以确保 permutation invariance。\n2. VLM 在区分 arm motion 和 scene changes 时存在不准确性。 Solution: 引入 ‘Quad-Writer’ 层级结构，在进行 visual grounding 之前对任务上下文（subject 和 timing）进行分类。\n3. Solver 在 tray capacity 以及未知 tiles/occlusions 方面的准确性问题。 Solution: 更新了 simulator logic，将未识别的 patterns 视为占用了一个 slot，并完善了 occlusion unlocking rules。\n4. 由高置信度 BC pre-training 导致的 RL policy saturation 和缺乏探索。 Solution: 实施了 Logit Shrink (policy smoothing) 以在不改变 argmax 顺序的情况下增加 distribution entropy，同时增加了 entropy coefficients。\nGeneral Issues 5. 由于多线程非确定性导致的 quad-writer 自测失败。 Solution: 在自测中将 ‘workers=1’ 固定，以确保顺序数据传输。\n6. 在狭窄间隙中检测 patterns 的精度较低。 Solution: 实现了一种使用局部 pixel features 和 positional constraints 的 grid-aligned ‘gap matching’ 算法。\nHuman vs AI Approaches Strategic Level VLM Writer Architecture Role Approach Human 定义了一个根本性的分类学转变：在 grounding 之前通过 2x2 矩阵（Arm/Object x Before/During）对任务进行分类。 AI 通过重新利用现有的代码组件（如 ‘chunk_loop’）建议实现路径。 Difference Analysis: Human 提供了重新定义 prompt generation 过程的高层架构分类学。\nRL Improvement Strategy Role Approach Human 提出了一个高层的混合架构愿景：Reliable state tracking + Limited search + RL scoring。 AI 最初建议 deep search，但随后转向了技术实现细节，如修复 observability 和 input features。 Difference Analysis: Human 提供了战略框架，而 AI 专注于识别特定的技术缺陷（例如 coordinate modulo bug）。\nPlanning Capability Verification Role Approach Human 定性观察 BC 是否理解 elimination logic。 AI 定量消融实验：测量移除显式 policy hints 时的 win rate degradation，以观察模型是否学习了隐式 planning。 Difference Analysis: AI 提出了一种科学的 ablation methodology 来证明自主 feature utilization。\nSim-to-Real Alignment Role Approach Human 对 real-world performance 的直接观察。 AI 通过注入人工 ‘recognition defects’（错位的 cards/掉落的 items）对 simulator 进行压力测试，以预测实际性能。 Difference Analysis: AI 建议通过主动错误注入来弥合 simulation 与 reality 之间的差距。\nAI Limitations Critical Limitations AI 最初未能检测到一个数学错误，即 RL coordinates 被一个 modulo operator 清零了。 General Limitations 执行限制：受安全协议限制无法直接执行 ‘git’ 或 ‘python’ 命令，并且由于 coordinate bounds errors 在精确的浏览器交互（Overleaf）方面表现挣扎。 由于输入 features 中缺乏显式的 spatial coordinates，无法直接证明获得了 spatial priors（例如 ‘deep middle, shallow sides’）。 Learnings Key Learnings- 在无序集合（如 game tiles）中，symmetric aggregation (Deep Sets) 显著优于 one-hot encoding，因为它消除了对任意 ID 的依赖。 在高分辨率空间任务 (Visium HD) 中，在小尺寸 crops 中观察到的 foundation models 的 zero-shot 优势在扩展到 full-slide tiling 时往往会减弱。 Cross-section niche retrieval 需要在不同 slices 之间保持一致的坐标含义，以避免产生伪结果。 Behavior Cloning (BC) 是一种强大的 pre-training 工具，但如果 policy 变得过于 peaked，可能会导致“exploration dead-ends”；进行 temperature smoothing 或 entropy adjustment 是必不可少的。 对于 discrete planning 问题，Feature engineering 的质量（如消除 ID 依赖、添加 action-effect states）比单纯增加 model parameter count 是更有效的杠杆。 Conversation Summaries Sheep RL v2 / TestYang 🔄 Tile Game Solver \u0026 RL Optimization 对 tile-matching game advisor 进行了大规模重构。这包括修复关键的 solver logic（tray occupancy/occlusion），使用 Deep Sets 重新设计 RL observation space 以防止 pattern collisions，并实施了 logit-shrinking strategy 来克服 BC 导致的 policy saturation。此次更新还集成了先进的 simulator rules 并提升了 real-world inference 能力。\nRoboMemory 🔄 Quad-Writer Implementation (I-141) 开发了一种新的 VLM strategy，通过将 16 个 RoboMME 任务分为四个象限 (Who/When) 来进行处理。实现了 quad_writer.py 模块，并为在 local 和 cloud 环境下的 batch evaluation 准备了框架。\nMIHD ✅ Manuscript and Experiment Finalization 完成了 MIHD 的 benchmarking 阶段。将关于 DLPFC clustering、Visium HD scaling 以及 cross-section query protocols 的研究结果整合进一篇 manuscript 中，同时提交了 k-sensitivity sweep jobs 以进行进一步验证。\nECE661 🔍 Markdown to LaTeX Migration 协助将 homework Markdown 文件转换为 Overleaf 所需的 LaTeX 格式，尽管遇到了 window coordinate 问题，但仍在探索 agentic automation。\nToken Usage AI Usage · 2026-09-08\rClaude Code + Codex\rTotal cost$163.67\rTotal tokens172M\rOutput tokens413K\rCache read96.8%\rCost split\rClaude Code $148 ·\rCodex $16\rToken character\rCache reads 96.8% ·\rActive 3.2%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "722",
+  "inLanguage": "zh",
+  "datePublished": "2026-09-08T00:00:00-04:00",
+  "dateModified": "2026-09-08T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-09-08/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="companion. (Alt + H)">companion.</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/bugjournal/daily/2026-09-08/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-09-08
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-09-08 00:00:00 -0400 EDT'>2026年9月8日</span>&nbsp;·&nbsp;<span>4 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-09-08">Daily Report — 2026-09-08<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-09-08">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>工作内容：</strong> 今日工作涉及对一个 tile-game RL framework 进行深度的架构重构，以解决探索和特征依赖问题；为 VLM memory recording 实现了一个新的 quad-writer；并将 MIHD 项目从实验分析阶段转向 manuscript 准备阶段。</li>
+<li><strong>实现方式：</strong> 通过使用 Deep Sets 原理重新设计 observation spaces、应用 logit shrinking 以防止 BC 驱动的 policy saturation、为 VLM 任务实现 classification-then-tracking 层级结构，以及综合 Visium HD benchmarking 数据来实现改进。</li>
+<li><strong>影响：</strong> 这些工作显著提高了游戏决策的可靠性，为多样化的 VLM memory 任务建立了稳健的 protocol，并为 MIHD manuscript 提供了严谨的基础。</li>
+</ul>
+<blockquote>
+<p>完成了针对 tile-matching game 的 Phase-5 PPO v2 RL framework 的全面重构，为 RoboMME 中的 VLM memory 任务实现了 quad-writer 模块，并完成了 MIHD 项目的 benchmarking 实验。</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<ul>
+<li>🔄 <strong>MIHD Manuscript Preparation (I-033)</strong> — 将实验数据（DLPFC clustering、Visium HD scaling 和 cross-section protocols）整合进正式的论文结构中。</li>
+<li>🔄 <strong>Implement Quad-Writer (I-141)</strong> — 开发了一个 VLM writer，在执行特定的 tracking 和 glyph drawing 之前，将 16 个 RoboMME 任务分类到一个 2x2 矩阵中（Arm/Object × Before/During）。</li>
+<li>✅ <strong>HD k-sensitivity Sweep (I-038)</strong> — 提交了一个 SLURM array job，以验证 Visium HD &rsquo;narrow band&rsquo; 的发现是否为固定 k=4 产生的 artifacts。</li>
+<li>• <strong>Architecture Redesign (v2) &amp; RL Observation Reform</strong> — 使用 &lsquo;Deep Sets&rsquo; 方法重建了 Actor network：用数值特征和对称关系矩阵取代了 pattern ID one-hot encodings，以实现 permutation invariance 并防止 pattern collision。修正了空间编码错误 (grid_x/y) 以确保有效的 feature inputs。</li>
+<li>• <strong>Simulator &amp; Solver Expansion/Fixes</strong> — 扩展了 simulator 以包含复杂规则（buffer zones、item counts、auto-remove），并修复了关键的 solver bugs，包括错误的 tray occupancy counting（将未知 tiles 视为已占用）和不准确的 plan cost estimation。</li>
+<li>🔄 <strong>Training &amp; Exploration Optimization</strong> — 完成了 3M steps 的 PPO training。为了解决由 Behavior Cloning (BC) weights 导致的 policy saturation，正在实现 &lsquo;Logit Shrink&rsquo; (policy smoothing) 并增加了 entropy coefficients 以恢复探索能力。</li>
+<li>• <strong>Real-world Inference (capture.py)</strong> — 升级了 real-world recognition pipeline，增加了 item detection、buffer state recognition 以及基于 action outcomes 的 session logging。</li>
+</ul>
+<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<ul>
+<li>✅ <strong>Administrative &amp; Miscellaneous</strong> — 创建了 AGENTS.md contributor guide，将 Idea Graph 迁移到了 project-level 结构，并协助完成了 ECE661 homework 的 LaTeX 迁移。</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-由于-pattern-id-依赖和-one-hot-encoding-限制导致的决策不稳定和碰撞">1. 由于 pattern ID 依赖和 one-hot encoding 限制导致的决策不稳定和碰撞。<a hidden class="anchor" aria-hidden="true" href="#1-由于-pattern-id-依赖和-one-hot-encoding-限制导致的决策不稳定和碰撞">#</a></h4>
+<p><strong>Solution:</strong> 切换到受 Deep Sets 启发的架构，使用数值特征和对称关系矩阵以确保 permutation invariance。</p>
+<h4 id="2-vlm-在区分-arm-motion-和-scene-changes-时存在不准确性">2. VLM 在区分 arm motion 和 scene changes 时存在不准确性。<a hidden class="anchor" aria-hidden="true" href="#2-vlm-在区分-arm-motion-和-scene-changes-时存在不准确性">#</a></h4>
+<p><strong>Solution:</strong> 引入 &lsquo;Quad-Writer&rsquo; 层级结构，在进行 visual grounding 之前对任务上下文（subject 和 timing）进行分类。</p>
+<h4 id="3-solver-在-tray-capacity-以及未知-tilesocclusions-方面的准确性问题">3. Solver 在 tray capacity 以及未知 tiles/occlusions 方面的准确性问题。<a hidden class="anchor" aria-hidden="true" href="#3-solver-在-tray-capacity-以及未知-tilesocclusions-方面的准确性问题">#</a></h4>
+<p><strong>Solution:</strong> 更新了 simulator logic，将未识别的 patterns 视为占用了一个 slot，并完善了 occlusion unlocking rules。</p>
+<h4 id="4-由高置信度-bc-pre-training-导致的-rl-policy-saturation-和缺乏探索">4. 由高置信度 BC pre-training 导致的 RL policy saturation 和缺乏探索。<a hidden class="anchor" aria-hidden="true" href="#4-由高置信度-bc-pre-training-导致的-rl-policy-saturation-和缺乏探索">#</a></h4>
+<p><strong>Solution:</strong> 实施了 Logit Shrink (policy smoothing) 以在不改变 argmax 顺序的情况下增加 distribution entropy，同时增加了 entropy coefficients。</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="5-由于多线程非确定性导致的-quad-writer-自测失败">5. 由于多线程非确定性导致的 quad-writer 自测失败。<a hidden class="anchor" aria-hidden="true" href="#5-由于多线程非确定性导致的-quad-writer-自测失败">#</a></h4>
+<p><strong>Solution:</strong> 在自测中将 &lsquo;workers=1&rsquo; 固定，以确保顺序数据传输。</p>
+<h4 id="6-在狭窄间隙中检测-patterns-的精度较低">6. 在狭窄间隙中检测 patterns 的精度较低。<a hidden class="anchor" aria-hidden="true" href="#6-在狭窄间隙中检测-patterns-的精度较低">#</a></h4>
+<p><strong>Solution:</strong> 实现了一种使用局部 pixel features 和 positional constraints 的 grid-aligned &lsquo;gap matching&rsquo; 算法。</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="vlm-writer-architecture">VLM Writer Architecture<a hidden class="anchor" aria-hidden="true" href="#vlm-writer-architecture">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>定义了一个根本性的分类学转变：在 grounding 之前通过 2x2 矩阵（Arm/Object x Before/During）对任务进行分类。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>通过重新利用现有的代码组件（如 &lsquo;chunk_loop&rsquo;）建议实现路径。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 提供了重新定义 prompt generation 过程的高层架构分类学。</p>
+<h4 id="rl-improvement-strategy">RL Improvement Strategy<a hidden class="anchor" aria-hidden="true" href="#rl-improvement-strategy">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>提出了一个高层的混合架构愿景：Reliable state tracking + Limited search + RL scoring。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初建议 deep search，但随后转向了技术实现细节，如修复 observability 和 input features。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 提供了战略框架，而 AI 专注于识别特定的技术缺陷（例如 coordinate modulo bug）。</p>
+<h4 id="planning-capability-verification">Planning Capability Verification<a hidden class="anchor" aria-hidden="true" href="#planning-capability-verification">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>定性观察 BC 是否理解 elimination logic。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>定量消融实验：测量移除显式 policy hints 时的 win rate degradation，以观察模型是否学习了隐式 planning。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> AI 提出了一种科学的 ablation methodology 来证明自主 feature utilization。</p>
+<h4 id="sim-to-real-alignment">Sim-to-Real Alignment<a hidden class="anchor" aria-hidden="true" href="#sim-to-real-alignment">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>对 real-world performance 的直接观察。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>通过注入人工 &lsquo;recognition defects&rsquo;（错位的 cards/掉落的 items）对 simulator 进行压力测试，以预测实际性能。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> AI 建议通过主动错误注入来弥合 simulation 与 reality 之间的差距。</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
+<ul>
+<li>AI 最初未能检测到一个数学错误，即 RL coordinates 被一个 modulo operator 清零了。</li>
+</ul>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<ul>
+<li>执行限制：受安全协议限制无法直接执行 &lsquo;git&rsquo; 或 &lsquo;python&rsquo; 命令，并且由于 coordinate bounds errors 在精确的浏览器交互（Overleaf）方面表现挣扎。</li>
+<li>由于输入 features 中缺乏显式的 spatial coordinates，无法直接证明获得了 spatial priors（例如 &lsquo;deep middle, shallow sides&rsquo;）。</li>
+</ul>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings--在无序集合如-game-tiles中symmetric-aggregation-deep-sets-显著优于-one-hot-encoding因为它消除了对任意-id-的依赖">Key Learnings- 在无序集合（如 game tiles）中，symmetric aggregation (Deep Sets) 显著优于 one-hot encoding，因为它消除了对任意 ID 的依赖。<a hidden class="anchor" aria-hidden="true" href="#key-learnings--在无序集合如-game-tiles中symmetric-aggregation-deep-sets-显著优于-one-hot-encoding因为它消除了对任意-id-的依赖">#</a></h3>
+<ul>
+<li>在高分辨率空间任务 (Visium HD) 中，在小尺寸 crops 中观察到的 foundation models 的 zero-shot 优势在扩展到 full-slide tiling 时往往会减弱。</li>
+<li>Cross-section niche retrieval 需要在不同 slices 之间保持一致的坐标含义，以避免产生伪结果。</li>
+<li>Behavior Cloning (BC) 是一种强大的 pre-training 工具，但如果 policy 变得过于 peaked，可能会导致“exploration dead-ends”；进行 temperature smoothing 或 entropy adjustment 是必不可少的。</li>
+<li>对于 discrete planning 问题，Feature engineering 的质量（如消除 ID 依赖、添加 action-effect states）比单纯增加 model parameter count 是更有效的杠杆。</li>
+</ul>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<h3 id="sheep-rl-v2--testyang">Sheep RL v2 / TestYang<a hidden class="anchor" aria-hidden="true" href="#sheep-rl-v2--testyang">#</a></h3>
+<p><strong>🔄 Tile Game Solver &amp; RL Optimization</strong>
+对 tile-matching game advisor 进行了大规模重构。这包括修复关键的 solver logic（tray occupancy/occlusion），使用 Deep Sets 重新设计 RL observation space 以防止 pattern collisions，并实施了 logit-shrinking strategy 来克服 BC 导致的 policy saturation。此次更新还集成了先进的 simulator rules 并提升了 real-world inference 能力。</p>
+<h3 id="robomemory">RoboMemory<a hidden class="anchor" aria-hidden="true" href="#robomemory">#</a></h3>
+<p><strong>🔄 Quad-Writer Implementation (I-141)</strong>
+开发了一种新的 VLM strategy，通过将 16 个 RoboMME 任务分为四个象限 (Who/When) 来进行处理。实现了 quad_writer.py 模块，并为在 local 和 cloud 环境下的 batch evaluation 准备了框架。</p>
+<h3 id="mihd">MIHD<a hidden class="anchor" aria-hidden="true" href="#mihd">#</a></h3>
+<p><strong>✅ Manuscript and Experiment Finalization</strong>
+完成了 MIHD 的 benchmarking 阶段。将关于 DLPFC clustering、Visium HD scaling 以及 cross-section query protocols 的研究结果整合进一篇 manuscript 中，同时提交了 k-sensitivity sweep jobs 以进行进一步验证。</p>
+<h3 id="ece661">ECE661<a hidden class="anchor" aria-hidden="true" href="#ece661">#</a></h3>
+<p><strong>🔍 Markdown to LaTeX Migration</strong>
+协助将 homework Markdown 文件转换为 Overleaf 所需的 LaTeX 格式，尽管遇到了 window coordinate 问题，但仍在探索 agentic automation。</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-09-08</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$163.67</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>172M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>413K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>96.8%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $148</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $16</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (90.4%), Codex (9.6%)">
+          <span style="width:90.4%; background:var(--usage-cost-main)"></span>
+          <span style="width:9.6%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 96.8%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 3.2%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (96.8%), active tokens (3.2%)">
+          <span style="width:96.8%; background:var(--usage-cache)"></span>
+          <span style="width:3.2%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:b8a1ca63c8fcd93b -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

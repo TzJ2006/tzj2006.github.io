@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="light">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-09-13 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="这一天的工作包括为 AI Companion guard system 执行了一次重大的 security refactor 以支持 developer workflows，对 Windows-based Minecraft stuttering 进行了深入的 performance analysis，并完成了包括 prompt redesigns 和 latency measurement tools 在内的多个 development milestones。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-13/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.b44fe7786b2d49cebc4822d56498329f711172897efc0f8404a35f7048beeb6d.css" integrity="sha256-tE/neGstSc68SCLVZJgyn3ERcol&#43;/A&#43;EBKNfcEi&#43;620=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-09-13/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-13/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-13/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-09-13">
+  <meta property="og:description" content="这一天的工作包括为 AI Companion guard system 执行了一次重大的 security refactor 以支持 developer workflows，对 Windows-based Minecraft stuttering 进行了深入的 performance analysis，并完成了包括 prompt redesigns 和 latency measurement tools 在内的多个 development milestones。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-09-13T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-09-13T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-09-13">
+  <meta name="twitter:description" content="这一天的工作包括为 AI Companion guard system 执行了一次重大的 security refactor 以支持 developer workflows，对 Windows-based Minecraft stuttering 进行了深入的 performance analysis，并完成了包括 prompt redesigns 和 latency measurement tools 在内的多个 development milestones。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-09-13",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-09-13/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-09-13",
+  "name": "Bug Journal 2026-09-13",
+  "description": "这一天的工作包括为 AI Companion guard system 执行了一次重大的 security refactor 以支持 developer workflows，对 Windows-based Minecraft stuttering 进行了深入的 performance analysis，并完成了包括 prompt redesigns 和 latency measurement tools 在内的多个 development milestones。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-09-13 Daily Overview 完成工作： 团队执行了一次重大的 security refactor 以启用 developer workflows，对基于 Windows 的 gaming stuttering 进行了深入的 performance analysis，并完成了包括 prompt redesigns 和 latency measurement tools 在内的多个 development milestones。 实施方式： 通过结合 architectural security hardening (ccthink workflow)、Windows Performance Toolkit (xperf) ETL trace analysis 以及新的 prompt 和 scanning logic 的实现来完成工作。 影响： 这些变更在强化 ledger path protection 的同时，启用了合法的 developer workflows (Python/SCP)；将 Minecraft performance investigation 的方向转向了 display synchronization pipeline；并完成了 Unified Arrow Prompt 等主要 roadmap items。 今日工作包括为 AI Companion guard system 执行重大的 security refactor 以允许 developer workflows，对基于 Windows 的 Minecraft stuttering 进行深入的 performance analysis，并完成了包括 prompt redesigns 和 latency measurement tools 在内的多个 development milestones。\nTasks Architecture \u0026 Strategy ✅ I-144: Interpreter wall removal and scp unblocking — 移除 interpreter restriction layer，从 downloader list 中移除 scp，并更新 documentation 以反映新的 4-layer security model。 ✅ I-143: Ledger path substring hardening — 实现 mentionedLedger，即使在被包含在 quoted arguments 或 shell command strings 中时，也能检测到敏感的 ledger paths（如 .approved）。 🔄 Root Cause Identification — 确定瓶颈是 NVIDIA driver、VSync settings，还是特定的 system component（如 nvspcap64.dll）。 ✅ Fixing engine invocation holes — 添加对 prefix-based engine paths (claude-/cursor-) 和 nested engine invocations (bash -c) 的支持，以防止因 wall removal 暴露的 security bypasses。 ✅ Windows Performance Trace Analysis — 使用 xperf 处理 ETL files，以分析 CPU、DPC、ISR 和 Disk I/O patterns。 ✅ Minecraft Thread Diagnostics — 执行 thread dumps 并检查 Minecraft configuration (options.txt) 和 mod settings。 • I-145: 16-task scan (Writing side) — 生成一份关于 task classification success、arrow expressibility 和 failure reasons 的完整表格。 • I-146: Latency Measurement — 测量 model calls、segment steps 和 rendering loops 的 wall-clock time。 Problems \u0026 Solutions Critical Issues 1. Removing the interpreter wall allowed agents to bypass ledger protection by passing paths as quoted substrings in command arguments. Solution: 在 protectedTargetRefusal 中实现了第三次 scanning pass，使用 mentionedLedger 来将敏感路径作为 substrings 而非 whole tokens 进行检测。\n2. Sudden FPS drop to 1-2 and mouse stutter despite low CPU/GPU utilization. Solution: 分析了 render thread states，发现它们卡在 ‘glfwSwapBuffers’，这表明是 sync/display bottleneck 而非 processing bottleneck。\n3. The removal of the interpreter wall exposed two security leaks where the engine could be invoked via shell prefixes or nested calls. Solution: 增强了 ENGINE_INVOCATION regex 以处理 claude-/cursor- prefixes，并实现了用于 nested shell execution 的 NESTED_ENGINE_INVOCATION。\n4. Potential driver-induced latency spikes noticed in traces. Solution: 调查了 DPC info，发现确实存在 4-16ms 的 spikes，但不足以解释极端的 1 FPS drop，因此将重心转向了 display pipeline。\n5. Jump host connection timeout preventing remote deployment/startup. Solution: 等待 jump host 稳定。一旦连接恢复，使用 deploy_drawn_memory.sh 通过经允许的 .sh execution 来自动化未来的 deployments。\n6. Guard restriction prevents the Agent from running local Python/SCP. Solution: 用户必须在本地运行 quad_scan.py (配合 VPN) 并手动 scp training script (或者在连接恢复后通过 deployment script)。\nGeneral Issues 7. The install.ts --update command failed due to a malformed (non-UTF-8) JSON file in an unrelated repository. Solution: 识别出了导致冲突的具体文件，并选择仅将更新后的 bundle 安装到当前 repository，以避免数据丢失。\nHuman vs AI Approaches Strategic Level Security vs. Usability Trade-off Role Approach Human 请求移除 scp 和 python bans 以方便实际工作 (conda, cluster transfers)。 AI 识别出移除 wall 会破坏主要的 ledger protection，并在继续之前提出了一个强制性的 hardening task (I-143)。 Difference Analysis: AI 主动识别出了由用户请求的 architectural change 所导致的 critical security gap (substring bypass)。\nProblem Symptom Clarification Role Approach Human 提供了关键上下文，即即使在 Windows desktop 上也存在 mouse lag，从而将调查方向从仅限游戏的逻辑中移开。 AI 最初专注于 Minecraft 内部逻辑 (GC, mods, thread dumps) 和 driver-specific interrupts。 Difference Analysis: 人类关于 system-wide stuttering 的观察是转折点，迫使 AI 去调查 Windows display driver/DWM path 而不仅仅是游戏进程。\nRemote Training/Scp Role Approach Human N/A AI Agent 可以编写 deployment script，但无法绕过 SCP 的 ‘Write’ gate。 Difference Analysis: 用户必须在 tianhe3 上执行物理传输和 execution。\nLocal Scanning Role Approach Human N/A AI Agent 可以编写 logic (scripts)，但无法执行非 self-test 的 Python runs。 Difference Analysis: 用户必须在本地执行 python src/drawn_memory/quad_scan.py。\nAI Limitations Critical Limitations AI 未能意识到 security architecture 的变化 (removing the interpreter wall) 将需要改变 ledger protection 的实现方式 (token vs substring)。 由于 D21/D26 security gates，Agent 无法在本地运行任意 Python 或执行 SCP。它只能触发 run-check (self-tests) 或 .sh deployment scripts。 General Limitations 最初过度强调了小的 DPC spikes 作为潜在原因，直到意识到它们无法解释 FPS drop 的幅度。 Learnings Key Learnings 依赖 ’layering’ 的 security barriers 可能会产生虚假的安全感；移除一层可能会揭示后续层之所以有效仅仅是因为第一层的存在。 低 FPS 结合低 resource usage 通常指向 thread synchronization 或 display buffer blocking (例如 glfwSwapBuffers)，而非 hardware capacity。 Practical Learnings- ‘Self-test in module tail’ pattern 会产生技术债：立即实施修复会导致 ‘Red’ sign-off 变得陈旧/出现 unexpected-pass。未来的测试应当解耦。 修改 graph.yaml 中的 symbol 字符串会使现有的 approvals 失效，即使原本只想添加行号。 Conversation Summaries AI Companion ✅ Guard System Refactor: Interpreter \u0026 SCP 规划并执行了一次重大的安全 refactor。首先，为 ledger 实现了基于 substring 的 path protection (I-143)。其次，移除了 interpreter wall 和 scp restriction (I-144)。修复了 engine invocation bypasses 并更新了 documentation。通过了 612 个 passing tests 进行验证。\nArchive Cleanup ✅ Moving files to archive/ and syncing documentation. 解决了 .gitignore 中的 path mismatches，并更新了所有的 deployment/overview maps。\nArrow Prompt ✅ Unified two-point prompt implementation. 重新设计了 prompt，使用 ‘arm-body’ 作为 start，使用 ‘VLM-target’ 作为 end，以确保与现有的 training weights 兼容。\nMinecraft Performance Analysis 🔄 Investigating Windows Stutter and Low FPS 用户报告了 Minecraft 中突然的 FPS drops 和 mouse lag。AI 分析了 ETL traces，发现 ntoskrnl.exe 中存在 DPC spikes，并对 Java threads 进行了 sampling。结论是，由于 lag 在 desktop 上依然存在，且 render thread 卡在 glfwSwapBuffers，问题很可能出在 display synchronization pipeline 或 NVIDIA driver components 中。\nToken Usage AI Usage · 2026-09-13\rClaude Code + Codex\rTotal cost$120.27\rTotal tokens149M\rOutput tokens418K\rCache read97.2%\rCost split\rClaude Code $115 ·\rCodex $5\rToken character\rCache reads 97.2% ·\rActive 2.8%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "791",
+  "inLanguage": "zh",
+  "datePublished": "2026-09-13T00:00:00-04:00",
+  "dateModified": "2026-09-13T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-09-13/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="companion. (Alt + H)">companion.</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/bugjournal/daily/2026-09-13/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="https://tzj2006.github.io/zh/bugjournal/daily/" title="bugJournal">
+                    <span class="active">bugJournal</span>
+                    <span class="submenu-caret" aria-hidden="true">▾</span>
+                </a>
+                <ul class="submenu" aria-label="bugJournal">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>Daily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>Weekly</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="leetcode">
+                    <span>leetcode</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="posts &amp; notes">
+                    <span>posts &amp; notes</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="benchmark">
+                    <span>benchmark</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-09-13
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-09-13 00:00:00 -0400 EDT'>2026年9月13日</span>&nbsp;·&nbsp;<span>4 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-09-13">Daily Report — 2026-09-13<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-09-13">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>完成工作：</strong> 团队执行了一次重大的 security refactor 以启用 developer workflows，对基于 Windows 的 gaming stuttering 进行了深入的 performance analysis，并完成了包括 prompt redesigns 和 latency measurement tools 在内的多个 development milestones。</li>
+<li><strong>实施方式：</strong> 通过结合 architectural security hardening (ccthink workflow)、Windows Performance Toolkit (xperf) ETL trace analysis 以及新的 prompt 和 scanning logic 的实现来完成工作。</li>
+<li><strong>影响：</strong> 这些变更在强化 ledger path protection 的同时，启用了合法的 developer workflows (Python/SCP)；将 Minecraft performance investigation 的方向转向了 display synchronization pipeline；并完成了 Unified Arrow Prompt 等主要 roadmap items。</li>
+</ul>
+<blockquote>
+<p>今日工作包括为 AI Companion guard system 执行重大的 security refactor 以允许 developer workflows，对基于 Windows 的 Minecraft stuttering 进行深入的 performance analysis，并完成了包括 prompt redesigns 和 latency measurement tools 在内的多个 development milestones。</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<ul>
+<li>✅ <strong>I-144: Interpreter wall removal and scp unblocking</strong> — 移除 interpreter restriction layer，从 downloader list 中移除 scp，并更新 documentation 以反映新的 4-layer security model。</li>
+<li>✅ <strong>I-143: Ledger path substring hardening</strong> — 实现 <code>mentionedLedger</code>，即使在被包含在 quoted arguments 或 shell command strings 中时，也能检测到敏感的 ledger paths（如 .approved）。</li>
+<li>🔄 <strong>Root Cause Identification</strong> — 确定瓶颈是 NVIDIA driver、VSync settings，还是特定的 system component（如 nvspcap64.dll）。</li>
+<li>✅ <strong>Fixing engine invocation holes</strong> — 添加对 prefix-based engine paths (claude-/cursor-) 和 nested engine invocations (bash -c) 的支持，以防止因 wall removal 暴露的 security bypasses。</li>
+<li>✅ <strong>Windows Performance Trace Analysis</strong> — 使用 xperf 处理 ETL files，以分析 CPU、DPC、ISR 和 Disk I/O patterns。</li>
+<li>✅ <strong>Minecraft Thread Diagnostics</strong> — 执行 thread dumps 并检查 Minecraft configuration (options.txt) 和 mod settings。</li>
+<li>• <strong>I-145: 16-task scan (Writing side)</strong> — 生成一份关于 task classification success、arrow expressibility 和 failure reasons 的完整表格。</li>
+<li>• <strong>I-146: Latency Measurement</strong> — 测量 model calls、segment steps 和 rendering loops 的 wall-clock time。</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-removing-the-interpreter-wall-allowed-agents-to-bypass-ledger-protection-by-passing-paths-as-quoted-substrings-in-command-arguments">1. Removing the interpreter wall allowed agents to bypass ledger protection by passing paths as quoted substrings in command arguments.<a hidden class="anchor" aria-hidden="true" href="#1-removing-the-interpreter-wall-allowed-agents-to-bypass-ledger-protection-by-passing-paths-as-quoted-substrings-in-command-arguments">#</a></h4>
+<p><strong>Solution:</strong> 在 <code>protectedTargetRefusal</code> 中实现了第三次 scanning pass，使用 <code>mentionedLedger</code> 来将敏感路径作为 substrings 而非 whole tokens 进行检测。</p>
+<h4 id="2-sudden-fps-drop-to-1-2-and-mouse-stutter-despite-low-cpugpu-utilization">2. Sudden FPS drop to 1-2 and mouse stutter despite low CPU/GPU utilization.<a hidden class="anchor" aria-hidden="true" href="#2-sudden-fps-drop-to-1-2-and-mouse-stutter-despite-low-cpugpu-utilization">#</a></h4>
+<p><strong>Solution:</strong> 分析了 render thread states，发现它们卡在 &lsquo;glfwSwapBuffers&rsquo;，这表明是 sync/display bottleneck 而非 processing bottleneck。</p>
+<h4 id="3-the-removal-of-the-interpreter-wall-exposed-two-security-leaks-where-the-engine-could-be-invoked-via-shell-prefixes-or-nested-calls">3. The removal of the interpreter wall exposed two security leaks where the engine could be invoked via shell prefixes or nested calls.<a hidden class="anchor" aria-hidden="true" href="#3-the-removal-of-the-interpreter-wall-exposed-two-security-leaks-where-the-engine-could-be-invoked-via-shell-prefixes-or-nested-calls">#</a></h4>
+<p><strong>Solution:</strong> 增强了 <code>ENGINE_INVOCATION</code> regex 以处理 <code>claude-/cursor-</code> prefixes，并实现了用于 nested shell execution 的 <code>NESTED_ENGINE_INVOCATION</code>。</p>
+<h4 id="4-potential-driver-induced-latency-spikes-noticed-in-traces">4. Potential driver-induced latency spikes noticed in traces.<a hidden class="anchor" aria-hidden="true" href="#4-potential-driver-induced-latency-spikes-noticed-in-traces">#</a></h4>
+<p><strong>Solution:</strong> 调查了 DPC info，发现确实存在 4-16ms 的 spikes，但不足以解释极端的 1 FPS drop，因此将重心转向了 display pipeline。</p>
+<h4 id="5-jump-host-connection-timeout-preventing-remote-deploymentstartup">5. Jump host connection timeout preventing remote deployment/startup.<a hidden class="anchor" aria-hidden="true" href="#5-jump-host-connection-timeout-preventing-remote-deploymentstartup">#</a></h4>
+<p><strong>Solution:</strong> 等待 jump host 稳定。一旦连接恢复，使用 <code>deploy_drawn_memory.sh</code> 通过经允许的 <code>.sh</code> execution 来自动化未来的 deployments。</p>
+<h4 id="6-guard-restriction-prevents-the-agent-from-running-local-pythonscp">6. Guard restriction prevents the Agent from running local Python/SCP.<a hidden class="anchor" aria-hidden="true" href="#6-guard-restriction-prevents-the-agent-from-running-local-pythonscp">#</a></h4>
+<p><strong>Solution:</strong> 用户必须在本地运行 <code>quad_scan.py</code> (配合 VPN) 并手动 <code>scp</code> training script (或者在连接恢复后通过 deployment script)。</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="7-the-installts---update-command-failed-due-to-a-malformed-non-utf-8-json-file-in-an-unrelated-repository">7. The <code>install.ts --update</code> command failed due to a malformed (non-UTF-8) JSON file in an unrelated repository.<a hidden class="anchor" aria-hidden="true" href="#7-the-installts---update-command-failed-due-to-a-malformed-non-utf-8-json-file-in-an-unrelated-repository">#</a></h4>
+<p><strong>Solution:</strong> 识别出了导致冲突的具体文件，并选择仅将更新后的 bundle 安装到当前 repository，以避免数据丢失。</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="security-vs-usability-trade-off">Security vs. Usability Trade-off<a hidden class="anchor" aria-hidden="true" href="#security-vs-usability-trade-off">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>请求移除 scp 和 python bans 以方便实际工作 (conda, cluster transfers)。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>识别出移除 wall 会破坏主要的 ledger protection，并在继续之前提出了一个强制性的 hardening task (I-143)。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> AI 主动识别出了由用户请求的 architectural change 所导致的 critical security gap (substring bypass)。</p>
+<h4 id="problem-symptom-clarification">Problem Symptom Clarification<a hidden class="anchor" aria-hidden="true" href="#problem-symptom-clarification">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>提供了关键上下文，即即使在 Windows desktop 上也存在 mouse lag，从而将调查方向从仅限游戏的逻辑中移开。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初专注于 Minecraft 内部逻辑 (GC, mods, thread dumps) 和 driver-specific interrupts。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> 人类关于 system-wide stuttering 的观察是转折点，迫使 AI 去调查 Windows display driver/DWM path 而不仅仅是游戏进程。</p>
+<h4 id="remote-trainingscp">Remote Training/Scp<a hidden class="anchor" aria-hidden="true" href="#remote-trainingscp">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>N/A</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>Agent 可以编写 deployment script，但无法绕过 SCP 的 &lsquo;Write&rsquo; gate。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> 用户必须在 tianhe3 上执行物理传输和 execution。</p>
+<h4 id="local-scanning">Local Scanning<a hidden class="anchor" aria-hidden="true" href="#local-scanning">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>N/A</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>Agent 可以编写 logic (scripts)，但无法执行非 self-test 的 Python runs。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> 用户必须在本地执行 <code>python src/drawn_memory/quad_scan.py</code>。</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
+<ul>
+<li>AI 未能意识到 security architecture 的变化 (removing the interpreter wall) 将需要改变 ledger protection 的实现方式 (token vs substring)。</li>
+<li>由于 D21/D26 security gates，Agent 无法在本地运行任意 Python 或执行 SCP。它只能触发 <code>run-check</code> (self-tests) 或 <code>.sh</code> deployment scripts。</li>
+</ul>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<ul>
+<li>最初过度强调了小的 DPC spikes 作为潜在原因，直到意识到它们无法解释 FPS drop 的幅度。</li>
+</ul>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<ul>
+<li>依赖 &rsquo;layering&rsquo; 的 security barriers 可能会产生虚假的安全感；移除一层可能会揭示后续层之所以有效仅仅是因为第一层的存在。</li>
+<li>低 FPS 结合低 resource usage 通常指向 thread synchronization 或 display buffer blocking (例如 glfwSwapBuffers)，而非 hardware capacity。</li>
+</ul>
+<h3 id="practical-learnings--self-test-in-module-tail-pattern-会产生技术债立即实施修复会导致-red-sign-off-变得陈旧出现-unexpected-pass未来的测试应当解耦">Practical Learnings- &lsquo;Self-test in module tail&rsquo; pattern 会产生技术债：立即实施修复会导致 &lsquo;Red&rsquo; sign-off 变得陈旧/出现 unexpected-pass。未来的测试应当解耦。<a hidden class="anchor" aria-hidden="true" href="#practical-learnings--self-test-in-module-tail-pattern-会产生技术债立即实施修复会导致-red-sign-off-变得陈旧出现-unexpected-pass未来的测试应当解耦">#</a></h3>
+<ul>
+<li>修改 <code>graph.yaml</code> 中的 <code>symbol</code> 字符串会使现有的 approvals 失效，即使原本只想添加行号。</li>
+</ul>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<h3 id="ai-companion">AI Companion<a hidden class="anchor" aria-hidden="true" href="#ai-companion">#</a></h3>
+<p><strong>✅ Guard System Refactor: Interpreter &amp; SCP</strong>
+规划并执行了一次重大的安全 refactor。首先，为 ledger 实现了基于 substring 的 path protection (I-143)。其次，移除了 interpreter wall 和 scp restriction (I-144)。修复了 engine invocation bypasses 并更新了 documentation。通过了 612 个 passing tests 进行验证。</p>
+<h3 id="archive-cleanup">Archive Cleanup<a hidden class="anchor" aria-hidden="true" href="#archive-cleanup">#</a></h3>
+<p><strong>✅ Moving files to <code>archive/</code> and syncing documentation.</strong>
+解决了 <code>.gitignore</code> 中的 path mismatches，并更新了所有的 deployment/overview maps。</p>
+<h3 id="arrow-prompt">Arrow Prompt<a hidden class="anchor" aria-hidden="true" href="#arrow-prompt">#</a></h3>
+<p><strong>✅ Unified two-point prompt implementation.</strong>
+重新设计了 prompt，使用 &lsquo;arm-body&rsquo; 作为 start，使用 &lsquo;VLM-target&rsquo; 作为 end，以确保与现有的 training weights 兼容。</p>
+<h3 id="minecraft-performance-analysis">Minecraft Performance Analysis<a hidden class="anchor" aria-hidden="true" href="#minecraft-performance-analysis">#</a></h3>
+<p><strong>🔄 Investigating Windows Stutter and Low FPS</strong>
+用户报告了 Minecraft 中突然的 FPS drops 和 mouse lag。AI 分析了 ETL traces，发现 ntoskrnl.exe 中存在 DPC spikes，并对 Java threads 进行了 sampling。结论是，由于 lag 在 desktop 上依然存在，且 render thread 卡在 glfwSwapBuffers，问题很可能出在 display synchronization pipeline 或 NVIDIA driver components 中。</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-09-13</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$120.27</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>149M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>418K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>97.2%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $115</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $5</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (95.6%), Codex (4.4%)">
+          <span style="width:95.6%; background:var(--usage-cost-main)"></span>
+          <span style="width:4.4%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 97.2%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 2.8%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (97.2%), active tokens (2.8%)">
+          <span style="width:97.2%; background:var(--usage-cache)"></span>
+          <span style="width:2.8%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:d7467f73a44f2185 -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
