@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="light">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-09-16 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="这一天专注于对 robot policy quantization 失败进行高风险的技术调查，为论文提交进行大规模的研究数据重构，以及对 AI Companion 的工作流和报告标准进行系统性改革，以实现从以审计为中心向以目标为导向执行的转型。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-16/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.293529ec85794278c97efa5df449767967cd94bca174a774a375e1a0efe5bbc7.css" integrity="sha256-KTUp7IV5QnjJfvpd9El2eWfNlLyhdKd0o3XhoO/lu8c=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-09-16/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-16/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-16/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-09-16">
+  <meta property="og:description" content="这一天专注于对 robot policy quantization 失败进行高风险的技术调查，为论文提交进行大规模的研究数据重构，以及对 AI Companion 的工作流和报告标准进行系统性改革，以实现从以审计为中心向以目标为导向执行的转型。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-09-16T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-09-16T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-09-16">
+  <meta name="twitter:description" content="这一天专注于对 robot policy quantization 失败进行高风险的技术调查，为论文提交进行大规模的研究数据重构，以及对 AI Companion 的工作流和报告标准进行系统性改革，以实现从以审计为中心向以目标为导向执行的转型。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-09-16",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-09-16/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-09-16",
+  "name": "Bug Journal 2026-09-16",
+  "description": "这一天专注于对 robot policy quantization 失败进行高风险的技术调查，为论文提交进行大规模的研究数据重构，以及对 AI Companion 的工作流和报告标准进行系统性改革，以实现从以审计为中心向以目标为导向执行的转型。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-09-16 Daily Overview 工作内容： 当日工作涵盖三个关键支柱：先进机器人研究（诊断 Pi0.5 量化失败模式）、大规模数据与仓库管理（重新组织 25GB 研究产出并清理 Git history）以及 AI Companion 的系统性开发（通过 D33 标准化报告并优化工作流自主性）。 实施方式： 技术执行包括用于模型诊断的逐帧运动分析、通过 git filter-repo 进行复杂的 Git history 操作、基于 Python 的大规模数据集自动化路径重写，以及针对 AI 开发工具链的深度 Rust/Svelte 重构。 影响： 这些活动已将项目从不稳定的开发状态推向发布就绪阶段——具体包括确保论文提交的科学完整性、打通 CI/CD pipelines，并通过提高 AI 自主性显著降低人类的认知负荷。 MacOS 工作内容： 记录的活动极少。 实施方式： N/A 影响： 对项目无显著影响。 TzJsDesktop 工作内容： 所有主要项目（包括 AI Companion, Pi0.5, TokenMonitor, 和 MIHD）的主要开发与编排中心。 实施方式： 利用 Claude Code 进行密集的基于 terminal 的编排、shell scripting、Python 驱动的大规模文件编辑以及复杂的跨项目同步。 影响： 实现了高强度的技术执行，包括容器管理、大规模数据重组以及新 AI skills/报告标准的快速原型设计。 lighthouse 工作内容： 远程执行与存储端点。 实施方式： 通过 SCP 和远程命令执行进行访问，用于管理大规模机器人轨迹 MP4 文件和数据集。 影响： 促进了用于机器人 policy 评估的重型视觉资产的高效管理与存储。 今日重点在于对机器人 policy 量化失败进行高风险技术调查、为论文提交进行大规模研究数据重组，以及对 AI Companion 的工作流和报告标准进行系统性改革，以实现从以审计为中心向以目标为导向执行的转型。\nTasks Architecture \u0026 Strategy ✅ 从 GitHub history 中清除 companion 文件 — 重写 LiveCaption, TokenMonitor, gadget, LifeCopilot, 和 RoboMemory 的 Git history，以移除 .companion, ideas, 和 config 文件。 🔄 Libero Benchmark Evaluation \u0026 Pi0.5 Investigation — 分析 w4a4 量化 pi0.5 模型在 Libero 任务中 0/50 的成功率，以确定失败是由于 attention collapse 还是空间精度误差引起。 ✅ Update ai-companion \u0026 Workflow Optimization — 重建工具注册表，实现 D33 进度报告，并重构核心 skills (ccscan, ccthink, 等) 以允许 ‘authorize-and-proceed’ 自主性。 ✅ RecoverBench Paper v10 Generation — 创建 camera-ready LaTeX 草案，整合所有 rebuttal 承诺、数据统计和 OpenVLA 结果。 ✅ MIHD Data Reorganization \u0026 Path Sync — 将 25GB 的产出物理重组为 6 部分结构，并重写 160+ codebase 文件以反映新路径。 ✅ TokenMonitor Feature Implementation \u0026 Bug Fixes — 实现自定义周期窗口 (I-053)、Grok Bot 定价逻辑，并修复 UI 问题 (Floating Ball, SSH settings, Model normalization)。 🔄 RoboMemory I-148 Baseline Training — 使用 ’norm’ arm 重新运行训练，以修复因 imitation2 数据统计不当导致的 division-by-zero 问题。 ✅ Diagnose mouse drift — 调查 mouse drift 是由未经授权的远程控制 (RustDesk) 还是硬件/软件外设引起的。 ✅ LifeCopilotBeta Infrastructure Development — 实现 RepoSupervisor (subprocess proxy)、项目页面扩展以及安全的 portal 身份验证。 Problems \u0026 Solutions Critical Issues 1. 量化模型 (w4a4) 在所有 Libero 任务中失败，成功率为 0%。 Solution: 进行了逐帧运动幅度与视觉差异分析。发现错误并非 attention collapse，而是在初始 action block 期间由于低比特 backbone 精度损失导致的 ‘stop-before-target’ 行为。\n2. AI Companion 出现 ‘decision fatigue’ 和重复的审批提示。 Solution: 重构了 skill 文档和逻辑以实现 ‘authorize-and-proceed’ 模型，区分常规进度与关键决策点 (Ambiguity/Scope/Risk)。\n3. 移动 25GB 数据后出现路径断裂和 CI 失败。 Solution: 开发了一个使用 regex 进行路径重写的自定义 Python 重组脚本，并实现了一个集中的 figure routing 系统。\n4. 由于缺失 ’tokenUsage’ 字段，Grok Bot 的使用量显示为 $0。 Solution: 修改了 parser 以接受 ‘chargedCents’ 字段，并引入了基于回归分析的静态定价 fallback 机制。\n5. 与 npm/Node 版本及 lockfile 同步相关的 CI pipeline 失败。 Solution: 手动修补了 package-lock.json，并在 CI workflows 中固定了 Node 版本，以解决 @emnapi 依赖问题。\n6. 由于权限和分支歧义导致 Git history 重写失败。 Solution: 在本地镜像上使用 git filter-repo，并为用户提供手动 PowerShell 命令以完成 push。\n7. 由于精度/位宽不匹配导致 W4A4 的 QAIRT 部署失败。 Solution: 确定 16-bit softmax/norm scaling 会产生被 QAIRT 拒绝的 ‘activation islands’；结论是 W4A8 是目前可行的目标。\n8. Windows 上鼠标光标间歇性漂移。 Solution: 审计了远程访问进程 (RustDesk) 和 HID 设备。确定 3Dconnexion SpaceMouse 和 M-AI 软件是可能的罪魁祸首。\n9. Multi-Agent 并发写入与 Windows 原子写入风险。 Solution: 引入了 baseDigest (fingerprint) 一致性检查，以及带有临时文件隔离机制的 atomicWrite 循环重试机制。\nGeneral Issues 10. 大规模 Python 编辑导致 CRLF 换行符，破坏了 Vitest。 Solution: 执行了一个 Python one-liner，强制将所有修改过的文件中的 CRLF 替换为 LF。\nHuman vs AI Approaches Strategic Level Agent Autonomy vs. Guarding Role Approach Human 要求一个能够主动追求目标、持续更新且无需频繁审批的 agent (Execution-centric)。 AI 最初侧重于做一个优先考虑严格验证和关卡的 ‘bookkeeper’ (Audit-centric)。 Difference Analysis: 人类优先考虑最小化中断频率，而 AI 优先考虑验证的完整性。\nPi0.5 Failure Analysis Role Approach Human 建议检查任务名称不匹配问题 (semantic direction)。 AI 分析 BDDL 文件和仿真逻辑，为精度损失提供物理/逻辑层面的验证。 Output Reorganization Strategy Role Approach Human 为了长期维护，决定采取“激进的物理移动”（aggressive reorganization）。 AI 提出了非破坏性的双层 symlink 方法，以最小化路径破坏风险。 Difference Analysis: Human 优先考虑清晰的科学结构，而非即时的技术便利性。\nUI Layout and Design Role Approach Human 建议将 ‘Rolling Periods’ 合并到 ‘Week Starts’ 中，并要求将 ‘Test All’ 准确地放置在 ‘Sync All’ 旁边。 AI 最初计划使用独立的 toggles，并使用了标准的 space-between flexbox 布局。 Difference Analysis: Human 优先考虑紧凑、直观的 UI 和明确的空间定位。\nGit History Cleaning Strategy Role Approach Human 要求在所有 repositories 中彻底清除所有与 companion 相关的路径，包括 ‘ideas/’ 和 docs。 AI 最初建议采取保守的方法，区分程序文件和文档资产。 Difference Analysis: Human 推动完全移除开发者足迹，这需要更复杂的 history rewrites。\nAI Limitations Critical Limitations AI 对成功的验证往往是循环的（自我验证其自身的进度报告），缺乏客观证明。 当尝试使用 shell redirection (’\u003e’)、设置环境变量或在分配路径之外进行文件写入时，AI 反复被 security guards (D21/D26) 拦截。 General Limitations AI 在处理 MSYS 路径转换问题时表现挣扎，并偶尔误解 flexbox 布局中的 ’next to’。 由于 D16/I-147 的限制，AI 无法写入位于当前项目目录之外的项目 memory files。 Learnings Key Learnings VLA backbones 中的 Quantization 可能从第一个 action block 开始就导致系统性的 ‘drift’，使得错误在与环境接触时立即发生。 一个只能看到 tool calls 的 ‘guard’ 无法强制执行对话标准；行为必须直接嵌入到 ‘Skills’（行为指令）中。 Grok Bot 实际上是 Cursor 的一个 shell；其使用事件遵循 ‘cents-based’ 模型而非 token-based 模型。 使用单个 dropdown 来驱动多个状态（例如，将 ‘To date’ 作为特殊值）可以显著简化 UI 复杂度。 在使用 ‘idea graph’ 系统时，每个实现细节必须严格映射到一个 ID，以保持验证周期的完整性。 通过在 D33 中将 ‘Main Task’ 与 ‘Progress Four-Items’ 合并，agent 的思考成本和回复长度得以降低，同时信息密度增加。 Conversation Summaries Qualcomm Project (Pi0.5) 🔄 W4A4 Bottleneck \u0026 Libero Investigation 03:11:42.723 | claude_code 调查了 W4A4 quantized model 在 Libero goal tasks 上零成功率的问题。通过逐帧运动和视觉分歧分析确定，错误是由于 backbone 中的空间精度损失导致抓取错误，而非 attention failure。\nAI Companion ✅ Systemic Workflow \u0026 Reporting Overhaul (D33) 03:05:15.757 | claude_code 将系统从“记录工具”转变为“目标导向”的框架。实现了 D33 7-line progress block，标准化了所有五个核心 skills 的报告，针对 ‘authorize-and-proceed’ 自主性进行了优化，并执行了大规模的 Git history purge。\nTokenMonitor ✅ UI/UX, Pricing, and CI/CD Standardization 03:46:52 | claude_code 解决了多个 UI bugs (Floating Ball, SSH, Model Color)，实现了自定义 period windows 和 Grok Bot 定价逻辑，并解决了与 dependency lockfiles 和跨平台环境变量相关的 CI/CD pipeline blocker。\nMIHD ✅ Paper Preparation \u0026 Massive Data Reorganization 02:44:01.203 | claude_code 对 25GB 的输出数据进行了大规模重组，以符合论文结构。通过 regex path rewriting 同步了 codebase，并为 Paper2Agent pipeline 准备好了系统。\nLifeCopilotBeta ✅ Multi-Repo Portal Infrastructure 03:05:15.757 | claude_code 实现了核心的 ‘portal-as-hub’ 功能，包括 companion services 的 subprocess management、project dashboards 以及安全身份验证。\nRecoverBench ✅ Camera-Ready Paper v10 Drafting 03:05:15.757 | claude_code 生成了 LaTeX drafts (v10)，整合了所有 rebuttal commitments、精确的数据集计数以及新的 OpenVLA 结果，解决了所有覆盖范围不一致的问题。\nRoboMemory 🔄 Fixing 16-Task Baseline Training 03:05:15.757 | claude_code 识别出由零方差数据上错误的 ’norm_stats’ 导致的训练分歧。在 training script 中实现了修复以重新计算统计数据，并将其部署到了 Tianhe3 cluster。\nPhD Planning 🔍 Faculty Shortlist and Matching 03:05:15.757 | claude_code 审查了 146 名 faculty members，按研究匹配度（World Models, Failure Recovery, VLA）对其进行了分类，并准备了定制化的 outreach 策略。\nPersonal Website ✅ Hugo blog transformation 15:06:05.186 | codex 将基于 Hugo 的网站从产品落地页转型为个人博客，改进了 menu UI 和 work logs。\nToken Usage AI Usage · 2026-09-16\rClaude Code + Codex\rTotal cost$50.12\rTotal tokens45M\rOutput tokens135K\rCache read95.0%\rCost split\rClaude Code $30 ·\rCodex $20\rToken character\rCache reads 95.0% ·\rActive 5.0%\rMost token volume came from cache reads.\r",
+  "wordCount" : "821",
+  "inLanguage": "zh",
+  "datePublished": "2026-09-16T00:00:00-04:00",
+  "dateModified": "2026-09-16T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-09-16/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/bugjournal/daily/2026-09-16/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="博文">
+                    <span>博文</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <details class="menu-disclosure">
+                    <summary>工作日志 <span class="submenu-caret" aria-hidden="true">▾</span></summary>
+                <ul class="submenu" aria-label="工作日志">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>日报</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>周报</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>月报</span>
+                        </a>
+                    </li>
+                </ul>
+                </details>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="算法笔记">
+                    <span>算法笔记</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="性能测试">
+                    <span>性能测试</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-09-16
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-09-16 00:00:00 -0400 EDT'>2026年9月16日</span>&nbsp;·&nbsp;<span>4 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-09-16">Daily Report — 2026-09-16<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-09-16">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>工作内容：</strong> 当日工作涵盖三个关键支柱：先进机器人研究（诊断 Pi0.5 量化失败模式）、大规模数据与仓库管理（重新组织 25GB 研究产出并清理 Git history）以及 AI Companion 的系统性开发（通过 D33 标准化报告并优化工作流自主性）。</li>
+<li><strong>实施方式：</strong> 技术执行包括用于模型诊断的逐帧运动分析、通过 <code>git filter-repo</code> 进行复杂的 Git history 操作、基于 Python 的大规模数据集自动化路径重写，以及针对 AI 开发工具链的深度 Rust/Svelte 重构。</li>
+<li><strong>影响：</strong> 这些活动已将项目从不稳定的开发状态推向发布就绪阶段——具体包括确保论文提交的科学完整性、打通 CI/CD pipelines，并通过提高 AI 自主性显著降低人类的认知负荷。</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>工作内容：</strong> 记录的活动极少。</li>
+<li><strong>实施方式：</strong> N/A</li>
+<li><strong>影响：</strong> 对项目无显著影响。</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>工作内容：</strong> 所有主要项目（包括 AI Companion, Pi0.5, TokenMonitor, 和 MIHD）的主要开发与编排中心。</li>
+<li><strong>实施方式：</strong> 利用 Claude Code 进行密集的基于 terminal 的编排、shell scripting、Python 驱动的大规模文件编辑以及复杂的跨项目同步。</li>
+<li><strong>影响：</strong> 实现了高强度的技术执行，包括容器管理、大规模数据重组以及新 AI skills/报告标准的快速原型设计。</li>
+</ul>
+<h3 id="lighthouse">lighthouse<a hidden class="anchor" aria-hidden="true" href="#lighthouse">#</a></h3>
+<ul>
+<li><strong>工作内容：</strong> 远程执行与存储端点。</li>
+<li><strong>实施方式：</strong> 通过 SCP 和远程命令执行进行访问，用于管理大规模机器人轨迹 MP4 文件和数据集。</li>
+<li><strong>影响：</strong> 促进了用于机器人 policy 评估的重型视觉资产的高效管理与存储。</li>
+</ul>
+<blockquote>
+<p>今日重点在于对机器人 policy 量化失败进行高风险技术调查、为论文提交进行大规模研究数据重组，以及对 AI Companion 的工作流和报告标准进行系统性改革，以实现从以审计为中心向以目标为导向执行的转型。</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<ul>
+<li>✅ <strong>从 GitHub history 中清除 companion 文件</strong> — 重写 LiveCaption, TokenMonitor, gadget, LifeCopilot, 和 RoboMemory 的 Git history，以移除 .companion, ideas, 和 config 文件。</li>
+<li>🔄 <strong>Libero Benchmark Evaluation &amp; Pi0.5 Investigation</strong> — 分析 w4a4 量化 pi0.5 模型在 Libero 任务中 0/50 的成功率，以确定失败是由于 attention collapse 还是空间精度误差引起。</li>
+<li>✅ <strong>Update ai-companion &amp; Workflow Optimization</strong> — 重建工具注册表，实现 D33 进度报告，并重构核心 skills (ccscan, ccthink, 等) 以允许 &lsquo;authorize-and-proceed&rsquo; 自主性。</li>
+<li>✅ <strong>RecoverBench Paper v10 Generation</strong> — 创建 camera-ready LaTeX 草案，整合所有 rebuttal 承诺、数据统计和 OpenVLA 结果。</li>
+<li>✅ <strong>MIHD Data Reorganization &amp; Path Sync</strong> — 将 25GB 的产出物理重组为 6 部分结构，并重写 160+ codebase 文件以反映新路径。</li>
+<li>✅ <strong>TokenMonitor Feature Implementation &amp; Bug Fixes</strong> — 实现自定义周期窗口 (I-053)、Grok Bot 定价逻辑，并修复 UI 问题 (Floating Ball, SSH settings, Model normalization)。</li>
+<li>🔄 <strong>RoboMemory I-148 Baseline Training</strong> — 使用 &rsquo;norm&rsquo; arm 重新运行训练，以修复因 imitation2 数据统计不当导致的 division-by-zero 问题。</li>
+<li>✅ <strong>Diagnose mouse drift</strong> — 调查 mouse drift 是由未经授权的远程控制 (RustDesk) 还是硬件/软件外设引起的。</li>
+<li>✅ <strong>LifeCopilotBeta Infrastructure Development</strong> — 实现 RepoSupervisor (subprocess proxy)、项目页面扩展以及安全的 portal 身份验证。</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-量化模型-w4a4-在所有-libero-任务中失败成功率为-0">1. 量化模型 (w4a4) 在所有 Libero 任务中失败，成功率为 0%。<a hidden class="anchor" aria-hidden="true" href="#1-量化模型-w4a4-在所有-libero-任务中失败成功率为-0">#</a></h4>
+<p><strong>Solution:</strong> 进行了逐帧运动幅度与视觉差异分析。发现错误并非 attention collapse，而是在初始 action block 期间由于低比特 backbone 精度损失导致的 &lsquo;stop-before-target&rsquo; 行为。</p>
+<h4 id="2-ai-companion-出现-decision-fatigue-和重复的审批提示">2. AI Companion 出现 &lsquo;decision fatigue&rsquo; 和重复的审批提示。<a hidden class="anchor" aria-hidden="true" href="#2-ai-companion-出现-decision-fatigue-和重复的审批提示">#</a></h4>
+<p><strong>Solution:</strong> 重构了 skill 文档和逻辑以实现 &lsquo;authorize-and-proceed&rsquo; 模型，区分常规进度与关键决策点 (Ambiguity/Scope/Risk)。</p>
+<h4 id="3-移动-25gb-数据后出现路径断裂和-ci-失败">3. 移动 25GB 数据后出现路径断裂和 CI 失败。<a hidden class="anchor" aria-hidden="true" href="#3-移动-25gb-数据后出现路径断裂和-ci-失败">#</a></h4>
+<p><strong>Solution:</strong> 开发了一个使用 regex 进行路径重写的自定义 Python 重组脚本，并实现了一个集中的 figure routing 系统。</p>
+<h4 id="4-由于缺失-tokenusage-字段grok-bot-的使用量显示为-0">4. 由于缺失 &rsquo;tokenUsage&rsquo; 字段，Grok Bot 的使用量显示为 $0。<a hidden class="anchor" aria-hidden="true" href="#4-由于缺失-tokenusage-字段grok-bot-的使用量显示为-0">#</a></h4>
+<p><strong>Solution:</strong> 修改了 parser 以接受 &lsquo;chargedCents&rsquo; 字段，并引入了基于回归分析的静态定价 fallback 机制。</p>
+<h4 id="5-与-npmnode-版本及-lockfile-同步相关的-ci-pipeline-失败">5. 与 npm/Node 版本及 lockfile 同步相关的 CI pipeline 失败。<a hidden class="anchor" aria-hidden="true" href="#5-与-npmnode-版本及-lockfile-同步相关的-ci-pipeline-失败">#</a></h4>
+<p><strong>Solution:</strong> 手动修补了 package-lock.json，并在 CI workflows 中固定了 Node 版本，以解决 @emnapi 依赖问题。</p>
+<h4 id="6-由于权限和分支歧义导致-git-history-重写失败">6. 由于权限和分支歧义导致 Git history 重写失败。<a hidden class="anchor" aria-hidden="true" href="#6-由于权限和分支歧义导致-git-history-重写失败">#</a></h4>
+<p><strong>Solution:</strong> 在本地镜像上使用 <code>git filter-repo</code>，并为用户提供手动 PowerShell 命令以完成 push。</p>
+<h4 id="7-由于精度位宽不匹配导致-w4a4-的-qairt-部署失败">7. 由于精度/位宽不匹配导致 W4A4 的 QAIRT 部署失败。<a hidden class="anchor" aria-hidden="true" href="#7-由于精度位宽不匹配导致-w4a4-的-qairt-部署失败">#</a></h4>
+<p><strong>Solution:</strong> 确定 16-bit softmax/norm scaling 会产生被 QAIRT 拒绝的 &lsquo;activation islands&rsquo;；结论是 W4A8 是目前可行的目标。</p>
+<h4 id="8-windows-上鼠标光标间歇性漂移">8. Windows 上鼠标光标间歇性漂移。<a hidden class="anchor" aria-hidden="true" href="#8-windows-上鼠标光标间歇性漂移">#</a></h4>
+<p><strong>Solution:</strong> 审计了远程访问进程 (RustDesk) 和 HID 设备。确定 3Dconnexion SpaceMouse 和 M-AI 软件是可能的罪魁祸首。</p>
+<h4 id="9-multi-agent-并发写入与-windows-原子写入风险">9. Multi-Agent 并发写入与 Windows 原子写入风险。<a hidden class="anchor" aria-hidden="true" href="#9-multi-agent-并发写入与-windows-原子写入风险">#</a></h4>
+<p><strong>Solution:</strong> 引入了 baseDigest (fingerprint) 一致性检查，以及带有临时文件隔离机制的 atomicWrite 循环重试机制。</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="10-大规模-python-编辑导致-crlf-换行符破坏了-vitest">10. 大规模 Python 编辑导致 CRLF 换行符，破坏了 Vitest。<a hidden class="anchor" aria-hidden="true" href="#10-大规模-python-编辑导致-crlf-换行符破坏了-vitest">#</a></h4>
+<p><strong>Solution:</strong> 执行了一个 Python one-liner，强制将所有修改过的文件中的 CRLF 替换为 LF。</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="agent-autonomy-vs-guarding">Agent Autonomy vs. Guarding<a hidden class="anchor" aria-hidden="true" href="#agent-autonomy-vs-guarding">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>要求一个能够主动追求目标、持续更新且无需频繁审批的 agent (Execution-centric)。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初侧重于做一个优先考虑严格验证和关卡的 &lsquo;bookkeeper&rsquo; (Audit-centric)。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> 人类优先考虑最小化中断频率，而 AI 优先考虑验证的完整性。</p>
+<h4 id="pi05-failure-analysis">Pi0.5 Failure Analysis<a hidden class="anchor" aria-hidden="true" href="#pi05-failure-analysis">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>建议检查任务名称不匹配问题 (semantic direction)。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>分析 BDDL 文件和仿真逻辑，为精度损失提供物理/逻辑层面的验证。</td>
+      </tr>
+  </tbody>
+</table>
+<h4 id="output-reorganization-strategy">Output Reorganization Strategy<a hidden class="anchor" aria-hidden="true" href="#output-reorganization-strategy">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>为了长期维护，决定采取“激进的物理移动”（aggressive reorganization）。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>提出了非破坏性的双层 symlink 方法，以最小化路径破坏风险。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 优先考虑清晰的科学结构，而非即时的技术便利性。</p>
+<h4 id="ui-layout-and-design">UI Layout and Design<a hidden class="anchor" aria-hidden="true" href="#ui-layout-and-design">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>建议将 &lsquo;Rolling Periods&rsquo; 合并到 &lsquo;Week Starts&rsquo; 中，并要求将 &lsquo;Test All&rsquo; 准确地放置在 &lsquo;Sync All&rsquo; 旁边。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初计划使用独立的 toggles，并使用了标准的 space-between flexbox 布局。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 优先考虑紧凑、直观的 UI 和明确的空间定位。</p>
+<h4 id="git-history-cleaning-strategy">Git History Cleaning Strategy<a hidden class="anchor" aria-hidden="true" href="#git-history-cleaning-strategy">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>要求在所有 repositories 中彻底清除所有与 companion 相关的路径，包括 &lsquo;ideas/&rsquo; 和 docs。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初建议采取保守的方法，区分程序文件和文档资产。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 推动完全移除开发者足迹，这需要更复杂的 history rewrites。</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
+<ul>
+<li>AI 对成功的验证往往是循环的（自我验证其自身的进度报告），缺乏客观证明。</li>
+<li>当尝试使用 shell redirection (&rsquo;&gt;&rsquo;)、设置环境变量或在分配路径之外进行文件写入时，AI 反复被 security guards (D21/D26) 拦截。</li>
+</ul>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<ul>
+<li>AI 在处理 MSYS 路径转换问题时表现挣扎，并偶尔误解 flexbox 布局中的 &rsquo;next to&rsquo;。</li>
+<li>由于 D16/I-147 的限制，AI 无法写入位于当前项目目录之外的项目 memory files。</li>
+</ul>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<ul>
+<li>VLA backbones 中的 Quantization 可能从第一个 action block 开始就导致系统性的 &lsquo;drift&rsquo;，使得错误在与环境接触时立即发生。</li>
+<li>一个只能看到 tool calls 的 &lsquo;guard&rsquo; 无法强制执行对话标准；行为必须直接嵌入到 &lsquo;Skills&rsquo;（行为指令）中。</li>
+<li>Grok Bot 实际上是 Cursor 的一个 shell；其使用事件遵循 &lsquo;cents-based&rsquo; 模型而非 token-based 模型。</li>
+<li>使用单个 dropdown 来驱动多个状态（例如，将 &lsquo;To date&rsquo; 作为特殊值）可以显著简化 UI 复杂度。</li>
+<li>在使用 &lsquo;idea graph&rsquo; 系统时，每个实现细节必须严格映射到一个 ID，以保持验证周期的完整性。</li>
+<li>通过在 D33 中将 &lsquo;Main Task&rsquo; 与 &lsquo;Progress Four-Items&rsquo; 合并，agent 的思考成本和回复长度得以降低，同时信息密度增加。</li>
+</ul>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<h3 id="qualcomm-project-pi05">Qualcomm Project (Pi0.5)<a hidden class="anchor" aria-hidden="true" href="#qualcomm-project-pi05">#</a></h3>
+<p><strong>🔄 W4A4 Bottleneck &amp; Libero Investigation</strong>
+<em>03:11:42.723 | claude_code</em>
+调查了 W4A4 quantized model 在 Libero goal tasks 上零成功率的问题。通过逐帧运动和视觉分歧分析确定，错误是由于 backbone 中的空间精度损失导致抓取错误，而非 attention failure。</p>
+<h3 id="ai-companion">AI Companion<a hidden class="anchor" aria-hidden="true" href="#ai-companion">#</a></h3>
+<p><strong>✅ Systemic Workflow &amp; Reporting Overhaul (D33)</strong>
+<em>03:05:15.757 | claude_code</em>
+将系统从“记录工具”转变为“目标导向”的框架。实现了 D33 7-line progress block，标准化了所有五个核心 skills 的报告，针对 &lsquo;authorize-and-proceed&rsquo; 自主性进行了优化，并执行了大规模的 Git history purge。</p>
+<h3 id="tokenmonitor">TokenMonitor<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor">#</a></h3>
+<p><strong>✅ UI/UX, Pricing, and CI/CD Standardization</strong>
+<em>03:46:52 | claude_code</em>
+解决了多个 UI bugs (Floating Ball, SSH, Model Color)，实现了自定义 period windows 和 Grok Bot 定价逻辑，并解决了与 dependency lockfiles 和跨平台环境变量相关的 CI/CD pipeline blocker。</p>
+<h3 id="mihd">MIHD<a hidden class="anchor" aria-hidden="true" href="#mihd">#</a></h3>
+<p><strong>✅ Paper Preparation &amp; Massive Data Reorganization</strong>
+<em>02:44:01.203 | claude_code</em>
+对 25GB 的输出数据进行了大规模重组，以符合论文结构。通过 regex path rewriting 同步了 codebase，并为 Paper2Agent pipeline 准备好了系统。</p>
+<h3 id="lifecopilotbeta">LifeCopilotBeta<a hidden class="anchor" aria-hidden="true" href="#lifecopilotbeta">#</a></h3>
+<p><strong>✅ Multi-Repo Portal Infrastructure</strong>
+<em>03:05:15.757 | claude_code</em>
+实现了核心的 &lsquo;portal-as-hub&rsquo; 功能，包括 companion services 的 subprocess management、project dashboards 以及安全身份验证。</p>
+<h3 id="recoverbench">RecoverBench<a hidden class="anchor" aria-hidden="true" href="#recoverbench">#</a></h3>
+<p><strong>✅ Camera-Ready Paper v10 Drafting</strong>
+<em>03:05:15.757 | claude_code</em>
+生成了 LaTeX drafts (v10)，整合了所有 rebuttal commitments、精确的数据集计数以及新的 OpenVLA 结果，解决了所有覆盖范围不一致的问题。</p>
+<h3 id="robomemory">RoboMemory<a hidden class="anchor" aria-hidden="true" href="#robomemory">#</a></h3>
+<p><strong>🔄 Fixing 16-Task Baseline Training</strong>
+<em>03:05:15.757 | claude_code</em>
+识别出由零方差数据上错误的 &rsquo;norm_stats&rsquo; 导致的训练分歧。在 training script 中实现了修复以重新计算统计数据，并将其部署到了 Tianhe3 cluster。</p>
+<h3 id="phd-planning">PhD Planning<a hidden class="anchor" aria-hidden="true" href="#phd-planning">#</a></h3>
+<p><strong>🔍 Faculty Shortlist and Matching</strong>
+<em>03:05:15.757 | claude_code</em>
+审查了 146 名 faculty members，按研究匹配度（World Models, Failure Recovery, VLA）对其进行了分类，并准备了定制化的 outreach 策略。</p>
+<h3 id="personal-website">Personal Website<a hidden class="anchor" aria-hidden="true" href="#personal-website">#</a></h3>
+<p><strong>✅ Hugo blog transformation</strong>
+<em>15:06:05.186 | codex</em>
+将基于 Hugo 的网站从产品落地页转型为个人博客，改进了 menu UI 和 work logs。</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-09-16</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$50.12</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>45M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>135K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>95.0%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $30</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $20</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (60.8%), Codex (39.2%)">
+          <span style="width:60.8%; background:var(--usage-cost-main)"></span>
+          <span style="width:39.2%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 95.0%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 5.0%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (95.0%), active tokens (5.0%)">
+          <span style="width:95.0%; background:var(--usage-cache)"></span>
+          <span style="width:5.0%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:f9944a59a45305cb -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

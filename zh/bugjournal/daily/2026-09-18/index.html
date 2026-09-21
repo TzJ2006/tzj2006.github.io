@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="light">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-09-18 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="这一天专注于通过对 RMSNorm 输出进行最佳裁剪来解决灾难性的 W4A4 量化失败问题，通过层级错误评分和极简提示优化基于 Gemini 的内存提取，并审计教育文档中的学术诚信政策。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-18/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.293529ec85794278c97efa5df449767967cd94bca174a774a375e1a0efe5bbc7.css" integrity="sha256-KTUp7IV5QnjJfvpd9El2eWfNlLyhdKd0o3XhoO/lu8c=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-09-18/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-18/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-18/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-09-18">
+  <meta property="og:description" content="这一天专注于通过对 RMSNorm 输出进行最佳裁剪来解决灾难性的 W4A4 量化失败问题，通过层级错误评分和极简提示优化基于 Gemini 的内存提取，并审计教育文档中的学术诚信政策。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-09-18T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-09-18T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-09-18">
+  <meta name="twitter:description" content="这一天专注于通过对 RMSNorm 输出进行最佳裁剪来解决灾难性的 W4A4 量化失败问题，通过层级错误评分和极简提示优化基于 Gemini 的内存提取，并审计教育文档中的学术诚信政策。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-09-18",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-09-18/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-09-18",
+  "name": "Bug Journal 2026-09-18",
+  "description": "这一天专注于通过对 RMSNorm 输出进行最佳裁剪来解决灾难性的 W4A4 量化失败问题，通过层级错误评分和极简提示优化基于 Gemini 的内存提取，并审计教育文档中的学术诚信政策。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-09-18 Daily Overview 工作内容： 当日重点关注两个主要方向：调试 W4A4 quantized models 中灾难性的成功率下降问题，以及为 Gemini memory writer 设计一个简化的、针对特定任务的 visual prompt schema，同时调查了大学作业中的学术政策和隐藏水印。 工作方式： 使用 ablation studies (hybrid checkpoints)、错误分类 (counting vs. target vs. button) 和受控实验 (three-arm memory comparison) 来隔离量化原因，并使用 AI 驱动的 PDF 分析来检测隐藏文本。 影响： 确定了 RMSNorm output quantization 是运动误差的主要来源，并建立了一套新的、极简的 visual prompt 标准，以防止 Gemini 过度复杂化其输出，同时确保符合学术规范。 MacOS 工作内容： 常规使用 /usage 命令并探索命令可用性。 工作方式： 在 AI 环境中执行 local CLI commands。 影响： 微乎其微；似乎是探索性的命令测试。 TzJsDesktop 工作内容： 对 RoboMemory 进行广泛的错误分析、quantized model 评估以及 PDF 安全审计。 工作方式： 运行自动化脚本进行错误分解，检查 checkpoint 一致性，执行 PDF 文本提取和 font-size 分析以查找隐藏水印。 影响： 提供了关键证据，证明 W4A4 的失败是由于运动偏差引起的，并验证了作业材料中不存在隐藏的 AI-detection traps。 lighthouse 工作内容： 未记录显著活动。 工作方式： N/A 影响： N/A 当日重点是通过对 RMSNorm outputs 进行 optimal clipping 来解决灾难性的 W4A4 quantization 失败问题，通过层次化错误评分和极简 prompting 来优化基于 Gemini 的 memory extraction，并审计教育文档中的学术诚信政策。\nTasks Architecture \u0026 Strategy • W4A4 Quantization Debugging \u0026 Fix — 通过 hybrid checkpoint ablation 定位并修复 ‘goal’ 任务中 W4A4 失败的原因，并为 17-35 RMSNorm outputs 实现 per-tensor optimal clipping。 ✅ Analyze ECE661 HW2 PDF for AI Policy \u0026 Watermarks — 解读学术辅助政策，并扫描是否存在旨在针对 AI agents 的不可见 1pt font ’trap’ 指令。 • Gemini Prompting \u0026 Memory Evolution — 通过 ‘chained memory’ 方法，迭代优化 Gemini 的历史回答与当前 frames 之间的交互，以实现稳定、准确且极简的 marking。 ✅ Error Categorization \u0026 Scoring System — 开发了一种多维度的层次化评分指标，以区分 counting、localization 和 redundant marking 错误。 • Memory Propagation Debugging — 进行受控的 ’no-memory’ 实验，以隔离 multi-ring outputs 是由 prompt 歧义还是 memory carry-over 引起的。 • MoveCube Action Identification — 分析模型为何无法从 demonstration segments 中正确识别 grasp/push/hook 类型。 • Formal TF-Enhanced Quantization Rebuild — 使用标准的 AIMET tools 对 backbone 进行重新量化，以生成正式的、可部署的 checkpoint。 • Libero_10/Object Validation — 在当前测试完成后，验证 optimal-clip fix 是否能推广到其他 suites。 Implementation \u0026 Fixes ✅ Oracle Consistency Alignment — 统一了 ground truth (Oracle) 与 model (Gemini) 之间关于 buttons 的 marking rules。 Problems \u0026 Solutions Critical Issues 1. W4A4 在 ‘open the middle drawer’ 任务中失败（成功率为 0/50），原因是任务混淆。 Solution: 确定了 17-35 MLP-side RMSNorm outputs 中存在 4-bit quantization noise。对这些特定的 tensors 应用了 per-tensor optimal clipping，将成功率恢复至 98%，同时保持统一的 A4 bitwidth 以确保硬件兼容性。\nKey Insight: 该错误是由 RMSNorm outputs 中宽动态范围驱动的，在 min-max quantization 中会浪费分辨率；optimal clipping 将 16 个 levels 重新集中在分布质量中心。\n2. 如果 AI 生成完整解决方案或遗漏隐藏指令，可能会违反学术诚信。 Solution: AI 通过识别政策限制主动拒绝生成完整解决方案；执行了针对 1pt font text 的程序化扫描以验证 PDF 安全性。\n3. Gemini 在 memory 任务中输出冗余的 ‘rings’ 或 ‘phantom’ badges（在发生前进行计数）。 Solution: 实现了一个带有严格时间指令的 ‘v4’ minimalist prompt，并开发了层次化评分脚本来隔离错误类型。\nKey Insight: 通过移除 ‘action planning’ 指令来减轻认知负荷，使模型能够纯粹专注于 ‘state perception’。\n4. ‘memory’ 机制可能会传播或 ‘锁定’ 错误的初始选择。 Solution: 修改了 prompt，强调 memory 是引导而非 ground truth，明确允许模型根据新的视觉证据“纠正早期的错误”。\nHuman vs AI Approaches Strategic Level Deployment Strategy (Quantization) Role Approach Human 建议增加重要 tensors 的 bitwidth (A8) 或全局缩小范围。 AI 精确锁定特定的瓶颈 tensors (RMSNorm outputs)，并在保持统一 A4 bitwidth 以兼容 QAIRT 的同时，应用 per-tensor optimal clipping。 Difference Analysis: AI 方法在针对数学错误来源的同时，保留了硬件要求的统一 bitwidth。\nAcademic Integrity Compliance Role Approach Human 决定亲自处理问题解决和代码编写，以遵守规则。 AI 识别了文本中的限制，并自我修正任务范围，仅作为概念导师进行活动。 Difference Analysis: AI 通过根据文档政策自我修正任务范围，展示了高度的伦理一致性。\nRoot Cause Analysis (Quantization) Role Approach Human 怀疑是语义/指令混淆（例如，误将 ‘middle’ 与 ’top’ drawer 混淆）。 AI 提出了一项专注于特定层精度 (RMSNorm, q/k, down_proj) 的 ablation study，以确定错误的数学驱动因素。 Difference Analysis: AI 将调查从高层语义混淆转向了底层 tensor 精度。\nGemini Prompting Role Approach Human 主张采用 ‘memory-only’ 方法，传递坐标但给予模型高度灵活性，通过简洁且指令密集的 prompts 来纠正错误。 AI 迭代测试了架构变体：per-frame independent、带有 no-reduction 的 chained memory，以及包含坐标的 minimalist prompts。 AI Limitations Critical Limitations “chained memory”方法容易受到“error cascades”的影响，即初始错误会被维持，因为模型缺乏重新评估完整历史的机制。 模型在区分相似动作（push vs. hook）时的准确性严重依赖于 prompt 中 demonstration frames 的密度。 shared volumes 上的 Disk space volatility 要求对 11GB temporary buffers 进行仔细管理以防止崩溃。 General Limitations “Uniform-A4”候选方案在抓取 handle 时仍显示出一次失败，表明其 execution stability 略低于 float/W4A8。 最初关于 W4A4 失败（command confusion）的 AI hypothesis 在 ablation studies 之前缺乏定量支持。 AI 对隐藏文本的 scan 仅限于 PDF 文件，未涵盖相关的 .ipynb 或 .zip 文件。 Learnings Key Learnings 在 quantization 中，“error”可以是 decision failure（错误的任务）或 precision failure（错误的动作）；必须分别进行测量。 Instructors 可能会使用 1pt font 的“invisible”文本向 AI agents 传达 policies 或 warnings。 使用 chained memory 时，Stability（防止 flickering）与 Accuracy（纠正错误）之间存在直接的张力；“don’t change it”规则提高了 stability 但扼杀了 correction。 Error scoring 必须是细粒度的；如果 0% 的 success rate 实际上是被冗余 marking errors 掩盖的 100% localization accuracy，那么该指标会产生误导。 在 memory 中传递 raw coordinates 会导致“stale”的指向；必须明确告知模型即使目标相同也要进行“re-locate”。 任务切换（例如 Middle vs Top drawer）的“error threshold”大约为 1.0-1.5cm；将 quantization noise 降低到此阈值以下至关重要。 Conversation Summaries pi05_quantization_analysis • 识别并修复 middle-drawer tasks 中的 W4A4 failure mode。 识别出 17 个特定的 RMSNorm outputs (MLP-side) 为主要 error sources。证明了带有 per-tensor optimal clipping 的 uniform A4 graph 可以恢复 98% 的 success rate，并避免了 QAIRT A8 activation boundary 问题。\nECE661 Homework ✅ AI Policy and Hidden Text Audit 18:11:38.550 | claude_code 对 homework PDF 进行了 AI policies 和 hidden watermarks 的审计。发现了严格的 usage limits，并验证不存在 1pt font 的“traps”。\nGemini Memory Iteration • 精炼基于 Gemini 的 interaction 以实现 stable marking。 迭代了多种 memory architectures (v1-v4)。从关注 stability 转向关注 accuracy，识别了“rings”和“badges”中的差异。最新的 v4 使用了 condensed prompt 以允许 error correction。\nError Scoring \u0026 Oracle Alignment • 改进 evaluation metrics。 实现了一个细粒度的 scoring script，并更新了 Oracle marking rules，以确保 Gemini 与 ground truth 之间的公平评估。\nUniform-A4 Candidate Validation • RMSNorm quantization analysis。 调查了为什么与 attention-side 相比，MLP-side 的 RMSNorms 更容易出错，并注意到 GeGLU projection 对 noise 的放大作用。\nRoboMemory • Project Status \u0026 Quantization Analysis 对 RoboMemory 进行了全面的 audit，包括对 W4A4 quantization 的 error analysis，并通过 task-specific visual prompts 优化了 Gemini memory extraction。\nTongtongtot 🔍 CLI Usage Exploration 05:13:12.335 | claude_code 用户在 MacOS 上测试了 /usage command 以探索 environment behavior。\nToken Usage AI Usage · 2026-09-18\rClaude Code + Codex\rTotal cost$83.02\rTotal tokens223M\rOutput tokens188K\rCache read99.5%\rCost split\rClaude Code $79 ·\rCodex $4\rToken character\rCache reads 99.5% ·\rActive 0.5%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "774",
+  "inLanguage": "zh",
+  "datePublished": "2026-09-18T00:00:00-04:00",
+  "dateModified": "2026-09-18T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-09-18/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/bugjournal/daily/2026-09-18/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="博文">
+                    <span>博文</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <details class="menu-disclosure">
+                    <summary>工作日志 <span class="submenu-caret" aria-hidden="true">▾</span></summary>
+                <ul class="submenu" aria-label="工作日志">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>日报</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>周报</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>月报</span>
+                        </a>
+                    </li>
+                </ul>
+                </details>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="算法笔记">
+                    <span>算法笔记</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="性能测试">
+                    <span>性能测试</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-09-18
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-09-18 00:00:00 -0400 EDT'>2026年9月18日</span>&nbsp;·&nbsp;<span>4 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-09-18">Daily Report — 2026-09-18<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-09-18">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>工作内容：</strong> 当日重点关注两个主要方向：调试 W4A4 quantized models 中灾难性的成功率下降问题，以及为 Gemini memory writer 设计一个简化的、针对特定任务的 visual prompt schema，同时调查了大学作业中的学术政策和隐藏水印。</li>
+<li><strong>工作方式：</strong> 使用 ablation studies (hybrid checkpoints)、错误分类 (counting vs. target vs. button) 和受控实验 (three-arm memory comparison) 来隔离量化原因，并使用 AI 驱动的 PDF 分析来检测隐藏文本。</li>
+<li><strong>影响：</strong> 确定了 RMSNorm output quantization 是运动误差的主要来源，并建立了一套新的、极简的 visual prompt 标准，以防止 Gemini 过度复杂化其输出，同时确保符合学术规范。</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>工作内容：</strong> 常规使用 /usage 命令并探索命令可用性。</li>
+<li><strong>工作方式：</strong> 在 AI 环境中执行 local CLI commands。</li>
+<li><strong>影响：</strong> 微乎其微；似乎是探索性的命令测试。</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>工作内容：</strong> 对 RoboMemory 进行广泛的错误分析、quantized model 评估以及 PDF 安全审计。</li>
+<li><strong>工作方式：</strong> 运行自动化脚本进行错误分解，检查 checkpoint 一致性，执行 PDF 文本提取和 font-size 分析以查找隐藏水印。</li>
+<li><strong>影响：</strong> 提供了关键证据，证明 W4A4 的失败是由于运动偏差引起的，并验证了作业材料中不存在隐藏的 AI-detection traps。</li>
+</ul>
+<h3 id="lighthouse">lighthouse<a hidden class="anchor" aria-hidden="true" href="#lighthouse">#</a></h3>
+<ul>
+<li><strong>工作内容：</strong> 未记录显著活动。</li>
+<li><strong>工作方式：</strong> N/A</li>
+<li><strong>影响：</strong> N/A</li>
+</ul>
+<blockquote>
+<p>当日重点是通过对 RMSNorm outputs 进行 optimal clipping 来解决灾难性的 W4A4 quantization 失败问题，通过层次化错误评分和极简 prompting 来优化基于 Gemini 的 memory extraction，并审计教育文档中的学术诚信政策。</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<ul>
+<li>• <strong>W4A4 Quantization Debugging &amp; Fix</strong> — 通过 hybrid checkpoint ablation 定位并修复 &lsquo;goal&rsquo; 任务中 W4A4 失败的原因，并为 17-35 RMSNorm outputs 实现 per-tensor optimal clipping。</li>
+<li>✅ <strong>Analyze ECE661 HW2 PDF for AI Policy &amp; Watermarks</strong> — 解读学术辅助政策，并扫描是否存在旨在针对 AI agents 的不可见 1pt font &rsquo;trap&rsquo; 指令。</li>
+<li>• <strong>Gemini Prompting &amp; Memory Evolution</strong> — 通过 &lsquo;chained memory&rsquo; 方法，迭代优化 Gemini 的历史回答与当前 frames 之间的交互，以实现稳定、准确且极简的 marking。</li>
+<li>✅ <strong>Error Categorization &amp; Scoring System</strong> — 开发了一种多维度的层次化评分指标，以区分 counting、localization 和 redundant marking 错误。</li>
+<li>• <strong>Memory Propagation Debugging</strong> — 进行受控的 &rsquo;no-memory&rsquo; 实验，以隔离 multi-ring outputs 是由 prompt 歧义还是 memory carry-over 引起的。</li>
+<li>• <strong>MoveCube Action Identification</strong> — 分析模型为何无法从 demonstration segments 中正确识别 grasp/push/hook 类型。</li>
+<li>• <strong>Formal TF-Enhanced Quantization Rebuild</strong> — 使用标准的 AIMET tools 对 backbone 进行重新量化，以生成正式的、可部署的 checkpoint。</li>
+<li>• <strong>Libero_10/Object Validation</strong> — 在当前测试完成后，验证 optimal-clip fix 是否能推广到其他 suites。</li>
+</ul>
+<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<ul>
+<li>✅ <strong>Oracle Consistency Alignment</strong> — 统一了 ground truth (Oracle) 与 model (Gemini) 之间关于 buttons 的 marking rules。</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-w4a4-在-open-the-middle-drawer-任务中失败成功率为-050原因是任务混淆">1. W4A4 在 &lsquo;open the middle drawer&rsquo; 任务中失败（成功率为 0/50），原因是任务混淆。<a hidden class="anchor" aria-hidden="true" href="#1-w4a4-在-open-the-middle-drawer-任务中失败成功率为-050原因是任务混淆">#</a></h4>
+<p><strong>Solution:</strong> 确定了 17-35 MLP-side RMSNorm outputs 中存在 4-bit quantization noise。对这些特定的 tensors 应用了 per-tensor optimal clipping，将成功率恢复至 98%，同时保持统一的 A4 bitwidth 以确保硬件兼容性。</p>
+<p><strong>Key Insight:</strong> 该错误是由 RMSNorm outputs 中宽动态范围驱动的，在 min-max quantization 中会浪费分辨率；optimal clipping 将 16 个 levels 重新集中在分布质量中心。</p>
+<h4 id="2-如果-ai-生成完整解决方案或遗漏隐藏指令可能会违反学术诚信">2. 如果 AI 生成完整解决方案或遗漏隐藏指令，可能会违反学术诚信。<a hidden class="anchor" aria-hidden="true" href="#2-如果-ai-生成完整解决方案或遗漏隐藏指令可能会违反学术诚信">#</a></h4>
+<p><strong>Solution:</strong> AI 通过识别政策限制主动拒绝生成完整解决方案；执行了针对 1pt font text 的程序化扫描以验证 PDF 安全性。</p>
+<h4 id="3-gemini-在-memory-任务中输出冗余的-rings-或-phantom-badges在发生前进行计数">3. Gemini 在 memory 任务中输出冗余的 &lsquo;rings&rsquo; 或 &lsquo;phantom&rsquo; badges（在发生前进行计数）。<a hidden class="anchor" aria-hidden="true" href="#3-gemini-在-memory-任务中输出冗余的-rings-或-phantom-badges在发生前进行计数">#</a></h4>
+<p><strong>Solution:</strong> 实现了一个带有严格时间指令的 &lsquo;v4&rsquo; minimalist prompt，并开发了层次化评分脚本来隔离错误类型。</p>
+<p><strong>Key Insight:</strong> 通过移除 &lsquo;action planning&rsquo; 指令来减轻认知负荷，使模型能够纯粹专注于 &lsquo;state perception&rsquo;。</p>
+<h4 id="4-memory-机制可能会传播或-锁定-错误的初始选择">4. &lsquo;memory&rsquo; 机制可能会传播或 &lsquo;锁定&rsquo; 错误的初始选择。<a hidden class="anchor" aria-hidden="true" href="#4-memory-机制可能会传播或-锁定-错误的初始选择">#</a></h4>
+<p><strong>Solution:</strong> 修改了 prompt，强调 memory 是引导而非 ground truth，明确允许模型根据新的视觉证据“纠正早期的错误”。</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="deployment-strategy-quantization">Deployment Strategy (Quantization)<a hidden class="anchor" aria-hidden="true" href="#deployment-strategy-quantization">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>建议增加重要 tensors 的 bitwidth (A8) 或全局缩小范围。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>精确锁定特定的瓶颈 tensors (RMSNorm outputs)，并在保持统一 A4 bitwidth 以兼容 QAIRT 的同时，应用 per-tensor optimal clipping。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> AI 方法在针对数学错误来源的同时，保留了硬件要求的统一 bitwidth。</p>
+<h4 id="academic-integrity-compliance">Academic Integrity Compliance<a hidden class="anchor" aria-hidden="true" href="#academic-integrity-compliance">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>决定亲自处理问题解决和代码编写，以遵守规则。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>识别了文本中的限制，并自我修正任务范围，仅作为概念导师进行活动。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> AI 通过根据文档政策自我修正任务范围，展示了高度的伦理一致性。</p>
+<h4 id="root-cause-analysis-quantization">Root Cause Analysis (Quantization)<a hidden class="anchor" aria-hidden="true" href="#root-cause-analysis-quantization">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>怀疑是语义/指令混淆（例如，误将 &lsquo;middle&rsquo; 与 &rsquo;top&rsquo; drawer 混淆）。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>提出了一项专注于特定层精度 (RMSNorm, q/k, down_proj) 的 ablation study，以确定错误的数学驱动因素。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> AI 将调查从高层语义混淆转向了底层 tensor 精度。</p>
+<h4 id="gemini-prompting">Gemini Prompting<a hidden class="anchor" aria-hidden="true" href="#gemini-prompting">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>主张采用 &lsquo;memory-only&rsquo; 方法，传递坐标但给予模型高度灵活性，通过简洁且指令密集的 prompts 来纠正错误。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>迭代测试了架构变体：per-frame independent、带有 no-reduction 的 chained memory，以及包含坐标的 minimalist prompts。</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
+<ul>
+<li>“chained memory”方法容易受到“error cascades”的影响，即初始错误会被维持，因为模型缺乏重新评估完整历史的机制。</li>
+<li>模型在区分相似动作（push vs. hook）时的准确性严重依赖于 prompt 中 demonstration frames 的密度。</li>
+<li>shared volumes 上的 Disk space volatility 要求对 11GB temporary buffers 进行仔细管理以防止崩溃。</li>
+</ul>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<ul>
+<li>“Uniform-A4”候选方案在抓取 handle 时仍显示出一次失败，表明其 execution stability 略低于 float/W4A8。</li>
+<li>最初关于 W4A4 失败（command confusion）的 AI hypothesis 在 ablation studies 之前缺乏定量支持。</li>
+<li>AI 对隐藏文本的 scan 仅限于 PDF 文件，未涵盖相关的 .ipynb 或 .zip 文件。</li>
+</ul>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<ul>
+<li>在 quantization 中，“error”可以是 decision failure（错误的任务）或 precision failure（错误的动作）；必须分别进行测量。</li>
+<li>Instructors 可能会使用 1pt font 的“invisible”文本向 AI agents 传达 policies 或 warnings。</li>
+<li>使用 chained memory 时，Stability（防止 flickering）与 Accuracy（纠正错误）之间存在直接的张力；“don&rsquo;t change it”规则提高了 stability 但扼杀了 correction。</li>
+<li>Error scoring 必须是细粒度的；如果 0% 的 success rate 实际上是被冗余 marking errors 掩盖的 100% localization accuracy，那么该指标会产生误导。</li>
+<li>在 memory 中传递 raw coordinates 会导致“stale”的指向；必须明确告知模型即使目标相同也要进行“re-locate”。</li>
+<li>任务切换（例如 Middle vs Top drawer）的“error threshold”大约为 1.0-1.5cm；将 quantization noise 降低到此阈值以下至关重要。</li>
+</ul>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<h3 id="pi05_quantization_analysis">pi05_quantization_analysis<a hidden class="anchor" aria-hidden="true" href="#pi05_quantization_analysis">#</a></h3>
+<p><strong>• 识别并修复 middle-drawer tasks 中的 W4A4 failure mode。</strong>
+识别出 17 个特定的 RMSNorm outputs (MLP-side) 为主要 error sources。证明了带有 per-tensor optimal clipping 的 uniform A4 graph 可以恢复 98% 的 success rate，并避免了 QAIRT A8 activation boundary 问题。</p>
+<h3 id="ece661-homework">ECE661 Homework<a hidden class="anchor" aria-hidden="true" href="#ece661-homework">#</a></h3>
+<p><strong>✅ AI Policy and Hidden Text Audit</strong>
+<em>18:11:38.550 | claude_code</em>
+对 homework PDF 进行了 AI policies 和 hidden watermarks 的审计。发现了严格的 usage limits，并验证不存在 1pt font 的“traps”。</p>
+<h3 id="gemini-memory-iteration">Gemini Memory Iteration<a hidden class="anchor" aria-hidden="true" href="#gemini-memory-iteration">#</a></h3>
+<p><strong>• 精炼基于 Gemini 的 interaction 以实现 stable marking。</strong>
+迭代了多种 memory architectures (v1-v4)。从关注 stability 转向关注 accuracy，识别了“rings”和“badges”中的差异。最新的 v4 使用了 condensed prompt 以允许 error correction。</p>
+<h3 id="error-scoring--oracle-alignment">Error Scoring &amp; Oracle Alignment<a hidden class="anchor" aria-hidden="true" href="#error-scoring--oracle-alignment">#</a></h3>
+<p><strong>• 改进 evaluation metrics。</strong>
+实现了一个细粒度的 scoring script，并更新了 Oracle marking rules，以确保 Gemini 与 ground truth 之间的公平评估。</p>
+<h3 id="uniform-a4-candidate-validation">Uniform-A4 Candidate Validation<a hidden class="anchor" aria-hidden="true" href="#uniform-a4-candidate-validation">#</a></h3>
+<p><strong>• RMSNorm quantization analysis。</strong>
+调查了为什么与 attention-side 相比，MLP-side 的 RMSNorms 更容易出错，并注意到 GeGLU projection 对 noise 的放大作用。</p>
+<h3 id="robomemory">RoboMemory<a hidden class="anchor" aria-hidden="true" href="#robomemory">#</a></h3>
+<p><strong>• Project Status &amp; Quantization Analysis</strong>
+对 RoboMemory 进行了全面的 audit，包括对 W4A4 quantization 的 error analysis，并通过 task-specific visual prompts 优化了 Gemini memory extraction。</p>
+<h3 id="tongtongtot">Tongtongtot<a hidden class="anchor" aria-hidden="true" href="#tongtongtot">#</a></h3>
+<p><strong>🔍 CLI Usage Exploration</strong>
+<em>05:13:12.335 | claude_code</em>
+用户在 MacOS 上测试了 /usage command 以探索 environment behavior。</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-09-18</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$83.02</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>223M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>188K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>99.5%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $79</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $4</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (94.8%), Codex (5.2%)">
+          <span style="width:94.8%; background:var(--usage-cost-main)"></span>
+          <span style="width:5.2%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 99.5%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 0.5%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (99.5%), active tokens (0.5%)">
+          <span style="width:99.5%; background:var(--usage-cache)"></span>
+          <span style="width:0.5%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:6838a9313e9c0f59 -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
