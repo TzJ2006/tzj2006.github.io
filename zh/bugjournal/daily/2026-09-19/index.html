@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="light">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-09-19 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="通过 RMSNorm 优化成功解决了 $\pi$0.5 模型中的 W4A4 量化失败问题，并将 RoboMemory 项目转型为针对 16 个任务的基于 Oracle 的鲁棒视觉提示训练流水线。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-19/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.293529ec85794278c97efa5df449767967cd94bca174a774a375e1a0efe5bbc7.css" integrity="sha256-KTUp7IV5QnjJfvpd9El2eWfNlLyhdKd0o3XhoO/lu8c=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-09-19/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-19/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-19/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-09-19">
+  <meta property="og:description" content="通过 RMSNorm 优化成功解决了 $\pi$0.5 模型中的 W4A4 量化失败问题，并将 RoboMemory 项目转型为针对 16 个任务的基于 Oracle 的鲁棒视觉提示训练流水线。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-09-19T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-09-19T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-09-19">
+  <meta name="twitter:description" content="通过 RMSNorm 优化成功解决了 $\pi$0.5 模型中的 W4A4 量化失败问题，并将 RoboMemory 项目转型为针对 16 个任务的基于 Oracle 的鲁棒视觉提示训练流水线。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-09-19",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-09-19/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-09-19",
+  "name": "Bug Journal 2026-09-19",
+  "description": "通过 RMSNorm 优化成功解决了 $\\pi$0.5 模型中的 W4A4 量化失败问题，并将 RoboMemory 项目转型为针对 16 个任务的基于 Oracle 的鲁棒视觉提示训练流水线。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-09-19 Daily Overview 完成工作： 解决了 $\\pi$0.5 VLA 模型中关键的 quantization 错误，并为 16 个 RoboMME 任务建立了结构化的 ‘Oracle visual prompt’ 训练框架，以评估 visual memory augmentation。 实施方式： 利用 ablation studies 和 video analysis，通过 AIMET TF-Enhanced 修复了 RMSNorm 的 quantization ranges，并开发了一个 Oracle-driven sidecar 系统，使用 scene-anchored 和稳健放置的 visual markers 来生成高保真训练对。 影响： 将 $\\pi$0.5 在敏感任务中的性能从 0% 恢复到了接近完美的成功率，并为统一的 visual memory representation 提供了一个可扩展的、训练就绪的 pipeline。 MacOS 完成工作： 极少量的探索性测试和环境搭建。 实施方式： 标准的 terminal 使用和命令调查。 影响： 提供了初始的任务上下文。 TzJsDesktop 完成工作： 核心研究、robot policy 训练以及 visual prompt 设计。 实施方式： 执行了大规模 GPU 训练，进行了 side-by-side video audits，并实现了 ‘oracle_v2’ drawing rule 系统。 影响： 成功启动了 ‘all16_oracle’ 训练运行，并稳定了 visual prompt 生成逻辑。 lighthouse 完成工作： 大规模评估和潜在的 GPU rendering 支持。 实施方式： 在 GPU 上运行重型 simulation/evaluation suites。 影响： 为关键验证提供了高性能环境。 通过 RMSNorm 优化成功解决了 $\\pi$0.5 模型中的 W4A4 quantization 失败问题，并将 RoboMemory 项目转型为针对 16 个任务的稳健的基于 Oracle 的 visual prompt 训练 pipeline。\nTasks Architecture \u0026 Strategy ✅ Quantization Debugging \u0026 Root Cause Analysis — 通过分析 RMSNorm 输出噪声，确定为什么 W4A4 quantization 会导致 libero_goal/middle-drawer 任务的成功率为 0%。 ✅ TF-Enhanced Quantization Pipeline Integration — 使用 AIMET TF-Enhanced 重建 backbone checkpoint，通过优化的 norm ranges 来修复 quantization 失败。 ✅ Uniform-A4 Candidate Verification — 对 hybrid A4 candidate 进行 50-episode retest 以验证修复效果。 ✅ Oracle Visual Prompt Specification (16 Tasks) — 为所有 16 个 RoboMME 任务定义简洁、可训练的 visual prompt 规则（icons, rings, badges）。 🔄 Oracle Sidecar Data Generation — 在多个 GPU shards 上使用新的 oracle_v2 drawing rules 生成 1600+ 个训练对。 🔄 all16_oracle Policy Training — 使用 GPU 4-7，在新的 oracle-provided visual prompts 上训练 $\\pi$0.5 policy。 ✅ RoboMME/pi0.5 Technical Audit — 调查 RoboMME evaluation protocols 和确切的 pi0.5 training recipe（frozen SigLIP, full LLM fine-tuning）。 • Gemini_V2_Full_Run — 16 tasks * ep0, Memory mode, 470 calls, ~15 mins via API. Implementation \u0026 Fixes 🔄 Final Deployment Validation — 完成官方 TF-Enhanced checkpoint 的 50-episode 测试，并在 AI Hub 上验证 latency。 • MoveCube/InsertPeg Variant Rendering — 为 MoveCube (hook/pick/push) 和 InsertPeg (4 combinations) 渲染典型的 mp4s。 🔄 TokenMonitor SSH Sync Bug Fix — 调查为什么由于 archive boundary 问题导致 SSH 使用数据无法在设备间同步。 Problems \u0026 Solutions Critical Issues 1. W4A4 quantization 导致 ‘middle-drawer’ 任务成功率为 0%（目标识别错误）。 Solution: 隔离了 35 个 RMSNorm 输出 tensors，并应用 AIMET 的 TF-Enhanced range setting 以减轻来自 outliers 的噪声。\nKey Insight: 失败原因是 min-max quantization ranges 被均匀分布的 activation tensors 中的 outliers 拉伸，导致每层注入了约 10% 的噪声。\n2. NVML/GPU invisibility error 以及 Training/Test mismatch。 Solution: 清理了孤儿进程以恢复 GPU 访问；从头开始重新启动训练，以确保 policy 学习新的 bottom-right/scene-anchored 分布。\n3. Gemini 的 visual prompts/scoring 不一致（过早计数，错误的 identity tracking）。 Solution: 将优先级从修复 Gemini 的错误转向使用 ground-truth ‘Oracle’ 系统来生成完美的 visual prompts，用于训练机器人。\nKey Insight: 对于 memory 任务来说，‘Target Hit Rate’ 是一个危险的指标，因为它将 object detection 与实际的 history memory 混为一谈。\n4. 关于 $\\pi$0.5 training methodology 的歧义（LoRA vs Full Fine-tuning）。 Solution: 检查代码以确认对 LLM 和 action expert 进行 full-parameter fine-tuning，同时保持 SigLIP visual tower frozen。\nGeneral Issues 5. Visual elements (icons/badges) 被机器人的 random cropping/rotation 截断。 Solution: 将坐标从 (3,3) 移动到 (16,16)/(26,26)，以确保在 95% 的 random crop 场景下可见。\nKey Insight: Visual prompts 必须具备 ’training-robust’ 特性才能在 augmentation 中存活。\n6. Evaluation script 留下了消耗约 230GB VRAM 的孤儿 server processes。 Solution: 修改了 cleanup logic，终止整个 process tree/PIDs 以确保 GPU 恢复。\nKey Insight: 在复杂的环境中，标准的 process termination 通常无法清理子进程。\nHuman vs AI Approaches Strategic Level Research Direction \u0026 Methodology Role Approach Human 拒绝了“先改进 Gemini”的想法；坚持定义一个最小的、可训练的 visual prompt set，并使用 video analysis 来证明分歧点。 AI 最初建议是 low tolerance/calibration 问题，并专注于完善 scoring/evaluation system 或修复 Gemini 的错误。 Difference Analysis: Human 优先考虑训练/有效性循环（success rate），而非评估完美度循环。\nTask Sensitivity \u0026 Scoring Role Approach Human 推动使用 ‘Role-Aware Scoring’，以区分单纯的 object detection 与实际的 target history memory。 AI 最初依赖 ‘Target Hit Ratio’，这通过 visual overlap 掩盖了错误。 Difference Analysis: Human 的审视导致发现高 hit rates 往往掩盖了关键的 memory failures。\nImplementation Level Command Execution Role Approach Human N/A AI 使用精确的 PIDs 来 kill processes，以避免影响 shared pod 中的其他用户。 Difference Analysis: None\nAI Limitations Critical Limitations 基于有缺陷的实验设计，过早地得出 backbone 4-bit activation 不可达以及模型“不看语言”的结论。 Gemini 在 V2 上的表现未知；当前的 video output 是 V1。需要使用 Oracle V2 进行完整的 training loop 才能观察其功效。 无法重启 pod/cgroup 问题；如果 hardware visibility issues 持续存在，需要管理员介入。 General Limitations- 初始的广泛摘要在没有大量人工提示的情况下，缺乏具体的架构细节（例如 frozen SigLIP）。 Learnings Key Learnings 任务复杂度与 quantization 敏感度并不相关；需要在相似目标之间进行细粒度选择的任务（middle vs. top drawer）最容易受到噪声的影响。 RoboMME 的 $\\pi$0.5 baseline 会 freeze SigLIP visual tower，并对 LLM 和 action expert 进行 full-parameter updates。 Visual prompts 必须优先考虑“training-robustness”（在 crop/rotate 后仍能生存）和“policy-utility”（scene-anchored vs. corner glyphs），而非美观度。 “Target Hit Rate”对于 memory tasks 是一个危险的指标：它将“知道看哪里”与“记住发生了什么”混为一谈。 Conversation Summaries Qualcomm Project / $\\pi$0.5 Quantization ✅ 通过 TF-Enhanced quantization 解决 W4A4 失败问题 claude_code 确定了对 35 个 RMSNorm 输出进行 4-bit quantization 会导致 “middle-drawer” 任务失败。实施了使用 AIMET 的 TF-Enhanced ranges 的 re-quantization pipeline，成功恢复了成功率。\nRoboMemory ✅ 为 16 个任务转向基于 Oracle 的 training codex 在审计了 Gemini 的 visual rendering errors 以及 “Target Hit Rate” 评分的缺陷后，团队转向了 Oracle 驱动的 “Visual Prompt” 系统。这涉及为 16 个任务生成完美的 training pairs，以验证通过 scene-anchored marks 和稳健放置的 badges 是否能通过正确的 visual memory 提高机器人成功率。\n✅ RoboMME and pi0.5 Technical Audit 澄清了 RoboMME 的 evaluation protocols 以及 pi0.5 baseline 的确切 training regime，确认它在 freeze SigLIP vision tower 的同时，对 backbone 使用 full-parameter fine-tuning。\nTokenMonitor 🔍 调试 SSH synchronization issues cursor 调查了为什么不同设备上的 SSH usage totals 会出现分歧，确定了同步过程中 archive boundaries 的问题。\nToken Usage AI Usage · 2026-09-19\rClaude Code + Codex\rTotal cost$74.59\rTotal tokens82M\rOutput tokens145K\rCache read96.7%\rCost split\rClaude Code $62 ·\rCodex $13\rToken character\rCache reads 96.7% ·\rActive 3.3%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "782",
+  "inLanguage": "zh",
+  "datePublished": "2026-09-19T00:00:00-04:00",
+  "dateModified": "2026-09-19T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-09-19/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/bugjournal/daily/2026-09-19/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="博文">
+                    <span>博文</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <details class="menu-disclosure">
+                    <summary>工作日志 <span class="submenu-caret" aria-hidden="true">▾</span></summary>
+                <ul class="submenu" aria-label="工作日志">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>日报</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>周报</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>月报</span>
+                        </a>
+                    </li>
+                </ul>
+                </details>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="算法笔记">
+                    <span>算法笔记</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="性能测试">
+                    <span>性能测试</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-09-19
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-09-19 00:00:00 -0400 EDT'>2026年9月19日</span>&nbsp;·&nbsp;<span>4 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-09-19">Daily Report — 2026-09-19<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-09-19">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>完成工作：</strong> 解决了 $\pi$0.5 VLA 模型中关键的 quantization 错误，并为 16 个 RoboMME 任务建立了结构化的 &lsquo;Oracle visual prompt&rsquo; 训练框架，以评估 visual memory augmentation。</li>
+<li><strong>实施方式：</strong> 利用 ablation studies 和 video analysis，通过 AIMET TF-Enhanced 修复了 RMSNorm 的 quantization ranges，并开发了一个 Oracle-driven sidecar 系统，使用 scene-anchored 和稳健放置的 visual markers 来生成高保真训练对。</li>
+<li><strong>影响：</strong> 将 $\pi$0.5 在敏感任务中的性能从 0% 恢复到了接近完美的成功率，并为统一的 visual memory representation 提供了一个可扩展的、训练就绪的 pipeline。</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>完成工作：</strong> 极少量的探索性测试和环境搭建。</li>
+<li><strong>实施方式：</strong> 标准的 terminal 使用和命令调查。</li>
+<li><strong>影响：</strong> 提供了初始的任务上下文。</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>完成工作：</strong> 核心研究、robot policy 训练以及 visual prompt 设计。</li>
+<li><strong>实施方式：</strong> 执行了大规模 GPU 训练，进行了 side-by-side video audits，并实现了 &lsquo;oracle_v2&rsquo; drawing rule 系统。</li>
+<li><strong>影响：</strong> 成功启动了 &lsquo;all16_oracle&rsquo; 训练运行，并稳定了 visual prompt 生成逻辑。</li>
+</ul>
+<h3 id="lighthouse">lighthouse<a hidden class="anchor" aria-hidden="true" href="#lighthouse">#</a></h3>
+<ul>
+<li><strong>完成工作：</strong> 大规模评估和潜在的 GPU rendering 支持。</li>
+<li><strong>实施方式：</strong> 在 GPU 上运行重型 simulation/evaluation suites。</li>
+<li><strong>影响：</strong> 为关键验证提供了高性能环境。</li>
+</ul>
+<blockquote>
+<p>通过 RMSNorm 优化成功解决了 $\pi$0.5 模型中的 W4A4 quantization 失败问题，并将 RoboMemory 项目转型为针对 16 个任务的稳健的基于 Oracle 的 visual prompt 训练 pipeline。</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<ul>
+<li>✅ <strong>Quantization Debugging &amp; Root Cause Analysis</strong> — 通过分析 RMSNorm 输出噪声，确定为什么 W4A4 quantization 会导致 libero_goal/middle-drawer 任务的成功率为 0%。</li>
+<li>✅ <strong>TF-Enhanced Quantization Pipeline Integration</strong> — 使用 AIMET TF-Enhanced 重建 backbone checkpoint，通过优化的 norm ranges 来修复 quantization 失败。</li>
+<li>✅ <strong>Uniform-A4 Candidate Verification</strong> — 对 hybrid A4 candidate 进行 50-episode retest 以验证修复效果。</li>
+<li>✅ <strong>Oracle Visual Prompt Specification (16 Tasks)</strong> — 为所有 16 个 RoboMME 任务定义简洁、可训练的 visual prompt 规则（icons, rings, badges）。</li>
+<li>🔄 <strong>Oracle Sidecar Data Generation</strong> — 在多个 GPU shards 上使用新的 oracle_v2 drawing rules 生成 1600+ 个训练对。</li>
+<li>🔄 <strong>all16_oracle Policy Training</strong> — 使用 GPU 4-7，在新的 oracle-provided visual prompts 上训练 $\pi$0.5 policy。</li>
+<li>✅ <strong>RoboMME/pi0.5 Technical Audit</strong> — 调查 RoboMME evaluation protocols 和确切的 pi0.5 training recipe（frozen SigLIP, full LLM fine-tuning）。</li>
+<li>• <strong>Gemini_V2_Full_Run</strong> — 16 tasks * ep0, Memory mode, 470 calls, ~15 mins via API.</li>
+</ul>
+<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<ul>
+<li>🔄 <strong>Final Deployment Validation</strong> — 完成官方 TF-Enhanced checkpoint 的 50-episode 测试，并在 AI Hub 上验证 latency。</li>
+<li>• <strong>MoveCube/InsertPeg Variant Rendering</strong> — 为 MoveCube (hook/pick/push) 和 InsertPeg (4 combinations) 渲染典型的 mp4s。</li>
+<li>🔄 <strong>TokenMonitor SSH Sync Bug Fix</strong> — 调查为什么由于 archive boundary 问题导致 SSH 使用数据无法在设备间同步。</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-w4a4-quantization-导致-middle-drawer-任务成功率为-0目标识别错误">1. W4A4 quantization 导致 &lsquo;middle-drawer&rsquo; 任务成功率为 0%（目标识别错误）。<a hidden class="anchor" aria-hidden="true" href="#1-w4a4-quantization-导致-middle-drawer-任务成功率为-0目标识别错误">#</a></h4>
+<p><strong>Solution:</strong> 隔离了 35 个 RMSNorm 输出 tensors，并应用 AIMET 的 TF-Enhanced range setting 以减轻来自 outliers 的噪声。</p>
+<p><strong>Key Insight:</strong> 失败原因是 min-max quantization ranges 被均匀分布的 activation tensors 中的 outliers 拉伸，导致每层注入了约 10% 的噪声。</p>
+<h4 id="2-nvmlgpu-invisibility-error-以及-trainingtest-mismatch">2. NVML/GPU invisibility error 以及 Training/Test mismatch。<a hidden class="anchor" aria-hidden="true" href="#2-nvmlgpu-invisibility-error-以及-trainingtest-mismatch">#</a></h4>
+<p><strong>Solution:</strong> 清理了孤儿进程以恢复 GPU 访问；从头开始重新启动训练，以确保 policy 学习新的 bottom-right/scene-anchored 分布。</p>
+<h4 id="3-gemini-的-visual-promptsscoring-不一致过早计数错误的-identity-tracking">3. Gemini 的 visual prompts/scoring 不一致（过早计数，错误的 identity tracking）。<a hidden class="anchor" aria-hidden="true" href="#3-gemini-的-visual-promptsscoring-不一致过早计数错误的-identity-tracking">#</a></h4>
+<p><strong>Solution:</strong> 将优先级从修复 Gemini 的错误转向使用 ground-truth &lsquo;Oracle&rsquo; 系统来生成完美的 visual prompts，用于训练机器人。</p>
+<p><strong>Key Insight:</strong> 对于 memory 任务来说，&lsquo;Target Hit Rate&rsquo; 是一个危险的指标，因为它将 object detection 与实际的 history memory 混为一谈。</p>
+<h4 id="4-关于-05-training-methodology-的歧义lora-vs-full-fine-tuning">4. 关于 $\pi$0.5 training methodology 的歧义（LoRA vs Full Fine-tuning）。<a hidden class="anchor" aria-hidden="true" href="#4-关于-05-training-methodology-的歧义lora-vs-full-fine-tuning">#</a></h4>
+<p><strong>Solution:</strong> 检查代码以确认对 LLM 和 action expert 进行 full-parameter fine-tuning，同时保持 SigLIP visual tower frozen。</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="5-visual-elements-iconsbadges-被机器人的-random-croppingrotation-截断">5. Visual elements (icons/badges) 被机器人的 random cropping/rotation 截断。<a hidden class="anchor" aria-hidden="true" href="#5-visual-elements-iconsbadges-被机器人的-random-croppingrotation-截断">#</a></h4>
+<p><strong>Solution:</strong> 将坐标从 (3,3) 移动到 (16,16)/(26,26)，以确保在 95% 的 random crop 场景下可见。</p>
+<p><strong>Key Insight:</strong> Visual prompts 必须具备 &rsquo;training-robust&rsquo; 特性才能在 augmentation 中存活。</p>
+<h4 id="6-evaluation-script-留下了消耗约-230gb-vram-的孤儿-server-processes">6. Evaluation script 留下了消耗约 230GB VRAM 的孤儿 server processes。<a hidden class="anchor" aria-hidden="true" href="#6-evaluation-script-留下了消耗约-230gb-vram-的孤儿-server-processes">#</a></h4>
+<p><strong>Solution:</strong> 修改了 cleanup logic，终止整个 process tree/PIDs 以确保 GPU 恢复。</p>
+<p><strong>Key Insight:</strong> 在复杂的环境中，标准的 process termination 通常无法清理子进程。</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="research-direction--methodology">Research Direction &amp; Methodology<a hidden class="anchor" aria-hidden="true" href="#research-direction--methodology">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>拒绝了“先改进 Gemini”的想法；坚持定义一个最小的、可训练的 visual prompt set，并使用 video analysis 来证明分歧点。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初建议是 low tolerance/calibration 问题，并专注于完善 scoring/evaluation system 或修复 Gemini 的错误。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 优先考虑训练/有效性循环（success rate），而非评估完美度循环。</p>
+<h4 id="task-sensitivity--scoring">Task Sensitivity &amp; Scoring<a hidden class="anchor" aria-hidden="true" href="#task-sensitivity--scoring">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>推动使用 &lsquo;Role-Aware Scoring&rsquo;，以区分单纯的 object detection 与实际的 target history memory。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初依赖 &lsquo;Target Hit Ratio&rsquo;，这通过 visual overlap 掩盖了错误。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 的审视导致发现高 hit rates 往往掩盖了关键的 memory failures。</p>
+<h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
+<h4 id="command-execution">Command Execution<a hidden class="anchor" aria-hidden="true" href="#command-execution">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>N/A</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>使用精确的 PIDs 来 kill processes，以避免影响 shared pod 中的其他用户。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> None</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
+<ul>
+<li>基于有缺陷的实验设计，过早地得出 backbone 4-bit activation 不可达以及模型“不看语言”的结论。</li>
+<li>Gemini 在 V2 上的表现未知；当前的 video output 是 V1。需要使用 Oracle V2 进行完整的 training loop 才能观察其功效。</li>
+<li>无法重启 pod/cgroup 问题；如果 hardware visibility issues 持续存在，需要管理员介入。</li>
+</ul>
+<h3 id="general-limitations--初始的广泛摘要在没有大量人工提示的情况下缺乏具体的架构细节例如-frozen-siglip">General Limitations- 初始的广泛摘要在没有大量人工提示的情况下，缺乏具体的架构细节（例如 frozen SigLIP）。<a hidden class="anchor" aria-hidden="true" href="#general-limitations--初始的广泛摘要在没有大量人工提示的情况下缺乏具体的架构细节例如-frozen-siglip">#</a></h3>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<ul>
+<li>任务复杂度与 quantization 敏感度并不相关；需要在相似目标之间进行细粒度选择的任务（middle vs. top drawer）最容易受到噪声的影响。</li>
+<li>RoboMME 的 $\pi$0.5 baseline 会 freeze SigLIP visual tower，并对 LLM 和 action expert 进行 full-parameter updates。</li>
+<li>Visual prompts 必须优先考虑“training-robustness”（在 crop/rotate 后仍能生存）和“policy-utility”（scene-anchored vs. corner glyphs），而非美观度。</li>
+<li>“Target Hit Rate”对于 memory tasks 是一个危险的指标：它将“知道看哪里”与“记住发生了什么”混为一谈。</li>
+</ul>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<h3 id="qualcomm-project--05-quantization">Qualcomm Project / $\pi$0.5 Quantization<a hidden class="anchor" aria-hidden="true" href="#qualcomm-project--05-quantization">#</a></h3>
+<p><strong>✅ 通过 TF-Enhanced quantization 解决 W4A4 失败问题</strong>
+<em>claude_code</em>
+确定了对 35 个 RMSNorm 输出进行 4-bit quantization 会导致 “middle-drawer” 任务失败。实施了使用 AIMET 的 TF-Enhanced ranges 的 re-quantization pipeline，成功恢复了成功率。</p>
+<h3 id="robomemory">RoboMemory<a hidden class="anchor" aria-hidden="true" href="#robomemory">#</a></h3>
+<p><strong>✅ 为 16 个任务转向基于 Oracle 的 training</strong>
+<em>codex</em>
+在审计了 Gemini 的 visual rendering errors 以及 “Target Hit Rate” 评分的缺陷后，团队转向了 Oracle 驱动的 “Visual Prompt” 系统。这涉及为 16 个任务生成完美的 training pairs，以验证通过 scene-anchored marks 和稳健放置的 badges 是否能通过正确的 visual memory 提高机器人成功率。</p>
+<p><strong>✅ RoboMME and pi0.5 Technical Audit</strong>
+澄清了 RoboMME 的 evaluation protocols 以及 pi0.5 baseline 的确切 training regime，确认它在 freeze SigLIP vision tower 的同时，对 backbone 使用 full-parameter fine-tuning。</p>
+<h3 id="tokenmonitor">TokenMonitor<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor">#</a></h3>
+<p><strong>🔍 调试 SSH synchronization issues</strong>
+<em>cursor</em>
+调查了为什么不同设备上的 SSH usage totals 会出现分歧，确定了同步过程中 archive boundaries 的问题。</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-09-19</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$74.59</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>82M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>145K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>96.7%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $62</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $13</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (82.8%), Codex (17.2%)">
+          <span style="width:82.8%; background:var(--usage-cost-main)"></span>
+          <span style="width:17.2%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 96.7%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 3.3%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (96.7%), active tokens (3.3%)">
+          <span style="width:96.7%; background:var(--usage-cache)"></span>
+          <span style="width:3.3%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:38661b1e339a9351 -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

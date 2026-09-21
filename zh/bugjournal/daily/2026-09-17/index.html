@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="light">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-09-17 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="今日的工作重点在于对 VLA model 量化失败进行 root-cause analysis（确定 A4 activation 为失败点），调试 RoboMemory 训练中的 normalization 问题，维护 TokenMonitor 的 dependencies 和 repository 同步，并为 PhD applications 进行广泛的学术研究。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-17/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.293529ec85794278c97efa5df449767967cd94bca174a774a375e1a0efe5bbc7.css" integrity="sha256-KTUp7IV5QnjJfvpd9El2eWfNlLyhdKd0o3XhoO/lu8c=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-09-17/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-17/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-17/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-09-17">
+  <meta property="og:description" content="今日的工作重点在于对 VLA model 量化失败进行 root-cause analysis（确定 A4 activation 为失败点），调试 RoboMemory 训练中的 normalization 问题，维护 TokenMonitor 的 dependencies 和 repository 同步，并为 PhD applications 进行广泛的学术研究。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-09-17T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-09-17T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-09-17">
+  <meta name="twitter:description" content="今日的工作重点在于对 VLA model 量化失败进行 root-cause analysis（确定 A4 activation 为失败点），调试 RoboMemory 训练中的 normalization 问题，维护 TokenMonitor 的 dependencies 和 repository 同步，并为 PhD applications 进行广泛的学术研究。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-09-17",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-09-17/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-09-17",
+  "name": "Bug Journal 2026-09-17",
+  "description": "今日的工作重点在于对 VLA model 量化失败进行 root-cause analysis（确定 A4 activation 为失败点），调试 RoboMemory 训练中的 normalization 问题，维护 TokenMonitor 的 dependencies 和 repository 同步，并为 PhD applications 进行广泛的学术研究。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-09-17 Daily Overview 工作内容： 当日工作涵盖四个不同领域：VLA 模型 (π0.5) 的高精度量化分析；RoboMemory 的深度学习训练调试与执行；TokenMonitor 的持续集成与依赖维护；以及用于 PhD 申请的全面学术调研。 工作方式： 量化方面采用了闭环/开环/tensor 级误差探测及离线粒度模拟；训练方面通过基于远程 SSH 的 GPU 集群管理进行；仓库管理采用了策略性的 git cherry-picking 和 CI 环境 pinning；学术数据收集则采用了并行多智能体 web 研究。 影响： 成功将 W4A8 确立为 VLA 模型的目标量化标准；通过修复归一化统计数据，防止了 RoboMemory 的灾难性训练失败；恢复了 TokenMonitor fork 的完整性；并为 PhD 申请生成了数据驱动的基准。 MacOS 工作内容： 维护 TokenMonitor 安全依赖并监控 CI 失败情况。 工作方式： 使用 Claude Code 和 Codex 审计 NPM packages，并分析 GitHub Action 日志以识别 Node 依赖不匹配问题。 影响： 解决了 Vitest 漏洞，并在 lockfile 中识别出 @emnapi peer dependency 问题。 TzJsDesktop 工作内容： 执行大规模学术研究，管理机器人训练，并进行复杂的 git 操作。 工作方式： 部署并行搜索 agents 进行 PhD 录取数据调研；通过 SSH 在 tianhe3 集群上管理远程训练；执行手动/AI 辅助的 cherry-picking 以解决 66+ 个文件冲突。 影响： 生成了全面的 PhD 录取数据库；启动了修正后的 RoboMemory 训练；成功将 TokenMonitor fork 与其 upstream 同步。 lighthouse 工作内容： 该设备上未记录显著活动。 工作方式： N/A 影响： N/A 当日工作重点在于对 VLA 模型量化失败进行根因分析（确定 A4 activation 为失败点）、调试 RoboMemory 训练归一化问题、维护 TokenMonitor 依赖与仓库同步，以及为 PhD 申请进行广泛的学术研究。\nTasks Architecture \u0026 Strategy • VLA Quantization Analysis (W4A8 vs W4A4) — 使用 SpinQuant R1-R4 + SeqMSE 对 backbone bit-widths 进行对比实验，以分析闭环性能、轨迹发散及 action block L2 误差。 • Tensor \u0026 Granularity Error Probing — 执行 layer-wise tensor probing 以定位误差来源，并对不同的 activation clipping (Min-max, MSE, Pct) 和粒度 (Per-token, Per-group) 进行离线模拟。 • Sync TokenMonitor Fork with Upstream — 通过将 10 个 commits 策略性地 cherry-pick 到 upstream PR#24 base 上，解决了由 history 重写导致的巨大冲突。 • RoboMemory Training Correction — 在发现归一化统计数据是在不足的数据集 (imitation2) 上计算导致除以零后，重新训练 ‘all16_base’ 模型。 • Fix Cursor API Parsing — 处理 Cursor 使用页面中的空 JSON 响应 ‘{}’ 情况，以防止 fetch 失败。 • RoboMemory 16-task Evaluation — 为新 checkpoint 运行 16-task × 50-episode 评估。 • Align CI Node Version — 将 CI Node 版本 pinning 至 24.12.0，以匹配本地环境并防止 npm lockfile 不匹配。 • PhD Admission Research — 使用并行 agents 研究了 36 个 robotics/ML PhD 项目的录取结果、cohort profiles 及面试时间线。 Implementation \u0026 Fixes • TokenMonitor Dependency \u0026 Security Audit — 将 Vitest 更新至 4.1.11 以解决漏洞，并处理了 fsevents install 警告。 Problems \u0026 Solutions Critical Issues 1. W4A4 quantization results in zero success rate for VLA tasks due to backbone A4 activation errors. Solution: 验证了 W4A8 (4-bit Weight, 8-bit Activation) 可达到 100% 成功率；建议将 W4A8 作为最终交付标准。\n2. RoboMemory training loss was astronomically high (2e11) due to division by zero in normalization. Solution: 确定 norm_stats 是基于一个子集，其中第 8 维 (gripper) 的 std 为零；已在完整的 16-task 数据集上重新计算了 stats。\n3. Direct git merge between TokenMonitor fork and upstream caused 66+ ‘add/add’ conflicts due to rewritten history. Solution: 放弃 merge，改为将自 v0.14.2 以来提交的 10 个特定 commits cherry-pick 到 upstream 分支。\n4. Cursor usage data was missing because the parser failed on empty JSON responses ‘{}’. Solution: 修改了 parser，将缺失的 ‘usageEvents’ 数组视为空列表而非致命错误。\n5. npm ci in GitHub Actions failed due to lockfile format mismatches between local and CI Node versions. Solution: 将 CI Node 版本 pinning 至精确的 24.12.0，以匹配本地开发环境。\nGeneral Issues 6. Seeking ways to salvage A4 precision via optimization or fine-grained quantization. Solution: 测试了 MSE clipping（效果不足），并确定 fine-grained/mixed-precision 目前受限于 QAIRT deployment 约束而无法支持。\n7. TokenMonitor had Vitest vulnerabilities and fsevents install script warnings. Solution: 将 Vitest 更新至 4.1.11，并在 package.json 中显式阻止了 fsevents install scripts。\n8. SSH connection instability to the tianhe3 cluster prevented continuous monitoring. Solution: 为 SSH 命令实现了 retry loop。\nHuman vs AI Approaches Strategic Level VLA Root-Cause Diagnosis Role Approach Human N/A AI 通过闭环/开环/tensor/离线对比，排除了 calibration、prompts 和 model structure 作为变量的可能性，精准定位 A4 activation 为数值漂移的唯一来源。 Difference Analysis: AI 通过多维交叉验证，从一般的怀疑（calibration/prompt 问题）转向了数学上的确定性。\nTraining Debugging Role Approach Human 提供了关键的项目上下文以及验证 I-148 baseline 的必要性。 AI 通过迭代分析 logs、GPU states 和 loss values，将 2e11 的 loss 与 norm_stats.json 中特定的维度不匹配联系起来。 Difference Analysis: AI 能够迅速将天文数字般的 loss 值与 JSON metadata 中的特定数学故障建立关联，这是关键的突破点。\nGit Synchronization Strategy| Role | Approach | |——|——| | Human | 最初请求一种让 fork 和 upstream 保持一致的简单方法。 | | AI | 提出了 cherry-pick 策略，在保留近期 feature 的同时，避免重写 history 导致的 ‘add/add’ 冲突陷阱。 |\nDifference Analysis: AI 识别出在处理复杂的 rewritten history 时，使用 cherry-picking 而非 merging 的技术必要性。\nPhD Research Strategy Role Approach Human 将研究方向引导至定性的“非言语”信号（例如 internal CMU connections, student profiles），而非原始统计数据。 AI 部署了多个 parallel agents，从 GradCafe、Zhihu 和 1point3acres 等多样化来源进行 scrape/search。 Difference Analysis: 人类用户为定性深度提供了战略方向，随后 AI 通过大规模 search 执行了该方向。\nImplementation Level Environment Management Role Approach Human 要求一种让 standard tools 直接可用、无需复杂 command-line overhead 的解决方案。 AI 最初建议使用 ’npx npm@latest’ 以防止 version drift，随后转向将 CI 同步至人类的环境。 Difference Analysis: 人类纠正了 AI 对理论洁癖的偏好，转而追求实际的 local parity。\nAI Limitations General Limitations 由于 anti-scraping measures，难以访问某些 web platforms (Reddit, 1point3acres)，需要人工干预。 难以协调 local npm version 与 CI requirements 之间的差异，最初导致了手动 lockfile patches 的循环。 由于不稳定的 jump host，遇到了 SSH connection timeouts 和 exit codes (107)。 被 environment security guards (D21) 阻止执行某些 git write/commit 命令。 无法直接将文件写入 project memory zone (D16/I-147)，需要通过 terminal output 得出结论。 Learnings Key Learnings 对于 VLA models，W4A8 是 ‘Sweet Spot’：weight 4-bit 的容忍度极高且性能损失极小，而 A4 activation 会导致 backbone 发生灾难性的 precision collapse。 务必确保 normalization statistics 是在完整的预期 dataset 上计算的；subset 中的 zero-std dimensions 会在 multi-task settings 中导致灾难性的 training failure。 当 fork history 被重写时，由于不断的 ‘add/add’ 冲突，‘git merge’ 通常无法使用；cherry-picking 特定的 commits 是更可靠的 reconstruction method。 顶尖 robotics programs 的 PhD admission 受 ‘prior connections’（例如 internal Master’s programs）和直接的 faculty contact 影响很大，而不仅仅是 GPA/publications。 Protobuf-JSON serialization 经常完全省略 empty arrays，这可能会破坏期望特定 field structures 的 parsers。 local 与 CI 之间 npm versions 的微小差异会导致由于 lockfile format drift 引起的灾难性 ’npm ci’ failures。 Conversation Summaries pi05-goal-task0-zero-rootcause • W4A4 归零根因调查 通过对比 W4A8 (10/10 success) 和 W4A4 (0/50 success) 的严格 controlled experiments，证明了 backbone 中的 4-bit activation 会导致快速的 error accumulation (K/V cache loss of correlation)，从而使 action output 变为 noise。Offline simulations 证实，即使是基于 MSE-based clipping 也无法弥补 VLA tasks 所需的 precision gap。\nTokenMonitor • Repository Synchronization \u0026 CI Maintenance 通过使用 cherry-picking 导航了一个复杂的 synchronization process，使 local fork 与 rewritten upstream history 对齐。此外，通过将 Node.js version 固定以匹配 local environment，解决了 recurring CI failures，并通过更新 Vitest 解决了 security vulnerabilities。\nRoboMemory • Training Debugging and Baseline Validation 诊断了由从 subset 导出的错误 normalization statistics 导致的 massive loss spike。使用 full dataset 修正了 stats，重新启动了 training，并准备了 evaluation pipeline。\nPhD Application Research • Robotics PhD Admission Data 部署了 6 个 parallel agents 来研究 36 个 programs 的 admission profiles，汇编了关于 interview signals、cohort statistics 和定性 recruitment trends 的发现。\nToken Usage AI Usage · 2026-09-17\rClaude Code\rTotal cost$9.51\rTotal tokens4M\rOutput tokens2K\rCache read83.1%\rToken character\rCache reads 83.1% ·\rActive 16.9%\rMost token volume came from cache reads.\r",
+  "wordCount" : "920",
+  "inLanguage": "zh",
+  "datePublished": "2026-09-17T00:00:00-04:00",
+  "dateModified": "2026-09-17T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-09-17/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/bugjournal/daily/2026-09-17/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="博文">
+                    <span>博文</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <details class="menu-disclosure">
+                    <summary>工作日志 <span class="submenu-caret" aria-hidden="true">▾</span></summary>
+                <ul class="submenu" aria-label="工作日志">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>日报</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>周报</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>月报</span>
+                        </a>
+                    </li>
+                </ul>
+                </details>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="算法笔记">
+                    <span>算法笔记</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="性能测试">
+                    <span>性能测试</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-09-17
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-09-17 00:00:00 -0400 EDT'>2026年9月17日</span>&nbsp;·&nbsp;<span>5 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-09-17">Daily Report — 2026-09-17<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-09-17">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>工作内容：</strong> 当日工作涵盖四个不同领域：VLA 模型 (π0.5) 的高精度量化分析；RoboMemory 的深度学习训练调试与执行；TokenMonitor 的持续集成与依赖维护；以及用于 PhD 申请的全面学术调研。</li>
+<li><strong>工作方式：</strong> 量化方面采用了闭环/开环/tensor 级误差探测及离线粒度模拟；训练方面通过基于远程 SSH 的 GPU 集群管理进行；仓库管理采用了策略性的 git cherry-picking 和 CI 环境 pinning；学术数据收集则采用了并行多智能体 web 研究。</li>
+<li><strong>影响：</strong> 成功将 W4A8 确立为 VLA 模型的目标量化标准；通过修复归一化统计数据，防止了 RoboMemory 的灾难性训练失败；恢复了 TokenMonitor fork 的完整性；并为 PhD 申请生成了数据驱动的基准。</li>
+</ul>
+<h3 id="macos">MacOS<a hidden class="anchor" aria-hidden="true" href="#macos">#</a></h3>
+<ul>
+<li><strong>工作内容：</strong> 维护 TokenMonitor 安全依赖并监控 CI 失败情况。</li>
+<li><strong>工作方式：</strong> 使用 Claude Code 和 Codex 审计 NPM packages，并分析 GitHub Action 日志以识别 Node 依赖不匹配问题。</li>
+<li><strong>影响：</strong> 解决了 Vitest 漏洞，并在 lockfile 中识别出 @emnapi peer dependency 问题。</li>
+</ul>
+<h3 id="tzjsdesktop">TzJsDesktop<a hidden class="anchor" aria-hidden="true" href="#tzjsdesktop">#</a></h3>
+<ul>
+<li><strong>工作内容：</strong> 执行大规模学术研究，管理机器人训练，并进行复杂的 git 操作。</li>
+<li><strong>工作方式：</strong> 部署并行搜索 agents 进行 PhD 录取数据调研；通过 SSH 在 tianhe3 集群上管理远程训练；执行手动/AI 辅助的 cherry-picking 以解决 66+ 个文件冲突。</li>
+<li><strong>影响：</strong> 生成了全面的 PhD 录取数据库；启动了修正后的 RoboMemory 训练；成功将 TokenMonitor fork 与其 upstream 同步。</li>
+</ul>
+<h3 id="lighthouse">lighthouse<a hidden class="anchor" aria-hidden="true" href="#lighthouse">#</a></h3>
+<ul>
+<li><strong>工作内容：</strong> 该设备上未记录显著活动。</li>
+<li><strong>工作方式：</strong> N/A</li>
+<li><strong>影响：</strong> N/A</li>
+</ul>
+<blockquote>
+<p>当日工作重点在于对 VLA 模型量化失败进行根因分析（确定 A4 activation 为失败点）、调试 RoboMemory 训练归一化问题、维护 TokenMonitor 依赖与仓库同步，以及为 PhD 申请进行广泛的学术研究。</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<ul>
+<li>• <strong>VLA Quantization Analysis (W4A8 vs W4A4)</strong> — 使用 SpinQuant R1-R4 + SeqMSE 对 backbone bit-widths 进行对比实验，以分析闭环性能、轨迹发散及 action block L2 误差。</li>
+<li>• <strong>Tensor &amp; Granularity Error Probing</strong> — 执行 layer-wise tensor probing 以定位误差来源，并对不同的 activation clipping (Min-max, MSE, Pct) 和粒度 (Per-token, Per-group) 进行离线模拟。</li>
+<li>• <strong>Sync TokenMonitor Fork with Upstream</strong> — 通过将 10 个 commits 策略性地 cherry-pick 到 upstream PR#24 base 上，解决了由 history 重写导致的巨大冲突。</li>
+<li>• <strong>RoboMemory Training Correction</strong> — 在发现归一化统计数据是在不足的数据集 (imitation2) 上计算导致除以零后，重新训练 &lsquo;all16_base&rsquo; 模型。</li>
+<li>• <strong>Fix Cursor API Parsing</strong> — 处理 Cursor 使用页面中的空 JSON 响应 &lsquo;{}&rsquo; 情况，以防止 fetch 失败。</li>
+<li>• <strong>RoboMemory 16-task Evaluation</strong> — 为新 checkpoint 运行 16-task × 50-episode 评估。</li>
+<li>• <strong>Align CI Node Version</strong> — 将 CI Node 版本 pinning 至 24.12.0，以匹配本地环境并防止 npm lockfile 不匹配。</li>
+<li>• <strong>PhD Admission Research</strong> — 使用并行 agents 研究了 36 个 robotics/ML PhD 项目的录取结果、cohort profiles 及面试时间线。</li>
+</ul>
+<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<ul>
+<li>• <strong>TokenMonitor Dependency &amp; Security Audit</strong> — 将 Vitest 更新至 4.1.11 以解决漏洞，并处理了 fsevents install 警告。</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-w4a4-quantization-results-in-zero-success-rate-for-vla-tasks-due-to-backbone-a4-activation-errors">1. W4A4 quantization results in zero success rate for VLA tasks due to backbone A4 activation errors.<a hidden class="anchor" aria-hidden="true" href="#1-w4a4-quantization-results-in-zero-success-rate-for-vla-tasks-due-to-backbone-a4-activation-errors">#</a></h4>
+<p><strong>Solution:</strong> 验证了 W4A8 (4-bit Weight, 8-bit Activation) 可达到 100% 成功率；建议将 W4A8 作为最终交付标准。</p>
+<h4 id="2-robomemory-training-loss-was-astronomically-high-2e11-due-to-division-by-zero-in-normalization">2. RoboMemory training loss was astronomically high (2e11) due to division by zero in normalization.<a hidden class="anchor" aria-hidden="true" href="#2-robomemory-training-loss-was-astronomically-high-2e11-due-to-division-by-zero-in-normalization">#</a></h4>
+<p><strong>Solution:</strong> 确定 norm_stats 是基于一个子集，其中第 8 维 (gripper) 的 std 为零；已在完整的 16-task 数据集上重新计算了 stats。</p>
+<h4 id="3-direct-git-merge-between-tokenmonitor-fork-and-upstream-caused-66-addadd-conflicts-due-to-rewritten-history">3. Direct git merge between TokenMonitor fork and upstream caused 66+ &lsquo;add/add&rsquo; conflicts due to rewritten history.<a hidden class="anchor" aria-hidden="true" href="#3-direct-git-merge-between-tokenmonitor-fork-and-upstream-caused-66-addadd-conflicts-due-to-rewritten-history">#</a></h4>
+<p><strong>Solution:</strong> 放弃 merge，改为将自 v0.14.2 以来提交的 10 个特定 commits cherry-pick 到 upstream 分支。</p>
+<h4 id="4-cursor-usage-data-was-missing-because-the-parser-failed-on-empty-json-responses-">4. Cursor usage data was missing because the parser failed on empty JSON responses &lsquo;{}&rsquo;.<a hidden class="anchor" aria-hidden="true" href="#4-cursor-usage-data-was-missing-because-the-parser-failed-on-empty-json-responses-">#</a></h4>
+<p><strong>Solution:</strong> 修改了 parser，将缺失的 &lsquo;usageEvents&rsquo; 数组视为空列表而非致命错误。</p>
+<h4 id="5-npm-ci-in-github-actions-failed-due-to-lockfile-format-mismatches-between-local-and-ci-node-versions">5. npm ci in GitHub Actions failed due to lockfile format mismatches between local and CI Node versions.<a hidden class="anchor" aria-hidden="true" href="#5-npm-ci-in-github-actions-failed-due-to-lockfile-format-mismatches-between-local-and-ci-node-versions">#</a></h4>
+<p><strong>Solution:</strong> 将 CI Node 版本 pinning 至精确的 24.12.0，以匹配本地开发环境。</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="6-seeking-ways-to-salvage-a4-precision-via-optimization-or-fine-grained-quantization">6. Seeking ways to salvage A4 precision via optimization or fine-grained quantization.<a hidden class="anchor" aria-hidden="true" href="#6-seeking-ways-to-salvage-a4-precision-via-optimization-or-fine-grained-quantization">#</a></h4>
+<p><strong>Solution:</strong> 测试了 MSE clipping（效果不足），并确定 fine-grained/mixed-precision 目前受限于 QAIRT deployment 约束而无法支持。</p>
+<h4 id="7-tokenmonitor-had-vitest-vulnerabilities-and-fsevents-install-script-warnings">7. TokenMonitor had Vitest vulnerabilities and fsevents install script warnings.<a hidden class="anchor" aria-hidden="true" href="#7-tokenmonitor-had-vitest-vulnerabilities-and-fsevents-install-script-warnings">#</a></h4>
+<p><strong>Solution:</strong> 将 Vitest 更新至 4.1.11，并在 package.json 中显式阻止了 fsevents install scripts。</p>
+<h4 id="8-ssh-connection-instability-to-the-tianhe3-cluster-prevented-continuous-monitoring">8. SSH connection instability to the tianhe3 cluster prevented continuous monitoring.<a hidden class="anchor" aria-hidden="true" href="#8-ssh-connection-instability-to-the-tianhe3-cluster-prevented-continuous-monitoring">#</a></h4>
+<p><strong>Solution:</strong> 为 SSH 命令实现了 retry loop。</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="vla-root-cause-diagnosis">VLA Root-Cause Diagnosis<a hidden class="anchor" aria-hidden="true" href="#vla-root-cause-diagnosis">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>N/A</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>通过闭环/开环/tensor/离线对比，排除了 calibration、prompts 和 model structure 作为变量的可能性，精准定位 A4 activation 为数值漂移的唯一来源。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> AI 通过多维交叉验证，从一般的怀疑（calibration/prompt 问题）转向了数学上的确定性。</p>
+<h4 id="training-debugging">Training Debugging<a hidden class="anchor" aria-hidden="true" href="#training-debugging">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>提供了关键的项目上下文以及验证 I-148 baseline 的必要性。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>通过迭代分析 logs、GPU states 和 loss values，将 2e11 的 loss 与 norm_stats.json 中特定的维度不匹配联系起来。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> AI 能够迅速将天文数字般的 loss 值与 JSON metadata 中的特定数学故障建立关联，这是关键的突破点。</p>
+<h4 id="git-synchronization-strategy-role--approach-">Git Synchronization Strategy| Role | Approach |<a hidden class="anchor" aria-hidden="true" href="#git-synchronization-strategy-role--approach-">#</a></h4>
+<p>|&mdash;&mdash;|&mdash;&mdash;|
+| Human | 最初请求一种让 fork 和 upstream 保持一致的简单方法。 |
+| AI   | 提出了 cherry-pick 策略，在保留近期 feature 的同时，避免重写 history 导致的 &lsquo;add/add&rsquo; 冲突陷阱。 |</p>
+<p><strong>Difference Analysis:</strong> AI 识别出在处理复杂的 rewritten history 时，使用 cherry-picking 而非 merging 的技术必要性。</p>
+<h4 id="phd-research-strategy">PhD Research Strategy<a hidden class="anchor" aria-hidden="true" href="#phd-research-strategy">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>将研究方向引导至定性的“非言语”信号（例如 internal CMU connections, student profiles），而非原始统计数据。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>部署了多个 parallel agents，从 GradCafe、Zhihu 和 1point3acres 等多样化来源进行 scrape/search。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> 人类用户为定性深度提供了战略方向，随后 AI 通过大规模 search 执行了该方向。</p>
+<h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
+<h4 id="environment-management">Environment Management<a hidden class="anchor" aria-hidden="true" href="#environment-management">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>要求一种让 standard tools 直接可用、无需复杂 command-line overhead 的解决方案。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初建议使用 &rsquo;npx npm@latest&rsquo; 以防止 version drift，随后转向将 CI 同步至人类的环境。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> 人类纠正了 AI 对理论洁癖的偏好，转而追求实际的 local parity。</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<ul>
+<li>由于 anti-scraping measures，难以访问某些 web platforms (Reddit, 1point3acres)，需要人工干预。</li>
+<li>难以协调 local npm version 与 CI requirements 之间的差异，最初导致了手动 lockfile patches 的循环。</li>
+<li>由于不稳定的 jump host，遇到了 SSH connection timeouts 和 exit codes (107)。</li>
+<li>被 environment security guards (D21) 阻止执行某些 git write/commit 命令。</li>
+<li>无法直接将文件写入 project memory zone (D16/I-147)，需要通过 terminal output 得出结论。</li>
+</ul>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<ul>
+<li>对于 VLA models，W4A8 是 &lsquo;Sweet Spot&rsquo;：weight 4-bit 的容忍度极高且性能损失极小，而 A4 activation 会导致 backbone 发生灾难性的 precision collapse。</li>
+<li>务必确保 normalization statistics 是在完整的预期 dataset 上计算的；subset 中的 zero-std dimensions 会在 multi-task settings 中导致灾难性的 training failure。</li>
+<li>当 fork history 被重写时，由于不断的 &lsquo;add/add&rsquo; 冲突，&lsquo;git merge&rsquo; 通常无法使用；cherry-picking 特定的 commits 是更可靠的 reconstruction method。</li>
+<li>顶尖 robotics programs 的 PhD admission 受 &lsquo;prior connections&rsquo;（例如 internal Master&rsquo;s programs）和直接的 faculty contact 影响很大，而不仅仅是 GPA/publications。</li>
+<li>Protobuf-JSON serialization 经常完全省略 empty arrays，这可能会破坏期望特定 field structures 的 parsers。</li>
+<li>local 与 CI 之间 npm versions 的微小差异会导致由于 lockfile format drift 引起的灾难性 &rsquo;npm ci&rsquo; failures。</li>
+</ul>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<h3 id="pi05-goal-task0-zero-rootcause">pi05-goal-task0-zero-rootcause<a hidden class="anchor" aria-hidden="true" href="#pi05-goal-task0-zero-rootcause">#</a></h3>
+<p><strong>• W4A4 归零根因调查</strong>
+通过对比 W4A8 (10/10 success) 和 W4A4 (0/50 success) 的严格 controlled experiments，证明了 backbone 中的 4-bit activation 会导致快速的 error accumulation (K/V cache loss of correlation)，从而使 action output 变为 noise。Offline simulations 证实，即使是基于 MSE-based clipping 也无法弥补 VLA tasks 所需的 precision gap。</p>
+<h3 id="tokenmonitor">TokenMonitor<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor">#</a></h3>
+<p><strong>• Repository Synchronization &amp; CI Maintenance</strong>
+通过使用 cherry-picking 导航了一个复杂的 synchronization process，使 local fork 与 rewritten upstream history 对齐。此外，通过将 Node.js version 固定以匹配 local environment，解决了 recurring CI failures，并通过更新 Vitest 解决了 security vulnerabilities。</p>
+<h3 id="robomemory">RoboMemory<a hidden class="anchor" aria-hidden="true" href="#robomemory">#</a></h3>
+<p><strong>• Training Debugging and Baseline Validation</strong>
+诊断了由从 subset 导出的错误 normalization statistics 导致的 massive loss spike。使用 full dataset 修正了 stats，重新启动了 training，并准备了 evaluation pipeline。</p>
+<h3 id="phd-application-research">PhD Application Research<a hidden class="anchor" aria-hidden="true" href="#phd-application-research">#</a></h3>
+<p><strong>• Robotics PhD Admission Data</strong>
+部署了 6 个 parallel agents 来研究 36 个 programs 的 admission profiles，汇编了关于 interview signals、cohort statistics 和定性 recruitment trends 的发现。</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-09-17</span>
+        <span class="usage-card__source">Claude Code</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$9.51</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>4M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>2K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>83.1%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 83.1%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 16.9%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (83.1%), active tokens (16.9%)">
+          <span style="width:83.1%; background:var(--usage-cache)"></span>
+          <span style="width:16.9%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:2a6f686b78fda703 -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
