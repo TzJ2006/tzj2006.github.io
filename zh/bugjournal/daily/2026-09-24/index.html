@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="light">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-09-24 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="这一天开展了多样化的活动，包括为 robotics 实现 prerequisite latching rules，开发用于 resource optimization 的 serial refresh architecture，诊断 robotic tasks 中的 training loss discrepancies，以及解决 MIHD repository 中的 test regressions。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-24/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.293529ec85794278c97efa5df449767967cd94bca174a774a375e1a0efe5bbc7.css" integrity="sha256-KTUp7IV5QnjJfvpd9El2eWfNlLyhdKd0o3XhoO/lu8c=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-09-24/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-24/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-24/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-09-24">
+  <meta property="og:description" content="这一天开展了多样化的活动，包括为 robotics 实现 prerequisite latching rules，开发用于 resource optimization 的 serial refresh architecture，诊断 robotic tasks 中的 training loss discrepancies，以及解决 MIHD repository 中的 test regressions。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-09-24T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-09-24T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-09-24">
+  <meta name="twitter:description" content="这一天开展了多样化的活动，包括为 robotics 实现 prerequisite latching rules，开发用于 resource optimization 的 serial refresh architecture，诊断 robotic tasks 中的 training loss discrepancies，以及解决 MIHD repository 中的 test regressions。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-09-24",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-09-24/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-09-24",
+  "name": "Bug Journal 2026-09-24",
+  "description": "这一天开展了多样化的活动，包括为 robotics 实现 prerequisite latching rules，开发用于 resource optimization 的 serial refresh architecture，诊断 robotic tasks 中的 training loss discrepancies，以及解决 MIHD repository 中的 test regressions。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-09-24 Daily Overview 工作内容： 工作涉及为资源管理实现复杂的架构变更 (TokenMonitor)，完善 robotics 控制规则 (I-166)，对训练失败进行深度诊断分析 (RoboMemory)，以及在 MIHD 和 Minecraft 服务器环境中进行系统维护与优化。 工作方式： 通过结合本地命令测试、远程评估运行、自动化数据处理/视频分析、代码探测以及使用基于 Web 的工具进行成本效益计算来开展活动。 影响： 这些工作通过更好的资源调度（减少 CPU spike）提高了系统稳定性，通过 prerequisite latching 增强了 robotics policy 的准确性，为“为什么 low loss 无法确保成功”提供了关键的诊断见解，并恢复了测试套件的完整性。 今日工作涵盖了多样化的活动，包括为 robotics 实现 prerequisite latching 规则，开发用于资源优化的 serial refresh 架构，诊断 robotic tasks 中的训练 loss 差异，以及解决 MIHD 仓库中的测试回归问题。\nTasks Architecture \u0026 Strategy ❌ I-166 (Prerequisite rule implementation \u0026 closed-loop re-runs) — 使用新的 prerequisite rule (PRE_K=3) 为 framesamp（所有 14 个 tasks）和 seg_sum（受影响的 tasks）完成 closed-loop runs，以防止过早的 memory marks。 🔄 Serial Refresh Implementation (S1-S10) — 一个多阶段工作流，旨在消除 refresh 浪费，实现 FIFO compute gate，在 samples 之间冻结数值，并部署新的 single-owner scheduler。 ✅ Implement I-164 (Per-task loss evaluation) — 开发一个工作流，按 task 和 phase 重新计算 flow-matching loss，以诊断特定的失败原因。 ✅ Plan Budget Estimation (I-074) — 实现基于“已花费金额除以利用率百分比”来估算 plan 的美元预算的逻辑，包括针对每个 model 的准确度以及 Codex 的历史 backfilling。 🔄 Implement I-163 (Context evaluation) — 实现新的 context window 变体 (1/3/5 frames) 以及用于 Gemini 评估的结构化 segmentation summaries。 🔄 Draft SPEC-2 for trainable parameter counting — 创建一个规范，以自动化统计各种 fusion modules 和 references 中的 trainable parameters 及 total parameters。 Implementation \u0026 Fixes 🔄 Full-scale I-163 execution — 等待人类对规模的决策 (a: 5 tasks/10 eps vs b: 4 tasks/5 eps)。 ✅ Fix golden fusion-gen dual-write mismatch — 更新 tests/test_golden_fusion_gen.py，以反映在 commit eb3f29d 中引入的有意的 gt/gt_labels dual-write。 ✅ Analyze failure videos — 查看 StopCube 和 InsertPeg 的失败视频，以识别行为模式。 ✅ Minecraft server resource optimization — 分析当前 m8a.xlarge 实例的 CPU/RAM 使用情况，并评估更便宜的迁移选项 (r6a.large, t3a.large 等)。 ✅ Command usage testing — 反复调用 /usage 命令以检查稳定性或特定的输出模式。 Problems \u0026 Solutions Critical Issues 1. ButtonUnmask tasks 中的 early memory marks 导致 policy 跳过 subgoals。 Solution: 在 writer_probe/gemini_v2_env 中添加了一个 ‘prerequisite_done’ latch，要求在视觉/物理感知到第一步之后，必须连续获得 3 个 ‘done’ 信号才能启用 marks。\n2. StopCube 具有 low training loss 但 low success rate。 Solution: 重新计算了 phase-specific loss 并分析了 error distribution，发现 loss 被 ‘waiting’ phases 主导，从而忽略了关键且持续时间短的 ‘pressing’ timing error。\n3. 一次性刷新所有数据导致 CPU spikes 和 UI stuttering。 Solution: 设计了一个 scheduler，将独立的 jobs (archiving, pricing, budgeting) 均匀分布在 refresh interval 中，并使用单一的 atomic publish。\n4. Duke LiteLLM proxy 的 API quota exceeded。 Solution: 等待用户重置 quota 或注入新 key。\n5. 由于固定的 ±20% error margin，初始的 budget estimation 太不精确。 Solution: 实现了一种“基于 stretch”的校准方法，利用一个 model 占主导地位的离散 segments 来计算每个百分点点的真实成本。\n6. InsertPeg 失败模式不明确。 Solution: 分析了 loss 和视频，确定这是一个 contact-precision 问题，而不是 memory 或 learning 问题。\n7. Codex limit estimation 缺乏新安装环境的历史数据。 Solution: 构建了一个专门的 log parser，直接从现有的 Codex session JSONL 文件中 backfill plan budget 数据。\nGeneral Issues 8. Golden test ’test_golden_fusion_gen.py’ 因输出数组的 assertion mismatch 而失败（预期仅为 ‘gt’，而 pipeline 现在写入 ‘gt’ 和 ‘gt_labels’）。 Solution: 通过 git log (eb3f29d) 确认 dual-write 是为了统一 schemas 的有意架构决策；更新了测试以断言两个 keys 并验证它们的相等性。\n9. Minecraft server 在新的 r6a.large 实例上进行 player chunk generation 时出现 lag (TPS drop)。 Solution: 确定原因是高负载 chunk generation 期间只有一个 physical core (2 hyperthreads) 的限制；建议减少 view distance 或使用 pre-generation tools。\n10. AI 尝试使用 shell redirection/piping，这被 system guard 拦截。 Solution: 切换到使用 Edit tool 来写入文件，并移除了 bash 命令中的 redirection，以符合安全约束。\n11. 在长时间运行的 remote tasks 期间出现间歇性 tunnel failure。 Solution: 集成了自动 tunnel reconnection 逻辑，并通过 remote sleep/ssh 监控 session health。\nHuman vs AI Approaches Strategic Level Loss as a metric for success Role Approach Human 质疑为什么 low loss 不会转化为 high success rates。 AI 计算了 loss concentration (top 5% share) 和 phase-specific statistics，以证明平均 loss 掩盖了关键的 timing errors。 Difference Analysis: 人类提供了关键的直觉/问题（为什么存在这种差异），而 AI 提供了数学推导和诊断框架。\nRefresh Scheduling Role Approach Human N/A AI 提出了各种 scheduling fixes 和 individual job optimizations。 Difference Analysis: 人类规定了核心架构需求：任务必须分散在 interval 中以防止 spikes，且 UI 只有在计算出的数据准备就绪时才进行 refresh，在此期间显示 cached values。\nBudget Estimation Methodology Role Approach Human N/A AI 最初提出了一种简单的 spend/utilization ratio，并带有静态的 ±20% error margin。 Implementation Level Codebase debugging (Stale assertions) Role Approach Human 提供了失败的初始 context，并指出了导致 drift 的特定 commit (eb3f29d)。 AI 系统地探测 codebase 以寻找被初始 crash 掩盖的“隐藏”失败，并在第 432 行发现了第二个 stale assertion。 Difference Analysis: AI 通过循环运行单个 test functions 的能力，使其能够发现用户尚未察觉的错误。\nDecision on PickHighlight truth Role Approach Human N/A AI 实现与 80k ckpt 一致的 prerequisite rule（在按钮按下前不要绘制）。 Difference Analysis: 用户需要确认这是否与 9/23 的新 truth definition 冲突。\nAI Limitations Critical Limitations AI 未能考虑到不同 models 对 total limit 的影响速率不同（例如 cache hits vs. full input），导致早期估算不精确。 General Limitations AI 最初在处理由 environment guard 强制执行的 shell command syntax 约束（redirection/piping）时遇到困难。 由于 repository security guards（保护 ‘git commit’ 动词），AI 无法直接执行 git commit，需要人类执行最终命令。 Learnings Key Learnings 在成功取决于单一、短暂且关键动作窗口（例如 StopCube timing）的长程任务中，Average loss 可能会产生误导。 通过单个 model 使用的 ‘stretches’ 来计算 budget，提供了一种能够适应 provider 变化的自我修正准确性机制。 training loss 与 success rate 之间的 Rank correlation 可能很低 (-0.51)，尤其是在 ’easy’ 阶段稀释了 loss 时。 Practical Learnings 对于 Minecraft servers，相比于原始的 vCPU 数量，CPU core count（physical cores vs hyperthreads）和 single-core speed 对于 chunk generation 期间的稳定性更为关键。 当脚本在某一行失败时，同一脚本中后续的其他 assertions 也可能是 stale 的；必须手动探测单个 test functions 以确保完全覆盖。 Conversation Summaries Claude Code Environment ✅ Repetitive /usage command testing 用户连续多次执行 /usage command，以观察系统行为和 command response 的一致性。\nRoboMemory ✅ Diagnostic analysis of StopCube and InsertPeg 分析了失败视频并重新计算了 phase-specific losses。发现 StopCube 失败是因为视觉 ‘badge’ 信号相对于所需动作时机的更新太晚。InsertPeg 被确定为精度问题。\nTokenMonitor 🔍 Serial Refresh Architecture Design 21:52:42.000 | claude_code 用户请求转向 ‘serial refresh’ 模型以防止 CPU spikes。启动了一个复杂的多阶段 workflow 以实现：1. 实现 timeouts，2. 每小时归档一次数据，3. 实现一个 FIFO compute gate，以及 4. 创建一个新的 master scheduler (refresh.rs)。该 workflow 目前正在执行 S9 和 S10 阶段。\n✅ Plan Budget Estimation Implementation 04:35:20.677 | claude_code 用户请求一项功能，用于显示 AI plans 的预估 USD budgets。AI 实现了一个通过 usage/utilization ratios 计算 budget 的系统，为 Claude/Kimi 添加了 historical archive，并从本地 logs 中回填了 Codex 数据。测试已通过，UI 已更新为带有紧凑、感知单位的 budget labels。\nMIHD 🔍 Parameter Counting SPEC 起草了一份详细的技术规范 (SPEC-2)，用于统计 NCL 的可训练参数、ablation studies 以及诸如 QueST 和 STAIG original 等外部引用。\n✅ Fix golden fusion-gen dual-write 调查了 test_golden_fusion_gen.py 中的失败原因。确定 commit eb3f29d 为 ‘gt’ 和 ‘gt_labels’ 引入了刻意的 dual-write。更新了 test suite 以预期这两个 keys，确保所有 14 个 golden tests 通过。\nMinecraft Server ✅ Cost and Performance Analysis 分析了 AWS instance 的使用情况和定价。确定与当前的 m8a.xlarge 相比，迁移到 r6a.large (16GB) 或 r8a.large (16GB) 能在成本和稳定性之间提供更好的平衡。\nToken Usage AI Usage · 2026-09-24\rClaude Code\rTotal cost$129.57\rTotal tokens346M\rOutput tokens81K\rCache read96.6%\rToken character\rCache reads 96.6% ·\rActive 3.4%\rMost token volume came from cache reads.\r",
+  "wordCount" : "858",
+  "inLanguage": "zh",
+  "datePublished": "2026-09-24T00:00:00-04:00",
+  "dateModified": "2026-09-24T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-09-24/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/bugjournal/daily/2026-09-24/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="博文">
+                    <span>博文</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <details class="menu-disclosure">
+                    <summary>工作日志 <span class="submenu-caret" aria-hidden="true">▾</span></summary>
+                <ul class="submenu" aria-label="工作日志">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>日报</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>周报</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>月报</span>
+                        </a>
+                    </li>
+                </ul>
+                </details>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="算法笔记">
+                    <span>算法笔记</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="性能测试">
+                    <span>性能测试</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-09-24
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-09-24 00:00:00 -0400 EDT'>2026年9月24日</span>&nbsp;·&nbsp;<span>5 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-09-24">Daily Report — 2026-09-24<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-09-24">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>工作内容：</strong> 工作涉及为资源管理实现复杂的架构变更 (TokenMonitor)，完善 robotics 控制规则 (I-166)，对训练失败进行深度诊断分析 (RoboMemory)，以及在 MIHD 和 Minecraft 服务器环境中进行系统维护与优化。</li>
+<li><strong>工作方式：</strong> 通过结合本地命令测试、远程评估运行、自动化数据处理/视频分析、代码探测以及使用基于 Web 的工具进行成本效益计算来开展活动。</li>
+<li><strong>影响：</strong> 这些工作通过更好的资源调度（减少 CPU spike）提高了系统稳定性，通过 prerequisite latching 增强了 robotics policy 的准确性，为“为什么 low loss 无法确保成功”提供了关键的诊断见解，并恢复了测试套件的完整性。</li>
+</ul>
+<blockquote>
+<p>今日工作涵盖了多样化的活动，包括为 robotics 实现 prerequisite latching 规则，开发用于资源优化的 serial refresh 架构，诊断 robotic tasks 中的训练 loss 差异，以及解决 MIHD 仓库中的测试回归问题。</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<ul>
+<li>❌ <strong>I-166 (Prerequisite rule implementation &amp; closed-loop re-runs)</strong> — 使用新的 prerequisite rule (PRE_K=3) 为 framesamp（所有 14 个 tasks）和 seg_sum（受影响的 tasks）完成 closed-loop runs，以防止过早的 memory marks。</li>
+<li>🔄 <strong>Serial Refresh Implementation (S1-S10)</strong> — 一个多阶段工作流，旨在消除 refresh 浪费，实现 FIFO compute gate，在 samples 之间冻结数值，并部署新的 single-owner scheduler。</li>
+<li>✅ <strong>Implement I-164 (Per-task loss evaluation)</strong> — 开发一个工作流，按 task 和 phase 重新计算 flow-matching loss，以诊断特定的失败原因。</li>
+<li>✅ <strong>Plan Budget Estimation (I-074)</strong> — 实现基于“已花费金额除以利用率百分比”来估算 plan 的美元预算的逻辑，包括针对每个 model 的准确度以及 Codex 的历史 backfilling。</li>
+<li>🔄 <strong>Implement I-163 (Context evaluation)</strong> — 实现新的 context window 变体 (1/3/5 frames) 以及用于 Gemini 评估的结构化 segmentation summaries。</li>
+<li>🔄 <strong>Draft SPEC-2 for trainable parameter counting</strong> — 创建一个规范，以自动化统计各种 fusion modules 和 references 中的 trainable parameters 及 total parameters。</li>
+</ul>
+<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<ul>
+<li>🔄 <strong>Full-scale I-163 execution</strong> — 等待人类对规模的决策 (a: 5 tasks/10 eps vs b: 4 tasks/5 eps)。</li>
+<li>✅ <strong>Fix golden fusion-gen dual-write mismatch</strong> — 更新 tests/test_golden_fusion_gen.py，以反映在 commit eb3f29d 中引入的有意的 gt/gt_labels dual-write。</li>
+<li>✅ <strong>Analyze failure videos</strong> — 查看 StopCube 和 InsertPeg 的失败视频，以识别行为模式。</li>
+<li>✅ <strong>Minecraft server resource optimization</strong> — 分析当前 m8a.xlarge 实例的 CPU/RAM 使用情况，并评估更便宜的迁移选项 (r6a.large, t3a.large 等)。</li>
+<li>✅ <strong>Command usage testing</strong> — 反复调用 /usage 命令以检查稳定性或特定的输出模式。</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-buttonunmask-tasks-中的-early-memory-marks-导致-policy-跳过-subgoals">1. ButtonUnmask tasks 中的 early memory marks 导致 policy 跳过 subgoals。<a hidden class="anchor" aria-hidden="true" href="#1-buttonunmask-tasks-中的-early-memory-marks-导致-policy-跳过-subgoals">#</a></h4>
+<p><strong>Solution:</strong> 在 writer_probe/gemini_v2_env 中添加了一个 &lsquo;prerequisite_done&rsquo; latch，要求在视觉/物理感知到第一步之后，必须连续获得 3 个 &lsquo;done&rsquo; 信号才能启用 marks。</p>
+<h4 id="2-stopcube-具有-low-training-loss-但-low-success-rate">2. StopCube 具有 low training loss 但 low success rate。<a hidden class="anchor" aria-hidden="true" href="#2-stopcube-具有-low-training-loss-但-low-success-rate">#</a></h4>
+<p><strong>Solution:</strong> 重新计算了 phase-specific loss 并分析了 error distribution，发现 loss 被 &lsquo;waiting&rsquo; phases 主导，从而忽略了关键且持续时间短的 &lsquo;pressing&rsquo; timing error。</p>
+<h4 id="3-一次性刷新所有数据导致-cpu-spikes-和-ui-stuttering">3. 一次性刷新所有数据导致 CPU spikes 和 UI stuttering。<a hidden class="anchor" aria-hidden="true" href="#3-一次性刷新所有数据导致-cpu-spikes-和-ui-stuttering">#</a></h4>
+<p><strong>Solution:</strong> 设计了一个 scheduler，将独立的 jobs (archiving, pricing, budgeting) 均匀分布在 refresh interval 中，并使用单一的 atomic publish。</p>
+<h4 id="4-duke-litellm-proxy-的-api-quota-exceeded">4. Duke LiteLLM proxy 的 API quota exceeded。<a hidden class="anchor" aria-hidden="true" href="#4-duke-litellm-proxy-的-api-quota-exceeded">#</a></h4>
+<p><strong>Solution:</strong> 等待用户重置 quota 或注入新 key。</p>
+<h4 id="5-由于固定的-20-error-margin初始的-budget-estimation-太不精确">5. 由于固定的 ±20% error margin，初始的 budget estimation 太不精确。<a hidden class="anchor" aria-hidden="true" href="#5-由于固定的-20-error-margin初始的-budget-estimation-太不精确">#</a></h4>
+<p><strong>Solution:</strong> 实现了一种“基于 stretch”的校准方法，利用一个 model 占主导地位的离散 segments 来计算每个百分点点的真实成本。</p>
+<h4 id="6-insertpeg-失败模式不明确">6. InsertPeg 失败模式不明确。<a hidden class="anchor" aria-hidden="true" href="#6-insertpeg-失败模式不明确">#</a></h4>
+<p><strong>Solution:</strong> 分析了 loss 和视频，确定这是一个 contact-precision 问题，而不是 memory 或 learning 问题。</p>
+<h4 id="7-codex-limit-estimation-缺乏新安装环境的历史数据">7. Codex limit estimation 缺乏新安装环境的历史数据。<a hidden class="anchor" aria-hidden="true" href="#7-codex-limit-estimation-缺乏新安装环境的历史数据">#</a></h4>
+<p><strong>Solution:</strong> 构建了一个专门的 log parser，直接从现有的 Codex session JSONL 文件中 backfill plan budget 数据。</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="8-golden-test-test_golden_fusion_genpy-因输出数组的-assertion-mismatch-而失败预期仅为-gt而-pipeline-现在写入-gt-和-gt_labels">8. Golden test &rsquo;test_golden_fusion_gen.py&rsquo; 因输出数组的 assertion mismatch 而失败（预期仅为 &lsquo;gt&rsquo;，而 pipeline 现在写入 &lsquo;gt&rsquo; 和 &lsquo;gt_labels&rsquo;）。<a hidden class="anchor" aria-hidden="true" href="#8-golden-test-test_golden_fusion_genpy-因输出数组的-assertion-mismatch-而失败预期仅为-gt而-pipeline-现在写入-gt-和-gt_labels">#</a></h4>
+<p><strong>Solution:</strong> 通过 git log (eb3f29d) 确认 dual-write 是为了统一 schemas 的有意架构决策；更新了测试以断言两个 keys 并验证它们的相等性。</p>
+<h4 id="9-minecraft-server-在新的-r6alarge-实例上进行-player-chunk-generation-时出现-lag-tps-drop">9. Minecraft server 在新的 r6a.large 实例上进行 player chunk generation 时出现 lag (TPS drop)。<a hidden class="anchor" aria-hidden="true" href="#9-minecraft-server-在新的-r6alarge-实例上进行-player-chunk-generation-时出现-lag-tps-drop">#</a></h4>
+<p><strong>Solution:</strong> 确定原因是高负载 chunk generation 期间只有一个 physical core (2 hyperthreads) 的限制；建议减少 view distance 或使用 pre-generation tools。</p>
+<h4 id="10-ai-尝试使用-shell-redirectionpiping这被-system-guard-拦截">10. AI 尝试使用 shell redirection/piping，这被 system guard 拦截。<a hidden class="anchor" aria-hidden="true" href="#10-ai-尝试使用-shell-redirectionpiping这被-system-guard-拦截">#</a></h4>
+<p><strong>Solution:</strong> 切换到使用 Edit tool 来写入文件，并移除了 bash 命令中的 redirection，以符合安全约束。</p>
+<h4 id="11-在长时间运行的-remote-tasks-期间出现间歇性-tunnel-failure">11. 在长时间运行的 remote tasks 期间出现间歇性 tunnel failure。<a hidden class="anchor" aria-hidden="true" href="#11-在长时间运行的-remote-tasks-期间出现间歇性-tunnel-failure">#</a></h4>
+<p><strong>Solution:</strong> 集成了自动 tunnel reconnection 逻辑，并通过 remote sleep/ssh 监控 session health。</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="loss-as-a-metric-for-success">Loss as a metric for success<a hidden class="anchor" aria-hidden="true" href="#loss-as-a-metric-for-success">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>质疑为什么 low loss 不会转化为 high success rates。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>计算了 loss concentration (top 5% share) 和 phase-specific statistics，以证明平均 loss 掩盖了关键的 timing errors。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> 人类提供了关键的直觉/问题（为什么存在这种差异），而 AI 提供了数学推导和诊断框架。</p>
+<h4 id="refresh-scheduling">Refresh Scheduling<a hidden class="anchor" aria-hidden="true" href="#refresh-scheduling">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>N/A</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>提出了各种 scheduling fixes 和 individual job optimizations。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> 人类规定了核心架构需求：任务必须分散在 interval 中以防止 spikes，且 UI 只有在计算出的数据准备就绪时才进行 refresh，在此期间显示 cached values。</p>
+<h4 id="budget-estimation-methodology">Budget Estimation Methodology<a hidden class="anchor" aria-hidden="true" href="#budget-estimation-methodology">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>N/A</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初提出了一种简单的 spend/utilization ratio，并带有静态的 ±20% error margin。</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
+<h4 id="codebase-debugging-stale-assertions">Codebase debugging (Stale assertions)<a hidden class="anchor" aria-hidden="true" href="#codebase-debugging-stale-assertions">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>提供了失败的初始 context，并指出了导致 drift 的特定 commit (eb3f29d)。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>系统地探测 codebase 以寻找被初始 crash 掩盖的“隐藏”失败，并在第 432 行发现了第二个 stale assertion。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> AI 通过循环运行单个 test functions 的能力，使其能够发现用户尚未察觉的错误。</p>
+<h4 id="decision-on-pickhighlight-truth">Decision on PickHighlight truth<a hidden class="anchor" aria-hidden="true" href="#decision-on-pickhighlight-truth">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>N/A</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>实现与 80k ckpt 一致的 prerequisite rule（在按钮按下前不要绘制）。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> 用户需要确认这是否与 9/23 的新 truth definition 冲突。</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
+<ul>
+<li>AI 未能考虑到不同 models 对 total limit 的影响速率不同（例如 cache hits vs. full input），导致早期估算不精确。</li>
+</ul>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<ul>
+<li>AI 最初在处理由 environment guard 强制执行的 shell command syntax 约束（redirection/piping）时遇到困难。</li>
+<li>由于 repository security guards（保护 &lsquo;git commit&rsquo; 动词），AI 无法直接执行 git commit，需要人类执行最终命令。</li>
+</ul>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<ul>
+<li>在成功取决于单一、短暂且关键动作窗口（例如 StopCube timing）的长程任务中，Average loss 可能会产生误导。</li>
+<li>通过单个 model 使用的 &lsquo;stretches&rsquo; 来计算 budget，提供了一种能够适应 provider 变化的自我修正准确性机制。</li>
+<li>training loss 与 success rate 之间的 Rank correlation 可能很低 (-0.51)，尤其是在 &rsquo;easy&rsquo; 阶段稀释了 loss 时。</li>
+</ul>
+<h3 id="practical-learnings">Practical Learnings<a hidden class="anchor" aria-hidden="true" href="#practical-learnings">#</a></h3>
+<ul>
+<li>对于 Minecraft servers，相比于原始的 vCPU 数量，CPU core count（physical cores vs hyperthreads）和 single-core speed 对于 chunk generation 期间的稳定性更为关键。</li>
+<li>当脚本在某一行失败时，同一脚本中后续的其他 assertions 也可能是 stale 的；必须手动探测单个 test functions 以确保完全覆盖。</li>
+</ul>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<h3 id="claude-code-environment">Claude Code Environment<a hidden class="anchor" aria-hidden="true" href="#claude-code-environment">#</a></h3>
+<p><strong>✅ Repetitive /usage command testing</strong>
+用户连续多次执行 /usage command，以观察系统行为和 command response 的一致性。</p>
+<h3 id="robomemory">RoboMemory<a hidden class="anchor" aria-hidden="true" href="#robomemory">#</a></h3>
+<p><strong>✅ Diagnostic analysis of StopCube and InsertPeg</strong>
+分析了失败视频并重新计算了 phase-specific losses。发现 StopCube 失败是因为视觉 &lsquo;badge&rsquo; 信号相对于所需动作时机的更新太晚。InsertPeg 被确定为精度问题。</p>
+<h3 id="tokenmonitor">TokenMonitor<a hidden class="anchor" aria-hidden="true" href="#tokenmonitor">#</a></h3>
+<p><strong>🔍 Serial Refresh Architecture Design</strong>
+<em>21:52:42.000 | claude_code</em>
+用户请求转向 &lsquo;serial refresh&rsquo; 模型以防止 CPU spikes。启动了一个复杂的多阶段 workflow 以实现：1. 实现 timeouts，2. 每小时归档一次数据，3. 实现一个 FIFO compute gate，以及 4. 创建一个新的 master scheduler (refresh.rs)。该 workflow 目前正在执行 S9 和 S10 阶段。</p>
+<p><strong>✅ Plan Budget Estimation Implementation</strong>
+<em>04:35:20.677 | claude_code</em>
+用户请求一项功能，用于显示 AI plans 的预估 USD budgets。AI 实现了一个通过 usage/utilization ratios 计算 budget 的系统，为 Claude/Kimi 添加了 historical archive，并从本地 logs 中回填了 Codex 数据。测试已通过，UI 已更新为带有紧凑、感知单位的 budget labels。</p>
+<h3 id="mihd">MIHD<a hidden class="anchor" aria-hidden="true" href="#mihd">#</a></h3>
+<p><strong>🔍 Parameter Counting SPEC</strong>
+起草了一份详细的技术规范 (SPEC-2)，用于统计 NCL 的可训练参数、ablation studies 以及诸如 QueST 和 STAIG original 等外部引用。</p>
+<p><strong>✅ Fix golden fusion-gen dual-write</strong>
+调查了 test_golden_fusion_gen.py 中的失败原因。确定 commit eb3f29d 为 &lsquo;gt&rsquo; 和 &lsquo;gt_labels&rsquo; 引入了刻意的 dual-write。更新了 test suite 以预期这两个 keys，确保所有 14 个 golden tests 通过。</p>
+<h3 id="minecraft-server">Minecraft Server<a hidden class="anchor" aria-hidden="true" href="#minecraft-server">#</a></h3>
+<p><strong>✅ Cost and Performance Analysis</strong>
+分析了 AWS instance 的使用情况和定价。确定与当前的 m8a.xlarge 相比，迁移到 r6a.large (16GB) 或 r8a.large (16GB) 能在成本和稳定性之间提供更好的平衡。</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-09-24</span>
+        <span class="usage-card__source">Claude Code</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$129.57</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>346M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>81K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>96.6%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 96.6%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 3.4%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (96.6%), active tokens (3.4%)">
+          <span style="width:96.6%; background:var(--usage-cache)"></span>
+          <span style="width:3.4%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:ea302dc9bb2127fe -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
