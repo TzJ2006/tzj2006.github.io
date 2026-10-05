@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="light">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-10-03 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="评估了 OmniJev visual-only arm，其实现了 77.5% 的成功率，并进行了 GPT-6 Astra 与 Gemini 3.1 Pro 之间的对比测试，发现 Astra 在长期物体身份跟踪和 visual prompting 方面具有优势。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-10-03/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.293529ec85794278c97efa5df449767967cd94bca174a774a375e1a0efe5bbc7.css" integrity="sha256-KTUp7IV5QnjJfvpd9El2eWfNlLyhdKd0o3XhoO/lu8c=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-10-03/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-10-03/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-10-03/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-10-03">
+  <meta property="og:description" content="评估了 OmniJev visual-only arm，其实现了 77.5% 的成功率，并进行了 GPT-6 Astra 与 Gemini 3.1 Pro 之间的对比测试，发现 Astra 在长期物体身份跟踪和 visual prompting 方面具有优势。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-10-03T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-10-03T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-10-03">
+  <meta name="twitter:description" content="评估了 OmniJev visual-only arm，其实现了 77.5% 的成功率，并进行了 GPT-6 Astra 与 Gemini 3.1 Pro 之间的对比测试，发现 Astra 在长期物体身份跟踪和 visual prompting 方面具有优势。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-10-03",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-10-03/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-10-03",
+  "name": "Bug Journal 2026-10-03",
+  "description": "评估了 OmniJev visual-only arm，其实现了 77.5% 的成功率，并进行了 GPT-6 Astra 与 Gemini 3.1 Pro 之间的对比测试，发现 Astra 在长期物体身份跟踪和 visual prompting 方面具有优势。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-10-03 Daily Overview 完成工作： 在 16 个 RoboMME 任务中评估了 OmniJev visual-only robotic memory arm，并针对高难度任务中 GPT-6 Astra 与 Gemini 3.1 Pro 的 visual prompt 生成质量进行了对比实验。 实施方式： 为 OmniJev 实现了一个 ‘chat shim’ 和 wrist-camera proprioception，并开发了一套配对的 offline replay 和 online closed-loop testing 框架，使用相同的视频序列来对比 Astra 和 Gemini。 影响： 证明了通过 structured state machines，轻量级的 2B 模型可以达到与 Gemini 相当的性能，并发现了一个显著的性能差距：Astra 在 spatial/temporal reasoning 和 target identity tracking 方面优于 Gemini。 评估了 OmniJev visual-only arm，其达到了 77.5% 的成功率，并进行了 GPT-6 Astra 与 Gemini 3.1 Pro 之间的对比测试，发现 Astra 在 long-term object identity tracking 和 visual prompting 方面具有优势。\nTasks Architecture \u0026 Strategy ✅ OmniJev Protocol Implementation — 构建了一个 chat shim，将 Gemini protocol calls 转换为受限的 OmniJev 问题类型（yes/no, multiple choice），并实现了一个独立的 evaluation directory。 ✅ Closed-loop Evaluation — 在 tianhe3 上使用 visual-only arm 对 16 个任务进行了完整的 closed-loop evaluations，总成功率为 124/160。 🔄 Astra vs Gemini Visual Prompt Comparison — 通过配对的 side-by-side videos 和 closed-loop evaluations，让 Astra 和 Gemini 3.1 Pro 在 VideoRepick 和 VideoPlaceButton 的相同视频 replay 上生成 visual prompts，从而进行对比。 ✅ Wrist-Camera Proprioception Integration (I-173) — 在 BinFill, PickXtimes, 和 InsertPeg 任务中，将 high-level proprioceptive data 替换为 wrist-camera visual readings，包括将 BOARD_R threshold 调整为 60px 以适应 visual noise。 Implementation \u0026 Fixes ✅ Infrastructure Setup and API Debugging — 开发了 astra_route_pilot.py, 并将其与 tianhe3 集成，解决了 API 参数不匹配（max_tokens vs max_completion_tokens）以及 LiteLLM proxy 限制的问题。 ✅ Optimization of Patch Embeddings — 将缓慢的 bf16 conv3d patch embedding 替换为等效的 linear layer，将每张图像的 latency 从 16s 降低到 0.06ms。 Problems \u0026 Solutions Critical Issues 1. OmniJev 无法进行 long-term temporal reasoning (VideoPlace/Repick)。 Solution: 将 temporal sequencing 和 event retrieval 逻辑从 VLM 转移到了基于 code 的 state machine（即 ‘Memory’ 部分）。\nGeneral Issues 2. BinFill 任务在 closed-loop 中由于 wrist-camera pose error (visual noise) 而失败。 Solution: 根据在 training set 中观察到的最大误差，将 BOARD_R threshold 从 40px 增加到 60px。\n3. API 兼容性和 proxy 错误：参数名称不匹配（max_tokens vs max_completion_tokens）以及 Astra 模型不支持 ‘reasoning_effort’。 Solution: 对 compare_eval_entry.py 进行了 patch 以正确映射参数，并应用了 ‘allowed_openai_params’ flag，通过 LiteLLM proxy 允许使用 reasoning 参数。\n4. 尝试向 Duke EGR LiteLLM proxy 发送 demonstration images 时触发了自动安全拦截。 Solution: 通过 secure prompt 请求用户明确授权以继续实验。\nHuman vs AI Approaches Strategic Level System Architecture Strategy Role Approach Human Human 提出将 memory task 分解为 ‘Code for sequence/state’ 和 ‘VLM for perception’。 AI AI 最初将 OmniJev 分析为所有 memory tasks 中 Gemini 的潜在直接替代品。 Difference Analysis: Human 意识到 VLM 在 temporal reasoning 方面的弱点是一个瓶颈，从而设计出由 VLM 仅回答 ‘is this state true’ 而由 code 管理 ‘count/sequence’ 的方案。\nTask Selection for Model Comparison Role Approach Human 建议专门测试 VideoRepick 和 VideoPlaceButton 来对比 Astra 与 Gemini 3.1 Pro，优先选择测试 semantic memory 和 identity tracking 的任务。 AI 最初基于在易于衡量的 trajectory tasks 中历史成功率差距，优先选择了 RouteStick 和 PatternLock。 Difference Analysis: Human 的洞察力正确地优先考虑了核心难度在于 cross-frame memory 和 object identity 而非仅仅是 geometric pathing 的任务。\nAI Limitations General Limitations 未能识别出单张 snapshot 的 side-by-side comparison 是不够的，忽略了对 progressive (video-based) visual prompts 的需求。 最初未能定位 OmniJev 的工作，因为它存储在之前 session 的 scratchpad 中，而不是主 repository。 提议评估 RouteStick/PatternLock，这在测试 deep memory 方面不如 VideoRepick 有效。 Learnings Key Learnings 如果 ‘memory’ (sequence/counting) 由 structured state machine 和 visual prompts 处理，那么轻量级的 2B 模型对于 perception tasks 是足够的。 GPT-6 Astra 在一系列动作之后（例如 VideoPlaceButton）‘记住’ target 方面显示出比 Gemini 3.1 Pro 显著的优势，而 Gemini 往往会丢失特定的 object identity。 在 expert demonstrations (training set) 上优化的 rules 在 policy rollout 期间经常由于 visual appearance 的 distribution shift 而失败。 Visual prompt quality (circles/badges) 可以通过 matched-replay videos 独立于 policy success 进行评估，从而实现将模型的 ‘writing’ 能力与 ‘driving’ 能力分离。 Conversation Summaries RoboMemory 🔄 OmniJev Evaluation and Astra vs Gemini Comparison 团队专注于两个主要方面：验证 OmniJev 2B 模型作为 visual-only writer 的有效性，以及进行 GPT-6 Astra 与 Gemini 3.1 Pro 之间的对比研究。OmniJev 在与基于 code 的 state machine 配对时表现出了有效性 (77.5% success)。同时，针对 Astra 的新测试 pipeline 显示，在处理 VideoPlaceButton 等复杂任务时，其维持 object identity 的能力优于 Gemini。\nClaude Usage Inquiry ✅ Account Usage Investigation 用户询问为什么尽管每周使用量已达 100%，Claude app 仍能工作。AI 确认 ’extra usage’ 计费已被禁用，这意味着配额执行或舍入存在延迟。\nToken Usage AI Usage · 2026-10-03\rClaude Code + Codex\rTotal cost$22.66\rTotal tokens25M\rOutput tokens124K\rCache read95.4%\rCost split\rClaude Code $10 ·\rCodex $13\rToken character\rCache reads 95.4% ·\rActive 4.6%\rMost token volume came from cache reads.\r",
+  "wordCount" : "602",
+  "inLanguage": "zh",
+  "datePublished": "2026-10-03T00:00:00-04:00",
+  "dateModified": "2026-10-03T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-10-03/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/bugjournal/daily/2026-10-03/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="博文">
+                    <span>博文</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <details class="menu-disclosure">
+                    <summary>工作日志 <span class="submenu-caret" aria-hidden="true">▾</span></summary>
+                <ul class="submenu" aria-label="工作日志">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>日报</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>周报</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>月报</span>
+                        </a>
+                    </li>
+                </ul>
+                </details>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="算法笔记">
+                    <span>算法笔记</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="性能测试">
+                    <span>性能测试</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-10-03
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-10-03 00:00:00 -0400 EDT'>2026年10月3日</span>&nbsp;·&nbsp;<span>3 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-10-03">Daily Report — 2026-10-03<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-10-03">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>完成工作：</strong> 在 16 个 RoboMME 任务中评估了 OmniJev visual-only robotic memory arm，并针对高难度任务中 GPT-6 Astra 与 Gemini 3.1 Pro 的 visual prompt 生成质量进行了对比实验。</li>
+<li><strong>实施方式：</strong> 为 OmniJev 实现了一个 &lsquo;chat shim&rsquo; 和 wrist-camera proprioception，并开发了一套配对的 offline replay 和 online closed-loop testing 框架，使用相同的视频序列来对比 Astra 和 Gemini。</li>
+<li><strong>影响：</strong> 证明了通过 structured state machines，轻量级的 2B 模型可以达到与 Gemini 相当的性能，并发现了一个显著的性能差距：Astra 在 spatial/temporal reasoning 和 target identity tracking 方面优于 Gemini。</li>
+</ul>
+<blockquote>
+<p>评估了 OmniJev visual-only arm，其达到了 77.5% 的成功率，并进行了 GPT-6 Astra 与 Gemini 3.1 Pro 之间的对比测试，发现 Astra 在 long-term object identity tracking 和 visual prompting 方面具有优势。</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<ul>
+<li>✅ <strong>OmniJev Protocol Implementation</strong> — 构建了一个 chat shim，将 Gemini protocol calls 转换为受限的 OmniJev 问题类型（yes/no, multiple choice），并实现了一个独立的 evaluation directory。</li>
+<li>✅ <strong>Closed-loop Evaluation</strong> — 在 tianhe3 上使用 visual-only arm 对 16 个任务进行了完整的 closed-loop evaluations，总成功率为 124/160。</li>
+<li>🔄 <strong>Astra vs Gemini Visual Prompt Comparison</strong> — 通过配对的 side-by-side videos 和 closed-loop evaluations，让 Astra 和 Gemini 3.1 Pro 在 VideoRepick 和 VideoPlaceButton 的相同视频 replay 上生成 visual prompts，从而进行对比。</li>
+<li>✅ <strong>Wrist-Camera Proprioception Integration (I-173)</strong> — 在 BinFill, PickXtimes, 和 InsertPeg 任务中，将 high-level proprioceptive data 替换为 wrist-camera visual readings，包括将 BOARD_R threshold 调整为 60px 以适应 visual noise。</li>
+</ul>
+<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<ul>
+<li>✅ <strong>Infrastructure Setup and API Debugging</strong> — 开发了 <code>astra_route_pilot.py</code>, 并将其与 tianhe3 集成，解决了 API 参数不匹配（max_tokens vs max_completion_tokens）以及 LiteLLM proxy 限制的问题。</li>
+<li>✅ <strong>Optimization of Patch Embeddings</strong> — 将缓慢的 bf16 conv3d patch embedding 替换为等效的 linear layer，将每张图像的 latency 从 16s 降低到 0.06ms。</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-omnijev-无法进行-long-term-temporal-reasoning-videoplacerepick">1. OmniJev 无法进行 long-term temporal reasoning (VideoPlace/Repick)。<a hidden class="anchor" aria-hidden="true" href="#1-omnijev-无法进行-long-term-temporal-reasoning-videoplacerepick">#</a></h4>
+<p><strong>Solution:</strong> 将 temporal sequencing 和 event retrieval 逻辑从 VLM 转移到了基于 code 的 state machine（即 &lsquo;Memory&rsquo; 部分）。</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="2-binfill-任务在-closed-loop-中由于-wrist-camera-pose-error-visual-noise-而失败">2. BinFill 任务在 closed-loop 中由于 wrist-camera pose error (visual noise) 而失败。<a hidden class="anchor" aria-hidden="true" href="#2-binfill-任务在-closed-loop-中由于-wrist-camera-pose-error-visual-noise-而失败">#</a></h4>
+<p><strong>Solution:</strong> 根据在 training set 中观察到的最大误差，将 BOARD_R threshold 从 40px 增加到 60px。</p>
+<h4 id="3-api-兼容性和-proxy-错误参数名称不匹配max_tokens-vs-max_completion_tokens以及-astra-模型不支持-reasoning_effort">3. API 兼容性和 proxy 错误：参数名称不匹配（max_tokens vs max_completion_tokens）以及 Astra 模型不支持 &lsquo;reasoning_effort&rsquo;。<a hidden class="anchor" aria-hidden="true" href="#3-api-兼容性和-proxy-错误参数名称不匹配max_tokens-vs-max_completion_tokens以及-astra-模型不支持-reasoning_effort">#</a></h4>
+<p><strong>Solution:</strong> 对 <code>compare_eval_entry.py</code> 进行了 patch 以正确映射参数，并应用了 &lsquo;allowed_openai_params&rsquo; flag，通过 LiteLLM proxy 允许使用 reasoning 参数。</p>
+<h4 id="4-尝试向-duke-egr-litellm-proxy-发送-demonstration-images-时触发了自动安全拦截">4. 尝试向 Duke EGR LiteLLM proxy 发送 demonstration images 时触发了自动安全拦截。<a hidden class="anchor" aria-hidden="true" href="#4-尝试向-duke-egr-litellm-proxy-发送-demonstration-images-时触发了自动安全拦截">#</a></h4>
+<p><strong>Solution:</strong> 通过 secure prompt 请求用户明确授权以继续实验。</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="system-architecture-strategy">System Architecture Strategy<a hidden class="anchor" aria-hidden="true" href="#system-architecture-strategy">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>Human 提出将 memory task 分解为 &lsquo;Code for sequence/state&rsquo; 和 &lsquo;VLM for perception&rsquo;。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>AI 最初将 OmniJev 分析为所有 memory tasks 中 Gemini 的潜在直接替代品。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 意识到 VLM 在 temporal reasoning 方面的弱点是一个瓶颈，从而设计出由 VLM 仅回答 &lsquo;is this state true&rsquo; 而由 code 管理 &lsquo;count/sequence&rsquo; 的方案。</p>
+<h4 id="task-selection-for-model-comparison">Task Selection for Model Comparison<a hidden class="anchor" aria-hidden="true" href="#task-selection-for-model-comparison">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>建议专门测试 VideoRepick 和 VideoPlaceButton 来对比 Astra 与 Gemini 3.1 Pro，优先选择测试 semantic memory 和 identity tracking 的任务。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初基于在易于衡量的 trajectory tasks 中历史成功率差距，优先选择了 RouteStick 和 PatternLock。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 的洞察力正确地优先考虑了核心难度在于 cross-frame memory 和 object identity 而非仅仅是 geometric pathing 的任务。</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<ul>
+<li>未能识别出单张 snapshot 的 side-by-side comparison 是不够的，忽略了对 progressive (video-based) visual prompts 的需求。</li>
+<li>最初未能定位 OmniJev 的工作，因为它存储在之前 session 的 scratchpad 中，而不是主 repository。</li>
+<li>提议评估 RouteStick/PatternLock，这在测试 deep memory 方面不如 VideoRepick 有效。</li>
+</ul>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<ul>
+<li>如果 &lsquo;memory&rsquo; (sequence/counting) 由 structured state machine 和 visual prompts 处理，那么轻量级的 2B 模型对于 perception tasks 是足够的。</li>
+<li>GPT-6 Astra 在一系列动作之后（例如 VideoPlaceButton）&lsquo;记住&rsquo; target 方面显示出比 Gemini 3.1 Pro 显著的优势，而 Gemini 往往会丢失特定的 object identity。</li>
+<li>在 expert demonstrations (training set) 上优化的 rules 在 policy rollout 期间经常由于 visual appearance 的 distribution shift 而失败。</li>
+<li>Visual prompt quality (circles/badges) 可以通过 matched-replay videos 独立于 policy success 进行评估，从而实现将模型的 &lsquo;writing&rsquo; 能力与 &lsquo;driving&rsquo; 能力分离。</li>
+</ul>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<h3 id="robomemory">RoboMemory<a hidden class="anchor" aria-hidden="true" href="#robomemory">#</a></h3>
+<p><strong>🔄 OmniJev Evaluation and Astra vs Gemini Comparison</strong>
+团队专注于两个主要方面：验证 OmniJev 2B 模型作为 visual-only writer 的有效性，以及进行 GPT-6 Astra 与 Gemini 3.1 Pro 之间的对比研究。OmniJev 在与基于 code 的 state machine 配对时表现出了有效性 (77.5% success)。同时，针对 Astra 的新测试 pipeline 显示，在处理 VideoPlaceButton 等复杂任务时，其维持 object identity 的能力优于 Gemini。</p>
+<h3 id="claude-usage-inquiry">Claude Usage Inquiry<a hidden class="anchor" aria-hidden="true" href="#claude-usage-inquiry">#</a></h3>
+<p><strong>✅ Account Usage Investigation</strong>
+用户询问为什么尽管每周使用量已达 100%，Claude app 仍能工作。AI 确认 &rsquo;extra usage&rsquo; 计费已被禁用，这意味着配额执行或舍入存在延迟。</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-10-03</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$22.66</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>25M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>124K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>95.4%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $10</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $13</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (44.3%), Codex (55.7%)">
+          <span style="width:44.3%; background:var(--usage-cost-main)"></span>
+          <span style="width:55.7%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 95.4%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 4.6%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (95.4%), active tokens (4.6%)">
+          <span style="width:95.4%; background:var(--usage-cache)"></span>
+          <span style="width:4.6%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:7be15e37d6d183ef -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
