@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="light">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-10-07 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="成功执行了一次大规模 VLM 评估，实现了 77.5% 的成功率，并实现了一种跨主机 GPU 租赁共享机制，为 WeChat bot 实现了基于视觉的贴纸自动化。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-10-07/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.293529ec85794278c97efa5df449767967cd94bca174a774a375e1a0efe5bbc7.css" integrity="sha256-KTUp7IV5QnjJfvpd9El2eWfNlLyhdKd0o3XhoO/lu8c=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-10-07/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-10-07/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-10-07/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-10-07">
+  <meta property="og:description" content="成功执行了一次大规模 VLM 评估，实现了 77.5% 的成功率，并实现了一种跨主机 GPU 租赁共享机制，为 WeChat bot 实现了基于视觉的贴纸自动化。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-10-07T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-10-07T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-10-07">
+  <meta name="twitter:description" content="成功执行了一次大规模 VLM 评估，实现了 77.5% 的成功率，并实现了一种跨主机 GPU 租赁共享机制，为 WeChat bot 实现了基于视觉的贴纸自动化。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-10-07",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-10-07/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-10-07",
+  "name": "Bug Journal 2026-10-07",
+  "description": "成功执行了一次大规模 VLM 评估，实现了 77.5% 的成功率，并实现了一种跨主机 GPU 租赁共享机制，为 WeChat bot 实现了基于视觉的贴纸自动化。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-10-07 Daily Overview 完成工作： 使用新的基于 constraint 的 memory framework 和 GPT-6 Astra 对 16 个 robotic tasks 进行了大规模 closed-loop evaluation，同时实现了一个在 host 和 Hyper-V VM 之间共享 GPU lease registries 的系统，用于 sticker collection automation。 实施方式： 在 Tianhe3 cluster 上利用 remote execution，并针对 robotics 使用了基于 Python 的 failure attribution；通过 directory junctions 修改了 ‘model_access’ library，以支持 VM automation 项目中的 multi-host tracking。 影响： 证明了新的 VLM memory framework 接近理论上的 oracle-guided upper bound (80.6%)，并实现了在虚拟化环境中进行基于 vision 的 sticker scanning，且未损害 host 的 GPU resource protection。 成功执行了大规模 VLM evaluation，达到了 77.5% 的 success rate，并实现了 cross-host GPU lease sharing 机制，从而为 WeChat bot 实现了基于 vision 的 sticker automation。\nTasks Architecture \u0026 Strategy ✅ Main Experiment Execution — 使用新的 memory framework 和 GPT-6 Astra 运行 16-task evaluation suite。 ✅ GPU Lease Sharing (Option 2) — 修改 model_access 以支持 multi-host tracking，并通过 junctions 在 host 和 VM 之间设置 shared directory。 ✅ Failure Attribution Analysis — 分析 36 个 failed episodes，以区分 policy failures 和 memory errors。 🔄 Comparison and Ablation Study — 准备并验证 ablation study 代码，用于进一步的 comparative experiments。 🔄 Automated WeChat Sticker Addition — 开发并调试脚本，通过 emoji panel automation 将下载的 stickers 添加到 WeChat。 Implementation \u0026 Fixes ✅ Sticker Collection — 查找并下载约 100 个 AI-girl stickers 和约 100 个 AI-related stickers，并分类存放在不同文件夹中。 ✅ RouteStick Episode 6 Rerun — 重新运行一个因 ‘Connection reset by peer’ 网络错误而失败的特定 episode。 🔄 Sticker Scanning Optimization — 改进 sticker scanning script，以支持 WeChat emoji panel 的 full scrolling 并处理 permission errors。 Problems \u0026 Solutions Critical Issues 1. VM 由于缺少 ‘model_access’ package 且缺乏 shared GPU lease registry，无法访问 local vision models。 Solution: 修改 ‘model_access’ 以在 leases 中 track ‘host’ 名称，并使用 directory junctions 在 host 和 VM 之间共享 lease JSON file。\n2. WeChat 4.x image right-click menu 缺少 ‘Add to Stickers’ 选项，破坏了初始的 automation logic。 Solution: 重写 addition script，使用 ‘Emoji Panel -\u003e Custom Stickers -\u003e +’ 的 workflow 来代替 context menu。\nGeneral Issues 3. Evaluation script 会自动跳过 log 中标记为 ’error’ 的 episodes，导致无法重试。 Solution: 分析了 eval.py skip logic，并实现了一种通过启动 separate run 来仅针对 errored episode 运行的方法，且不影响 main results。\n4. 通过 SSH tunnel 连接 LLM interface 的 remote connection 不稳定。 Solution: 监控 tunnel 状态，并在 proxy 变得可达后验证了 automatic reconnection。\n5. RouteStick 的 Episode 6 因网络 ‘Connection reset by peer’ 错误而失败。 Solution: 将其识别为 infrastructure issue 而非 policy failure，并针对该特定 episode 执行了 targeted rerun。\n6. 在 System32 目录下运行 automation scripts 时，由于 uiautomation 尝试写入 logs，导致 PermissionError。 Solution: 修改 scripts，使其在启动时显式地将 current working directory 更改为 TEMP folder。\nHuman vs AI Approaches Strategic Level Drift Prevention Strategy Role Approach Human 建议添加 ‘settled-state’ check，以确保仅在物体完全稳定时才开始 recording。 AI 提出了更稳健的 technical implementation：在 server side 计算 settled state 并将其保存在 distribution package 中，以确保在不同 OS/hardware 下实现 bit-wise identical 的 starting points。 Difference Analysis: Human 提供了直观的 physical requirement，而 AI 提供了正确的分布式系统 solution 以防止 floating-point drift。\nGPU Lease Management Strategy Role Approach Human 提出了一种让 VM 和 host 共享相同 registry (Option 2) 的 solution，以确保 host 的 GPU protection 不会被 VM 清除。 AI 识别出了 logic conflict，即 library 仅检查 local PIDs，如果不处理会导致 cross-host lease corruption。 Difference Analysis: Human 提供了 strategic direction (Option 2)，而 AI 完成了 multi-host awareness 和 junction linking 的复杂 technical implementation。\nAI Limitations General Limitations 需要提醒 AI 检查特定的 code logic，以确认 status table 如何统计 ’error’ vs ‘success’，从而确保 data integrity。 在 automation 期间，由于 window occlusion 或 black screenshots，难以访问/查看 VM desktop。 Learnings Key Learnings 新方法达到了与 handwritten rules 持平的效果，这对于一个基于 VLM 的 autonomous framework 来说是一个很强的 claim。 当前系统中 75% 的 failures 源于 policy execution 而非 memory errors，这表明下一个 bottleneck 是 policy robustness。 在实现 cross-host resource management 时，track ‘host’ 名称至关重要，因为 PIDs 在 network shares 之间不是唯一的或可达的。 Conversation Summaries RoboMemory Harness ✅ Main Experiment Completion and Result Analysis 完成了 160 个 episodes 的 main evaluation run。新 framework 达到了 77.5% 的 success rate，显著优于 FrameSamp (47.5%)。详细的 failure attribution 显示大多数 errors 与 policy 相关。更新了 final results 和 PPT。\nErrorRecoveryBenchmark 🔍 Drift Prevention via Settled-State 讨论了通过在 recording 前等待 stable state 来处理 object drift 的问题。决定 stability 必须在 server 端预先计算，以确保 cross-platform consistency。\nWeAgent Sticker System 🔄 AI Sticker Collection and WeChat Integration 用户请求收集 AI-themed stickers。AI 成功从 GitHub repositories 爬取了 183 个 stickers。随后的工作重点是通过 UI automation 将这些 stickers 自动添加到 WeChat，期间遇到了包括 menu changes 和 directory permissions 在内的多个障碍。\nPersonalAgent Model Access ✅ Cross-host GPU Lease Synchronization 通过实现 shared resource directory 解决了 VM 中的 ‘model_access’ error。修改了核心 ‘model_access’ library 以支持 multi-host lease tracking，并通过 custom probe script 成功验证了 synchronization。\nToken Usage\nAI Usage · 2026-10-07\rClaude Code + Codex\rTotal cost$44.29\rTotal tokens173M\rOutput tokens273K\rCache read96.9%\rCost split\rClaude Code $43 ·\rCodex $1\rToken character\rCache reads 96.9% ·\rActive 3.1%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "708",
+  "inLanguage": "zh",
+  "datePublished": "2026-10-07T00:00:00-04:00",
+  "dateModified": "2026-10-07T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-10-07/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/bugjournal/daily/2026-10-07/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="博文">
+                    <span>博文</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <details class="menu-disclosure">
+                    <summary>工作日志 <span class="submenu-caret" aria-hidden="true">▾</span></summary>
+                <ul class="submenu" aria-label="工作日志">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>日报</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>周报</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>月报</span>
+                        </a>
+                    </li>
+                </ul>
+                </details>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="算法笔记">
+                    <span>算法笔记</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="性能测试">
+                    <span>性能测试</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-10-07
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-10-07 00:00:00 -0400 EDT'>2026年10月7日</span>&nbsp;·&nbsp;<span>4 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-10-07">Daily Report — 2026-10-07<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-10-07">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>完成工作：</strong> 使用新的基于 constraint 的 memory framework 和 GPT-6 Astra 对 16 个 robotic tasks 进行了大规模 closed-loop evaluation，同时实现了一个在 host 和 Hyper-V VM 之间共享 GPU lease registries 的系统，用于 sticker collection automation。</li>
+<li><strong>实施方式：</strong> 在 Tianhe3 cluster 上利用 remote execution，并针对 robotics 使用了基于 Python 的 failure attribution；通过 directory junctions 修改了 &lsquo;model_access&rsquo; library，以支持 VM automation 项目中的 multi-host tracking。</li>
+<li><strong>影响：</strong> 证明了新的 VLM memory framework 接近理论上的 oracle-guided upper bound (80.6%)，并实现了在虚拟化环境中进行基于 vision 的 sticker scanning，且未损害 host 的 GPU resource protection。</li>
+</ul>
+<blockquote>
+<p>成功执行了大规模 VLM evaluation，达到了 77.5% 的 success rate，并实现了 cross-host GPU lease sharing 机制，从而为 WeChat bot 实现了基于 vision 的 sticker automation。</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<ul>
+<li>✅ <strong>Main Experiment Execution</strong> — 使用新的 memory framework 和 GPT-6 Astra 运行 16-task evaluation suite。</li>
+<li>✅ <strong>GPU Lease Sharing (Option 2)</strong> — 修改 model_access 以支持 multi-host tracking，并通过 junctions 在 host 和 VM 之间设置 shared directory。</li>
+<li>✅ <strong>Failure Attribution Analysis</strong> — 分析 36 个 failed episodes，以区分 policy failures 和 memory errors。</li>
+<li>🔄 <strong>Comparison and Ablation Study</strong> — 准备并验证 ablation study 代码，用于进一步的 comparative experiments。</li>
+<li>🔄 <strong>Automated WeChat Sticker Addition</strong> — 开发并调试脚本，通过 emoji panel automation 将下载的 stickers 添加到 WeChat。</li>
+</ul>
+<h3 id="implementation--fixes">Implementation &amp; Fixes<a hidden class="anchor" aria-hidden="true" href="#implementation--fixes">#</a></h3>
+<ul>
+<li>✅ <strong>Sticker Collection</strong> — 查找并下载约 100 个 AI-girl stickers 和约 100 个 AI-related stickers，并分类存放在不同文件夹中。</li>
+<li>✅ <strong>RouteStick Episode 6 Rerun</strong> — 重新运行一个因 &lsquo;Connection reset by peer&rsquo; 网络错误而失败的特定 episode。</li>
+<li>🔄 <strong>Sticker Scanning Optimization</strong> — 改进 sticker scanning script，以支持 WeChat emoji panel 的 full scrolling 并处理 permission errors。</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-vm-由于缺少-model_access-package-且缺乏-shared-gpu-lease-registry无法访问-local-vision-models">1. VM 由于缺少 &lsquo;model_access&rsquo; package 且缺乏 shared GPU lease registry，无法访问 local vision models。<a hidden class="anchor" aria-hidden="true" href="#1-vm-由于缺少-model_access-package-且缺乏-shared-gpu-lease-registry无法访问-local-vision-models">#</a></h4>
+<p><strong>Solution:</strong> 修改 &lsquo;model_access&rsquo; 以在 leases 中 track &lsquo;host&rsquo; 名称，并使用 directory junctions 在 host 和 VM 之间共享 lease JSON file。</p>
+<h4 id="2-wechat-4x-image-right-click-menu-缺少-add-to-stickers-选项破坏了初始的-automation-logic">2. WeChat 4.x image right-click menu 缺少 &lsquo;Add to Stickers&rsquo; 选项，破坏了初始的 automation logic。<a hidden class="anchor" aria-hidden="true" href="#2-wechat-4x-image-right-click-menu-缺少-add-to-stickers-选项破坏了初始的-automation-logic">#</a></h4>
+<p><strong>Solution:</strong> 重写 addition script，使用 &lsquo;Emoji Panel -&gt; Custom Stickers -&gt; +&rsquo; 的 workflow 来代替 context menu。</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="3-evaluation-script-会自动跳过-log-中标记为-error-的-episodes导致无法重试">3. Evaluation script 会自动跳过 log 中标记为 &rsquo;error&rsquo; 的 episodes，导致无法重试。<a hidden class="anchor" aria-hidden="true" href="#3-evaluation-script-会自动跳过-log-中标记为-error-的-episodes导致无法重试">#</a></h4>
+<p><strong>Solution:</strong> 分析了 <code>eval.py</code> skip logic，并实现了一种通过启动 separate run 来仅针对 errored episode 运行的方法，且不影响 main results。</p>
+<h4 id="4-通过-ssh-tunnel-连接-llm-interface-的-remote-connection-不稳定">4. 通过 SSH tunnel 连接 LLM interface 的 remote connection 不稳定。<a hidden class="anchor" aria-hidden="true" href="#4-通过-ssh-tunnel-连接-llm-interface-的-remote-connection-不稳定">#</a></h4>
+<p><strong>Solution:</strong> 监控 tunnel 状态，并在 proxy 变得可达后验证了 automatic reconnection。</p>
+<h4 id="5-routestick-的-episode-6-因网络-connection-reset-by-peer-错误而失败">5. RouteStick 的 Episode 6 因网络 &lsquo;Connection reset by peer&rsquo; 错误而失败。<a hidden class="anchor" aria-hidden="true" href="#5-routestick-的-episode-6-因网络-connection-reset-by-peer-错误而失败">#</a></h4>
+<p><strong>Solution:</strong> 将其识别为 infrastructure issue 而非 policy failure，并针对该特定 episode 执行了 targeted rerun。</p>
+<h4 id="6-在-system32-目录下运行-automation-scripts-时由于-uiautomation-尝试写入-logs导致-permissionerror">6. 在 System32 目录下运行 automation scripts 时，由于 uiautomation 尝试写入 logs，导致 PermissionError。<a hidden class="anchor" aria-hidden="true" href="#6-在-system32-目录下运行-automation-scripts-时由于-uiautomation-尝试写入-logs导致-permissionerror">#</a></h4>
+<p><strong>Solution:</strong> 修改 scripts，使其在启动时显式地将 current working directory 更改为 TEMP folder。</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="drift-prevention-strategy">Drift Prevention Strategy<a hidden class="anchor" aria-hidden="true" href="#drift-prevention-strategy">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>建议添加 &lsquo;settled-state&rsquo; check，以确保仅在物体完全稳定时才开始 recording。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>提出了更稳健的 technical implementation：在 server side 计算 settled state 并将其保存在 distribution package 中，以确保在不同 OS/hardware 下实现 bit-wise identical 的 starting points。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 提供了直观的 physical requirement，而 AI 提供了正确的分布式系统 solution 以防止 floating-point drift。</p>
+<h4 id="gpu-lease-management-strategy">GPU Lease Management Strategy<a hidden class="anchor" aria-hidden="true" href="#gpu-lease-management-strategy">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>提出了一种让 VM 和 host 共享相同 registry (Option 2) 的 solution，以确保 host 的 GPU protection 不会被 VM 清除。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>识别出了 logic conflict，即 library 仅检查 local PIDs，如果不处理会导致 cross-host lease corruption。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 提供了 strategic direction (Option 2)，而 AI 完成了 multi-host awareness 和 junction linking 的复杂 technical implementation。</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<ul>
+<li>需要提醒 AI 检查特定的 code logic，以确认 status table 如何统计 &rsquo;error&rsquo; vs &lsquo;success&rsquo;，从而确保 data integrity。</li>
+<li>在 automation 期间，由于 window occlusion 或 black screenshots，难以访问/查看 VM desktop。</li>
+</ul>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<ul>
+<li>新方法达到了与 handwritten rules 持平的效果，这对于一个基于 VLM 的 autonomous framework 来说是一个很强的 claim。</li>
+<li>当前系统中 75% 的 failures 源于 policy execution 而非 memory errors，这表明下一个 bottleneck 是 policy robustness。</li>
+<li>在实现 cross-host resource management 时，track &lsquo;host&rsquo; 名称至关重要，因为 PIDs 在 network shares 之间不是唯一的或可达的。</li>
+</ul>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<h3 id="robomemory-harness">RoboMemory Harness<a hidden class="anchor" aria-hidden="true" href="#robomemory-harness">#</a></h3>
+<p><strong>✅ Main Experiment Completion and Result Analysis</strong>
+完成了 160 个 episodes 的 main evaluation run。新 framework 达到了 77.5% 的 success rate，显著优于 FrameSamp (47.5%)。详细的 failure attribution 显示大多数 errors 与 policy 相关。更新了 final results 和 PPT。</p>
+<h3 id="errorrecoverybenchmark">ErrorRecoveryBenchmark<a hidden class="anchor" aria-hidden="true" href="#errorrecoverybenchmark">#</a></h3>
+<p><strong>🔍 Drift Prevention via Settled-State</strong>
+讨论了通过在 recording 前等待 stable state 来处理 object drift 的问题。决定 stability 必须在 server 端预先计算，以确保 cross-platform consistency。</p>
+<h3 id="weagent-sticker-system">WeAgent Sticker System<a hidden class="anchor" aria-hidden="true" href="#weagent-sticker-system">#</a></h3>
+<p><strong>🔄 AI Sticker Collection and WeChat Integration</strong>
+用户请求收集 AI-themed stickers。AI 成功从 GitHub repositories 爬取了 183 个 stickers。随后的工作重点是通过 UI automation 将这些 stickers 自动添加到 WeChat，期间遇到了包括 menu changes 和 directory permissions 在内的多个障碍。</p>
+<h3 id="personalagent-model-access">PersonalAgent Model Access<a hidden class="anchor" aria-hidden="true" href="#personalagent-model-access">#</a></h3>
+<p><strong>✅ Cross-host GPU Lease Synchronization</strong>
+通过实现 shared resource directory 解决了 VM 中的 &lsquo;model_access&rsquo; error。修改了核心 &lsquo;model_access&rsquo; library 以支持 multi-host lease tracking，并通过 custom probe script 成功验证了 synchronization。</p>
+<h2 id="token-usage">Token Usage<style><a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<p>.usage-card {
+&ndash;usage-bg: #fafaf9;
+&ndash;usage-border: rgba(0, 0, 0, 0.08);
+&ndash;usage-text: #1a1a1a;
+&ndash;usage-muted: #8a8880;
+&ndash;usage-cost-main: #d0724a;
+&ndash;usage-cost-secondary: #4a8db8;
+&ndash;usage-cache: #c9c7c0;
+&ndash;usage-active: #5a8878;
+&ndash;usage-bar-bg: rgba(0, 0, 0, 0.05);
+box-sizing: border-box;
+background: var(&ndash;usage-bg);
+border: 1px solid var(&ndash;usage-border);
+border-radius: 10px;
+padding: 1.5rem 1.75rem 1.375rem;
+color: var(&ndash;usage-text);
+font-family: system-ui, -apple-system, &ldquo;Segoe UI&rdquo;, sans-serif;
+font-size: 16px;
+line-height: 1.4;
+}
+.usage-card *, .usage-card <em>::before { box-sizing: inherit; }
+@media (prefers-color-scheme: dark) {
+.usage-card {
+&ndash;usage-bg: #141416;
+&ndash;usage-border: rgba(255, 255, 255, 0.09);
+&ndash;usage-text: rgba(255, 255, 255, 0.93);
+&ndash;usage-muted: rgba(255, 255, 255, 0.45);
+&ndash;usage-cache: #4a4a48;
+&ndash;usage-bar-bg: rgba(255, 255, 255, 0.06);
+}
+}
+.usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+.usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+.usage-card__source { font-size: 0.75rem; color: var(&ndash;usage-muted); }
+/</em> selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+.usage-card dl.usage-card__stats {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+gap: 1rem 1.5rem;
+margin: 1.25rem 0 1.5rem;
+}
+.usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+.usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+.usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(&ndash;usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+.usage-card__row { margin-top: 1rem; }
+.usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+.usage-card__row-name { color: var(&ndash;usage-text); font-weight: 500; }
+.usage-card__row-detail { color: var(&ndash;usage-muted); }
+.usage-card__item { white-space: nowrap; }
+.usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+.usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(&ndash;usage-bar-bg); }
+.usage-card__bar span { border-radius: 2px; }
+.usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(&ndash;usage-muted); }
+</style></p>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-10-07</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$44.29</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>173M</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>273K</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>96.9%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $43</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $1</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (96.9%), Codex (3.1%)">
+          <span style="width:96.9%; background:var(--usage-cost-main)"></span>
+          <span style="width:3.1%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 96.9%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 3.1%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (96.9%), active tokens (3.1%)">
+          <span style="width:96.9%; background:var(--usage-cache)"></span>
+          <span style="width:3.1%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:4c7cc55c80127791 -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="light">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bug Journal 2026-10-17 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal">
+<meta name="description" content="这一天进行了广泛的技术冲刺，涵盖了学术论文最后的 camera-ready 准备、RoboMME benchmark 的系统性 debugging 和叙述重写、SimpleMemVLA 的架构分析、NCL 的高并发 dependency embedding 生成，以及开发一个具有以用户为中心的管理 UI 且具备身份感知能力的 secure WeChat automation bridge。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-10-17/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.293529ec85794278c97efa5df449767967cd94bca174a774a375e1a0efe5bbc7.css" integrity="sha256-KTUp7IV5QnjJfvpd9El2eWfNlLyhdKd0o3XhoO/lu8c=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/daily/2026-10-17/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-10-17/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/daily/2026-10-17/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Bug Journal 2026-10-17">
+  <meta property="og:description" content="这一天进行了广泛的技术冲刺，涵盖了学术论文最后的 camera-ready 准备、RoboMME benchmark 的系统性 debugging 和叙述重写、SimpleMemVLA 的架构分析、NCL 的高并发 dependency embedding 生成，以及开发一个具有以用户为中心的管理 UI 且具备身份感知能力的 secure WeChat automation bridge。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-10-17T00:00:00-04:00">
+    <meta property="article:modified_time" content="2026-10-17T00:00:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bug Journal 2026-10-17">
+  <meta name="twitter:description" content="这一天进行了广泛的技术冲刺，涵盖了学术论文最后的 camera-ready 准备、RoboMME benchmark 的系统性 debugging 和叙述重写、SimpleMemVLA 的架构分析、NCL 的高并发 dependency embedding 生成，以及开发一个具有以用户为中心的管理 UI 且具备身份感知能力的 secure WeChat automation bridge。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Daily Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Bug Journal 2026-10-17",
+      "item": "https://tzj2006.github.io/zh/bugjournal/daily/2026-10-17/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bug Journal 2026-10-17",
+  "name": "Bug Journal 2026-10-17",
+  "description": "这一天进行了广泛的技术冲刺，涵盖了学术论文最后的 camera-ready 准备、RoboMME benchmark 的系统性 debugging 和叙述重写、SimpleMemVLA 的架构分析、NCL 的高并发 dependency embedding 生成，以及开发一个具有以用户为中心的管理 UI 且具备身份感知能力的 secure WeChat automation bridge。",
+  "keywords": [
+    "Bug Journal"
+  ],
+  "articleBody": "Daily Report — 2026-10-17 Daily Overview 工作内容： 当日工作跨越多个领域：完成学术论文提交的定稿（RecoverBench \u0026 RoboMME），对 SimpleMemVLA 进行深度架构分析，执行 NCL 的大规模统计 embedding 任务，并构建了一个注重安全性和易用性的、具备多模型能力的 WeChat 自动化 bridge。 工作方式： 方法论包括在研究中应用 ‘Press-Release’ 写作原则，实施 ‘gate-badge’ 和 ‘A/B latency’ 测试协议，利用带有 ‘scavenger’ 优先级队列的 SLURM 进行高吞吐量数据生成，并为个人 AI agents 采用了具有严格身份/内存隔离的 host-VM 架构。 影响： 成功将研究展示提升至 CVPR 标准，阐明了 VLA 中长期视觉记忆背后的机制，推进了 NCL 中图像融合的实证研究，并为自动化 WeChat 助手建立了一个功能完备、安全且用户友好的原型。 当日进行了一场广泛的技术冲刺，涵盖了学术论文的最终 camera-ready 准备、RoboMME benchmark 的系统性调试与叙述重写、SimpleMemVLA 的架构分析、NCL 的高并发依赖 embedding 生成，以及开发了一个具有以用户为中心的管理 UI、具备安全性和身份感知能力的 WeChat 自动化 bridge。\nTasks Architecture \u0026 Strategy ✅ Academic Paper Rewrite (CVPR-Style) — 使用 ‘Press-Release Principle’ 重写论文草案，重点突出统一的 VLM-code 分工优势。 • Latency Sensitivity Test (A/B) — 对比 ‘Zero Latency’ 与 ‘Measured Latency’，以确定 JEV 的响应时间对成功率的影响。 • NCL Image Role \u0026 Fusion Stacking — 生成 800 个 NCL training-seed embeddings；在 HD/DLPFC 数据集上测试 NCL+Q-Former 与 NCL+Concat 融合策略。 🔄 WeChat Media \u0026 Permission Security — 调试媒体识别（text/emoji/voice/file）并强制执行严格的 CLI 权限边界以保护 host 文件。 🔄 RoboMME Arm C Performance Optimization — 使用 offline replays 和 closed-loop testing 诊断并修复 6 个关键任务（RouteStick, VideoRepick 等）中的失败模式。 ✅ SimpleMemVLA Codebase Analysis \u0026 Documentation — 分析了仓库结构，创建了 CLAUDE.md，并解读了 Qwen3.5 VLM 与 DiT action head 之间的交互。 • NCL 100-Seed Training Variance — 使用双 GPU 阵列（gpu-common \u0026 scavenger-gpu）为 Wilcoxon significance tests 生成 NPZ 文件。 ✅ WeChat Bridge \u0026 Model Integration — 集成了 Claude, Gemma4 和 web search；实现了 host-to-VM 通信、身份隔离和媒体路由。 • StopCube Pure-Vision Test — 测试 JEV 是否能在没有 oracle timing 的情况下检测到 cube 到达，从而触发 ‘gate’ badge。 ✅ WeChat Management UI \u0026 Control System — 实现了两层控制系统（Global Mode + Individual Toggle）、人性化的 UI 术语，并添加了 command dispatch guards。 • RecoverBench Camera-Ready Finalization — 完成 Overleaf package 的最终审查（更新 main.tex, appendix.tex 和 Fig. 5），验证 PDF 页数限制，完成 acknowledgments，并提交代码/数据（GitHub/Hugging Face）。 Problems \u0026 Solutions Critical Issues 1. WeChat Agent 中存在未经授权的 host 访问或身份冒用的风险。 Solution: 通过稳定的内部 wxid 实施身份验证，对 cloud models 进行严格的 CLI 隔离，并设置了多层 command dispatch guards。\n2. Arm C (27B) 在 RouteStick 和 VideoRepick 等协调任务中失败。 Solution: 实施了 ‘one-shot’ opening calls 和 JEV (judge) 机制，仅在特定的视觉线索出现时才推进窗口。\n3. 论文草案感觉更像是技术日志/自我审计，而不是高影响力的会议投稿。 Solution: 应用 ‘Press-Release Principle’：围绕核心优势重构叙述，并删除了防御性、过度详细的语言。\n4. 在没有显式 memory modules 的情况下理解 SimpleMemVLA 中的视觉记忆传递。 Solution: 确定了文本 ‘sub-task’ 起到了语义瓶颈/桥梁的作用，允许 action head 使用 VLM hidden states 作为 conditioning signals。\n5. NCL 100-seed 训练任务的 GPU 队列过长。 Solution: 提交了一个带有自动化 ‘yield’ guard 的 ‘scavenger-gpu’ 阵列，在不重复工作的情况下将提前完成的机会增加了一倍。\n6. WeChat 任务队列中的 race conditions 以及令人困惑的 UI 术语。 Solution: 为状态转换添加了 10 多个 regression tests，并将所有技术后端状态映射为人类可读的对话式语言。\n7. Figure 5 (a) ‘State Displacement’ 中由模拟器时间引起的统计偏差。 Solution: 在排除时间分量后，重新计算了六个任务的 Spearman correlation；确认了显著的负相关（ρ = −0.264, p = 0.0019）并更新了论文。\nGeneral Issues 8. 展示中关于 ‘Injected’ 与 ‘Measured’ latency 的混淆。 Solution: 使用 ‘Pause/Play’ 类比进行澄清：Injected 是感知的模拟延迟；Measured 是实际的硬件延迟。\nHuman vs AI Approaches Strategic Level Methodology \u0026 Architecture Role Approach Human 指导了 StopCube 的 ‘gate’ 机制转向以及特定的 A/B latency 测试协议。 AI 提供了实现细节，定义了 gate logic，并搭建了自动化的 benchmark 基础设施。 Difference Analysis: Human 定义了实验设计的 ‘what’ 和 ‘why’，而 AI 精通执行的 ‘how’。\nResearch \u0026 Deployment Strategy Role Approach Human 提出了 ‘dual-track’ 研究策略（fallback vs. integration）以及 WeChat agent 的 ‘human-in-the-loop’ 安全闸门。 AI 最初提出的是二元选择（Plan A vs. B），并专注于消息转发的纯技术自动化。 Difference Analysis: Human 的方法在通过人工介导的转换保持安全性/鲁棒性的同时，最大化了潜在收益。\nRefinement \u0026 Narrative Strategy Role Approach Human 强制要求在精确度与可读性之间取得平衡；优先考虑 ‘Press-Release Principle’ 和 ‘human-language’ UI，而非技术细节。 AI 提出超精确/防御性的编辑，并优先考虑技术准确性和逐步增量式的补丁（patching）。 Difference Analysis: Human 专注于高层级的叙事、易用性和战略结果，而 AI 专注于细粒度、可辩护的技术报告。\nAI Limitations Critical Limitations- AI 在实时 UI testing (WeChat) 中面临困难，并且在没有人工验证或更高级别 sandboxing 的情况下，难以证明 CLI/filesystem isolation。 AI 在应对 Windows 特有的技术障碍时表现挣扎，例如由于 WDDM 行为导致无法解析未命名的 NVIDIA GPU PIDs。 General Limitations AI 难以维持“新闻发布会”式的语气，且在没有明确负面约束或 prompting 的情况下，难以弥合技术 backend 状态与人类可读 UI 之间的鸿沟。 AI 在预测实验结果（latency tests）或在没有人工引导审计的情况下自主识别特定的 media recognition 失败方面能力有限。 Learnings Key Learnings 基于 Concat 的 fusion 非常容易受到高方差模态（如 images）的“modality dominance”影响，即使这些模态对于特定任务并无信息量。 在 robot learning 中，战略性的“分工”（VLM 用于 reasoning，Code 用于 execution）可以弥合 SOTA 与 ground-truth 性能之间的差距。 SimpleMemVLA 的成功源于利用了预训练 VLM 的 video-native 能力和基于 text 的 memory bridging 机制，而非新的 architecture。 可靠的 automation 需要一个多层“guard”系统（UI prep、dispatch 和 execution）以及在 data-level receipt 与 UI-level response 之间进行清晰区分。 双层配置（Global Mode + Individual Toggle）对于防止复杂消息处理系统中的意外操作至关重要。 Conversation Summaries RecoverBench Camera-Ready Finalization • Statistical integrity and text conciseness. 平衡了学术精确性与可读性。对 Figure 5 的相关性进行了深入研究，以确保移除 time-bias 不会使核心论点失效。\nRoboMME (Harness \u0026 Paper) • Systematic Debugging and CVPR-Style Narrative. 对 Arm C (27B/4B) policy memory 进行了多阶段诊断。修复了 route tracking 和 object identity 中的失败问题。同时将技术文档转化为侧重于 VLM-code 任务分工的高水平学术叙述。\njev_presentation_prep • Methodology refinement and PPT generation. 协作完善了测试方法论（A/B latency 和 pure-vision gate），并为 JEV 项目创建了一个专业的、数据丰富的 PowerPoint presentation。\nSimpleMemVLA • System Analysis and Architecture Clarification. 通过 CLAUDE.md 标准化了操作，并对模型的 long-term memory 工作流进行了密集的技术调查，特别是 sub-task text bridge 部分。\nMIHD-dev-gateA-20260930 • NCL Stack + Image Perturbation. 设计了定量实验来评估 NCL 与 Concat 相比如何使用 images。建立了用于高吞吐量 seed generation 的自动化 job management。\nPersonalAgents (WeChat Assistant) • Bridge Development, Security, and UI Humanization. 实现了一个端到端的 WeChat automation 系统，其特点包括 model routing (Claude/Gemma4)、基于 identity 的 memory scoping 以及一个安全的 host-to-VM bridge。成功从基础的 automated testing 转向了具有强大权限控制的功能性、人性化管理界面。\nToken Usage AI Usage · 2026-10-17\rClaude Code + Codex\rTotal cost$674.75\rTotal tokens1.34B\rOutput tokens3M\rCache read95.4%\rCost split\rClaude Code $574 ·\rCodex $101\rToken character\rCache reads 95.4% ·\rActive 4.6%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "704",
+  "inLanguage": "zh",
+  "datePublished": "2026-10-17T00:00:00-04:00",
+  "dateModified": "2026-10-17T00:00:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/daily/2026-10-17/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/bugjournal/daily/2026-10-17/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="博文">
+                    <span>博文</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <details class="menu-disclosure">
+                    <summary>工作日志 <span class="submenu-caret" aria-hidden="true">▾</span></summary>
+                <ul class="submenu" aria-label="工作日志">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>日报</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>周报</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>月报</span>
+                        </a>
+                    </li>
+                </ul>
+                </details>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="算法笔记">
+                    <span>算法笔记</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="性能测试">
+                    <span>性能测试</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Bug Journal 2026-10-17
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-10-17 00:00:00 -0400 EDT'>2026年10月17日</span>&nbsp;·&nbsp;<span>4 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="daily-report--2026-10-17">Daily Report — 2026-10-17<a hidden class="anchor" aria-hidden="true" href="#daily-report--2026-10-17">#</a></h1>
+<h2 id="daily-overview">Daily Overview<a hidden class="anchor" aria-hidden="true" href="#daily-overview">#</a></h2>
+<ul>
+<li><strong>工作内容：</strong> 当日工作跨越多个领域：完成学术论文提交的定稿（RecoverBench &amp; RoboMME），对 SimpleMemVLA 进行深度架构分析，执行 NCL 的大规模统计 embedding 任务，并构建了一个注重安全性和易用性的、具备多模型能力的 WeChat 自动化 bridge。</li>
+<li><strong>工作方式：</strong> 方法论包括在研究中应用 &lsquo;Press-Release&rsquo; 写作原则，实施 &lsquo;gate-badge&rsquo; 和 &lsquo;A/B latency&rsquo; 测试协议，利用带有 &lsquo;scavenger&rsquo; 优先级队列的 SLURM 进行高吞吐量数据生成，并为个人 AI agents 采用了具有严格身份/内存隔离的 host-VM 架构。</li>
+<li><strong>影响：</strong> 成功将研究展示提升至 CVPR 标准，阐明了 VLA 中长期视觉记忆背后的机制，推进了 NCL 中图像融合的实证研究，并为自动化 WeChat 助手建立了一个功能完备、安全且用户友好的原型。</li>
+</ul>
+<blockquote>
+<p>当日进行了一场广泛的技术冲刺，涵盖了学术论文的最终 camera-ready 准备、RoboMME benchmark 的系统性调试与叙述重写、SimpleMemVLA 的架构分析、NCL 的高并发依赖 embedding 生成，以及开发了一个具有以用户为中心的管理 UI、具备安全性和身份感知能力的 WeChat 自动化 bridge。</p>
+</blockquote>
+<h2 id="tasks">Tasks<a hidden class="anchor" aria-hidden="true" href="#tasks">#</a></h2>
+<h3 id="architecture--strategy">Architecture &amp; Strategy<a hidden class="anchor" aria-hidden="true" href="#architecture--strategy">#</a></h3>
+<ul>
+<li>✅ <strong>Academic Paper Rewrite (CVPR-Style)</strong> — 使用 &lsquo;Press-Release Principle&rsquo; 重写论文草案，重点突出统一的 VLM-code 分工优势。</li>
+<li>• <strong>Latency Sensitivity Test (A/B)</strong> — 对比 &lsquo;Zero Latency&rsquo; 与 &lsquo;Measured Latency&rsquo;，以确定 JEV 的响应时间对成功率的影响。</li>
+<li>• <strong>NCL Image Role &amp; Fusion Stacking</strong> — 生成 800 个 NCL training-seed embeddings；在 HD/DLPFC 数据集上测试 NCL+Q-Former 与 NCL+Concat 融合策略。</li>
+<li>🔄 <strong>WeChat Media &amp; Permission Security</strong> — 调试媒体识别（text/emoji/voice/file）并强制执行严格的 CLI 权限边界以保护 host 文件。</li>
+<li>🔄 <strong>RoboMME Arm C Performance Optimization</strong> — 使用 offline replays 和 closed-loop testing 诊断并修复 6 个关键任务（RouteStick, VideoRepick 等）中的失败模式。</li>
+<li>✅ <strong>SimpleMemVLA Codebase Analysis &amp; Documentation</strong> — 分析了仓库结构，创建了 CLAUDE.md，并解读了 Qwen3.5 VLM 与 DiT action head 之间的交互。</li>
+<li>• <strong>NCL 100-Seed Training Variance</strong> — 使用双 GPU 阵列（gpu-common &amp; scavenger-gpu）为 Wilcoxon significance tests 生成 NPZ 文件。</li>
+<li>✅ <strong>WeChat Bridge &amp; Model Integration</strong> — 集成了 Claude, Gemma4 和 web search；实现了 host-to-VM 通信、身份隔离和媒体路由。</li>
+<li>• <strong>StopCube Pure-Vision Test</strong> — 测试 JEV 是否能在没有 oracle timing 的情况下检测到 cube 到达，从而触发 &lsquo;gate&rsquo; badge。</li>
+<li>✅ <strong>WeChat Management UI &amp; Control System</strong> — 实现了两层控制系统（Global Mode + Individual Toggle）、人性化的 UI 术语，并添加了 command dispatch guards。</li>
+<li>• <strong>RecoverBench Camera-Ready Finalization</strong> — 完成 Overleaf package 的最终审查（更新 main.tex, appendix.tex 和 Fig. 5），验证 PDF 页数限制，完成 acknowledgments，并提交代码/数据（GitHub/Hugging Face）。</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
+<h4 id="1-wechat-agent-中存在未经授权的-host-访问或身份冒用的风险">1. WeChat Agent 中存在未经授权的 host 访问或身份冒用的风险。<a hidden class="anchor" aria-hidden="true" href="#1-wechat-agent-中存在未经授权的-host-访问或身份冒用的风险">#</a></h4>
+<p><strong>Solution:</strong> 通过稳定的内部 wxid 实施身份验证，对 cloud models 进行严格的 CLI 隔离，并设置了多层 command dispatch guards。</p>
+<h4 id="2-arm-c-27b-在-routestick-和-videorepick-等协调任务中失败">2. Arm C (27B) 在 RouteStick 和 VideoRepick 等协调任务中失败。<a hidden class="anchor" aria-hidden="true" href="#2-arm-c-27b-在-routestick-和-videorepick-等协调任务中失败">#</a></h4>
+<p><strong>Solution:</strong> 实施了 &lsquo;one-shot&rsquo; opening calls 和 JEV (judge) 机制，仅在特定的视觉线索出现时才推进窗口。</p>
+<h4 id="3-论文草案感觉更像是技术日志自我审计而不是高影响力的会议投稿">3. 论文草案感觉更像是技术日志/自我审计，而不是高影响力的会议投稿。<a hidden class="anchor" aria-hidden="true" href="#3-论文草案感觉更像是技术日志自我审计而不是高影响力的会议投稿">#</a></h4>
+<p><strong>Solution:</strong> 应用 &lsquo;Press-Release Principle&rsquo;：围绕核心优势重构叙述，并删除了防御性、过度详细的语言。</p>
+<h4 id="4-在没有显式-memory-modules-的情况下理解-simplememvla-中的视觉记忆传递">4. 在没有显式 memory modules 的情况下理解 SimpleMemVLA 中的视觉记忆传递。<a hidden class="anchor" aria-hidden="true" href="#4-在没有显式-memory-modules-的情况下理解-simplememvla-中的视觉记忆传递">#</a></h4>
+<p><strong>Solution:</strong> 确定了文本 &lsquo;sub-task&rsquo; 起到了语义瓶颈/桥梁的作用，允许 action head 使用 VLM hidden states 作为 conditioning signals。</p>
+<h4 id="5-ncl-100-seed-训练任务的-gpu-队列过长">5. NCL 100-seed 训练任务的 GPU 队列过长。<a hidden class="anchor" aria-hidden="true" href="#5-ncl-100-seed-训练任务的-gpu-队列过长">#</a></h4>
+<p><strong>Solution:</strong> 提交了一个带有自动化 &lsquo;yield&rsquo; guard 的 &lsquo;scavenger-gpu&rsquo; 阵列，在不重复工作的情况下将提前完成的机会增加了一倍。</p>
+<h4 id="6-wechat-任务队列中的-race-conditions-以及令人困惑的-ui-术语">6. WeChat 任务队列中的 race conditions 以及令人困惑的 UI 术语。<a hidden class="anchor" aria-hidden="true" href="#6-wechat-任务队列中的-race-conditions-以及令人困惑的-ui-术语">#</a></h4>
+<p><strong>Solution:</strong> 为状态转换添加了 10 多个 regression tests，并将所有技术后端状态映射为人类可读的对话式语言。</p>
+<h4 id="7-figure-5-a-state-displacement-中由模拟器时间引起的统计偏差">7. Figure 5 (a) &lsquo;State Displacement&rsquo; 中由模拟器时间引起的统计偏差。<a hidden class="anchor" aria-hidden="true" href="#7-figure-5-a-state-displacement-中由模拟器时间引起的统计偏差">#</a></h4>
+<p><strong>Solution:</strong> 在排除时间分量后，重新计算了六个任务的 Spearman correlation；确认了显著的负相关（ρ = −0.264, p = 0.0019）并更新了论文。</p>
+<h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
+<h4 id="8-展示中关于-injected-与-measured-latency-的混淆">8. 展示中关于 &lsquo;Injected&rsquo; 与 &lsquo;Measured&rsquo; latency 的混淆。<a hidden class="anchor" aria-hidden="true" href="#8-展示中关于-injected-与-measured-latency-的混淆">#</a></h4>
+<p><strong>Solution:</strong> 使用 &lsquo;Pause/Play&rsquo; 类比进行澄清：Injected 是感知的模拟延迟；Measured 是实际的硬件延迟。</p>
+<h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
+<h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
+<h4 id="methodology--architecture">Methodology &amp; Architecture<a hidden class="anchor" aria-hidden="true" href="#methodology--architecture">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>指导了 StopCube 的 &lsquo;gate&rsquo; 机制转向以及特定的 A/B latency 测试协议。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>提供了实现细节，定义了 gate logic，并搭建了自动化的 benchmark 基础设施。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 定义了实验设计的 &lsquo;what&rsquo; 和 &lsquo;why&rsquo;，而 AI 精通执行的 &lsquo;how&rsquo;。</p>
+<h4 id="research--deployment-strategy">Research &amp; Deployment Strategy<a hidden class="anchor" aria-hidden="true" href="#research--deployment-strategy">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>提出了 &lsquo;dual-track&rsquo; 研究策略（fallback vs. integration）以及 WeChat agent 的 &lsquo;human-in-the-loop&rsquo; 安全闸门。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>最初提出的是二元选择（Plan A vs. B），并专注于消息转发的纯技术自动化。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 的方法在通过人工介导的转换保持安全性/鲁棒性的同时，最大化了潜在收益。</p>
+<h4 id="refinement--narrative-strategy">Refinement &amp; Narrative Strategy<a hidden class="anchor" aria-hidden="true" href="#refinement--narrative-strategy">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>Role</th>
+          <th>Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Human</td>
+          <td>强制要求在精确度与可读性之间取得平衡；优先考虑 &lsquo;Press-Release Principle&rsquo; 和 &lsquo;human-language&rsquo; UI，而非技术细节。</td>
+      </tr>
+      <tr>
+          <td>AI</td>
+          <td>提出超精确/防御性的编辑，并优先考虑技术准确性和逐步增量式的补丁（patching）。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Difference Analysis:</strong> Human 专注于高层级的叙事、易用性和战略结果，而 AI 专注于细粒度、可辩护的技术报告。</p>
+<h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
+<h3 id="critical-limitations--ai-在实时-ui-testing-wechat-中面临困难并且在没有人工验证或更高级别-sandboxing-的情况下难以证明-clifilesystem-isolation">Critical Limitations- AI 在实时 UI testing (WeChat) 中面临困难，并且在没有人工验证或更高级别 sandboxing 的情况下，难以证明 CLI/filesystem isolation。<a hidden class="anchor" aria-hidden="true" href="#critical-limitations--ai-在实时-ui-testing-wechat-中面临困难并且在没有人工验证或更高级别-sandboxing-的情况下难以证明-clifilesystem-isolation">#</a></h3>
+<ul>
+<li>AI 在应对 Windows 特有的技术障碍时表现挣扎，例如由于 WDDM 行为导致无法解析未命名的 NVIDIA GPU PIDs。</li>
+</ul>
+<h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
+<ul>
+<li>AI 难以维持“新闻发布会”式的语气，且在没有明确负面约束或 prompting 的情况下，难以弥合技术 backend 状态与人类可读 UI 之间的鸿沟。</li>
+<li>AI 在预测实验结果（latency tests）或在没有人工引导审计的情况下自主识别特定的 media recognition 失败方面能力有限。</li>
+</ul>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="key-learnings">Key Learnings<a hidden class="anchor" aria-hidden="true" href="#key-learnings">#</a></h3>
+<ul>
+<li>基于 Concat 的 fusion 非常容易受到高方差模态（如 images）的“modality dominance”影响，即使这些模态对于特定任务并无信息量。</li>
+<li>在 robot learning 中，战略性的“分工”（VLM 用于 reasoning，Code 用于 execution）可以弥合 SOTA 与 ground-truth 性能之间的差距。</li>
+<li>SimpleMemVLA 的成功源于利用了预训练 VLM 的 video-native 能力和基于 text 的 memory bridging 机制，而非新的 architecture。</li>
+<li>可靠的 automation 需要一个多层“guard”系统（UI prep、dispatch 和 execution）以及在 data-level receipt 与 UI-level response 之间进行清晰区分。</li>
+<li>双层配置（Global Mode + Individual Toggle）对于防止复杂消息处理系统中的意外操作至关重要。</li>
+</ul>
+<h2 id="conversation-summaries">Conversation Summaries<a hidden class="anchor" aria-hidden="true" href="#conversation-summaries">#</a></h2>
+<h3 id="recoverbench-camera-ready-finalization">RecoverBench Camera-Ready Finalization<a hidden class="anchor" aria-hidden="true" href="#recoverbench-camera-ready-finalization">#</a></h3>
+<p><strong>• Statistical integrity and text conciseness.</strong>
+平衡了学术精确性与可读性。对 Figure 5 的相关性进行了深入研究，以确保移除 time-bias 不会使核心论点失效。</p>
+<h3 id="robomme-harness--paper">RoboMME (Harness &amp; Paper)<a hidden class="anchor" aria-hidden="true" href="#robomme-harness--paper">#</a></h3>
+<p><strong>• Systematic Debugging and CVPR-Style Narrative.</strong>
+对 Arm C (27B/4B) policy memory 进行了多阶段诊断。修复了 route tracking 和 object identity 中的失败问题。同时将技术文档转化为侧重于 VLM-code 任务分工的高水平学术叙述。</p>
+<h3 id="jev_presentation_prep">jev_presentation_prep<a hidden class="anchor" aria-hidden="true" href="#jev_presentation_prep">#</a></h3>
+<p><strong>• Methodology refinement and PPT generation.</strong>
+协作完善了测试方法论（A/B latency 和 pure-vision gate），并为 JEV 项目创建了一个专业的、数据丰富的 PowerPoint presentation。</p>
+<h3 id="simplememvla">SimpleMemVLA<a hidden class="anchor" aria-hidden="true" href="#simplememvla">#</a></h3>
+<p><strong>• System Analysis and Architecture Clarification.</strong>
+通过 CLAUDE.md 标准化了操作，并对模型的 long-term memory 工作流进行了密集的技术调查，特别是 sub-task text bridge 部分。</p>
+<h3 id="mihd-dev-gatea-20260930">MIHD-dev-gateA-20260930<a hidden class="anchor" aria-hidden="true" href="#mihd-dev-gatea-20260930">#</a></h3>
+<p><strong>• NCL Stack + Image Perturbation.</strong>
+设计了定量实验来评估 NCL 与 Concat 相比如何使用 images。建立了用于高吞吐量 seed generation 的自动化 job management。</p>
+<h3 id="personalagents-wechat-assistant">PersonalAgents (WeChat Assistant)<a hidden class="anchor" aria-hidden="true" href="#personalagents-wechat-assistant">#</a></h3>
+<p><strong>• Bridge Development, Security, and UI Humanization.</strong>
+实现了一个端到端的 WeChat automation 系统，其特点包括 model routing (Claude/Gemma4)、基于 identity 的 memory scoping 以及一个安全的 host-to-VM bridge。成功从基础的 automated testing 转向了具有强大权限控制的功能性、人性化管理界面。</p>
+<h2 id="token-usage">Token Usage<a hidden class="anchor" aria-hidden="true" href="#token-usage">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-10-17</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$674.75</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>1.34B</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>3M</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>95.4%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $574</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $101</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (85.0%), Codex (15.0%)">
+          <span style="width:85.0%; background:var(--usage-cost-main)"></span>
+          <span style="width:15.0%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 95.4%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 4.6%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (95.4%), active tokens (4.6%)">
+          <span style="width:95.4%; background:var(--usage-cache)"></span>
+          <span style="width:4.6%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<!-- gadget:src-hash:v2:f95146e2acb3781c -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

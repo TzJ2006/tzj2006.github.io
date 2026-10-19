@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="light">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Weekly Summary 2026-W41 | TzJ&#39;s Net</title>
+<meta name="keywords" content="Bug Journal, Weekly Summary">
+<meta name="description" content="本周的特点是从碎片化的工程任务向统一的研究与架构阵线进行了重大转型。关键成果包括实现了 RoboMemory JEV 的 &lsquo;plan-once&rsquo; 架构，将 Personal Agent 系统模块化为可扩展的基于 plugin 的框架，并利用 &lsquo;Press-Release Principle&rsquo; 成功完善了 MIHD 的研究叙述。在 robotics 领域取得了显著进展，包括在 Tianhe3 集群上进行大规模 VLM 评估，针对 $\pi$0.5 模型的 quantization error attribution，以及建立了一套严格的 cross-platform validation protocol (X1=C) 以减轻 floating-point divergence。">
+<meta name="author" content="">
+<link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w41-weekly/">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.293529ec85794278c97efa5df449767967cd94bca174a774a375e1a0efe5bbc7.css" integrity="sha256-KTUp7IV5QnjJfvpd9El2eWfNlLyhdKd0o3XhoO/lu8c=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
+<link rel="apple-touch-icon" href="https://tzj2006.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tzj2006.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tzj2006.github.io/bugjournal/weekly/2026-w41-weekly/">
+<link rel="alternate" hreflang="zh" href="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w41-weekly/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    }
+
+</script>
+<script>
+(function() {
+    try { var stored = localStorage.getItem("pref-lang"); } catch(e) { return; }
+    if (!stored) return;
+    var current = document.documentElement.lang.split("-")[0];
+    if (stored === current) return;
+    var alt = document.querySelector('link[rel="alternate"][hreflang="' + stored + '"]');
+    if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
+})();
+</script>
+<meta property="og:url" content="https://tzj2006.github.io/zh/bugjournal/weekly/2026-w41-weekly/">
+  <meta property="og:site_name" content="TzJ&#39;s Net">
+  <meta property="og:title" content="Weekly Summary 2026-W41">
+  <meta property="og:description" content="本周的特点是从碎片化的工程任务向统一的研究与架构阵线进行了重大转型。关键成果包括实现了 RoboMemory JEV 的 ‘plan-once’ 架构，将 Personal Agent 系统模块化为可扩展的基于 plugin 的框架，并利用 ‘Press-Release Principle’ 成功完善了 MIHD 的研究叙述。在 robotics 领域取得了显著进展，包括在 Tianhe3 集群上进行大规模 VLM 评估，针对 $\pi$0.5 模型的 quantization error attribution，以及建立了一套严格的 cross-platform validation protocol (X1=C) 以减轻 floating-point divergence。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="bugjournal">
+    <meta property="article:published_time" content="2026-10-11T23:59:00-04:00">
+    <meta property="article:modified_time" content="2026-10-11T23:59:00-04:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Weekly Summary 2026-W41">
+  <meta name="twitter:description" content="本周的特点是从碎片化的工程任务向统一的研究与架构阵线进行了重大转型。关键成果包括实现了 RoboMemory JEV 的 ‘plan-once’ 架构，将 Personal Agent 系统模块化为可扩展的基于 plugin 的框架，并利用 ‘Press-Release Principle’ 成功完善了 MIHD 的研究叙述。在 robotics 领域取得了显著进展，包括在 Tianhe3 集群上进行大规模 VLM 评估，针对 $\pi$0.5 模型的 quantization error attribution，以及建立了一套严格的 cross-platform validation protocol (X1=C) 以减轻 floating-point divergence。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Bug Journal",
+      "item": "https://tzj2006.github.io/zh/bugjournal/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Weekly Summaries",
+      "item": "https://tzj2006.github.io/zh/bugjournal/weekly/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Weekly Summary 2026-W41",
+      "item": "https://tzj2006.github.io/zh/bugjournal/weekly/2026-w41-weekly/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Weekly Summary 2026-W41",
+  "name": "Weekly Summary 2026-W41",
+  "description": "本周的特点是从碎片化的工程任务向统一的研究与架构阵线进行了重大转型。关键成果包括实现了 RoboMemory JEV 的 \u0026lsquo;plan-once\u0026rsquo; 架构，将 Personal Agent 系统模块化为可扩展的基于 plugin 的框架，并利用 \u0026lsquo;Press-Release Principle\u0026rsquo; 成功完善了 MIHD 的研究叙述。在 robotics 领域取得了显著进展，包括在 Tianhe3 集群上进行大规模 VLM 评估，针对 $\\pi$0.5 模型的 quantization error attribution，以及建立了一套严格的 cross-platform validation protocol (X1=C) 以减轻 floating-point divergence。",
+  "keywords": [
+    "Bug Journal", "Weekly Summary"
+  ],
+  "articleBody": "Weekly Report — 2026-W41 (2026-10-05 ~ 2026-10-11) 本周的特点是从碎片化的工程任务向统一的研究与架构前线进行了重大转型。关键成果包括实现了 RoboMemory JEV ‘plan-once’ 架构，将 Personal Agent 系统模块化为可扩展的基于 plugin 的框架，并利用 ‘Press-Release Principle’ 成功完善了 MIHD 的研究叙述。在机器人领域取得了显著进展，包括在 Tianhe3 集群上进行大规模 VLM 评估、针对 $\\pi$0.5 模型的量化误差归因，以及建立了一套严格的跨平台验证协议 (X1=C) 以减轻 floating-point divergence。\nWeekly Overview Metric Value Date Range 2026-10-05 ~ 2026-10-11 Active Days 5 / 7 Total Conversations 49 Projects 38 Tasks Completed 48 Tasks In Progress 17 Total Tokens 8,473,230,600 Total Cost $2,121.96 Claude Code Token 8,429,999,488 Claude Code Cost $2,028.89 Codex Token 43,231,112 Codex Cost $93.07 Daily Average Cost $424.39 Project Progress RoboMemory JEV Research (6 days active) — 🔄 active Accomplishments:\n实现了 ‘plan-once’ + non-pausing async writer 架构 使用 GPT-6 Astra 执行了大规模 16-task 评估（达到 77.5% 成功率） 开发了 ‘Arm C’ (Plan-once + JEV observer) 测试协议 在 Tianhe3 上完成了 JEV-27B 模型迁移和 probe 开发 Blockers:\n⚠️ non-paused 模式下由 Latency 引起的协议崩溃 Personal Agent (LifeCopilot) Modularization (5 days active) — 🔄 active Accomplishments:\n将项目重构为具有独立能力仓库的 central orchestration core 实现了包括 WeChat bridge、ASR 和 summaries 在内的核心功能 解决了 instance locking 和 UI automation 中的关键稳定性问题 Blockers:\n⚠️ WeChat automation 的限制以及 VM-to-host 资源访问约束 Quantization \u0026 Model Analysis ($\\pi$0.5) (4 days active) — 🔄 active Accomplishments:\n针对 W4A4/W4A8 精度崩溃进行了 component-wise ablation 识别出 action expert 的 lazy-initialization 量化路径中的一个关键 bug 对比 FP16 baselines 进行了 operator-wise error attribution Blockers:\n⚠️ 区分 rounding errors 与 clipping errors 的难度较高 Academic \u0026 PhD Strategy (3 days active) — ✅ completed Accomplishments:\n使用定量研究指标完善了 CV 为多长度项目叙述创建了 ‘Material Bank’ 开发了将研究 gap 与特定 advisors 联系起来的高影响力 outreach strategy RecoverBench/RoboHarness (3 days active) — 🔄 active Accomplishments:\n在 Linux 和 Windows 上验证了 version 5.1.2 package 完成了从 Tianhe3 到 local storage 的 58GB 数据同步 实现了 X1=C acceptance protocol 以处理跨平台 drift Key Tasks ✅ RoboMemory JEV ‘Plan-Once’ Implementation — 开发了一种使用 monkey-patching 的解耦架构，在不破坏 byte-level integrity 的情况下将功能注入 frozen modules。 🔄 Main Experiment Execution (Astra/JEV) — 正在执行 16 tasks $\\times$ 10 episodes 以验证新的基于 constraint 的 memory framework。 ✅ Quantization Bug Resolution ($\\pi$0.5) — 识别并记录了一个关键缺陷，即 action expert 由于 lazy-initialization 而默认使用 float precision。 ✅ Modular Consolidation (PersonalAgent) — 将 agent 转换为具有可独立运行能力仓库的 orchestration core。 ✅ Paper Narrative Refinement — 应用 ‘Press-Release Principle’ 将研究主张从 ‘parity’ 重构为 ‘memory precision via constraints’。 ✅ PhD Application Assets — 创建了战略性 outreach materials 和与研究对齐的 ‘Material Bank’。 ✅ W4A8 LIBERO-PRO Evaluation — 运行了 8,000 episodes，通过 adversarial verification 验证结果与 float baseline 的一致性。 Problems \u0026 Solutions 1. Strict W4A4 quantization leads to near-zero success rates on LIBERO tasks. [Quantization \u0026 Model Analysis] Solution: 识别了 attention weight outliers，并假设有必要采用混合 floating-point ‘island’ 方法。\n2. Mac (ARM) recordings drift on Linux (x86) due to floating-point sensitivity in contact-rich scenes. [RecoverBench/RoboHarness] Solution: 实现了 ‘X1=C’ state-synchronization 标准，其中有效性由物理一致性而非精确重放来判断。\n3. Historical Google credentials found in Git history. [Personal Agent] Solution: 更新了 .gitignore，并建议立即撤销和重新签发所有识别出的 credentials。\n4. $\\pi$0.5 action expert bypassed quantization due to lazy-initialization. [Quantization \u0026 Model Analysis] Solution: 将 activation check 修改为基于 ONNX bundle 的存在性来触发量化。\n5. VM unable to access local vision models or shared GPU registries. [Personal Agent] Solution: 修改了 model_access 以支持 multi-host tracking，并利用 directory junctions 来共享 JSON registries。\nLearnings Architecture (architecture) 解耦不仅需要代码更改，还需要在 process boundaries 之间建立严格的资源 (GPU/Model) 发现策略；由于 PIDs 在 network shares 中不是唯一的，跟踪 ‘host’ 名称至关重要。 ‘Plan-once + JEV’ 架构的强度由其信息可用性约束定义，从而建立了独特的研究范围。 Domain Knowledge (domain) 单独的 success rate 对于比较 harness 方法是不充分的；‘Success Rate / Theoretical Ceiling’ 是衡量 memory precision 更稳健的指标。 有效的研究陈述必须从 ‘what I did’ 过渡到 ‘what I realized (the gap)’，再到 ‘what I will solve’。 Debugging (debugging) 如果特定属性在 evaluation 期间从未被触发，量化模拟器的 lazy initialization 可能会静默地绕过量化路径。 AI Usage Notes Effective Patterns:\n✓ 用于统计/主张验证的 Multi-agent adversarial workflows ✓ 使用 ‘Press-Release Principle’ 作为叙述审计的 meta-rule ✓ 将复杂的工程问题系统性地分解为 ablation components Limitations:\n✗ 无法绕过项目级 guardrails 来进行外部数据/repo 访问 ✗ 在没有显式 prompting 的情况下，难以验证社交/UI 行为（如 scrolling） ✗ Safety classifiers 拦截了合法的 production deployment 命令 Next Week Outlook优先级将转向在 Tianhe3 集群上完成当前的大规模对比实验批次 (E8(b), E6, B0)。关键重点领域包括微调 JEV-27B probe 结果，完成 W4A8 quantization attribution report，以及通过将 WeChat/Summaries/ASR 功能集成到新的模块化架构中来推进 Personal Agent ‘V1 Rewrite’。此外，在 material bank 定稿后，将开始 PhD outreach。 Token Usage Statistics AI Usage · 2026-W41\rClaude Code + Codex\rTotal cost$2,121.96\rTotal tokens8.47B\rOutput tokens16M\rCache read97.2%\rCost split\rClaude Code $2,029 ·\rCodex $93\rToken character\rCache reads 97.2% ·\rActive 2.8%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\rPeak Day: 2026-10-06 — $1178.12 / 4535.9M tokens\nDaily Average: $424.39\n",
+  "wordCount" : "646",
+  "inLanguage": "zh",
+  "datePublished": "2026-10-11T23:59:00-04:00",
+  "dateModified": "2026-10-11T23:59:00-04:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tzj2006.github.io/zh/bugjournal/weekly/2026-w41-weekly/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TzJ's Net",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tzj2006.github.io/images/icon.png"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://tzj2006.github.io/zh/" accesskey="h" title="TzJ&#39;s Net (Alt + H)">TzJ&#39;s Net</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button><span class="nav-sep">|</span>
+                    <ul class="lang-menu">
+                        <li>
+                            <a href="https://tzj2006.github.io/bugjournal/weekly/2026-w41-weekly/" title="English"
+                                aria-label="English">English</a>
+                        </li>
+                    </ul>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/posts/" title="博文">
+                    <span>博文</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/search/" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <details class="menu-disclosure">
+                    <summary>工作日志 <span class="submenu-caret" aria-hidden="true">▾</span></summary>
+                <ul class="submenu" aria-label="工作日志">
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/daily/">
+                            <span>日报</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">
+                            <span>周报</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tzj2006.github.io/zh/bugjournal/monthly/">
+                            <span>月报</span>
+                        </a>
+                    </li>
+                </ul>
+                </details>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/leetcode/" title="算法笔记">
+                    <span>算法笔记</span>
+                </a>
+            </li>
+            <li class="">
+                <a href="https://tzj2006.github.io/zh/benchmark/" title="性能测试">
+                    <span>性能测试</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="https://tzj2006.github.io/zh/">主页</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="https://tzj2006.github.io/zh/bugjournal/weekly/">Weekly Summaries</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Weekly Summary 2026-W41
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-10-11 23:59:00 -0400 EDT'>2026年10月11日</span>&nbsp;·&nbsp;<span>4 分钟</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="weekly-report--2026-w41-2026-10-05--2026-10-11">Weekly Report — 2026-W41 (2026-10-05 ~ 2026-10-11)<a hidden class="anchor" aria-hidden="true" href="#weekly-report--2026-w41-2026-10-05--2026-10-11">#</a></h1>
+<blockquote>
+<p>本周的特点是从碎片化的工程任务向统一的研究与架构前线进行了重大转型。关键成果包括实现了 RoboMemory JEV &lsquo;plan-once&rsquo; 架构，将 Personal Agent 系统模块化为可扩展的基于 plugin 的框架，并利用 &lsquo;Press-Release Principle&rsquo; 成功完善了 MIHD 的研究叙述。在机器人领域取得了显著进展，包括在 Tianhe3 集群上进行大规模 VLM 评估、针对 $\pi$0.5 模型的量化误差归因，以及建立了一套严格的跨平台验证协议 (X1=C) 以减轻 floating-point divergence。</p>
+</blockquote>
+<h2 id="weekly-overview">Weekly Overview<a hidden class="anchor" aria-hidden="true" href="#weekly-overview">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>Metric</th>
+          <th>Value</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Date Range</td>
+          <td>2026-10-05 ~ 2026-10-11</td>
+      </tr>
+      <tr>
+          <td>Active Days</td>
+          <td>5 / 7</td>
+      </tr>
+      <tr>
+          <td>Total Conversations</td>
+          <td>49</td>
+      </tr>
+      <tr>
+          <td>Projects</td>
+          <td>38</td>
+      </tr>
+      <tr>
+          <td>Tasks Completed</td>
+          <td>48</td>
+      </tr>
+      <tr>
+          <td>Tasks In Progress</td>
+          <td>17</td>
+      </tr>
+      <tr>
+          <td>Total Tokens</td>
+          <td>8,473,230,600</td>
+      </tr>
+      <tr>
+          <td>Total Cost</td>
+          <td>$2,121.96</td>
+      </tr>
+      <tr>
+          <td>Claude Code Token</td>
+          <td>8,429,999,488</td>
+      </tr>
+      <tr>
+          <td>Claude Code Cost</td>
+          <td>$2,028.89</td>
+      </tr>
+      <tr>
+          <td>Codex Token</td>
+          <td>43,231,112</td>
+      </tr>
+      <tr>
+          <td>Codex Cost</td>
+          <td>$93.07</td>
+      </tr>
+      <tr>
+          <td>Daily Average Cost</td>
+          <td>$424.39</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="project-progress">Project Progress<a hidden class="anchor" aria-hidden="true" href="#project-progress">#</a></h2>
+<h3 id="robomemory-jev-research-6-days-active---active">RoboMemory JEV Research (6 days active) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#robomemory-jev-research-6-days-active---active">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
+<ul>
+<li>实现了 &lsquo;plan-once&rsquo; + non-pausing async writer 架构</li>
+<li>使用 GPT-6 Astra 执行了大规模 16-task 评估（达到 77.5% 成功率）</li>
+<li>开发了 &lsquo;Arm C&rsquo; (Plan-once + JEV observer) 测试协议</li>
+<li>在 Tianhe3 上完成了 JEV-27B 模型迁移和 probe 开发</li>
+</ul>
+<p><strong>Blockers:</strong></p>
+<ul>
+<li>⚠️ non-paused 模式下由 Latency 引起的协议崩溃</li>
+</ul>
+<h3 id="personal-agent-lifecopilot-modularization-5-days-active---active">Personal Agent (LifeCopilot) Modularization (5 days active) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#personal-agent-lifecopilot-modularization-5-days-active---active">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
+<ul>
+<li>将项目重构为具有独立能力仓库的 central orchestration core</li>
+<li>实现了包括 WeChat bridge、ASR 和 summaries 在内的核心功能</li>
+<li>解决了 instance locking 和 UI automation 中的关键稳定性问题</li>
+</ul>
+<p><strong>Blockers:</strong></p>
+<ul>
+<li>⚠️ WeChat automation 的限制以及 VM-to-host 资源访问约束</li>
+</ul>
+<h3 id="quantization--model-analysis-05-4-days-active---active">Quantization &amp; Model Analysis ($\pi$0.5) (4 days active) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#quantization--model-analysis-05-4-days-active---active">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
+<ul>
+<li>针对 W4A4/W4A8 精度崩溃进行了 component-wise ablation</li>
+<li>识别出 action expert 的 lazy-initialization 量化路径中的一个关键 bug</li>
+<li>对比 FP16 baselines 进行了 operator-wise error attribution</li>
+</ul>
+<p><strong>Blockers:</strong></p>
+<ul>
+<li>⚠️ 区分 rounding errors 与 clipping errors 的难度较高</li>
+</ul>
+<h3 id="academic--phd-strategy-3-days-active---completed">Academic &amp; PhD Strategy (3 days active) — ✅ completed<a hidden class="anchor" aria-hidden="true" href="#academic--phd-strategy-3-days-active---completed">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
+<ul>
+<li>使用定量研究指标完善了 CV</li>
+<li>为多长度项目叙述创建了 &lsquo;Material Bank&rsquo;</li>
+<li>开发了将研究 gap 与特定 advisors 联系起来的高影响力 outreach strategy</li>
+</ul>
+<h3 id="recoverbenchroboharness-3-days-active---active">RecoverBench/RoboHarness (3 days active) — 🔄 active<a hidden class="anchor" aria-hidden="true" href="#recoverbenchroboharness-3-days-active---active">#</a></h3>
+<p><strong>Accomplishments:</strong></p>
+<ul>
+<li>在 Linux 和 Windows 上验证了 version 5.1.2 package</li>
+<li>完成了从 Tianhe3 到 local storage 的 58GB 数据同步</li>
+<li>实现了 X1=C acceptance protocol 以处理跨平台 drift</li>
+</ul>
+<h2 id="key-tasks">Key Tasks<a hidden class="anchor" aria-hidden="true" href="#key-tasks">#</a></h2>
+<ul>
+<li>✅ <strong>RoboMemory JEV &lsquo;Plan-Once&rsquo; Implementation</strong> — 开发了一种使用 monkey-patching 的解耦架构，在不破坏 byte-level integrity 的情况下将功能注入 frozen modules。</li>
+<li>🔄 <strong>Main Experiment Execution (Astra/JEV)</strong> — 正在执行 16 tasks $\times$ 10 episodes 以验证新的基于 constraint 的 memory framework。</li>
+<li>✅ <strong>Quantization Bug Resolution ($\pi$0.5)</strong> — 识别并记录了一个关键缺陷，即 action expert 由于 lazy-initialization 而默认使用 float precision。</li>
+<li>✅ <strong>Modular Consolidation (PersonalAgent)</strong> — 将 agent 转换为具有可独立运行能力仓库的 orchestration core。</li>
+<li>✅ <strong>Paper Narrative Refinement</strong> — 应用 &lsquo;Press-Release Principle&rsquo; 将研究主张从 &lsquo;parity&rsquo; 重构为 &lsquo;memory precision via constraints&rsquo;。</li>
+<li>✅ <strong>PhD Application Assets</strong> — 创建了战略性 outreach materials 和与研究对齐的 &lsquo;Material Bank&rsquo;。</li>
+<li>✅ <strong>W4A8 LIBERO-PRO Evaluation</strong> — 运行了 8,000 episodes，通过 adversarial verification 验证结果与 float baseline 的一致性。</li>
+</ul>
+<h2 id="problems--solutions">Problems &amp; Solutions<a hidden class="anchor" aria-hidden="true" href="#problems--solutions">#</a></h2>
+<h3 id="1-strict-w4a4-quantization-leads-to-near-zero-success-rates-on-libero-tasks-quantization--model-analysis">1. Strict W4A4 quantization leads to near-zero success rates on LIBERO tasks. [Quantization &amp; Model Analysis]<a hidden class="anchor" aria-hidden="true" href="#1-strict-w4a4-quantization-leads-to-near-zero-success-rates-on-libero-tasks-quantization--model-analysis">#</a></h3>
+<p><strong>Solution:</strong> 识别了 attention weight outliers，并假设有必要采用混合 floating-point &lsquo;island&rsquo; 方法。</p>
+<h3 id="2-mac-arm-recordings-drift-on-linux-x86-due-to-floating-point-sensitivity-in-contact-rich-scenes-recoverbenchroboharness">2. Mac (ARM) recordings drift on Linux (x86) due to floating-point sensitivity in contact-rich scenes. [RecoverBench/RoboHarness]<a hidden class="anchor" aria-hidden="true" href="#2-mac-arm-recordings-drift-on-linux-x86-due-to-floating-point-sensitivity-in-contact-rich-scenes-recoverbenchroboharness">#</a></h3>
+<p><strong>Solution:</strong> 实现了 &lsquo;X1=C&rsquo; state-synchronization 标准，其中有效性由物理一致性而非精确重放来判断。</p>
+<h3 id="3-historical-google-credentials-found-in-git-history-personal-agent">3. Historical Google credentials found in Git history. [Personal Agent]<a hidden class="anchor" aria-hidden="true" href="#3-historical-google-credentials-found-in-git-history-personal-agent">#</a></h3>
+<p><strong>Solution:</strong> 更新了 .gitignore，并建议立即撤销和重新签发所有识别出的 credentials。</p>
+<h3 id="4-05-action-expert-bypassed-quantization-due-to-lazy-initialization-quantization--model-analysis">4. $\pi$0.5 action expert bypassed quantization due to lazy-initialization. [Quantization &amp; Model Analysis]<a hidden class="anchor" aria-hidden="true" href="#4-05-action-expert-bypassed-quantization-due-to-lazy-initialization-quantization--model-analysis">#</a></h3>
+<p><strong>Solution:</strong> 将 activation check 修改为基于 ONNX bundle 的存在性来触发量化。</p>
+<h3 id="5-vm-unable-to-access-local-vision-models-or-shared-gpu-registries-personal-agent">5. VM unable to access local vision models or shared GPU registries. [Personal Agent]<a hidden class="anchor" aria-hidden="true" href="#5-vm-unable-to-access-local-vision-models-or-shared-gpu-registries-personal-agent">#</a></h3>
+<p><strong>Solution:</strong> 修改了 model_access 以支持 multi-host tracking，并利用 directory junctions 来共享 JSON registries。</p>
+<h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
+<h3 id="architecture-architecture">Architecture (architecture)<a hidden class="anchor" aria-hidden="true" href="#architecture-architecture">#</a></h3>
+<ul>
+<li>解耦不仅需要代码更改，还需要在 process boundaries 之间建立严格的资源 (GPU/Model) 发现策略；由于 PIDs 在 network shares 中不是唯一的，跟踪 &lsquo;host&rsquo; 名称至关重要。</li>
+<li>&lsquo;Plan-once + JEV&rsquo; 架构的强度由其信息可用性约束定义，从而建立了独特的研究范围。</li>
+</ul>
+<h3 id="domain-knowledge-domain">Domain Knowledge (domain)<a hidden class="anchor" aria-hidden="true" href="#domain-knowledge-domain">#</a></h3>
+<ul>
+<li>单独的 success rate 对于比较 harness 方法是不充分的；&lsquo;Success Rate / Theoretical Ceiling&rsquo; 是衡量 memory precision 更稳健的指标。</li>
+<li>有效的研究陈述必须从 &lsquo;what I did&rsquo; 过渡到 &lsquo;what I realized (the gap)&rsquo;，再到 &lsquo;what I will solve&rsquo;。</li>
+</ul>
+<h3 id="debugging-debugging">Debugging (debugging)<a hidden class="anchor" aria-hidden="true" href="#debugging-debugging">#</a></h3>
+<ul>
+<li>如果特定属性在 evaluation 期间从未被触发，量化模拟器的 lazy initialization 可能会静默地绕过量化路径。</li>
+</ul>
+<h2 id="ai-usage-notes">AI Usage Notes<a hidden class="anchor" aria-hidden="true" href="#ai-usage-notes">#</a></h2>
+<p><strong>Effective Patterns:</strong></p>
+<ul>
+<li>✓ 用于统计/主张验证的 Multi-agent adversarial workflows</li>
+<li>✓ 使用 &lsquo;Press-Release Principle&rsquo; 作为叙述审计的 meta-rule</li>
+<li>✓ 将复杂的工程问题系统性地分解为 ablation components</li>
+</ul>
+<p><strong>Limitations:</strong></p>
+<ul>
+<li>✗ 无法绕过项目级 guardrails 来进行外部数据/repo 访问</li>
+<li>✗ 在没有显式 prompting 的情况下，难以验证社交/UI 行为（如 scrolling）</li>
+<li>✗ Safety classifiers 拦截了合法的 production deployment 命令</li>
+</ul>
+<h2 id="next-week-outlook优先级将转向在-tianhe3-集群上完成当前的大规模对比实验批次-e8b-e6-b0关键重点领域包括微调-jev-27b-probe-结果完成-w4a8-quantization-attribution-report以及通过将-wechatsummariesasr-功能集成到新的模块化架构中来推进-personal-agent-v1-rewrite此外在-material-bank-定稿后将开始-phd-outreach">Next Week Outlook优先级将转向在 Tianhe3 集群上完成当前的大规模对比实验批次 (E8(b), E6, B0)。关键重点领域包括微调 JEV-27B probe 结果，完成 W4A8 quantization attribution report，以及通过将 WeChat/Summaries/ASR 功能集成到新的模块化架构中来推进 Personal Agent &lsquo;V1 Rewrite&rsquo;。此外，在 material bank 定稿后，将开始 PhD outreach。<a hidden class="anchor" aria-hidden="true" href="#next-week-outlook优先级将转向在-tianhe3-集群上完成当前的大规模对比实验批次-e8b-e6-b0关键重点领域包括微调-jev-27b-probe-结果完成-w4a8-quantization-attribution-report以及通过将-wechatsummariesasr-功能集成到新的模块化架构中来推进-personal-agent-v1-rewrite此外在-material-bank-定稿后将开始-phd-outreach">#</a></h2>
+<h2 id="token-usage-statistics">Token Usage Statistics<a hidden class="anchor" aria-hidden="true" href="#token-usage-statistics">#</a></h2>
+<style>
+  .usage-card {
+    --usage-bg: #fafaf9;
+    --usage-border: rgba(0, 0, 0, 0.08);
+    --usage-text: #1a1a1a;
+    --usage-muted: #8a8880;
+    --usage-cost-main: #d0724a;
+    --usage-cost-secondary: #4a8db8;
+    --usage-cache: #c9c7c0;
+    --usage-active: #5a8878;
+    --usage-bar-bg: rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    background: var(--usage-bg);
+    border: 1px solid var(--usage-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.375rem;
+    color: var(--usage-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .usage-card *, .usage-card *::before { box-sizing: inherit; }
+  @media (prefers-color-scheme: dark) {
+    .usage-card {
+      --usage-bg: #141416;
+      --usage-border: rgba(255, 255, 255, 0.09);
+      --usage-text: rgba(255, 255, 255, 0.93);
+      --usage-muted: rgba(255, 255, 255, 0.45);
+      --usage-cache: #4a4a48;
+      --usage-bar-bg: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .usage-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .usage-card__title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.01em; }
+  .usage-card__source { font-size: 0.75rem; color: var(--usage-muted); }
+  /* selectors doubled (.usage-card dl./div.) to out-rank theme .md-content dl/dt/dd rules */
+  .usage-card dl.usage-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .usage-card div.usage-card__stat { display: flex; flex-direction: column-reverse; gap: 0.2rem; }
+  .usage-card .usage-card__stat dd { width: auto; margin: 0; padding: 0; font-size: 1.3125rem; font-weight: 600; letter-spacing: -0.01em; }
+  .usage-card .usage-card__stat dt { width: auto; margin: 0; font-size: 0.6875rem; font-weight: 400; color: var(--usage-muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .usage-card__row { margin-top: 1rem; }
+  .usage-card__row-labels { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; margin-bottom: 0.45rem; }
+  .usage-card__row-name { color: var(--usage-text); font-weight: 500; }
+  .usage-card__row-detail { color: var(--usage-muted); }
+  .usage-card__item { white-space: nowrap; }
+  .usage-card__dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3em; vertical-align: 0.02em; }
+  .usage-card__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--usage-bar-bg); }
+  .usage-card__bar span { border-radius: 2px; }
+  .usage-card__note { margin: 1.375rem 0 0; font-size: 0.8125rem; color: var(--usage-muted); }
+</style>
+<footer class="usage-card">
+      <div class="usage-card__head">
+        <span class="usage-card__title">AI Usage · 2026-W41</span>
+        <span class="usage-card__source">Claude Code + Codex</span>
+      </div>
+      <dl class="usage-card__stats">
+        <div class="usage-card__stat"><dt>Total cost</dt><dd>$2,121.96</dd></div>
+        <div class="usage-card__stat"><dt>Total tokens</dt><dd>8.47B</dd></div>
+        <div class="usage-card__stat"><dt>Output tokens</dt><dd>16M</dd></div>
+        <div class="usage-card__stat"><dt>Cache read</dt><dd>97.2%</dd></div>
+      </dl>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Cost split</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-main)"></span>Claude Code $2,029</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cost-secondary)"></span>Codex $93</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Cost split: Claude Code (95.6%), Codex (4.4%)">
+          <span style="width:95.6%; background:var(--usage-cost-main)"></span>
+          <span style="width:4.4%; background:var(--usage-cost-secondary)"></span>
+        </div>
+      </div>
+      <div class="usage-card__row">
+        <div class="usage-card__row-labels">
+          <span class="usage-card__row-name">Token character</span>
+          <span class="usage-card__row-detail">
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-cache)"></span>Cache reads 97.2%</span> ·
+            <span class="usage-card__item"><span class="usage-card__dot" style="background:var(--usage-active)"></span>Active 2.8%</span>
+          </span>
+        </div>
+        <div class="usage-card__bar" role="img" aria-label="Token character: cache reads (97.2%), active tokens (2.8%)">
+          <span style="width:97.2%; background:var(--usage-cache)"></span>
+          <span style="width:2.8%; background:var(--usage-active)"></span>
+        </div>
+      </div>
+      <p class="usage-card__note">
+        Most token volume came from cache reads; Claude Code drove nearly all cost.
+      </p>
+</footer>
+<p><strong>Peak Day:</strong> 2026-10-06 — $1178.12 / 4535.9M tokens</p>
+<p><strong>Daily Average:</strong> $424.39</p>
+<!-- gadget:src-hash:v2:ede3c82937bbc199 -->
+
+
+  </div>
+<p class="ai-generated-claim">
+  🤖 本文由 AI 根据对话记录自动生成，可能存在错误。
+</p>
+<style>
+  .ai-generated-claim {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+</style>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://tzj2006.github.io/zh/">TzJ&#39;s Net</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+(function() {
+    var menu = document.querySelector(".lang-menu");
+    if (!menu) return;
+    menu.addEventListener("click", function(e) {
+        var a = e.target.closest("a");
+        if (!a) return;
+        var current = document.documentElement.lang.split("-")[0];
+        var newLang = (current === "en") ? "zh" : "en";
+        try { localStorage.setItem("pref-lang", newLang); } catch (err) {}
+    });
+})();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
