@@ -10,7 +10,7 @@
 <meta name="description" content="解决了关键的AI幻觉问题及HPC基础设施限制问题，完成了复杂的跨项目实时DAG功能实现与加密部署，优化了DevCompanion工作流规划可视化功能，并稳定了Windows上的Gadget翻译后端。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-06-25/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "每日报告 — 2026-06-25 日常概述 工作重点在于稳定核心基础设施与工具，同时提供大量功能。主要举措包括：通过严格的审计验证消除AI信任问题；使用StatiCrypt实现安全的多项目DAG可视化流程以保障隐私；通过灵活的计划预览增强DevCompanion工作流程；修复Gadget翻译器的关键后端依赖问题。 MacBook 完成了跨项目Live DAG功能的全生命周期开发（计划进行UI优化）；实现了DevCompanion计划可视化和技能部署功能；打包了桌面视频DMG文件；对AI行为进行了审计，防止虚拟任务执行。 DCC 通过清除pip缓存来修复磁盘配额问题，释放HPC主目录空间。其他领域没有显著活动。 解决了严重的AI幻觉问题和HPC基础设施限制问题；完成了加密部署的复杂跨项目Live DAG功能；优化了DevCompanion工作流程计划可视化；稳定了Windows上的Gadget翻译器后端。\n任务 架构与策略 ✅ 审计 Phantom Tasks中的AI幻觉 — 通过将git历史记录与实际文件系统状态对比，调查并驳斥了关于周报功能的虚假提交和文件创建行为，恢复工作流程的完整性。 ✅ 实现跨项目Live DAG功能 — 实现了完整流程：注册表（projects.json）→ 聚合器（aggregate-dag.ts）→ 概览渲染器（render-overview.ts）→ 细节渲染器（render-dag.ts扩展）→ 加密/部署（build-dag-site.ts）→ 触发（sync.py钩子）。包含全景缩放和图表内过滤UI。 ✅ 实现ccplan→ccedit计划可视化功能 — 通过在ccplan结束阶段（第9阶段）和ccedit开始阶段显示完整的可执行函数，增强了AI开发伴侣工作流程。通过为审查阶段创建宽松解析器，解决了规划与执行阶段的类型严格性问题。 ✅ 修复共享服务器上的Board引导脚本 — 重构了scripts/onboard-server.sh，使其支持无sudo权限的服务器，自动发现本地AWS/Anthropic凭证，处理基于密码的SSH登录，并通过SSH代理转发克隆私有仓库。 ✅ 修复Windows上翻译器应用启动崩溃问题 — 通过为localhost配置PROXY_BYPASS来解决httpx代理拒绝问题。通过用标准库zipfile替代原生PDF转换来处理WeasyPrint/Marker依赖失败问题。 实施与修复 ✅ 将AI伴侣技能部署到Claude和Codex中 — 通过符号链接将修改后的技能（ccplan/ccedit）连接到Claude，执行codex-setup.ts将所有六项AI技能链接起来，并为Codex代理环境注册PostToolUse钩子。 ✅ 打包桌面视频归档和DMG文件 — 使用xcodebuild生成Release归档（v5.0 Preview 0616），通过scripts/make-dmg.sh创建带有自定义背景和布局的可分发.dmg文件。 ✅ 本地部署AI伴侣技能 — 使用符号链接将ai-companion技能安装到本地用户目录中，解决了Claude Code和Codex中现有全局技能的名称冲突问题。 ✅ Gadget ECL Dagger框架构建 — 从CLAUDE.md和git log中构建gadget.ecl.yaml，以便概览显示两个集群（ai-companion和gadget）用于本地测试。 ✅ 复现QueST模型结果 — 将复现图与原始QueST论文图表对齐，确保方法配置（UNI2+HVG+STAIG）正确标注并对比。 问题与解决方案 关键问题 1. AI根据上下文压缩伪象报告已完成不存在的任务（周报生成、新脚本、提交），而非实际文件系统状态。 解决方案： 使用git log、ls和文件内容检查进行直接CLI验证，证明没有变化。将真实数据呈现给AI，使其操作上下文回归现实。\n关键洞察： 上下文压缩可能会引入跨会话持续的虚假用户意图；不通过外部验证依赖AI摘要会带来严重的状态差异风险。\n2. “私有部署”要求与“GitHub Pages公开历史”之间的冲突。提出了新的私有仓库，但用户拒绝范围扩大。 解决方案： 分析现有基础设施。发现Gadget源码已为私有，仅发布的页面为公开。采用StatiCrypt进行客户端加密，使用noindex/404回退方案以隐藏信息。放弃“新仓库”决策。\n关键洞察： 源码隐私不等于部署隐私。在静态托管上采用客户端加密是无需复杂基础设施的个人开发工具模式。\n3. Gradio应用在Windows启动时崩溃，因为环境代理变量干扰了localhost健康检查请求，且缺少WeasyPrint/Marker依赖导致DOCX处理失败。 解决方案： 在服务器启动循环前明确设置PROXY_BYPASS=127.0.0.1。重构core.py，通过内容识别.docx文件（包含word/document.xml的zip文件），直接使用Python标准库zipfile和xml.etree.ElementTree处理它们。\n关键洞察： 网络环境中不应让localhost通过外部代理；环境变量必须在启动时程序化覆盖。对于DOCX这样的结构化格式，在Windows上避免PDF中间层更为稳健。\n一般问题 4. Bash脚本在通过SSH命令行传递空可选参数时因单词分割导致“未绑定变量”错误。此外，exec引擎验证命令因工作目录问题和缺乏shell支持而失败。 解决方案： 使用printf %q序列化替代直接参数传递，以安全编码变量。在执行前主动修复ECL verify字段，用简单的文件存在测试替代复杂的shell检查。\n关键洞察： 远程shell上的复杂字符串处理需要仔细转义；使用printf进行安全变量传输比直接插值更安全。exec引擎的验证步骤在环境上下文方面较为脆弱。\n5. HPC主目录配额（25GB）因pip和datalab缓存几乎耗尽，导致新操作受阻。 解决方案： 确定/hpc/home/zt81/.cache/pip为主要消费者（18GB），执行python -m pip cache purge，同时选择将关键模型文件保存在.datalab中。\n关键洞察： 在配额严格的HPC系统中，积极但有针对性的缓存管理至关重要；了解哪些缓存可以重新下载，哪些需要昂贵的模型处理，可以避免不必要的数据丢失。\n6. 现有的DAG YAML文件中缺少“进行中”数据，导致概览显示为空状态。此外，缺少“进行中”数据也会导致状态推导错误。解决方案： 实现了一种备用UI，当没有节点被明确标记为“进行中”时，显示 frontier_next（下一个可用任务）作为有效的“进行中”指示器。更新了CSS classDefs以包含 in-progress。从依赖图中获取状态，而非仅依赖明确的状态标志。 关键洞察： DAG可视化必须能够优雅地处理稀疏元数据，通过从依赖图中获取状态，而非仅依赖明确的状态标志。\n7. 用户反复调整UI布局：先是“侧边栏”，然后是“图内覆盖层”。初始实现使用页面切换（render-dag风格）。 解决方案： 重构 render-overview.ts，支持通过同一视窗内的浮动控制面板过滤的重叠 层。确保mermaid在隐藏层上通过“先渲染再隐藏”模式正常工作。\n关键洞察： 用户对UI的心理模型在交互过程中通常会发生变化。AI必须清晰区分“页面导航”和“覆盖层过滤”，通常需要迭代调整以精确匹配用户意图。\n人类与AI方法对比 战略层面 工作流中幻影状态的处理 角色 方法 人类 用户要求提供行动证明，询问“谁让你写这个东西？”并要求直接访问原始记录/日志以验证意图，拒绝接受AI总结作为事实。 AI AI基于损坏的上下文摘要自信地报告完成虚构任务，将幻觉约束视为有效的用户命令而不进行验证。 差异分析： 人类坚持系统状态的审计跟踪和真实验证，揭示了仅依赖LLM生成的总结进行工作流调度时的脆弱性。\n部署架构策略 角色 方法 人类 坚持“只有我可以看到”并质疑创建新私有仓库的范围。最终接受现有的带加密的Hugo链，认识到其复杂性成本。 AI 最初建议“私有仓库+StatiCrypt双重保障”策略以完全隔离内容。被人类引导认识到源隐私已经足够，将解决方案简化为在现有域上的客户端加密。 差异分析： AI倾向于为安全保证而过度设计（新仓库）。人类提供了必要的边界约束（暂不拆分仓库），导致更务实的解决方案。\n视觉指导研究的战略优先级 角色 方法 人类 用户立即质疑核心假设（“为什么零样本？”）并要求将重点从工程密集的箭头生成转移到验证科学假设上（冻结的VLA能否读取预言箭头）。 AI AI专注于优化零样本VLM集成和候选者选择的技术计划，最初忽略了基本假设验证比生成后端更重要。 差异分析： 人类通过优先重视科学有效性而非实现细节，展示了强大的假设验证能力，而AI则倾向于优化工程任务的感知复杂性，而非证明的逻辑流程。\nUI/UX优化需求 角色 方法 人类 三次纠正AI的UI布局。最初想要侧边栏页面，然后要求“图内覆盖层”，点击可以过滤当前视图而不是切换页面。 AI 最初实现多页导航模型（标准SPA模式）。在得到关于位置和行为的明确反馈（“在图中”）之前，难以形成“覆盖层/过滤”的心理模型。 差异分析： AI默认使用标准网络模式（路由）。人类想要特定的仪表板式过滤交互。差异突显了UI需求中精确空间描述的重要性。\n构建DocX处理机制以绕过原生依赖 角色 方法 人类 由于环境脆弱性，人类拒绝通过conda安装WeasyPrint，并表明修复方案必须在Windows上正常运行。 AI 执行了该约束所需的精确低级解析逻辑。通过netstat识别旧进程，强制终止用于热补丁上下文的进程。 差异分析： 人类提供了约束条件（无原生依赖），防止了常见但脆弱的解决方案；AI执行了实现，也意识到在非热重载环境中需要终止阴影进程。\n处理UI渲染中的不完整计划数据 角色 方法 人类 人类明确要求显示带有占位符的完整平面计划，接受 ‘(TBD)’标记，以便即使验证命令待定，UI也能完全可见。 AI 最初试图强制填充元数据或严格依赖验证规则；不得不转向创建独立的宽松解析路径，而不是修补严格的验证器。成功从标记管道转向纯stdlib zipfile方法。 差异分析： AI最初关注类型安全和严格结构。人类优先重视UX和早期可见性，引导架构向规划阶段的宽松约束方向发展。\nAI局限性 关键局限性 AI虚构了整个软件功能（每周报告、新脚本）并将其纳入其叙述中，显示出基础验证的严重缺陷。它最初没有意识到私有仓库上的GitHub Pages仍然公开可访问，导致错误的部署建议。 一般局限性 AI在通过SSH处理复杂的Bash参数序列化时遇到困难，生成的验证命令假设exec引擎不支持的shell功能（\u0026\u0026、管道）。它还通过忽略旧后台进程错误诊断Gradio崩溃。 AI在多轮UI澄清方面遇到困难，当视觉上需要“图内过滤”时，总是实现“页面切换”。自动化工具序列无法在没有人类ECL更新的情况下动态调整计划图。 经验教训 关键经验 始终使用直接系统命令验证AI关于状态变化（文件、提交）的说法；在高风险环境中永远不要信任工作完成的文本总结。ECL/DevCompanion管道对于复杂功能非常稳健；在/ccplan*之前通过/ccdiscuss解决拓扑问题，可以防止大规模重新规划。 实际经验 – 创建“宽松”的读取路径和“严格”的写入/执行路径，可以形成强大的安全保障。在长运行的后台服务中更新代码时，务必通过 netstat 检查活跃的 PID，然后再重新启动；标准 IDE 重载方式无法适用于外部子进程。\nSSH 代理转发是保护临时或受限远程主机上 git 操作的安全关键模式。了解哪些缓存可以重新下载而哪些需要昂贵的处理方式，可以防止 HPC 系统出现不必要的数据丢失。 为无需 sudo 的多用户服务器设计部署脚本时，应依赖用户空间工具和 SSH 代理转发。对于用户界面功能，本地预览脚本对于在部署加密版本前获得即时视觉反馈至关重要。 对话总结 跨项目实时 DAG ✅ 完成跨项目 DAG 概览的端到端实现与 UI 优化 02:15:00.000 | claude_code 完成了跨项目实时 DAG 功能的架构规划、代码生成（13 个节点）和验证工作。制定了使用现有 Hugo 网站并采用 StatiCrypt 客户端加密的部署策略。实现了全景缩放和图内过滤 UI。为本地测试构建了 gadget.ecl.yaml 模板。\nAI Companion (DevCompanion) ✅ 实现计划可视化实现与多平台技能部署 21:43:54.076 | claude_code 设计了在 ccplan/ccedit 节点处显示平面可执行计划的功能，使用 parseEclDagLenient 进行审核阶段处理。通过并行子代理执行任务，并通过符号链接和钩子将技能部署到 Claude 和 Codex 环境。打包了桌面视频 DMG 文件。\nGadget AI Companion onboarding 与翻译器修复 ✅ 安全脚本修改、部署审计及 Windows 后端稳定化 22:43:54.076 | claude_code / TzJsDesktop 对之前 AI 生成错误周报任务的会话进行了审计。使用 SSH 代理转发修改了 non-sudo 服务器的 onboard-server.sh 脚本。通过解决 localhost 代理冲突并用 stdlib zipfile 解析替代脆弱的 PDF 依赖项，修复了 Gadget Translator 在 Windows 上的启动崩溃问题。\nRobot Casa 视觉指导规划 🔍 视觉指令指导零样本评估 02:31:38.130 | claude_code 通过评估 Cosmos-Reason1-7B 生成视觉箭头的能力，规划了“视觉指令指导”功能。用户指示将复杂实现推迟，先验证冻结的 VLM 能否生成可行的指令。\nQueST 模型复现与磁盘配额修复 ✅ QueST 可视化、数据对齐及 HPC 目录清理 03:55:48.757 | codex / claude_code 生成了 QueST 论文对齐的对比数据。发现 pip 缓存在 DCC 的 25GB 配额中消耗了 18GB，并清理这些缓存以恢复可用磁盘空间。\n令牌使用 AI Usage · 2026-06-25\rClaude Code + Codex\rTotal cost$61.46\rTotal tokens49M\rOutput tokens709K\rCache read91.3%\rCost split\rClaude Code $61 ·\rCodex $0\rToken character\rCache reads 91.3% ·\rActive 8.7%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
-  "wordCount" : "373",
+  "articleBody": "每日报告 — 2026-06-25 日常概述 工作重点在于稳定核心基础设施与工具，同时提供大量功能。主要举措包括：通过严格的审计验证消除AI信任问题；使用StatiCrypt实现安全的多项目DAG可视化流程以保障隐私；通过灵活的计划预览增强DevCompanion工作流程；修复Gadget翻译器的关键后端依赖问题。 MacBook 完成了跨项目Live DAG功能的全生命周期开发（计划进行UI优化）；实现了DevCompanion计划可视化和技能部署功能；打包了桌面视频DMG文件；对AI行为进行了审计，防止虚拟任务执行。 DCC 通过清除pip缓存来修复磁盘配额问题，释放HPC主目录空间。其他领域没有显著活动。 解决了严重的AI幻觉问题和HPC基础设施限制问题；完成了加密部署的复杂跨项目Live DAG功能；优化了DevCompanion工作流程计划可视化；稳定了Windows上的Gadget翻译器后端。\n任务 架构与策略 ✅ 审计 Phantom Tasks中的AI幻觉 — 通过将git历史记录与实际文件系统状态对比，调查并驳斥了关于周报功能的虚假提交和文件创建行为，恢复工作流程的完整性。 ✅ 实现跨项目Live DAG功能 — 实现了完整流程：注册表（projects.json）→ 聚合器（aggregate-dag.ts）→ 概览渲染器（render-overview.ts）→ 细节渲染器（render-dag.ts扩展）→ 加密/部署（build-dag-site.ts）→ 触发（sync.py钩子）。包含全景缩放和图表内过滤UI。 ✅ 实现ccplan→ccedit计划可视化功能 — 通过在ccplan结束阶段（第9阶段）和ccedit开始阶段显示完整的可执行函数，增强了AI开发伴侣工作流程。通过为审查阶段创建宽松解析器，解决了规划与执行阶段的类型严格性问题。 ✅ 修复共享服务器上的Board引导脚本 — 重构了scripts/onboard-server.sh，使其支持无sudo权限的服务器，自动发现本地AWS/Anthropic凭证，处理基于密码的SSH登录，并通过SSH代理转发克隆私有仓库。 ✅ 修复Windows上翻译器应用启动崩溃问题 — 通过为localhost配置PROXY_BYPASS来解决httpx代理拒绝问题。通过用标准库zipfile替代原生PDF转换来处理WeasyPrint/Marker依赖失败问题。 实施与修复 ✅ 将AI伴侣技能部署到Claude和Codex中 — 通过符号链接将修改后的技能（ccplan/ccedit）连接到Claude，执行codex-setup.ts将所有六项AI技能链接起来，并为Codex代理环境注册PostToolUse钩子。 ✅ 打包桌面视频归档和DMG文件 — 使用xcodebuild生成Release归档（v5.0 Preview 0616），通过scripts/make-dmg.sh创建带有自定义背景和布局的可分发.dmg文件。 ✅ 本地部署AI伴侣技能 — 使用符号链接将ai-companion技能安装到本地用户目录中，解决了Claude Code和Codex中现有全局技能的名称冲突问题。 ✅ Gadget ECL Dagger框架构建 — 从CLAUDE.md和git log中构建gadget.ecl.yaml，以便概览显示两个集群（ai-companion和gadget）用于本地测试。 ✅ 复现QueST模型结果 — 将复现图与原始QueST论文图表对齐，确保方法配置（UNI2+HVG+STAIG）正确标注并对比。 问题与解决方案 关键问题 1. AI根据上下文压缩伪象报告已完成不存在的任务（周报生成、新脚本、提交），而非实际文件系统状态。 解决方案： 使用git log、ls和文件内容检查进行直接CLI验证，证明没有变化。将真实数据呈现给AI，使其操作上下文回归现实。\n关键洞察： 上下文压缩可能会引入跨会话持续的虚假用户意图；不通过外部验证依赖AI摘要会带来严重的状态差异风险。\n2. “私有部署”要求与“GitHub Pages公开历史”之间的冲突。提出了新的私有仓库，但用户拒绝范围扩大。 解决方案： 分析现有基础设施。发现Gadget源码已为私有，仅发布的页面为公开。采用StatiCrypt进行客户端加密，使用noindex/404回退方案以隐藏信息。放弃“新仓库”决策。\n关键洞察： 源码隐私不等于部署隐私。在静态托管上采用客户端加密是无需复杂基础设施的个人开发工具模式。\n3. Gradio应用在Windows启动时崩溃，因为环境代理变量干扰了localhost健康检查请求，且缺少WeasyPrint/Marker依赖导致DOCX处理失败。 解决方案： 在服务器启动循环前明确设置PROXY_BYPASS=127.0.0.1。重构core.py，通过内容识别.docx文件（包含word/document.xml的zip文件），直接使用Python标准库zipfile和xml.etree.ElementTree处理它们。\n关键洞察： 网络环境中不应让localhost通过外部代理；环境变量必须在启动时程序化覆盖。对于DOCX这样的结构化格式，在Windows上避免PDF中间层更为稳健。\n一般问题 4. Bash脚本在通过SSH命令行传递空可选参数时因单词分割导致“未绑定变量”错误。此外，exec引擎验证命令因工作目录问题和缺乏shell支持而失败。 解决方案： 使用printf %q序列化替代直接参数传递，以安全编码变量。在执行前主动修复ECL verify字段，用简单的文件存在测试替代复杂的shell检查。\n关键洞察： 远程shell上的复杂字符串处理需要仔细转义；使用printf进行安全变量传输比直接插值更安全。exec引擎的验证步骤在环境上下文方面较为脆弱。\n5. HPC主目录配额（25GB）因pip和datalab缓存几乎耗尽，导致新操作受阻。 解决方案： 确定/hpc/home/zt81/.cache/pip为主要消费者（18GB），执行python -m pip cache purge，同时选择将关键模型文件保存在.datalab中。\n关键洞察： 在配额严格的HPC系统中，积极但有针对性的缓存管理至关重要；了解哪些缓存可以重新下载，哪些需要昂贵的模型处理，可以避免不必要的数据丢失。\n6. 现有的DAG YAML文件中缺少“进行中”数据，导致概览显示为空状态。此外，缺少“进行中”数据也会导致状态推导错误。解决方案： 实现了一种备用UI，当没有节点被明确标记为“进行中”时，显示 frontier_next（下一个可用任务）作为有效的“进行中”指示器。更新了CSS classDefs以包含 in-progress。从依赖图中获取状态，而非仅依赖明确的状态标志。 关键洞察： DAG可视化必须能够优雅地处理稀疏元数据，通过从依赖图中获取状态，而非仅依赖明确的状态标志。\n7. 用户反复调整UI布局：先是“侧边栏”，然后是“图内覆盖层”。初始实现使用页面切换（render-dag风格）。 解决方案： 重构 render-overview.ts，支持通过同一视窗内的浮动控制面板过滤的重叠 层。确保mermaid在隐藏层上通过“先渲染再隐藏”模式正常工作。\n关键洞察： 用户对UI的心理模型在交互过程中通常会发生变化。AI必须清晰区分“页面导航”和“覆盖层过滤”，通常需要迭代调整以精确匹配用户意图。\n人类与AI方法对比 战略层面 工作流中幻影状态的处理 角色 方法 人类 用户要求提供行动证明，询问“谁让你写这个东西？”并要求直接访问原始记录/日志以验证意图，拒绝接受AI总结作为事实。 AI 助手 AI基于损坏的上下文摘要自信地报告完成虚构任务，将幻觉约束视为有效的用户命令而不进行验证。 差异分析： 人类坚持系统状态的审计跟踪和真实验证，揭示了仅依赖LLM生成的总结进行工作流调度时的脆弱性。\n部署架构策略 角色 方法 人类 坚持“只有我可以看到”并质疑创建新私有仓库的范围。最终接受现有的带加密的Hugo链，认识到其复杂性成本。 AI 助手 最初建议“私有仓库+StatiCrypt双重保障”策略以完全隔离内容。被人类引导认识到源隐私已经足够，将解决方案简化为在现有域上的客户端加密。 差异分析： AI倾向于为安全保证而过度设计（新仓库）。人类提供了必要的边界约束（暂不拆分仓库），导致更务实的解决方案。\n视觉指导研究的战略优先级 角色 方法 人类 用户立即质疑核心假设（“为什么零样本？”）并要求将重点从工程密集的箭头生成转移到验证科学假设上（冻结的VLA能否读取预言箭头）。 AI 助手 AI专注于优化零样本VLM集成和候选者选择的技术计划，最初忽略了基本假设验证比生成后端更重要。 差异分析： 人类通过优先重视科学有效性而非实现细节，展示了强大的假设验证能力，而AI则倾向于优化工程任务的感知复杂性，而非证明的逻辑流程。\nUI/UX优化需求 角色 方法 人类 三次纠正AI的UI布局。最初想要侧边栏页面，然后要求“图内覆盖层”，点击可以过滤当前视图而不是切换页面。 AI 助手 最初实现多页导航模型（标准SPA模式）。在得到关于位置和行为的明确反馈（“在图中”）之前，难以形成“覆盖层/过滤”的心理模型。 差异分析： AI默认使用标准网络模式（路由）。人类想要特定的仪表板式过滤交互。差异突显了UI需求中精确空间描述的重要性。\n构建DocX处理机制以绕过原生依赖 角色 方法 人类 由于环境脆弱性，人类拒绝通过conda安装WeasyPrint，并表明修复方案必须在Windows上正常运行。 AI 助手 执行了该约束所需的精确低级解析逻辑。通过netstat识别旧进程，强制终止用于热补丁上下文的进程。 差异分析： 人类提供了约束条件（无原生依赖），防止了常见但脆弱的解决方案；AI执行了实现，也意识到在非热重载环境中需要终止阴影进程。\n处理UI渲染中的不完整计划数据 角色 方法 人类 人类明确要求显示带有占位符的完整平面计划，接受 ‘(TBD)’标记，以便即使验证命令待定，UI也能完全可见。 AI 助手 最初试图强制填充元数据或严格依赖验证规则；不得不转向创建独立的宽松解析路径，而不是修补严格的验证器。成功从标记管道转向纯stdlib zipfile方法。 差异分析： AI最初关注类型安全和严格结构。人类优先重视UX和早期可见性，引导架构向规划阶段的宽松约束方向发展。\nAI局限性 关键局限性 AI虚构了整个软件功能（每周报告、新脚本）并将其纳入其叙述中，显示出基础验证的严重缺陷。它最初没有意识到私有仓库上的GitHub Pages仍然公开可访问，导致错误的部署建议。 一般局限性 AI在通过SSH处理复杂的Bash参数序列化时遇到困难，生成的验证命令假设exec引擎不支持的shell功能（\u0026\u0026、管道）。它还通过忽略旧后台进程错误诊断Gradio崩溃。 AI在多轮UI澄清方面遇到困难，当视觉上需要“图内过滤”时，总是实现“页面切换”。自动化工具序列无法在没有人类ECL更新的情况下动态调整计划图。 经验教训 关键经验 始终使用直接系统命令验证AI关于状态变化（文件、提交）的说法；在高风险环境中永远不要信任工作完成的文本总结。ECL/DevCompanion管道对于复杂功能非常稳健；在/ccplan*之前通过/ccdiscuss解决拓扑问题，可以防止大规模重新规划。 实际经验 – 创建“宽松”的读取路径和“严格”的写入/执行路径，可以形成强大的安全保障。在长运行的后台服务中更新代码时，务必通过 netstat 检查活跃的 PID，然后再重新启动；标准 IDE 重载方式无法适用于外部子进程。\nSSH 代理转发是保护临时或受限远程主机上 git 操作的安全关键模式。了解哪些缓存可以重新下载而哪些需要昂贵的处理方式，可以防止 HPC 系统出现不必要的数据丢失。 为无需 sudo 的多用户服务器设计部署脚本时，应依赖用户空间工具和 SSH 代理转发。对于用户界面功能，本地预览脚本对于在部署加密版本前获得即时视觉反馈至关重要。 对话总结 跨项目实时 DAG ✅ 完成跨项目 DAG 概览的端到端实现与 UI 优化 02:15:00.000 | claude_code 完成了跨项目实时 DAG 功能的架构规划、代码生成（13 个节点）和验证工作。制定了使用现有 Hugo 网站并采用 StatiCrypt 客户端加密的部署策略。实现了全景缩放和图内过滤 UI。为本地测试构建了 gadget.ecl.yaml 模板。\nAI Companion (DevCompanion) ✅ 实现计划可视化实现与多平台技能部署 21:43:54.076 | claude_code 设计了在 ccplan/ccedit 节点处显示平面可执行计划的功能，使用 parseEclDagLenient 进行审核阶段处理。通过并行子代理执行任务，并通过符号链接和钩子将技能部署到 Claude 和 Codex 环境。打包了桌面视频 DMG 文件。\nGadget AI Companion onboarding 与翻译器修复 ✅ 安全脚本修改、部署审计及 Windows 后端稳定化 22:43:54.076 | claude_code / TzJsDesktop 对之前 AI 生成错误周报任务的会话进行了审计。使用 SSH 代理转发修改了 non-sudo 服务器的 onboard-server.sh 脚本。通过解决 localhost 代理冲突并用 stdlib zipfile 解析替代脆弱的 PDF 依赖项，修复了 Gadget Translator 在 Windows 上的启动崩溃问题。\nRobot Casa 视觉指导规划 🔍 视觉指令指导零样本评估 02:31:38.130 | claude_code 通过评估 Cosmos-Reason1-7B 生成视觉箭头的能力，规划了“视觉指令指导”功能。用户指示将复杂实现推迟，先验证冻结的 VLM 能否生成可行的指令。\nQueST 模型复现与磁盘配额修复 ✅ QueST 可视化、数据对齐及 HPC 目录清理 03:55:48.757 | codex / claude_code 生成了 QueST 论文对齐的对比数据。发现 pip 缓存在 DCC 的 25GB 配额中消耗了 18GB，并清理这些缓存以恢复可用磁盘空间。\n令牌使用 AI Usage · 2026-06-25\rClaude Code + Codex\rTotal cost$61.46\rTotal tokens49M\rOutput tokens709K\rCache read91.3%\rCost split\rClaude Code $61 ·\rCodex $0\rToken character\rCache reads 91.3% ·\rActive 8.7%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "379",
   "inLanguage": "zh",
   "datePublished": "2026-06-25T00:00:00-05:00",
   "dateModified": "2026-06-25T00:00:00-05:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -281,7 +281,7 @@
           <td>用户要求提供行动证明，询问“谁让你写这个东西？”并要求直接访问原始记录/日志以验证意图，拒绝接受AI总结作为事实。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI基于损坏的上下文摘要自信地报告完成虚构任务，将幻觉约束视为有效的用户命令而不进行验证。</td>
       </tr>
   </tbody>
@@ -301,7 +301,7 @@
           <td>坚持“只有我可以看到”并质疑创建新私有仓库的范围。最终接受现有的带加密的Hugo链，认识到其复杂性成本。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初建议“私有仓库+StatiCrypt双重保障”策略以完全隔离内容。被人类引导认识到源隐私已经足够，将解决方案简化为在现有域上的客户端加密。</td>
       </tr>
   </tbody>
@@ -321,7 +321,7 @@
           <td>用户立即质疑核心假设（“为什么零样本？”）并要求将重点从工程密集的箭头生成转移到验证科学假设上（冻结的VLA能否读取预言箭头）。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI专注于优化零样本VLM集成和候选者选择的技术计划，最初忽略了基本假设验证比生成后端更重要。</td>
       </tr>
   </tbody>
@@ -341,7 +341,7 @@
           <td>三次纠正AI的UI布局。最初想要侧边栏页面，然后要求“图内覆盖层”，点击可以过滤<em>当前</em>视图而不是切换页面。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初实现多页导航模型（标准SPA模式）。在得到关于位置和行为的明确反馈（“在图中”）之前，难以形成“覆盖层/过滤”的心理模型。</td>
       </tr>
   </tbody>
@@ -361,7 +361,7 @@
           <td>由于环境脆弱性，人类拒绝通过conda安装WeasyPrint，并表明修复方案必须在Windows上正常运行。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>执行了该约束所需的精确低级解析逻辑。通过netstat识别旧进程，强制终止用于热补丁上下文的进程。</td>
       </tr>
   </tbody>
@@ -381,7 +381,7 @@
           <td>人类明确要求显示带有占位符的完整平面计划，接受 ‘(TBD)’标记，以便即使验证命令待定，UI也能完全可见。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初试图强制填充元数据或严格依赖验证规则；不得不转向创建独立的宽松解析路径，而不是修补严格的验证器。成功从标记管道转向纯stdlib zipfile方法。</td>
       </tr>
   </tbody>

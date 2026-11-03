@@ -10,7 +10,7 @@
 <meta name="description" content="通过坐标归一化、分辨率缩放和温度控制，优化了Cosmos3-Nano视觉指令生成效果，使得机器人任务注释具有更好的可用性。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-06-27/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "每日报告 — 2026-06-27 日常概述 完成事项： 执行了 A/B 测试，以提升 Cosmos3-Nano 在机器人演示视频中生成的视觉指令箭头的准确性。 实施方法： 修改了推理参数（标准化 [0,1000] 坐标，将输入放大至 480p，设置温度=0），并实现了简化的单箭头可视化脚本用于对比测试。 效果： 将模糊的模型输出转化为清晰、可操作的方向指示，验证了该模型作为零样本标注器的潜力，同时识别了静态相机设置下的时间限制。 通过坐标标准化、分辨率缩放和温度控制优化了 Cosmos3-Nano 的视觉指令生成，实现了机器人任务注释的定性可用性。\n任务 架构与策略 ✅ 视觉指令参数优化 — 诊断出坐标错位和低分辨率问题，然后实施了三种具体修复：将坐标标准化为 [0,1000]，将输入放大至 480x480，并将温度降低至 0以获得确定性的输出。 实施与修复 ✅ A/B 测试执行 — 在特定的演示视频上运行基础与改进配置（成功与失败案例），下载结果，并比较箭头方向的正确性。 ✅ 可视化简化 — 优化输出可视化，仅显示单个箭头，去除用户要求的圆形和多个步骤指示等杂乱元素。 ✅ 服务器资源管理 — 将所有对比资产下载到本地存储，并安全终止远程服务器上的 Cosmos3-Nano vLLM 服务以释放 GPU 资源。 问题与解决方案 关键问题 1. AI 生成的箭头不准确且分布不均，原因是模型假设的图像尺寸（608x480）与实际视频分辨率（256x256）不匹配，再加上低分辨率细节的影响。 解决方案： 在提示中实施坐标标准化为 [0,1000]，将输入帧放大至 480p 以更好地检测特征，并将温度设置为 0以消除采样噪声。\n关键洞察： 这三种修改具有独立价值；坐标标准化和分辨率缩放对几何精度至关重要，而温度控制则确保了时间特征的分析确定性。\n一般问题 2. 最初未能终止远程 vLLM 进程，因为命令行模式匹配冲突（“vllm serve”与 SSH 命令本身匹配）。 解决方案： 调整 pkill 正则表达式模式以排除当前shell环境（例如使用 “Cosmos3-Na[n]o”），成功终止进程并释放 GPU。\n关键洞察： 远程调试进程时需注意正则表达式模式，避免自我终止或不完全终止。\n人类与 AI 方法 实施层面 可视化复杂度限制 角色 方法 人类 用户明确要求简化可视化（“仅一个箭头，无其他内容”），以减少认知负担并专注于方向意图。 AI AI 最初提供复杂的可视化效果，包含多个标记（圆形、点、步骤1/2箭头），随后根据要求调整为简化形式。 差异分析： 人类明确以清晰简洁为目标，而 AI 默认提供最大信息密度。人工干预将评估指标简化为仅关注箭头几何形状。\nAI 限制 关键限制 AI 错误假设了视频尺寸（报告为 608x480，实际为 256x256），导致早期输出中系统性坐标失真。 一般限制 无法展示更好的时间推理能力，因为使用的输入视频是静态第三人称相机，逐帧预测与基于片段的预测趋于一致。 学习成果 关键学习点 在提示中使用标准化坐标（例如 [0,1000]）可显著提升具有不一致内部图像尺寸假设的 VLMs的几何精度。 实际学习点 为了分离视频模型中的时间上下文影响，在消融研究中必须将温度设置为 0；否则，采样噪声会掩盖时间片段的真实贡献。 对话总结 ✅ Cosmos3-Nano 视觉指令 A/B 测试 04:00:06.583 | claude_code 用户要求提高 Cosmos3-Nano 生成的视觉指令的准确性。我们发现坐标不匹配和低分辨率是主要问题。实施了三种修复：标准化坐标 [0,1000]，480p 放大，以及温度=0。对比基础与改进输出的 A/B 测试表明，修改后的参数产生的箭头能正确指向目标物体（如上方、烤面包机把手）。会话结束时将所有资产下载到本地并关闭远程服务器。\n令牌使用 AI Usage · 2026-06-27\rClaude Code\rTotal cost$9.72\rTotal tokens11M\rOutput tokens102K\rCache read86.1%\rToken character\rCache reads 86.1% ·\rActive 13.9%\rMost token volume came from cache reads.\r",
-  "wordCount" : "156",
+  "articleBody": "每日报告 — 2026-06-27 日常概述 完成事项： 执行了 A/B 测试，以提升 Cosmos3-Nano 在机器人演示视频中生成的视觉指令箭头的准确性。 实施方法： 修改了推理参数（标准化 [0,1000] 坐标，将输入放大至 480p，设置温度=0），并实现了简化的单箭头可视化脚本用于对比测试。 效果： 将模糊的模型输出转化为清晰、可操作的方向指示，验证了该模型作为零样本标注器的潜力，同时识别了静态相机设置下的时间限制。 通过坐标标准化、分辨率缩放和温度控制优化了 Cosmos3-Nano 的视觉指令生成，实现了机器人任务注释的定性可用性。\n任务 架构与策略 ✅ 视觉指令参数优化 — 诊断出坐标错位和低分辨率问题，然后实施了三种具体修复：将坐标标准化为 [0,1000]，将输入放大至 480x480，并将温度降低至 0以获得确定性的输出。 实施与修复 ✅ A/B 测试执行 — 在特定的演示视频上运行基础与改进配置（成功与失败案例），下载结果，并比较箭头方向的正确性。 ✅ 可视化简化 — 优化输出可视化，仅显示单个箭头，去除用户要求的圆形和多个步骤指示等杂乱元素。 ✅ 服务器资源管理 — 将所有对比资产下载到本地存储，并安全终止远程服务器上的 Cosmos3-Nano vLLM 服务以释放 GPU 资源。 问题与解决方案 关键问题 1. AI 生成的箭头不准确且分布不均，原因是模型假设的图像尺寸（608x480）与实际视频分辨率（256x256）不匹配，再加上低分辨率细节的影响。 解决方案： 在提示中实施坐标标准化为 [0,1000]，将输入帧放大至 480p 以更好地检测特征，并将温度设置为 0以消除采样噪声。\n关键洞察： 这三种修改具有独立价值；坐标标准化和分辨率缩放对几何精度至关重要，而温度控制则确保了时间特征的分析确定性。\n一般问题 2. 最初未能终止远程 vLLM 进程，因为命令行模式匹配冲突（“vllm serve”与 SSH 命令本身匹配）。 解决方案： 调整 pkill 正则表达式模式以排除当前shell环境（例如使用 “Cosmos3-Na[n]o”），成功终止进程并释放 GPU。\n关键洞察： 远程调试进程时需注意正则表达式模式，避免自我终止或不完全终止。\n人类与 AI 方法 实施层面 可视化复杂度限制 角色 方法 人类 用户明确要求简化可视化（“仅一个箭头，无其他内容”），以减少认知负担并专注于方向意图。 AI 助手 AI 最初提供复杂的可视化效果，包含多个标记（圆形、点、步骤1/2箭头），随后根据要求调整为简化形式。 差异分析： 人类明确以清晰简洁为目标，而 AI 默认提供最大信息密度。人工干预将评估指标简化为仅关注箭头几何形状。\nAI 限制 关键限制 AI 错误假设了视频尺寸（报告为 608x480，实际为 256x256），导致早期输出中系统性坐标失真。 一般限制 无法展示更好的时间推理能力，因为使用的输入视频是静态第三人称相机，逐帧预测与基于片段的预测趋于一致。 学习成果 关键学习点 在提示中使用标准化坐标（例如 [0,1000]）可显著提升具有不一致内部图像尺寸假设的 VLMs的几何精度。 实际学习点 为了分离视频模型中的时间上下文影响，在消融研究中必须将温度设置为 0；否则，采样噪声会掩盖时间片段的真实贡献。 对话总结 ✅ Cosmos3-Nano 视觉指令 A/B 测试 04:00:06.583 | claude_code 用户要求提高 Cosmos3-Nano 生成的视觉指令的准确性。我们发现坐标不匹配和低分辨率是主要问题。实施了三种修复：标准化坐标 [0,1000]，480p 放大，以及温度=0。对比基础与改进输出的 A/B 测试表明，修改后的参数产生的箭头能正确指向目标物体（如上方、烤面包机把手）。会话结束时将所有资产下载到本地并关闭远程服务器。\n令牌使用 AI Usage · 2026-06-27\rClaude Code\rTotal cost$9.72\rTotal tokens11M\rOutput tokens102K\rCache read86.1%\rToken character\rCache reads 86.1% ·\rActive 13.9%\rMost token volume came from cache reads.\r",
+  "wordCount" : "157",
   "inLanguage": "zh",
   "datePublished": "2026-06-27T00:00:00-05:00",
   "dateModified": "2026-06-27T00:00:00-05:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -255,7 +255,7 @@
           <td>用户明确要求简化可视化（“仅一个箭头，无其他内容”），以减少认知负担并专注于方向意图。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 最初提供复杂的可视化效果，包含多个标记（圆形、点、步骤1/2箭头），随后根据要求调整为简化形式。</td>
       </tr>
   </tbody>

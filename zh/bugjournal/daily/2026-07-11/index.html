@@ -10,7 +10,7 @@
 <meta name="description" content="在RoboCasa数据集中，对Pi0.5和GR00T模型的故障视频进行了定位与编目；从远程集群中获取了特定的Action-Sketcher故障案例；并在评估视频上实现了视觉推理叠加效果。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-11/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "每日报告 — 2026-07-11 日常概述 已完成工作： 对多个数据集中的模型评估结果进行了审计，找出故障案例，并改进了 Action-Sketcher 项目的可视化工具。 实施方式： 使用 shell 命令（find、grep）解析大型文件系统和 JSON 配置文件；修改 Python 源代码，将推理框架和轨迹覆盖层嵌入到 MP4 视频中。 影响： 为模型错误分析提供了关键数据，提高了机器人规划输出的可解释性。 athena 已完成工作： 在 RoboCasa 评估过程中识别出 Pi0.5 和 GR00T 模型的故障路径。 实施方式： 搜索目录结构中的特定命名规范（_failure.mp4 与 _s0.mp4），并解析 stats.json 文件以获取成功率数据。 影响： 确定了 2,017 个 Pi0.5 故障和 1,210 个 GR00T 故障的具体位置，便于后续分析。 athena.egr.duke.edu 已完成工作： 在 Athena 集群上复制了 RoboCasa 故障视频识别流程。 实施方式： 执行相同的 bash 脚本，在 runs/ 目录中定位并统计故障/成功视频。 影响： 验证了不同环境状态下评估结果的一致性。 lighthouse 已完成工作： 在 Tianhe3 集群上找到 Action-Sketcher 模型的特定故障案例。 实施方式： 通过 SSH 连接到远程服务器，识别标记为 FAIL 的 MP4 文件，并使用 SCP 在本地传输它们。 影响： 提供了模型故障的具体实例，便于定性审查。 lighthouse.egr.duke.edu 已完成工作： 协助将远程服务器的故障视频传输到本地机器，解决 shell globbing 问题。 实施方式： 生成带有适当引号处理的 rsync 和 SCP 命令，以解决 zsh 展开冲突。 影响： 使得机器人任务故障的离线分析成为可能。 my-pc 已完成工作： 为 Action-Sketcher 项目实现了可视化覆盖层，在视频中显示推理和子任务信息。 实施方式： 修改 draw_vp.py 和 run_libero_example.py，使用 OpenCV 解析 JSON 推理数据并将其绘制到视频帧上。 影响： 显著提高了利益相关者对模型“看-想-画-行动”循环的可解释性。 在 RoboCasa 数据集中定位并编目了 Pi0.5 和 GR00T 模型的故障视频，从远程集群中获取了特定的 Action-Sketcher 故障案例，并在评估视频中实现了可视化推理覆盖层。\n任务 架构与策略 ✅ 为 Action-Sketcher 实现推理覆盖层 — 添加了代码，在评估视频中绘制子任务标题和视觉草图覆盖层。 ✅ 定位 Pi0.5 和 GR00T 故障视频 — 在 RoboCasa 数据集中找到并编目了所有 Pi0.5（2,017 个文件）和 GR00T（1,210 个文件）的故障场景视频。 实施与修复 ✅ 获取 Action-Sketcher 故障案例 — 从 Tianhe3 集群下载了 6 个具体的故障案例进行审查。 问题与解决方案 关键问题 1. Action-Sketcher 项目页面提到视觉草图，但代码未在视频上显示。 解决方案： 修改推理脚本，解析生成的 JSON 推理数据，使用 OpenCV 在每一帧上绘制文本/图形元素。\n关键洞察： 视觉解释只有在输出成果中明确呈现时才有效，而不仅仅是存储在日志中。\n一般问题 2. 远程 SCP 失败是因为 zsh 在本地展开 glob 模式后通过 SSH 传输。 解决方案： 改为使用 rsync 命令，或在 SCP 命令的远程路径字符串上添加引号，避免本地 shell 展开。\n关键洞察： ZSH 中的 shell globbing 默认在本地进行；SCP 命令的远程路径部分必须加引号以保留字面量。\n人类与 AI 方法 战略层面 可视化策略选择 角色 方法 人类 用户明确要求从项目网站逻辑中提取推理和子任务数据，并将其嵌入视频中。 AI AI 分析了 draw_vp.py 和 run_libero_example.py 的源代码，识别相关函数，并实现了无需外部依赖的逐帧覆盖解决方案。 差异分析： 人类基于项目的理论框架提供高层需求；AI 将其转化为具体的 OpenCV 实现细节。\n实施层面 SCP globbing 行为 角色 方法 人类 用户最初尝试在本地 ZSH 终端中使用标准的 shell 通配符语法进行 SCP 命令操作。 AI AI 正确识别了本地 shell 在传输前会展开路径，建议使用 rsync 或谨慎加引号作为替代方案。 差异分析： 人类关注意图（复制多个文件），而 AI 关注传输协议的语法约束与本地 shell 展开的区别。\nAI 限制 一般限制 AI 在跨环境 shell 展开方面存在困难，最初建议使用标准 scp 命令，但因本地终端 globbing 规则而失败。 AI 无法直接在本地用户机器上执行命令；它仅提供脚本供用户本地运行。 学习成果 关键学习点 不同机器人模型对成功/失败的命名规范不同（例如 _s1/_s0 与明确标签）；自动化审计需要解析配置/统计文件以确认语义含义。 实际学习点 OpenCV 足以用于向现有视频帧添加文本覆盖层和简单的几何草图，无需单独的组合器引擎。 对话总结 RoboCasa 评估审计 ✅ 定位 Pi0.5 和 GR00T 的故障视频 01:17:22.256 | claude_code 用户要求找到 RoboCasa 数据集中 Pi0.5 和 GR00T 模型的故障视频。AI 扫描了目录结构，识别了命名规范（_failure.md 与 _s0），解析了 stats.json 中的成功率数据，并找到了 2,017 个 Pi0.5 故障和 1,210 个 GR00T 故障。\n远程服务器文件传输 ✅ 通过 SCP 解决远程视频下载问题 01:11:42.314 | claude_code 用户需要从 lighthouse.egr.duke.edu 下载特定的故障视频。AI 生成了 SCP 和 Rsync 命令，解决了阻止初始传输的 ZSH globbing 错误。\nAction-Sketcher 改进**✅ 实现视觉推理叠加** 02:29:07.173 | claude_code 用户要求在 Action-Sketcher 评估视频中添加推理及子任务可视化效果。该 AI 修改了 draw_vp.py 和 run_libero_example.py 文件，利用 OpenCV 解析 JSON 推理数据并将其叠加在视频帧上。\n令牌使用 AI Usage · 2026-07-11\rClaude Code\rTotal cost$2.03\rTotal tokens2M\rOutput tokens19K\rCache read92.1%\rToken character\rCache reads 92.1% ·\rActive 7.9%\rMost token volume came from cache reads.\r",
-  "wordCount" : "361",
+  "articleBody": "每日报告 — 2026-07-11 日常概述 已完成工作： 对多个数据集中的模型评估结果进行了审计，找出故障案例，并改进了 Action-Sketcher 项目的可视化工具。 实施方式： 使用 shell 命令（find、grep）解析大型文件系统和 JSON 配置文件；修改 Python 源代码，将推理框架和轨迹覆盖层嵌入到 MP4 视频中。 影响： 为模型错误分析提供了关键数据，提高了机器人规划输出的可解释性。 athena 已完成工作： 在 RoboCasa 评估过程中识别出 Pi0.5 和 GR00T 模型的故障路径。 实施方式： 搜索目录结构中的特定命名规范（_failure.mp4 与 _s0.mp4），并解析 stats.json 文件以获取成功率数据。 影响： 确定了 2,017 个 Pi0.5 故障和 1,210 个 GR00T 故障的具体位置，便于后续分析。 athena.egr.duke.edu 已完成工作： 在 Athena 集群上复制了 RoboCasa 故障视频识别流程。 实施方式： 执行相同的 bash 脚本，在 runs/ 目录中定位并统计故障/成功视频。 影响： 验证了不同环境状态下评估结果的一致性。 lighthouse 已完成工作： 在 Tianhe3 集群上找到 Action-Sketcher 模型的特定故障案例。 实施方式： 通过 SSH 连接到远程服务器，识别标记为 FAIL 的 MP4 文件，并使用 SCP 在本地传输它们。 影响： 提供了模型故障的具体实例，便于定性审查。 lighthouse.egr.duke.edu 已完成工作： 协助将远程服务器的故障视频传输到本地机器，解决 shell globbing 问题。 实施方式： 生成带有适当引号处理的 rsync 和 SCP 命令，以解决 zsh 展开冲突。 影响： 使得机器人任务故障的离线分析成为可能。 my-pc 已完成工作： 为 Action-Sketcher 项目实现了可视化覆盖层，在视频中显示推理和子任务信息。 实施方式： 修改 draw_vp.py 和 run_libero_example.py，使用 OpenCV 解析 JSON 推理数据并将其绘制到视频帧上。 影响： 显著提高了利益相关者对模型“看-想-画-行动”循环的可解释性。 在 RoboCasa 数据集中定位并编目了 Pi0.5 和 GR00T 模型的故障视频，从远程集群中获取了特定的 Action-Sketcher 故障案例，并在评估视频中实现了可视化推理覆盖层。\n任务 架构与策略 ✅ 为 Action-Sketcher 实现推理覆盖层 — 添加了代码，在评估视频中绘制子任务标题和视觉草图覆盖层。 ✅ 定位 Pi0.5 和 GR00T 故障视频 — 在 RoboCasa 数据集中找到并编目了所有 Pi0.5（2,017 个文件）和 GR00T（1,210 个文件）的故障场景视频。 实施与修复 ✅ 获取 Action-Sketcher 故障案例 — 从 Tianhe3 集群下载了 6 个具体的故障案例进行审查。 问题与解决方案 关键问题 1. Action-Sketcher 项目页面提到视觉草图，但代码未在视频上显示。 解决方案： 修改推理脚本，解析生成的 JSON 推理数据，使用 OpenCV 在每一帧上绘制文本/图形元素。\n关键洞察： 视觉解释只有在输出成果中明确呈现时才有效，而不仅仅是存储在日志中。\n一般问题 2. 远程 SCP 失败是因为 zsh 在本地展开 glob 模式后通过 SSH 传输。 解决方案： 改为使用 rsync 命令，或在 SCP 命令的远程路径字符串上添加引号，避免本地 shell 展开。\n关键洞察： ZSH 中的 shell globbing 默认在本地进行；SCP 命令的远程路径部分必须加引号以保留字面量。\n人类与 AI 方法 战略层面 可视化策略选择 角色 方法 人类 用户明确要求从项目网站逻辑中提取推理和子任务数据，并将其嵌入视频中。 AI 助手 AI 分析了 draw_vp.py 和 run_libero_example.py 的源代码，识别相关函数，并实现了无需外部依赖的逐帧覆盖解决方案。 差异分析： 人类基于项目的理论框架提供高层需求；AI 将其转化为具体的 OpenCV 实现细节。\n实施层面 SCP globbing 行为 角色 方法 人类 用户最初尝试在本地 ZSH 终端中使用标准的 shell 通配符语法进行 SCP 命令操作。 AI 助手 AI 正确识别了本地 shell 在传输前会展开路径，建议使用 rsync 或谨慎加引号作为替代方案。 差异分析： 人类关注意图（复制多个文件），而 AI 关注传输协议的语法约束与本地 shell 展开的区别。\nAI 限制 一般限制 AI 在跨环境 shell 展开方面存在困难，最初建议使用标准 scp 命令，但因本地终端 globbing 规则而失败。 AI 无法直接在本地用户机器上执行命令；它仅提供脚本供用户本地运行。 学习成果 关键学习点 不同机器人模型对成功/失败的命名规范不同（例如 _s1/_s0 与明确标签）；自动化审计需要解析配置/统计文件以确认语义含义。 实际学习点 OpenCV 足以用于向现有视频帧添加文本覆盖层和简单的几何草图，无需单独的组合器引擎。 对话总结 RoboCasa 评估审计 ✅ 定位 Pi0.5 和 GR00T 的故障视频 01:17:22.256 | claude_code 用户要求找到 RoboCasa 数据集中 Pi0.5 和 GR00T 模型的故障视频。AI 扫描了目录结构，识别了命名规范（_failure.md 与 _s0），解析了 stats.json 中的成功率数据，并找到了 2,017 个 Pi0.5 故障和 1,210 个 GR00T 故障。\n远程服务器文件传输 ✅ 通过 SCP 解决远程视频下载问题 01:11:42.314 | claude_code 用户需要从 lighthouse.egr.duke.edu 下载特定的故障视频。AI 生成了 SCP 和 Rsync 命令，解决了阻止初始传输的 ZSH globbing 错误。\nAction-Sketcher 改进**✅ 实现视觉推理叠加** 02:29:07.173 | claude_code 用户要求在 Action-Sketcher 评估视频中添加推理及子任务可视化效果。该 AI 修改了 draw_vp.py 和 run_libero_example.py 文件，利用 OpenCV 解析 JSON 推理数据并将其叠加在视频帧上。\n令牌使用 AI Usage · 2026-07-11\rClaude Code\rTotal cost$2.03\rTotal tokens2M\rOutput tokens19K\rCache read92.1%\rToken character\rCache reads 92.1% ·\rActive 7.9%\rMost token volume came from cache reads.\r",
+  "wordCount" : "363",
   "inLanguage": "zh",
   "datePublished": "2026-07-11T00:00:00-05:00",
   "dateModified": "2026-07-11T00:00:00-05:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -284,7 +284,7 @@
           <td>用户明确要求从项目网站逻辑中提取推理和子任务数据，并将其嵌入视频中。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 分析了 <code>draw_vp.py</code> 和 <code>run_libero_example.py</code> 的源代码，识别相关函数，并实现了无需外部依赖的逐帧覆盖解决方案。</td>
       </tr>
   </tbody>
@@ -305,7 +305,7 @@
           <td>用户最初尝试在本地 ZSH 终端中使用标准的 shell 通配符语法进行 SCP 命令操作。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 正确识别了本地 shell 在传输前会展开路径，建议使用 rsync 或谨慎加引号作为替代方案。</td>
       </tr>
   </tbody>

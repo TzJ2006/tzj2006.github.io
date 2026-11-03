@@ -10,7 +10,7 @@
 <meta name="description" content="将 Error Recovery Benchmark 评估协议与权威项目文档对齐，同时转向弃用的 paper metrics；通过深度代码审计解决了 Research Gadget 中的关键 data poisoning bugs；并在 TokenMonitor 中处理了 public repository 安全问题以及新增 model support。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-06-10/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-06-10 Daily Overview 已完成工作： 通过废弃基于 paper specs 的先前工作并重新锚定至 ‘Panorama’ 文档，修正了 Error Recovery Benchmark 的基础评估策略；对 Research Gadget 代码库进行了全面审计，发现了关键的 cache poisoning 问题，同时确保了 AI Dev Companion 中公开 artifacts 的安全性，并更新了 TokenMonitor 的定价逻辑。 实施方式： 利用 multi-agent workflows 对 2000+ 行文档和代码进行交叉引用，为新 benchmark 采用了分层采样定义，并使用静态分析进行 bug 检测；实施了严格的 gitignore 规则和环境感知安装逻辑，以解决数据泄露和硬编码配置过时的问题。 影响： 通过建立科学有效的实验协议，防止了在不兼容评估指标上浪费大量精力；减轻了研究工具中持续数据中毒的关键风险；并确保了面向公众的 AI 开发 artifacts 的可移植性和隐私安全性。 将 Error Recovery Benchmark 的评估协议与权威项目文档对齐，同时转向脱离已废弃的 paper metrics；通过深度代码审计解决了 Research Gadget 中的关键数据中毒 bug；并在更新 TokenMonitor 对新 model 支持的同时，解决了公开仓库的安全问题。\nTasks Architecture \u0026 Strategy ✅ Error Recovery Benchmark Protocol Realignment — 放弃了基于 paper 的指标 (CSR-RSR gap)，转而采用权威的 ‘Panorama’ 规范 (SR + Continuous RP + Fisher Exact Test)；为 Tianhe2 上的 130k validation set 定义了确定性的分层采样计划 (~每个 subtype 50 个 scenes)。 ✅ Research Gadget Codebase Audit — 执行了 79-agent workflow 来根据其文档审计 Research Gadget，识别出 58 个已确认的 bug，包括关键的硬编码 config bypass 和 Rust/Python 组件中的无限 cache poisoning。 ✅ JEPA/World Models Research Direction Generation — 筛选了高影响力的文献 (iMaC, HiMem-WAM, CAPE) 并综合出三个新的研究方向：用于 Cross-Embodiment JEPA 的 Visual Action Tokens、Hierarchical WAMs 以及 Geometry-Centric Navigation。 ✅ Public Repository Artifact Safety \u0026 Git Cleanup — 通过更新 .gitignore、移除缓存文件以及定义区分公开与私有仓库可见性的 installer 逻辑，修复了 TokenMonitor 和 ErrorRecoveryBenchmark 中机器特定绝对路径的公开暴露问题。 Implementation \u0026 Fixes 🔄 TokenMonitor New Model Support — 调查了为什么新的 Anthropic models (例如 claude-fable-5) 显示为 ‘unknown’；识别出 pricing.rs enum 中缺失的条目，并概述了纳入新 model IDs 和 rates 的更新策略。 Problems \u0026 Solutions Critical Issues 1. 关键意图不一致：评估代码实现了 ‘EVALUATION.md’ paper specs (CSR-RSR gap, single seed)，这与权威的 ‘Panorama Summary’ (Recovery Progress 0-1 continuous, multiple seeds) 相矛盾，威胁到了实验的有效性。 Solution: 使用 multi-agent verification 执行了全面的 intent-vs-code ledger，证明 Panorama 是 true source；放弃了 500-step/gap metric 的工作，并重新规划了评估以匹配 SR + Bootstrap CI + RP。\nKey Insight: 技术文档 (paper specs) 经常与高层项目策略发生分歧；务必首先根据 ‘panorama’ 或 executive summaries 验证代码意图。不应假设 framework 层中的 dead code 仍然处于 active 状态。\n2. Research Gadget LLM failure 结果 (timeouts/rate limits) 被永久缓存且没有 TTL，导致后续运行由于相同的 cache keys，使得 batch 中的所有 paper 立即返回错误的 zero-score 结果。 Solution: 通过 workflow audit 识别；修复方案包括在 evaluate.py 和 insight.py 中为失败的 LLM responses 的 cache entries 添加 time-to-live (TTL) 或唯一的 request-hash keys。\nKey Insight: 如果失败状态与成功状态以相同的方式被缓存且没有过期机制，瞬时的 API errors 可能会导致持续的数据中毒。在 caching systems 中，区分 ’transient failure’ 和 ‘permanent state’ 至关重要。\n3. 在 fork/公开仓库的已提交文件（如 CLAUDE.md 和 settings.json）中公开暴露了绝对本地路径 (例如 D:\\GitHub\\Apps\\ai-companion)，存在私有路径泄露的风险。 Solution: 实施了三层修复方案：对现有的暴露立即执行 git rm –cached，更新 .gitignore 以阻止未来生成，并设计了 installer 增强功能，使未来的安装具备 visibility-aware 能力 (public vs private)。\nKey Insight: 配置文件中的绝对路径本质上是不可移植的；将它们视为 ’transient’ 而非 ‘persistent’ artifacts 需要严格的 gitignore 执行或 environment variable injection。\nGeneral Issues 4. TokenMonitor 将新的 Anthropic models (例如 Fable 5) 显示为 ‘unknown’ 且 token 为零。 Solution: 发现 src-tauri/src/usage/pricing.rs 缺少特定新 model IDs 的条目。修复方案包括将这些 IDs 添加到 ModelFamily enum 并更新 get_rates()。\nKey Insight: 硬编码的 pricing tables 需要严格维护以跟上 vendor 的发布；fallback logic 通常会掩盖缺失的数据点，而不是发出更新信号。\nHuman vs AI Approaches Strategic Level Evaluation Authority and Intent Source Role Approach Human 用户提供了权威的 ‘Panorama Project Summary’ 作为 single source of truth，覆盖了之前基于 NeurIPS paper protocols 的假设。 AI 最初与 paper/EVALUATION.md metrics 对齐；在纠正后，使用 multi-agent workflows 对 ~2300 行 panorama 进行 grep，从数学上证明了 CSR/RSR metrics 的缺失，并展示了与 SR/RP 的对齐。 Difference Analysis: Human 优先考虑内部项目一致性和战略意图，而非学术对齐；AI 最初依赖标准的学术层级 (paper \u003e doc)，需要纠正后才能信任本地项目 artifacts。Human 提供了战略锚点，而 AI 执行了大规模的 correlation verification 任务。\nImplementation Level Research Gadget Audit Scope and Detection Role Approach Human 用户通过请求对工具进行解释，随后根据该解释进行严格审计以寻找差异，从而引导了查询路径。 AI AI 基于 TUTORIAL.md 生成了教程，然后启动了一个 multi-agent ‘adversarial’ workflow 来阅读 8500 行代码，将其与声明进行匹配，并发现了包括 Rust 中罕见的 ‘dead fallback’ 路径在内的 58 个 bug。 AI Limitations Critical Limitations 最初依赖 ‘EVALUATION.md’ 来制定 Error Recovery Benchmark 策略，导致了严重的架构失配并浪费了大量精力，直到用户进行纠正；这表明在没有明确 grounding 的情况下，自动区分“论文规范”与“执行意图”存在局限性。 General Limitations 在没有明确路径输入的情况下，难以在 Tianhe2 上进行远程文件发现，需要通过迭代 SSH 命令在众多候选文件中定位特定的文档文件。 由于 LLM rate limits 要求的顺序执行，Research Gadget 的审计工作流耗时超过 30 分钟，使得针对超大型代码库的实时审计变得缓慢。 Learnings Key Learnings 当项目规范在学术论文和内部文档之间发生冲突时，应将内部文档（尤其是 ‘Panorama’ 或 ‘Master Guide’ 文件）视为实现细节的 source of truth。不应假设 dead code 是活跃的。 生成的 config artifacts 中的绝对路径必须严格从公共仓库中排除；安装程序应检测仓库可见性（public/private）以动态调整包含策略，防止泄露特定机器的本地路径。 在 embodied AI 研究中，‘JEPA’ 和 ‘World Models’ 正在趋同；具体而言，使用 visual action tokens（如 iMaC）和 hierarchical memory gates (HiMem-WAM) 来处理 long-horizon manipulation 似乎是前沿方向。 在 caching systems 中，区分 ’transient failure’ 和 ‘permanent state’ 至关重要。缓存一个 JSON parse error 或 API timeout 且不设置 TTL，会破坏缓存剩余存续期间的数据完整性。 Conversation Summaries Error Recovery Benchmark ✅ Protocol Correction and Final Plan Definition 02:28:01.264 | claude_code 在识别出论文衍生的指标（binary success, CSR-RSR gap）与权威的 ‘Panorama’ 文档（SR + Fisher Exact Test）之间的冲突后，纠正了 Error Recovery Benchmark 的评估协议。通过 SSH 验证了 130k validation set 在 Tianhe2 上存在。定义了最终的实现计划，包括分层采样（每个 subtype 约 50 个 scenes）、新的 lightweight eval modules，以及针对 M16 milestones 的 Fisher testing，等待用户批准后开始编码。\nAI Dev Companion ✅ Git Tracking Cleanup, Public Artifact Safety, and Model Support 03:24:42.470 | claude_code 解决了 machine-specific 绝对路径被无意中提交到公共仓库（TokenMonitor, ErrorRecoveryBenchmark）的关键问题。在主仓库中对 node_modules/dist/ 执行了全面的 git cleaning，修复了 .gitignore 规则，并实施了一种策略，通过标记 installer workflows 以跳过公共仓库中的敏感文件，防止未来的泄露。此外，调查了 TokenMonitor 对新 Anthropic 模型（Fable 5）显示 ‘unknown’ 状态的原因，确定 pricing.rs 中缺失条目是根本原因。\nResearch Gadget \u0026 JEPA Research ✅ JEPA Research Directions and Codebase Audit 03:24:42.470 | claude_code 对基于 JEPA 的 world models 进行了深入的文献综述，筛选了高影响力的论文（iMaC, HiMem-WAM, CAPE）并综合出 3 个新的研究方向：用于 Cross-Embodiment JEPA 的 Visual Action Tokens、Hierarchical WAMs 以及 Geometry-Centric Navigation。同时，使用 79-agent workflow 对照其文档审计了 Research Gadget 代码库，发现了 58 个已确认的问题，包括关键的 hardcoded config bypasses 和失败状态下的 infinite cache poisoning。\nToken Usage AI Usage · 2026-06-10\rClaude Code\rTotal cost$174.42\rTotal tokens52M\rOutput tokens1M\rCache read80.2%\rToken character\rCache reads 80.2% ·\rActive 19.8%\rMost token volume came from cache reads.\r",
-  "wordCount" : "720",
+  "articleBody": "Daily Report — 2026-06-10 Daily Overview 已完成工作： 通过废弃基于 paper specs 的先前工作并重新锚定至 ‘Panorama’ 文档，修正了 Error Recovery Benchmark 的基础评估策略；对 Research Gadget 代码库进行了全面审计，发现了关键的 cache poisoning 问题，同时确保了 AI Dev Companion 中公开 artifacts 的安全性，并更新了 TokenMonitor 的定价逻辑。 实施方式： 利用 multi-agent workflows 对 2000+ 行文档和代码进行交叉引用，为新 benchmark 采用了分层采样定义，并使用静态分析进行 bug 检测；实施了严格的 gitignore 规则和环境感知安装逻辑，以解决数据泄露和硬编码配置过时的问题。 影响： 通过建立科学有效的实验协议，防止了在不兼容评估指标上浪费大量精力；减轻了研究工具中持续数据中毒的关键风险；并确保了面向公众的 AI 开发 artifacts 的可移植性和隐私安全性。 将 Error Recovery Benchmark 的评估协议与权威项目文档对齐，同时转向脱离已废弃的 paper metrics；通过深度代码审计解决了 Research Gadget 中的关键数据中毒 bug；并在更新 TokenMonitor 对新 model 支持的同时，解决了公开仓库的安全问题。\nTasks Architecture \u0026 Strategy ✅ Error Recovery Benchmark Protocol Realignment — 放弃了基于 paper 的指标 (CSR-RSR gap)，转而采用权威的 ‘Panorama’ 规范 (SR + Continuous RP + Fisher Exact Test)；为 Tianhe2 上的 130k validation set 定义了确定性的分层采样计划 (~每个 subtype 50 个 scenes)。 ✅ Research Gadget Codebase Audit — 执行了 79-agent workflow 来根据其文档审计 Research Gadget，识别出 58 个已确认的 bug，包括关键的硬编码 config bypass 和 Rust/Python 组件中的无限 cache poisoning。 ✅ JEPA/World Models Research Direction Generation — 筛选了高影响力的文献 (iMaC, HiMem-WAM, CAPE) 并综合出三个新的研究方向：用于 Cross-Embodiment JEPA 的 Visual Action Tokens、Hierarchical WAMs 以及 Geometry-Centric Navigation。 ✅ Public Repository Artifact Safety \u0026 Git Cleanup — 通过更新 .gitignore、移除缓存文件以及定义区分公开与私有仓库可见性的 installer 逻辑，修复了 TokenMonitor 和 ErrorRecoveryBenchmark 中机器特定绝对路径的公开暴露问题。 Implementation \u0026 Fixes 🔄 TokenMonitor New Model Support — 调查了为什么新的 Anthropic models (例如 claude-fable-5) 显示为 ‘unknown’；识别出 pricing.rs enum 中缺失的条目，并概述了纳入新 model IDs 和 rates 的更新策略。 Problems \u0026 Solutions Critical Issues 1. 关键意图不一致：评估代码实现了 ‘EVALUATION.md’ paper specs (CSR-RSR gap, single seed)，这与权威的 ‘Panorama Summary’ (Recovery Progress 0-1 continuous, multiple seeds) 相矛盾，威胁到了实验的有效性。 Solution: 使用 multi-agent verification 执行了全面的 intent-vs-code ledger，证明 Panorama 是 true source；放弃了 500-step/gap metric 的工作，并重新规划了评估以匹配 SR + Bootstrap CI + RP。\n关键发现： 技术文档 (paper specs) 经常与高层项目策略发生分歧；务必首先根据 ‘panorama’ 或 executive summaries 验证代码意图。不应假设 framework 层中的 dead code 仍然处于 active 状态。\n2. Research Gadget LLM failure 结果 (timeouts/rate limits) 被永久缓存且没有 TTL，导致后续运行由于相同的 cache keys，使得 batch 中的所有 paper 立即返回错误的 zero-score 结果。 Solution: 通过 workflow audit 识别；修复方案包括在 evaluate.py 和 insight.py 中为失败的 LLM responses 的 cache entries 添加 time-to-live (TTL) 或唯一的 request-hash keys。\n关键发现： 如果失败状态与成功状态以相同的方式被缓存且没有过期机制，瞬时的 API errors 可能会导致持续的数据中毒。在 caching systems 中，区分 ’transient failure’ 和 ‘permanent state’ 至关重要。\n3. 在 fork/公开仓库的已提交文件（如 CLAUDE.md 和 settings.json）中公开暴露了绝对本地路径 (例如 D:\\GitHub\\Apps\\ai-companion)，存在私有路径泄露的风险。 Solution: 实施了三层修复方案：对现有的暴露立即执行 git rm –cached，更新 .gitignore 以阻止未来生成，并设计了 installer 增强功能，使未来的安装具备 visibility-aware 能力 (public vs private)。\n关键发现： 配置文件中的绝对路径本质上是不可移植的；将它们视为 ’transient’ 而非 ‘persistent’ artifacts 需要严格的 gitignore 执行或 environment variable injection。\nGeneral Issues 4. TokenMonitor 将新的 Anthropic models (例如 Fable 5) 显示为 ‘unknown’ 且 token 为零。 Solution: 发现 src-tauri/src/usage/pricing.rs 缺少特定新 model IDs 的条目。修复方案包括将这些 IDs 添加到 ModelFamily enum 并更新 get_rates()。\n关键发现： 硬编码的 pricing tables 需要严格维护以跟上 vendor 的发布；fallback logic 通常会掩盖缺失的数据点，而不是发出更新信号。\nHuman vs AI Approaches Strategic Level Evaluation Authority and Intent Source 角色 方法 用户 用户提供了权威的 ‘Panorama Project Summary’ 作为 single source of truth，覆盖了之前基于 NeurIPS paper protocols 的假设。 AI 助手 最初与 paper/EVALUATION.md metrics 对齐；在纠正后，使用 multi-agent workflows 对 ~2300 行 panorama 进行 grep，从数学上证明了 CSR/RSR metrics 的缺失，并展示了与 SR/RP 的对齐。 差异分析： Human 优先考虑内部项目一致性和战略意图，而非学术对齐；AI 最初依赖标准的学术层级 (paper \u003e doc)，需要纠正后才能信任本地项目 artifacts。Human 提供了战略锚点，而 AI 执行了大规模的 correlation verification 任务。\nImplementation Level Research Gadget Audit Scope and Detection 角色 方法 用户 用户通过请求对工具进行解释，随后根据该解释进行严格审计以寻找差异，从而引导了查询路径。 AI 助手 AI 基于 TUTORIAL.md 生成了教程，然后启动了一个 multi-agent ‘adversarial’ workflow 来阅读 8500 行代码，将其与声明进行匹配，并发现了包括 Rust 中罕见的 ‘dead fallback’ 路径在内的 58 个 bug。 AI Limitations Critical Limitations 最初依赖 ‘EVALUATION.md’ 来制定 Error Recovery Benchmark 策略，导致了严重的架构失配并浪费了大量精力，直到用户进行纠正；这表明在没有明确 grounding 的情况下，自动区分“论文规范”与“执行意图”存在局限性。 General Limitations 在没有明确路径输入的情况下，难以在 Tianhe2 上进行远程文件发现，需要通过迭代 SSH 命令在众多候选文件中定位特定的文档文件。 由于 LLM rate limits 要求的顺序执行，Research Gadget 的审计工作流耗时超过 30 分钟，使得针对超大型代码库的实时审计变得缓慢。 Learnings Key Learnings 当项目规范在学术论文和内部文档之间发生冲突时，应将内部文档（尤其是 ‘Panorama’ 或 ‘Master Guide’ 文件）视为实现细节的 source of truth。不应假设 dead code 是活跃的。 生成的 config artifacts 中的绝对路径必须严格从公共仓库中排除；安装程序应检测仓库可见性（public/private）以动态调整包含策略，防止泄露特定机器的本地路径。 在 embodied AI 研究中，‘JEPA’ 和 ‘World Models’ 正在趋同；具体而言，使用 visual action tokens（如 iMaC）和 hierarchical memory gates (HiMem-WAM) 来处理 long-horizon manipulation 似乎是前沿方向。 在 caching systems 中，区分 ’transient failure’ 和 ‘permanent state’ 至关重要。缓存一个 JSON parse error 或 API timeout 且不设置 TTL，会破坏缓存剩余存续期间的数据完整性。 Conversation Summaries Error Recovery Benchmark ✅ Protocol Correction and Final Plan Definition 02:28:01.264 | claude_code 在识别出论文衍生的指标（binary success, CSR-RSR gap）与权威的 ‘Panorama’ 文档（SR + Fisher Exact Test）之间的冲突后，纠正了 Error Recovery Benchmark 的评估协议。通过 SSH 验证了 130k validation set 在 Tianhe2 上存在。定义了最终的实现计划，包括分层采样（每个 subtype 约 50 个 scenes）、新的 lightweight eval modules，以及针对 M16 milestones 的 Fisher testing，等待用户批准后开始编码。\nAI Dev Companion ✅ Git Tracking Cleanup, Public Artifact Safety, and Model Support 03:24:42.470 | claude_code 解决了 machine-specific 绝对路径被无意中提交到公共仓库（TokenMonitor, ErrorRecoveryBenchmark）的关键问题。在主仓库中对 node_modules/dist/ 执行了全面的 git cleaning，修复了 .gitignore 规则，并实施了一种策略，通过标记 installer workflows 以跳过公共仓库中的敏感文件，防止未来的泄露。此外，调查了 TokenMonitor 对新 Anthropic 模型（Fable 5）显示 ‘unknown’ 状态的原因，确定 pricing.rs 中缺失条目是根本原因。\nResearch Gadget \u0026 JEPA Research ✅ JEPA Research Directions and Codebase Audit 03:24:42.470 | claude_code 对基于 JEPA 的 world models 进行了深入的文献综述，筛选了高影响力的论文（iMaC, HiMem-WAM, CAPE）并综合出 3 个新的研究方向：用于 Cross-Embodiment JEPA 的 Visual Action Tokens、Hierarchical WAMs 以及 Geometry-Centric Navigation。同时，使用 79-agent workflow 对照其文档审计了 Research Gadget 代码库，发现了 58 个已确认的问题，包括关键的 hardcoded config bypasses 和失败状态下的 infinite cache poisoning。\nToken Usage AI Usage · 2026-06-10\rClaude Code\rTotal cost$174.42\rTotal tokens52M\rOutput tokens1M\rCache read80.2%\rToken character\rCache reads 80.2% ·\rActive 19.8%\rMost token volume came from cache reads.\r",
+  "wordCount" : "717",
   "inLanguage": "zh",
   "datePublished": "2026-06-10T00:00:00-04:00",
   "dateModified": "2026-06-10T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -235,55 +235,55 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-关键意图不一致评估代码实现了-evaluationmd-paper-specs-csr-rsr-gap-single-seed这与权威的-panorama-summary-recovery-progress-0-1-continuous-multiple-seeds-相矛盾威胁到了实验的有效性">1. 关键意图不一致：评估代码实现了 &lsquo;EVALUATION.md&rsquo; paper specs (CSR-RSR gap, single seed)，这与权威的 &lsquo;Panorama Summary&rsquo; (Recovery Progress 0-1 continuous, multiple seeds) 相矛盾，威胁到了实验的有效性。<a hidden class="anchor" aria-hidden="true" href="#1-关键意图不一致评估代码实现了-evaluationmd-paper-specs-csr-rsr-gap-single-seed这与权威的-panorama-summary-recovery-progress-0-1-continuous-multiple-seeds-相矛盾威胁到了实验的有效性">#</a></h4>
 <p><strong>Solution:</strong> 使用 multi-agent verification 执行了全面的 intent-vs-code ledger，证明 Panorama 是 true source；放弃了 500-step/gap metric 的工作，并重新规划了评估以匹配 SR + Bootstrap CI + RP。</p>
-<p><strong>Key Insight:</strong> 技术文档 (paper specs) 经常与高层项目策略发生分歧；务必首先根据 &lsquo;panorama&rsquo; 或 executive summaries 验证代码意图。不应假设 framework 层中的 dead code 仍然处于 active 状态。</p>
+<p><strong>关键发现：</strong> 技术文档 (paper specs) 经常与高层项目策略发生分歧；务必首先根据 &lsquo;panorama&rsquo; 或 executive summaries 验证代码意图。不应假设 framework 层中的 dead code 仍然处于 active 状态。</p>
 <h4 id="2-research-gadget-llm-failure-结果-timeoutsrate-limits-被永久缓存且没有-ttl导致后续运行由于相同的-cache-keys使得-batch-中的所有-paper-立即返回错误的-zero-score-结果">2. Research Gadget LLM failure 结果 (timeouts/rate limits) 被永久缓存且没有 TTL，导致后续运行由于相同的 cache keys，使得 batch 中的所有 paper 立即返回错误的 zero-score 结果。<a hidden class="anchor" aria-hidden="true" href="#2-research-gadget-llm-failure-结果-timeoutsrate-limits-被永久缓存且没有-ttl导致后续运行由于相同的-cache-keys使得-batch-中的所有-paper-立即返回错误的-zero-score-结果">#</a></h4>
 <p><strong>Solution:</strong> 通过 workflow audit 识别；修复方案包括在 <code>evaluate.py</code> 和 <code>insight.py</code> 中为失败的 LLM responses 的 cache entries 添加 time-to-live (TTL) 或唯一的 request-hash keys。</p>
-<p><strong>Key Insight:</strong> 如果失败状态与成功状态以相同的方式被缓存且没有过期机制，瞬时的 API errors 可能会导致持续的数据中毒。在 caching systems 中，区分 &rsquo;transient failure&rsquo; 和 &lsquo;permanent state&rsquo; 至关重要。</p>
+<p><strong>关键发现：</strong> 如果失败状态与成功状态以相同的方式被缓存且没有过期机制，瞬时的 API errors 可能会导致持续的数据中毒。在 caching systems 中，区分 &rsquo;transient failure&rsquo; 和 &lsquo;permanent state&rsquo; 至关重要。</p>
 <h4 id="3-在-fork公开仓库的已提交文件如-claudemd-和-settingsjson中公开暴露了绝对本地路径-例如-dgithubappsai-companion存在私有路径泄露的风险">3. 在 fork/公开仓库的已提交文件（如 CLAUDE.md 和 settings.json）中公开暴露了绝对本地路径 (例如 D:\GitHub\Apps\ai-companion)，存在私有路径泄露的风险。<a hidden class="anchor" aria-hidden="true" href="#3-在-fork公开仓库的已提交文件如-claudemd-和-settingsjson中公开暴露了绝对本地路径-例如-dgithubappsai-companion存在私有路径泄露的风险">#</a></h4>
 <p><strong>Solution:</strong> 实施了三层修复方案：对现有的暴露立即执行 git rm &ndash;cached，更新 .gitignore 以阻止未来生成，并设计了 installer 增强功能，使未来的安装具备 visibility-aware 能力 (public vs private)。</p>
-<p><strong>Key Insight:</strong> 配置文件中的绝对路径本质上是不可移植的；将它们视为 &rsquo;transient&rsquo; 而非 &lsquo;persistent&rsquo; artifacts 需要严格的 gitignore 执行或 environment variable injection。</p>
+<p><strong>关键发现：</strong> 配置文件中的绝对路径本质上是不可移植的；将它们视为 &rsquo;transient&rsquo; 而非 &lsquo;persistent&rsquo; artifacts 需要严格的 gitignore 执行或 environment variable injection。</p>
 <h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
 <h4 id="4-tokenmonitor-将新的-anthropic-models-例如-fable-5-显示为-unknown-且-token-为零">4. TokenMonitor 将新的 Anthropic models (例如 Fable 5) 显示为 &lsquo;unknown&rsquo; 且 token 为零。<a hidden class="anchor" aria-hidden="true" href="#4-tokenmonitor-将新的-anthropic-models-例如-fable-5-显示为-unknown-且-token-为零">#</a></h4>
 <p><strong>Solution:</strong> 发现 <code>src-tauri/src/usage/pricing.rs</code> 缺少特定新 model IDs 的条目。修复方案包括将这些 IDs 添加到 <code>ModelFamily</code> enum 并更新 <code>get_rates()</code>。</p>
-<p><strong>Key Insight:</strong> 硬编码的 pricing tables 需要严格维护以跟上 vendor 的发布；fallback logic 通常会掩盖缺失的数据点，而不是发出更新信号。</p>
+<p><strong>关键发现：</strong> 硬编码的 pricing tables 需要严格维护以跟上 vendor 的发布；fallback logic 通常会掩盖缺失的数据点，而不是发出更新信号。</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="evaluation-authority-and-intent-source">Evaluation Authority and Intent Source<a hidden class="anchor" aria-hidden="true" href="#evaluation-authority-and-intent-source">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>用户提供了权威的 &lsquo;Panorama Project Summary&rsquo; 作为 single source of truth，覆盖了之前基于 NeurIPS paper protocols 的假设。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初与 paper/EVALUATION.md metrics 对齐；在纠正后，使用 multi-agent workflows 对 ~2300 行 panorama 进行 grep，从数学上证明了 CSR/RSR metrics 的缺失，并展示了与 SR/RP 的对齐。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 优先考虑内部项目一致性和战略意图，而非学术对齐；AI 最初依赖标准的学术层级 (paper &gt; doc)，需要纠正后才能信任本地项目 artifacts。Human 提供了战略锚点，而 AI 执行了大规模的 correlation verification 任务。</p>
+<p><strong>差异分析：</strong> Human 优先考虑内部项目一致性和战略意图，而非学术对齐；AI 最初依赖标准的学术层级 (paper &gt; doc)，需要纠正后才能信任本地项目 artifacts。Human 提供了战略锚点，而 AI 执行了大规模的 correlation verification 任务。</p>
 <h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
 <h4 id="research-gadget-audit-scope-and-detection">Research Gadget Audit Scope and Detection<a hidden class="anchor" aria-hidden="true" href="#research-gadget-audit-scope-and-detection">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>用户通过请求对工具进行解释，随后根据该解释进行严格审计以寻找差异，从而引导了查询路径。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 基于 TUTORIAL.md 生成了教程，然后启动了一个 multi-agent &lsquo;adversarial&rsquo; workflow 来阅读 8500 行代码，将其与声明进行匹配，并发现了包括 Rust 中罕见的 &lsquo;dead fallback&rsquo; 路径在内的 58 个 bug。</td>
       </tr>
   </tbody>

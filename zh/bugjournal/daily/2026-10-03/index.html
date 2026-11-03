@@ -10,7 +10,7 @@
 <meta name="description" content="评估了 OmniJev visual-only arm，其实现了 77.5% 的成功率，并进行了 GPT-6 Astra 与 Gemini 3.1 Pro 之间的对比测试，发现 Astra 在长期物体身份跟踪和 visual prompting 方面具有优势。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-10-03/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,7 +96,7 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-10-03 Daily Overview 完成工作： 在 16 个 RoboMME 任务中评估了 OmniJev visual-only robotic memory arm，并针对高难度任务中 GPT-6 Astra 与 Gemini 3.1 Pro 的 visual prompt 生成质量进行了对比实验。 实施方式： 为 OmniJev 实现了一个 ‘chat shim’ 和 wrist-camera proprioception，并开发了一套配对的 offline replay 和 online closed-loop testing 框架，使用相同的视频序列来对比 Astra 和 Gemini。 影响： 证明了通过 structured state machines，轻量级的 2B 模型可以达到与 Gemini 相当的性能，并发现了一个显著的性能差距：Astra 在 spatial/temporal reasoning 和 target identity tracking 方面优于 Gemini。 评估了 OmniJev visual-only arm，其达到了 77.5% 的成功率，并进行了 GPT-6 Astra 与 Gemini 3.1 Pro 之间的对比测试，发现 Astra 在 long-term object identity tracking 和 visual prompting 方面具有优势。\nTasks Architecture \u0026 Strategy ✅ OmniJev Protocol Implementation — 构建了一个 chat shim，将 Gemini protocol calls 转换为受限的 OmniJev 问题类型（yes/no, multiple choice），并实现了一个独立的 evaluation directory。 ✅ Closed-loop Evaluation — 在 tianhe3 上使用 visual-only arm 对 16 个任务进行了完整的 closed-loop evaluations，总成功率为 124/160。 🔄 Astra vs Gemini Visual Prompt Comparison — 通过配对的 side-by-side videos 和 closed-loop evaluations，让 Astra 和 Gemini 3.1 Pro 在 VideoRepick 和 VideoPlaceButton 的相同视频 replay 上生成 visual prompts，从而进行对比。 ✅ Wrist-Camera Proprioception Integration (I-173) — 在 BinFill, PickXtimes, 和 InsertPeg 任务中，将 high-level proprioceptive data 替换为 wrist-camera visual readings，包括将 BOARD_R threshold 调整为 60px 以适应 visual noise。 Implementation \u0026 Fixes ✅ Infrastructure Setup and API Debugging — 开发了 astra_route_pilot.py, 并将其与 tianhe3 集成，解决了 API 参数不匹配（max_tokens vs max_completion_tokens）以及 LiteLLM proxy 限制的问题。 ✅ Optimization of Patch Embeddings — 将缓慢的 bf16 conv3d patch embedding 替换为等效的 linear layer，将每张图像的 latency 从 16s 降低到 0.06ms。 Problems \u0026 Solutions Critical Issues 1. OmniJev 无法进行 long-term temporal reasoning (VideoPlace/Repick)。 Solution: 将 temporal sequencing 和 event retrieval 逻辑从 VLM 转移到了基于 code 的 state machine（即 ‘Memory’ 部分）。\nGeneral Issues 2. BinFill 任务在 closed-loop 中由于 wrist-camera pose error (visual noise) 而失败。 Solution: 根据在 training set 中观察到的最大误差，将 BOARD_R threshold 从 40px 增加到 60px。\n3. API 兼容性和 proxy 错误：参数名称不匹配（max_tokens vs max_completion_tokens）以及 Astra 模型不支持 ‘reasoning_effort’。 Solution: 对 compare_eval_entry.py 进行了 patch 以正确映射参数，并应用了 ‘allowed_openai_params’ flag，通过 LiteLLM proxy 允许使用 reasoning 参数。\n4. 尝试向 Duke EGR LiteLLM proxy 发送 demonstration images 时触发了自动安全拦截。 Solution: 通过 secure prompt 请求用户明确授权以继续实验。\nHuman vs AI Approaches Strategic Level System Architecture Strategy Role Approach Human Human 提出将 memory task 分解为 ‘Code for sequence/state’ 和 ‘VLM for perception’。 AI AI 最初将 OmniJev 分析为所有 memory tasks 中 Gemini 的潜在直接替代品。 Difference Analysis: Human 意识到 VLM 在 temporal reasoning 方面的弱点是一个瓶颈，从而设计出由 VLM 仅回答 ‘is this state true’ 而由 code 管理 ‘count/sequence’ 的方案。\nTask Selection for Model Comparison Role Approach Human 建议专门测试 VideoRepick 和 VideoPlaceButton 来对比 Astra 与 Gemini 3.1 Pro，优先选择测试 semantic memory 和 identity tracking 的任务。 AI 最初基于在易于衡量的 trajectory tasks 中历史成功率差距，优先选择了 RouteStick 和 PatternLock。 Difference Analysis: Human 的洞察力正确地优先考虑了核心难度在于 cross-frame memory 和 object identity 而非仅仅是 geometric pathing 的任务。\nAI Limitations General Limitations 未能识别出单张 snapshot 的 side-by-side comparison 是不够的，忽略了对 progressive (video-based) visual prompts 的需求。 最初未能定位 OmniJev 的工作，因为它存储在之前 session 的 scratchpad 中，而不是主 repository。 提议评估 RouteStick/PatternLock，这在测试 deep memory 方面不如 VideoRepick 有效。 Learnings Key Learnings 如果 ‘memory’ (sequence/counting) 由 structured state machine 和 visual prompts 处理，那么轻量级的 2B 模型对于 perception tasks 是足够的。 GPT-6 Astra 在一系列动作之后（例如 VideoPlaceButton）‘记住’ target 方面显示出比 Gemini 3.1 Pro 显著的优势，而 Gemini 往往会丢失特定的 object identity。 在 expert demonstrations (training set) 上优化的 rules 在 policy rollout 期间经常由于 visual appearance 的 distribution shift 而失败。 Visual prompt quality (circles/badges) 可以通过 matched-replay videos 独立于 policy success 进行评估，从而实现将模型的 ‘writing’ 能力与 ‘driving’ 能力分离。 Conversation Summaries RoboMemory 🔄 OmniJev Evaluation and Astra vs Gemini Comparison 团队专注于两个主要方面：验证 OmniJev 2B 模型作为 visual-only writer 的有效性，以及进行 GPT-6 Astra 与 Gemini 3.1 Pro 之间的对比研究。OmniJev 在与基于 code 的 state machine 配对时表现出了有效性 (77.5% success)。同时，针对 Astra 的新测试 pipeline 显示，在处理 VideoPlaceButton 等复杂任务时，其维持 object identity 的能力优于 Gemini。\nClaude Usage Inquiry ✅ Account Usage Investigation 用户询问为什么尽管每周使用量已达 100%，Claude app 仍能工作。AI 确认 ’extra usage’ 计费已被禁用，这意味着配额执行或舍入存在延迟。\nToken Usage AI Usage · 2026-10-03\rClaude Code + Codex\rTotal cost$22.66\rTotal tokens25M\rOutput tokens124K\rCache read95.4%\rCost split\rClaude Code $10 ·\rCodex $13\rToken character\rCache reads 95.4% ·\rActive 4.6%\rMost token volume came from cache reads.\r",
+  "articleBody": "Daily Report — 2026-10-03 Daily Overview 完成工作： 在 16 个 RoboMME 任务中评估了 OmniJev visual-only robotic memory arm，并针对高难度任务中 GPT-6 Astra 与 Gemini 3.1 Pro 的 visual prompt 生成质量进行了对比实验。 实施方式： 为 OmniJev 实现了一个 ‘chat shim’ 和 wrist-camera proprioception，并开发了一套配对的 offline replay 和 online closed-loop testing 框架，使用相同的视频序列来对比 Astra 和 Gemini。 影响： 证明了通过 structured state machines，轻量级的 2B 模型可以达到与 Gemini 相当的性能，并发现了一个显著的性能差距：Astra 在 spatial/temporal reasoning 和 target identity tracking 方面优于 Gemini。 评估了 OmniJev visual-only arm，其达到了 77.5% 的成功率，并进行了 GPT-6 Astra 与 Gemini 3.1 Pro 之间的对比测试，发现 Astra 在 long-term object identity tracking 和 visual prompting 方面具有优势。\nTasks Architecture \u0026 Strategy ✅ OmniJev Protocol Implementation — 构建了一个 chat shim，将 Gemini protocol calls 转换为受限的 OmniJev 问题类型（yes/no, multiple choice），并实现了一个独立的 evaluation directory。 ✅ Closed-loop Evaluation — 在 tianhe3 上使用 visual-only arm 对 16 个任务进行了完整的 closed-loop evaluations，总成功率为 124/160。 🔄 Astra vs Gemini Visual Prompt Comparison — 通过配对的 side-by-side videos 和 closed-loop evaluations，让 Astra 和 Gemini 3.1 Pro 在 VideoRepick 和 VideoPlaceButton 的相同视频 replay 上生成 visual prompts，从而进行对比。 ✅ Wrist-Camera Proprioception Integration (I-173) — 在 BinFill, PickXtimes, 和 InsertPeg 任务中，将 high-level proprioceptive data 替换为 wrist-camera visual readings，包括将 BOARD_R threshold 调整为 60px 以适应 visual noise。 Implementation \u0026 Fixes ✅ Infrastructure Setup and API Debugging — 开发了 astra_route_pilot.py, 并将其与 tianhe3 集成，解决了 API 参数不匹配（max_tokens vs max_completion_tokens）以及 LiteLLM proxy 限制的问题。 ✅ Optimization of Patch Embeddings — 将缓慢的 bf16 conv3d patch embedding 替换为等效的 linear layer，将每张图像的 latency 从 16s 降低到 0.06ms。 Problems \u0026 Solutions Critical Issues 1. OmniJev 无法进行 long-term temporal reasoning (VideoPlace/Repick)。 Solution: 将 temporal sequencing 和 event retrieval 逻辑从 VLM 转移到了基于 code 的 state machine（即 ‘Memory’ 部分）。\nGeneral Issues 2. BinFill 任务在 closed-loop 中由于 wrist-camera pose error (visual noise) 而失败。 Solution: 根据在 training set 中观察到的最大误差，将 BOARD_R threshold 从 40px 增加到 60px。\n3. API 兼容性和 proxy 错误：参数名称不匹配（max_tokens vs max_completion_tokens）以及 Astra 模型不支持 ‘reasoning_effort’。 Solution: 对 compare_eval_entry.py 进行了 patch 以正确映射参数，并应用了 ‘allowed_openai_params’ flag，通过 LiteLLM proxy 允许使用 reasoning 参数。\n4. 尝试向 Duke EGR LiteLLM proxy 发送 demonstration images 时触发了自动安全拦截。 Solution: 通过 secure prompt 请求用户明确授权以继续实验。\nHuman vs AI Approaches Strategic Level System Architecture Strategy 角色 方法 用户 Human 提出将 memory task 分解为 ‘Code for sequence/state’ 和 ‘VLM for perception’。 AI 助手 AI 最初将 OmniJev 分析为所有 memory tasks 中 Gemini 的潜在直接替代品。 差异分析： Human 意识到 VLM 在 temporal reasoning 方面的弱点是一个瓶颈，从而设计出由 VLM 仅回答 ‘is this state true’ 而由 code 管理 ‘count/sequence’ 的方案。\nTask Selection for Model Comparison 角色 方法 用户 建议专门测试 VideoRepick 和 VideoPlaceButton 来对比 Astra 与 Gemini 3.1 Pro，优先选择测试 semantic memory 和 identity tracking 的任务。 AI 助手 最初基于在易于衡量的 trajectory tasks 中历史成功率差距，优先选择了 RouteStick 和 PatternLock。 差异分析： Human 的洞察力正确地优先考虑了核心难度在于 cross-frame memory 和 object identity 而非仅仅是 geometric pathing 的任务。\nAI Limitations General Limitations 未能识别出单张 snapshot 的 side-by-side comparison 是不够的，忽略了对 progressive (video-based) visual prompts 的需求。 最初未能定位 OmniJev 的工作，因为它存储在之前 session 的 scratchpad 中，而不是主 repository。 提议评估 RouteStick/PatternLock，这在测试 deep memory 方面不如 VideoRepick 有效。 Learnings Key Learnings 如果 ‘memory’ (sequence/counting) 由 structured state machine 和 visual prompts 处理，那么轻量级的 2B 模型对于 perception tasks 是足够的。 GPT-6 Astra 在一系列动作之后（例如 VideoPlaceButton）‘记住’ target 方面显示出比 Gemini 3.1 Pro 显著的优势，而 Gemini 往往会丢失特定的 object identity。 在 expert demonstrations (training set) 上优化的 rules 在 policy rollout 期间经常由于 visual appearance 的 distribution shift 而失败。 Visual prompt quality (circles/badges) 可以通过 matched-replay videos 独立于 policy success 进行评估，从而实现将模型的 ‘writing’ 能力与 ‘driving’ 能力分离。 Conversation Summaries RoboMemory 🔄 OmniJev Evaluation and Astra vs Gemini Comparison 团队专注于两个主要方面：验证 OmniJev 2B 模型作为 visual-only writer 的有效性，以及进行 GPT-6 Astra 与 Gemini 3.1 Pro 之间的对比研究。OmniJev 在与基于 code 的 state machine 配对时表现出了有效性 (77.5% success)。同时，针对 Astra 的新测试 pipeline 显示，在处理 VideoPlaceButton 等复杂任务时，其维持 object identity 的能力优于 Gemini。\nClaude Usage Inquiry ✅ Account Usage Investigation 用户询问为什么尽管每周使用量已达 100%，Claude app 仍能工作。AI 确认 ’extra usage’ 计费已被禁用，这意味着配额执行或舍入存在延迟。\nToken Usage AI Usage · 2026-10-03\rClaude Code + Codex\rTotal cost$22.66\rTotal tokens25M\rOutput tokens124K\rCache read95.4%\rCost split\rClaude Code $10 ·\rCodex $13\rToken character\rCache reads 95.4% ·\rActive 4.6%\rMost token volume came from cache reads.\r",
   "wordCount" : "602",
   "inLanguage": "zh",
   "datePublished": "2026-10-03T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -249,42 +249,42 @@
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>Human 提出将 memory task 分解为 &lsquo;Code for sequence/state&rsquo; 和 &lsquo;VLM for perception&rsquo;。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 最初将 OmniJev 分析为所有 memory tasks 中 Gemini 的潜在直接替代品。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 意识到 VLM 在 temporal reasoning 方面的弱点是一个瓶颈，从而设计出由 VLM 仅回答 &lsquo;is this state true&rsquo; 而由 code 管理 &lsquo;count/sequence&rsquo; 的方案。</p>
+<p><strong>差异分析：</strong> Human 意识到 VLM 在 temporal reasoning 方面的弱点是一个瓶颈，从而设计出由 VLM 仅回答 &lsquo;is this state true&rsquo; 而由 code 管理 &lsquo;count/sequence&rsquo; 的方案。</p>
 <h4 id="task-selection-for-model-comparison">Task Selection for Model Comparison<a hidden class="anchor" aria-hidden="true" href="#task-selection-for-model-comparison">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>建议专门测试 VideoRepick 和 VideoPlaceButton 来对比 Astra 与 Gemini 3.1 Pro，优先选择测试 semantic memory 和 identity tracking 的任务。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初基于在易于衡量的 trajectory tasks 中历史成功率差距，优先选择了 RouteStick 和 PatternLock。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 的洞察力正确地优先考虑了核心难度在于 cross-frame memory 和 object identity 而非仅仅是 geometric pathing 的任务。</p>
+<p><strong>差异分析：</strong> Human 的洞察力正确地优先考虑了核心难度在于 cross-frame memory 和 object identity 而非仅仅是 geometric pathing 的任务。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
 <ul>

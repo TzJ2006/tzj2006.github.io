@@ -10,7 +10,7 @@
 <meta name="description" content="对 RecoverBench 项目进行了全面的多源审计，并建立了一套 test-first 验证方法论，以解决 documentation、code 与实验结果之间的差异。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-06-06/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-06-06 Daily Overview 完成工作： 对 Error Recovery Benchmark 的代码、数据与 paper 进行了一致性审计，并设计了一个三层测试验证方案。 实施方式： 执行并行工作流以分析 local repos、remote dev environments 和 NIPS papers；将发现的结果综合为 master audit documents 和结构化的 verification plans。 影响： 解决了项目状态中的关键模糊问题，识别出 48.6% 的 headline figure 存在不一致，并建立了严格的 test-first protocol 以确保未来的 reproducibility。 对 RecoverBench 项目进行了全面的多源审计，并建立了 test-first verification methodology，以调和 documentation、code 与 experimental results 之间的差异。\nTasks Architecture \u0026 Strategy ✅ RecoverBench Multi-Source Audit — 对比了 local 和 tianhe2 环境下的 code base、dataset、paper 以及 remote dev files，以识别 metrics、environment configurations 和 release completeness 方面的差异。 ✅ Test-First Verification Plan — 设计了一个三层测试策略（L1 Characterization, L2 Specification, L3 Experiment Acceptance），旨在在进行任何 code changes 之前锁定当前行为并定义严格的 acceptance criteria。 ✅ Code vs Docs Discrepancy Report — 将发现的结果整合进一个新的 master document (CODE_VS_DOCS_DISCREPANCIES.md)，详细列出了 SHA-1/256、MuJoCo versions、augmentations 以及 checkpoint statistics 方面的不匹配。 Implementation \u0026 Fixes ✅ Consolidated Action List Creation — 使用中文生成了优先级排序的 action lists，概述了即时决策 (D1-D5)、P0 fixes 以及长期的 experiment replication steps。 Problems \u0026 Solutions Critical Issues 1. paper 的 headline figure (48.6%) 与实际可复现结果之间不一致；remote dev files 的状态不明。 Solution: 使用 parallel deep-readers 映射所有来源，发现 48.6% 是 cherry-picked aggregate，而 single checkpoint score 为 45.7%；并在 tianhe2 上映射了完整的 remote file structure。\nKey Insight: 许多“差异”实际上是 code/data 内部自洽的，但相对于理想化的 paper 是错误的；更改 code 会破坏现有的 artifacts，因此对于这些特定项目，必须通过修改 documentation 来匹配现实。\nGeneral Issues 2. 缺乏关于先前工作的 context，且审计文档散落在多个 repositories 中。 Solution: 在 NIPS 文件夹中找到了现有的 PAPER_VS_CODE_CONSISTENCY.md，审查了其 scope，并创建了一个新的 consolidated master document，以避免重复的同时覆盖 release completeness 的缺口。\nKey Insight: 碎片化的 documentation 容易导致遗漏关键的不一致性；为了实现 reproducibility，必须为差异建立单一的事实来源 (single source of truth)。\nHuman vs AI Approaches Strategic Level Priority of Testing vs. Fixing Role Approach Human Human 明确停止了即时的 ‘fix code’ 阶段以强制执行 ’test first’ 原则，在进行任何 implementation changes 之前优先进行 verification 和 specification definition。 AI AI 最初准备了直接的 code-fix 和 re-run 计划；随后通过启动特定的 workflows 来盘点现有测试并设计了一个 3-layer test harness 来进行调整。 Difference Analysis: Human 推动了向风险缓解和验证的战略转变，确保在行动之前明确“我们想要什么”。AI 从直接的 fixes 执行者转变为提供结构化 verification frameworks 的分析师。\nImplementation Level Interpretation of Discrepancies Role Approach Human Human 试图理解 pipeline 的 actual 状态和预期结果，质疑现有假设的有效性。 AI AI 执行了详尽的 file system 和 code analysis，以将 codebase 的绝对真相与 documentation 进行映射。 Difference Analysis: Human 关注逻辑上的“为什么”和战略对齐；AI 通过大规模数据综合提供了细粒度的“是什么”，确认了定性论点成立但定量细节存在缺陷。\nAI Limitations General Limitations 最初的 SSH timeout 和 directory mapping errors 需要通过迭代修正才能在 tianhe2 上定位正确的 remote development path。 Workflow outputs 体积较大 (~182KB)，需要编写自定义 Python scripting 来提取简洁的 summaries，而非直接阅读。 Learnings Key Learnings 在 docs/code/experiments 分歧复杂的项目中，’test-first’ 至关重要：在尝试使 code 与 documentation 对齐（specification tests）之前，先锁定当前的真相（characterization tests）。 审计文档必须覆盖 release completeness 和 reproducibility bottlenecks，而不仅仅是 code-papery consistency，因为缺失的 assets 可能会使所有结果失效。 Conversation Summaries ✅ Multi-Source Audit and Test-First Validation Planning 14:50:52 | claude_code 对 local code、data、NIPS paper 和 remote dev files 中的 Error Recovery Benchmark (RecoverBench) 进行了审计。识别出 metrics (48.6% vs 45.7%) 和 environment specs 中的关键差异。创建了一个 master discrepancy document。当用户请求 re-run steps 时，将策略转向 ’test-first’，设计了 L1/L2/L3 test layers，以便在进行任何 fixes 之前根据 documentation 验证 code behavior。\nToken Usage AI Usage · 2026-06-06\rClaude Code\rTotal cost$73.89\rTotal tokens47M\rOutput tokens821K\rCache read84.8%\rToken character\rCache reads 84.8% ·\rActive 15.2%\rMost token volume came from cache reads.\r",
-  "wordCount" : "416",
+  "articleBody": "Daily Report — 2026-06-06 Daily Overview 完成工作： 对 Error Recovery Benchmark 的代码、数据与 paper 进行了一致性审计，并设计了一个三层测试验证方案。 实施方式： 执行并行工作流以分析 local repos、remote dev environments 和 NIPS papers；将发现的结果综合为 master audit documents 和结构化的 verification plans。 影响： 解决了项目状态中的关键模糊问题，识别出 48.6% 的 headline figure 存在不一致，并建立了严格的 test-first protocol 以确保未来的 reproducibility。 对 RecoverBench 项目进行了全面的多源审计，并建立了 test-first verification methodology，以调和 documentation、code 与 experimental results 之间的差异。\nTasks Architecture \u0026 Strategy ✅ RecoverBench Multi-Source Audit — 对比了 local 和 tianhe2 环境下的 code base、dataset、paper 以及 remote dev files，以识别 metrics、environment configurations 和 release completeness 方面的差异。 ✅ Test-First Verification Plan — 设计了一个三层测试策略（L1 Characterization, L2 Specification, L3 Experiment Acceptance），旨在在进行任何 code changes 之前锁定当前行为并定义严格的 acceptance criteria。 ✅ Code vs Docs Discrepancy Report — 将发现的结果整合进一个新的 master document (CODE_VS_DOCS_DISCREPANCIES.md)，详细列出了 SHA-1/256、MuJoCo versions、augmentations 以及 checkpoint statistics 方面的不匹配。 Implementation \u0026 Fixes ✅ Consolidated Action List Creation — 使用中文生成了优先级排序的 action lists，概述了即时决策 (D1-D5)、P0 fixes 以及长期的 experiment replication steps。 Problems \u0026 Solutions Critical Issues 1. paper 的 headline figure (48.6%) 与实际可复现结果之间不一致；remote dev files 的状态不明。 Solution: 使用 parallel deep-readers 映射所有来源，发现 48.6% 是 cherry-picked aggregate，而 single checkpoint score 为 45.7%；并在 tianhe2 上映射了完整的 remote file structure。\n关键发现： 许多“差异”实际上是 code/data 内部自洽的，但相对于理想化的 paper 是错误的；更改 code 会破坏现有的 artifacts，因此对于这些特定项目，必须通过修改 documentation 来匹配现实。\nGeneral Issues 2. 缺乏关于先前工作的 context，且审计文档散落在多个 repositories 中。 Solution: 在 NIPS 文件夹中找到了现有的 PAPER_VS_CODE_CONSISTENCY.md，审查了其 scope，并创建了一个新的 consolidated master document，以避免重复的同时覆盖 release completeness 的缺口。\n关键发现： 碎片化的 documentation 容易导致遗漏关键的不一致性；为了实现 reproducibility，必须为差异建立单一的事实来源 (single source of truth)。\nHuman vs AI Approaches Strategic Level Priority of Testing vs. Fixing 角色 方法 用户 Human 明确停止了即时的 ‘fix code’ 阶段以强制执行 ’test first’ 原则，在进行任何 implementation changes 之前优先进行 verification 和 specification definition。 AI 助手 AI 最初准备了直接的 code-fix 和 re-run 计划；随后通过启动特定的 workflows 来盘点现有测试并设计了一个 3-layer test harness 来进行调整。 差异分析： Human 推动了向风险缓解和验证的战略转变，确保在行动之前明确“我们想要什么”。AI 从直接的 fixes 执行者转变为提供结构化 verification frameworks 的分析师。\nImplementation Level Interpretation of Discrepancies 角色 方法 用户 Human 试图理解 pipeline 的 actual 状态和预期结果，质疑现有假设的有效性。 AI 助手 AI 执行了详尽的 file system 和 code analysis，以将 codebase 的绝对真相与 documentation 进行映射。 差异分析： Human 关注逻辑上的“为什么”和战略对齐；AI 通过大规模数据综合提供了细粒度的“是什么”，确认了定性论点成立但定量细节存在缺陷。\nAI Limitations General Limitations 最初的 SSH timeout 和 directory mapping errors 需要通过迭代修正才能在 tianhe2 上定位正确的 remote development path。 Workflow outputs 体积较大 (~182KB)，需要编写自定义 Python scripting 来提取简洁的 summaries，而非直接阅读。 Learnings Key Learnings 在 docs/code/experiments 分歧复杂的项目中，’test-first’ 至关重要：在尝试使 code 与 documentation 对齐（specification tests）之前，先锁定当前的真相（characterization tests）。 审计文档必须覆盖 release completeness 和 reproducibility bottlenecks，而不仅仅是 code-papery consistency，因为缺失的 assets 可能会使所有结果失效。 Conversation Summaries ✅ Multi-Source Audit and Test-First Validation Planning 14:50:52 | claude_code 对 local code、data、NIPS paper 和 remote dev files 中的 Error Recovery Benchmark (RecoverBench) 进行了审计。识别出 metrics (48.6% vs 45.7%) 和 environment specs 中的关键差异。创建了一个 master discrepancy document。当用户请求 re-run steps 时，将策略转向 ’test-first’，设计了 L1/L2/L3 test layers，以便在进行任何 fixes 之前根据 documentation 验证 code behavior。\nToken Usage AI Usage · 2026-06-06\rClaude Code\rTotal cost$73.89\rTotal tokens47M\rOutput tokens821K\rCache read84.8%\rToken character\rCache reads 84.8% ·\rActive 15.2%\rMost token volume came from cache reads.\r",
+  "wordCount" : "414",
   "inLanguage": "zh",
   "datePublished": "2026-06-06T00:00:00-04:00",
   "dateModified": "2026-06-06T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -234,54 +234,54 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-paper-的-headline-figure-486-与实际可复现结果之间不一致remote-dev-files-的状态不明">1. paper 的 headline figure (48.6%) 与实际可复现结果之间不一致；remote dev files 的状态不明。<a hidden class="anchor" aria-hidden="true" href="#1-paper-的-headline-figure-486-与实际可复现结果之间不一致remote-dev-files-的状态不明">#</a></h4>
 <p><strong>Solution:</strong> 使用 parallel deep-readers 映射所有来源，发现 48.6% 是 cherry-picked aggregate，而 single checkpoint score 为 45.7%；并在 tianhe2 上映射了完整的 remote file structure。</p>
-<p><strong>Key Insight:</strong> 许多“差异”实际上是 code/data 内部自洽的，但相对于理想化的 paper 是错误的；更改 code 会破坏现有的 artifacts，因此对于这些特定项目，必须通过修改 documentation 来匹配现实。</p>
+<p><strong>关键发现：</strong> 许多“差异”实际上是 code/data 内部自洽的，但相对于理想化的 paper 是错误的；更改 code 会破坏现有的 artifacts，因此对于这些特定项目，必须通过修改 documentation 来匹配现实。</p>
 <h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
 <h4 id="2-缺乏关于先前工作的-context且审计文档散落在多个-repositories-中">2. 缺乏关于先前工作的 context，且审计文档散落在多个 repositories 中。<a hidden class="anchor" aria-hidden="true" href="#2-缺乏关于先前工作的-context且审计文档散落在多个-repositories-中">#</a></h4>
 <p><strong>Solution:</strong> 在 NIPS 文件夹中找到了现有的 <code>PAPER_VS_CODE_CONSISTENCY.md</code>，审查了其 scope，并创建了一个新的 consolidated master document，以避免重复的同时覆盖 release completeness 的缺口。</p>
-<p><strong>Key Insight:</strong> 碎片化的 documentation 容易导致遗漏关键的不一致性；为了实现 reproducibility，必须为差异建立单一的事实来源 (single source of truth)。</p>
+<p><strong>关键发现：</strong> 碎片化的 documentation 容易导致遗漏关键的不一致性；为了实现 reproducibility，必须为差异建立单一的事实来源 (single source of truth)。</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="priority-of-testing-vs-fixing">Priority of Testing vs. Fixing<a hidden class="anchor" aria-hidden="true" href="#priority-of-testing-vs-fixing">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>Human 明确停止了即时的 &lsquo;fix code&rsquo; 阶段以强制执行 &rsquo;test first&rsquo; 原则，在进行任何 implementation changes 之前优先进行 verification 和 specification definition。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 最初准备了直接的 code-fix 和 re-run 计划；随后通过启动特定的 workflows 来盘点现有测试并设计了一个 3-layer test harness 来进行调整。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 推动了向风险缓解和验证的战略转变，确保在行动之前明确“我们想要什么”。AI 从直接的 fixes 执行者转变为提供结构化 verification frameworks 的分析师。</p>
+<p><strong>差异分析：</strong> Human 推动了向风险缓解和验证的战略转变，确保在行动之前明确“我们想要什么”。AI 从直接的 fixes 执行者转变为提供结构化 verification frameworks 的分析师。</p>
 <h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
 <h4 id="interpretation-of-discrepancies">Interpretation of Discrepancies<a hidden class="anchor" aria-hidden="true" href="#interpretation-of-discrepancies">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>Human 试图理解 pipeline 的 <em>actual</em> 状态和预期结果，质疑现有假设的有效性。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 执行了详尽的 file system 和 code analysis，以将 codebase 的绝对真相与 documentation 进行映射。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 关注逻辑上的“为什么”和战略对齐；AI 通过大规模数据综合提供了细粒度的“是什么”，确认了定性论点成立但定量细节存在缺陷。</p>
+<p><strong>差异分析：</strong> Human 关注逻辑上的“为什么”和战略对齐；AI 通过大规模数据综合提供了细粒度的“是什么”，确认了定性论点成立但定量细节存在缺陷。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
 <ul>

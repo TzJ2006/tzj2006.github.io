@@ -10,7 +10,7 @@
 <meta name="description" content="这一天专注于通过完善 SOP 来推进 PhD 申请，根据 Nature Methods 标准优化一篇科学手稿，并通过基于 CPU 的 OCR 和强大的自动化测试显著增强了 AI assistant 的 WeChat 集成。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-10-15/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-10-15 Daily Overview 工作内容： 精炼了 PhD Statement of Purpose 和申请材料，完成了一篇高容量 Nature Methods 手稿审核，并为 WeChat AI assistant 集成了轻量级 OCR 和自动化测试。 工作方式： 利用迭代式叙述编辑、大规模论文审核，以及将基于 CPU 的 RapidOCR engine 与专门的批量测试脚本进行集成。 影响： 为申请建立了连贯的研究叙述，为高影响力手稿发表提供了结构化的路线图，并为现实世界的多模态交互实现了鲁棒、低延迟的文本识别。 今日重点是通过 SOP 精炼推进 PhD 申请，基于 Nature Methods 标准优化科学手稿，并通过基于 CPU 的 OCR 和鲁棒的自动化测试显著增强了 AI assistant 的 WeChat 集成。\nTasks Architecture \u0026 Strategy ✅ SOP Refinement — 编辑了 Statement of Purpose 以确保叙述的连贯性，特别是关于 Latent Bridge 和 visual prompting 研究的部分。 ✅ WeChat Media OCR Integration — 使用 RapidOCR 实现了一个基于 CPU 的 OCR worker，用于从输入的图像、stickers 和长截图提取文本。 ✅ Recommender Outreach Preparation — 为 Prof. Jun Yang 和 Prof. Brandon Fain 起草了个性化的最终邮件，包括截止日期和关键谈话要点。 ✅ WeChat Send-Suite \u0026 Testing — 开发了一个专门的批量测试脚本 (TEST_SEND.bat) 用于发送各种媒体类型，并运行了回归测试套件以确保系统稳定性。 • Manuscript Restructuring — 正在审查拟定的 Results 部分顺序（7 个章节）以及以 benchmark 为中心的的标题/摘要，以符合 Nature Methods 标准。 Implementation \u0026 Fixes ✅ UI/UX Refinement for Media Display — 更新 Web 界面，将提取的 OCR 文本和 AI model 的解释作为独立的、不同的部分显示。 ✅ Application Material Organization — 生成了 SOP PDF，并将所需的附件（CV, Transcript, SOP）整理到结构化的桌面文件夹中。 ✅ Automated Reply Safety Enforcement — 修改了系统设置，以确保在测试过程中自动回复保持禁用状态。 Problems \u0026 Solutions Critical Issues 1. LLM 误解图像中的文本，且由于缩放导致长截图中的清晰度丢失。 Solution: 通过使用带有本地 CPU OCR engine 的分段读取方法，将文本提取与语义解释解耦。\nKey Insight: 对于多模态 assistant，将“写了什么”（OCR）与“意味着什么”（LLM）分离可以显著减少 hallucinations。\n2. “Latent Bridge” 的 SOP 叙述缺乏连贯的研究弧线，听起来像是技术上的不匹配。 Solution: 重写了该部分，使用“recovery thresholds”作为统一主题，将“方法做了什么”与关于 system vs. policy errors 的“经验教训”联系起来。\nKey Insight: 通过共同的主题将单个研究项目连接起来，比将它们作为孤立的成功案例呈现能创造更强大的叙述弧线。\n3. OCR 误识别符号（例如将 ‘?’ 识别为 ‘2’）以及测试风险干扰在线服务。 Solution: 为低置信度的字符实现了不确定性标签 ‘[疑似符号，需核对]’，并创建了一个会暂停接收服务的“仅测试”模式。\nKey Insight: 构建一个可以安全暂停主服务的“仅测试”模式对于防止 race conditions 至关重要。\n4. 手稿标题和结果过度宣称了 “agent” 的影响力，并使用了未经证实的指标。 Solution: 修改标题以专注于 benchmarking 和 capability；将 agent harness 移至 Methods 部分，以符合 Nature Methods 对基于证据写作的偏好。\nKey Insight: Nature Methods 的作者更喜欢“capability”（它能做什么）而不是“automation”（它是如何完成的）。\nGeneral Issues 5. 管理推荐人的大量工作量以及诸如 sticker 域名拦截之类的技术 bug。 Solution: 在邮件中加入了体谅性的语言以减轻工作量感知，并更新了 WeChat sticker CDNs 的域名白名单。\nHuman vs AI Approaches Strategic Level Project Consolidation \u0026 Planning Role Approach Human 提出了一个细粒度的、多步骤的计划，涉及统一的工作空间、功能清单，以及使用特定技术约束的 agent 引导集成。 AI 建议了高层级的整合，但需要人类干预来定义技术工作流。 Difference Analysis: 人类提供了结构化的路线图和针对 agents 的“如何做”，而 AI 仍停留在通用的概念层面。\nSOP \u0026 Research Narrative Strategy Role Approach Human 通过将 Markovian 局限性与特定任务联系起来，并构思“recovery threshold”来统一研究项目，提供了战略性的“为什么”。 AI 最初试图提取技术趋势，并进行了在笔记中并未明确说明的“推断式”连接。 Difference Analysis: 人类提供了 AI 所缺乏的高层级概念化和逻辑流。\nManuscript \u0026 Architecture Design Role Approach Human 建议将 agent harness 作为 pipeline 的一部分（Methods），并提出了统一的“接收/发送”架构。 AI 将 agent harness 视为主要的贡献/头条，并专注于单个任务的实现。 Difference Analysis: 人类专注于战略定位和架构的简洁性，而 AI 专注于特定实现的任务。\nAI Limitations Critical Limitations AI 试图“推断”不属于用户实际计划的研究方向，导致 SOP 内容不准确。 当前基于 agent 的 harness 效果在手稿中未经过测量，且 0/260 篇 NM 论文使用这些术语。 General Limitations 在实现 OCR 之前，AI 无法识别图像中的特定字符，且无法在 VM 上自主执行批量测试。 AI 的写作偶尔会变得“说教式”，过度解释“经验教训”而非事实，并且难以区分“解析成功”与“内容准确性”。 Learnings Key Learnings 有效的研究叙述是通过将技术局限性（例如 Markovian 属性）与特定的问题领域和提出的解决方案联系起来构建的。 对于多模态 assistant，将“写了什么”（OCR）与“意味着什么”（LLM）分离可以显著减少 hallucinations 并提高可靠性。 在开发自动化交互器时，构建一个可以安全暂停主服务的“仅测试”模式对于防止 race conditions 至关重要。 Nature Methods 的作者更喜欢“capability”（它能做什么）而不是“automation”（它是如何完成的）。 Conversation Summaries PhD Application**✅ SOP Refinement and Recommender Strategy** 通过 policy recovery thresholds 的概念，迭代编辑了 Statement of Purpose，以整合关于 FLARE, RecoverBench, Latent Bridge 和 Visual Prompting 的研究。准备并整理了所有用于教授联络的材料。\nMIHD Writing Audit ✅ Audit Report Generation 运行了 260 篇论文的 audit 以优化 manuscript framing。识别了 title, abstract 和 results architecture 中的关键差距，并提出了符合 Nature Methods 规范的重构方案。\nMihD Research ✅ Fusion Research \u0026 Literature Review 回顾了 fusion research 的进展；8 个 sub-agents 完成了对各种 fusion mechanisms（例如 cross-attention, graph fusion）的调研，引用了 184 个来源。\nWeAgent ✅ WeChat Media Extraction \u0026 OCR Integration 解决了 media identification 和 domain blocking 的 bug。集成了一个轻量级的 RapidOCR worker 以实现高精度文本提取，并为 WeChat 发送功能部署了一套全面的 batch testing suite。\nPersonalAgent ✅ Consolidation Strategy 制定了一项战略计划，通过使用共享的 workspace 和专门的 agent prompts，将多个 AI 项目整合进一个单一、统一的 ecosystem 中。\nToken Usage AI Usage · 2026-10-15\rClaude Code + Codex\rTotal cost$100.41\rTotal tokens137M\rOutput tokens701K\rCache read94.0%\rCost split\rClaude Code $67 ·\rCodex $33\rToken character\rCache reads 94.0% ·\rActive 6.0%\rMost token volume came from cache reads.\r",
-  "wordCount" : "497",
+  "articleBody": "Daily Report — 2026-10-15 Daily Overview 工作内容： 精炼了 PhD Statement of Purpose 和申请材料，完成了一篇高容量 Nature Methods 手稿审核，并为 WeChat AI assistant 集成了轻量级 OCR 和自动化测试。 工作方式： 利用迭代式叙述编辑、大规模论文审核，以及将基于 CPU 的 RapidOCR engine 与专门的批量测试脚本进行集成。 影响： 为申请建立了连贯的研究叙述，为高影响力手稿发表提供了结构化的路线图，并为现实世界的多模态交互实现了鲁棒、低延迟的文本识别。 今日重点是通过 SOP 精炼推进 PhD 申请，基于 Nature Methods 标准优化科学手稿，并通过基于 CPU 的 OCR 和鲁棒的自动化测试显著增强了 AI assistant 的 WeChat 集成。\nTasks Architecture \u0026 Strategy ✅ SOP Refinement — 编辑了 Statement of Purpose 以确保叙述的连贯性，特别是关于 Latent Bridge 和 visual prompting 研究的部分。 ✅ WeChat Media OCR Integration — 使用 RapidOCR 实现了一个基于 CPU 的 OCR worker，用于从输入的图像、stickers 和长截图提取文本。 ✅ Recommender Outreach Preparation — 为 Prof. Jun Yang 和 Prof. Brandon Fain 起草了个性化的最终邮件，包括截止日期和关键谈话要点。 ✅ WeChat Send-Suite \u0026 Testing — 开发了一个专门的批量测试脚本 (TEST_SEND.bat) 用于发送各种媒体类型，并运行了回归测试套件以确保系统稳定性。 • Manuscript Restructuring — 正在审查拟定的 Results 部分顺序（7 个章节）以及以 benchmark 为中心的的标题/摘要，以符合 Nature Methods 标准。 Implementation \u0026 Fixes ✅ UI/UX Refinement for Media Display — 更新 Web 界面，将提取的 OCR 文本和 AI model 的解释作为独立的、不同的部分显示。 ✅ Application Material Organization — 生成了 SOP PDF，并将所需的附件（CV, Transcript, SOP）整理到结构化的桌面文件夹中。 ✅ Automated Reply Safety Enforcement — 修改了系统设置，以确保在测试过程中自动回复保持禁用状态。 Problems \u0026 Solutions Critical Issues 1. LLM 误解图像中的文本，且由于缩放导致长截图中的清晰度丢失。 Solution: 通过使用带有本地 CPU OCR engine 的分段读取方法，将文本提取与语义解释解耦。\n关键发现： 对于多模态 assistant，将“写了什么”（OCR）与“意味着什么”（LLM）分离可以显著减少 hallucinations。\n2. “Latent Bridge” 的 SOP 叙述缺乏连贯的研究弧线，听起来像是技术上的不匹配。 Solution: 重写了该部分，使用“recovery thresholds”作为统一主题，将“方法做了什么”与关于 system vs. policy errors 的“经验教训”联系起来。\n关键发现： 通过共同的主题将单个研究项目连接起来，比将它们作为孤立的成功案例呈现能创造更强大的叙述弧线。\n3. OCR 误识别符号（例如将 ‘?’ 识别为 ‘2’）以及测试风险干扰在线服务。 Solution: 为低置信度的字符实现了不确定性标签 ‘[疑似符号，需核对]’，并创建了一个会暂停接收服务的“仅测试”模式。\n关键发现： 构建一个可以安全暂停主服务的“仅测试”模式对于防止 race conditions 至关重要。\n4. 手稿标题和结果过度宣称了 “agent” 的影响力，并使用了未经证实的指标。 Solution: 修改标题以专注于 benchmarking 和 capability；将 agent harness 移至 Methods 部分，以符合 Nature Methods 对基于证据写作的偏好。\n关键发现： Nature Methods 的作者更喜欢“capability”（它能做什么）而不是“automation”（它是如何完成的）。\nGeneral Issues 5. 管理推荐人的大量工作量以及诸如 sticker 域名拦截之类的技术 bug。 Solution: 在邮件中加入了体谅性的语言以减轻工作量感知，并更新了 WeChat sticker CDNs 的域名白名单。\nHuman vs AI Approaches Strategic Level Project Consolidation \u0026 Planning 角色 方法 用户 提出了一个细粒度的、多步骤的计划，涉及统一的工作空间、功能清单，以及使用特定技术约束的 agent 引导集成。 AI 助手 建议了高层级的整合，但需要人类干预来定义技术工作流。 差异分析： 人类提供了结构化的路线图和针对 agents 的“如何做”，而 AI 仍停留在通用的概念层面。\nSOP \u0026 Research Narrative Strategy 角色 方法 用户 通过将 Markovian 局限性与特定任务联系起来，并构思“recovery threshold”来统一研究项目，提供了战略性的“为什么”。 AI 助手 最初试图提取技术趋势，并进行了在笔记中并未明确说明的“推断式”连接。 差异分析： 人类提供了 AI 所缺乏的高层级概念化和逻辑流。\nManuscript \u0026 Architecture Design 角色 方法 用户 建议将 agent harness 作为 pipeline 的一部分（Methods），并提出了统一的“接收/发送”架构。 AI 助手 将 agent harness 视为主要的贡献/头条，并专注于单个任务的实现。 差异分析： 人类专注于战略定位和架构的简洁性，而 AI 专注于特定实现的任务。\nAI Limitations Critical Limitations AI 试图“推断”不属于用户实际计划的研究方向，导致 SOP 内容不准确。 当前基于 agent 的 harness 效果在手稿中未经过测量，且 0/260 篇 NM 论文使用这些术语。 General Limitations 在实现 OCR 之前，AI 无法识别图像中的特定字符，且无法在 VM 上自主执行批量测试。 AI 的写作偶尔会变得“说教式”，过度解释“经验教训”而非事实，并且难以区分“解析成功”与“内容准确性”。 Learnings Key Learnings 有效的研究叙述是通过将技术局限性（例如 Markovian 属性）与特定的问题领域和提出的解决方案联系起来构建的。 对于多模态 assistant，将“写了什么”（OCR）与“意味着什么”（LLM）分离可以显著减少 hallucinations 并提高可靠性。 在开发自动化交互器时，构建一个可以安全暂停主服务的“仅测试”模式对于防止 race conditions 至关重要。 Nature Methods 的作者更喜欢“capability”（它能做什么）而不是“automation”（它是如何完成的）。 Conversation Summaries PhD Application**✅ SOP Refinement and Recommender Strategy** 通过 policy recovery thresholds 的概念，迭代编辑了 Statement of Purpose，以整合关于 FLARE, RecoverBench, Latent Bridge 和 Visual Prompting 的研究。准备并整理了所有用于教授联络的材料。\nMIHD Writing Audit ✅ Audit Report Generation 运行了 260 篇论文的 audit 以优化 manuscript framing。识别了 title, abstract 和 results architecture 中的关键差距，并提出了符合 Nature Methods 规范的重构方案。\nMihD Research ✅ Fusion Research \u0026 Literature Review 回顾了 fusion research 的进展；8 个 sub-agents 完成了对各种 fusion mechanisms（例如 cross-attention, graph fusion）的调研，引用了 184 个来源。\nWeAgent ✅ WeChat Media Extraction \u0026 OCR Integration 解决了 media identification 和 domain blocking 的 bug。集成了一个轻量级的 RapidOCR worker 以实现高精度文本提取，并为 WeChat 发送功能部署了一套全面的 batch testing suite。\nPersonalAgent ✅ Consolidation Strategy 制定了一项战略计划，通过使用共享的 workspace 和专门的 agent prompts，将多个 AI 项目整合进一个单一、统一的 ecosystem 中。\nToken Usage AI Usage · 2026-10-15\rClaude Code + Codex\rTotal cost$100.41\rTotal tokens137M\rOutput tokens701K\rCache read94.0%\rCost split\rClaude Code $67 ·\rCodex $33\rToken character\rCache reads 94.0% ·\rActive 6.0%\rMost token volume came from cache reads.\r",
+  "wordCount" : "493",
   "inLanguage": "zh",
   "datePublished": "2026-10-15T00:00:00-04:00",
   "dateModified": "2026-10-15T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -238,16 +238,16 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-llm-误解图像中的文本且由于缩放导致长截图中的清晰度丢失">1. LLM 误解图像中的文本，且由于缩放导致长截图中的清晰度丢失。<a hidden class="anchor" aria-hidden="true" href="#1-llm-误解图像中的文本且由于缩放导致长截图中的清晰度丢失">#</a></h4>
 <p><strong>Solution:</strong> 通过使用带有本地 CPU OCR engine 的分段读取方法，将文本提取与语义解释解耦。</p>
-<p><strong>Key Insight:</strong> 对于多模态 assistant，将“写了什么”（OCR）与“意味着什么”（LLM）分离可以显著减少 hallucinations。</p>
+<p><strong>关键发现：</strong> 对于多模态 assistant，将“写了什么”（OCR）与“意味着什么”（LLM）分离可以显著减少 hallucinations。</p>
 <h4 id="2-latent-bridge-的-sop-叙述缺乏连贯的研究弧线听起来像是技术上的不匹配">2. “Latent Bridge” 的 SOP 叙述缺乏连贯的研究弧线，听起来像是技术上的不匹配。<a hidden class="anchor" aria-hidden="true" href="#2-latent-bridge-的-sop-叙述缺乏连贯的研究弧线听起来像是技术上的不匹配">#</a></h4>
 <p><strong>Solution:</strong> 重写了该部分，使用“recovery thresholds”作为统一主题，将“方法做了什么”与关于 system vs. policy errors 的“经验教训”联系起来。</p>
-<p><strong>Key Insight:</strong> 通过共同的主题将单个研究项目连接起来，比将它们作为孤立的成功案例呈现能创造更强大的叙述弧线。</p>
+<p><strong>关键发现：</strong> 通过共同的主题将单个研究项目连接起来，比将它们作为孤立的成功案例呈现能创造更强大的叙述弧线。</p>
 <h4 id="3-ocr-误识别符号例如将--识别为-2以及测试风险干扰在线服务">3. OCR 误识别符号（例如将 &lsquo;?&rsquo; 识别为 &lsquo;2&rsquo;）以及测试风险干扰在线服务。<a hidden class="anchor" aria-hidden="true" href="#3-ocr-误识别符号例如将--识别为-2以及测试风险干扰在线服务">#</a></h4>
 <p><strong>Solution:</strong> 为低置信度的字符实现了不确定性标签 &lsquo;[疑似符号，需核对]&rsquo;，并创建了一个会暂停接收服务的“仅测试”模式。</p>
-<p><strong>Key Insight:</strong> 构建一个可以安全暂停主服务的“仅测试”模式对于防止 race conditions 至关重要。</p>
+<p><strong>关键发现：</strong> 构建一个可以安全暂停主服务的“仅测试”模式对于防止 race conditions 至关重要。</p>
 <h4 id="4-手稿标题和结果过度宣称了-agent-的影响力并使用了未经证实的指标">4. 手稿标题和结果过度宣称了 “agent” 的影响力，并使用了未经证实的指标。<a hidden class="anchor" aria-hidden="true" href="#4-手稿标题和结果过度宣称了-agent-的影响力并使用了未经证实的指标">#</a></h4>
 <p><strong>Solution:</strong> 修改标题以专注于 benchmarking 和 capability；将 agent harness 移至 Methods 部分，以符合 Nature Methods 对基于证据写作的偏好。</p>
-<p><strong>Key Insight:</strong> Nature Methods 的作者更喜欢“capability”（它能做什么）而不是“automation”（它是如何完成的）。</p>
+<p><strong>关键发现：</strong> Nature Methods 的作者更喜欢“capability”（它能做什么）而不是“automation”（它是如何完成的）。</p>
 <h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
 <h4 id="5-管理推荐人的大量工作量以及诸如-sticker-域名拦截之类的技术-bug">5. 管理推荐人的大量工作量以及诸如 sticker 域名拦截之类的技术 bug。<a hidden class="anchor" aria-hidden="true" href="#5-管理推荐人的大量工作量以及诸如-sticker-域名拦截之类的技术-bug">#</a></h4>
 <p><strong>Solution:</strong> 在邮件中加入了体谅性的语言以减轻工作量感知，并更新了 WeChat sticker CDNs 的域名白名单。</p>
@@ -257,62 +257,62 @@
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>提出了一个细粒度的、多步骤的计划，涉及统一的工作空间、功能清单，以及使用特定技术约束的 agent 引导集成。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>建议了高层级的整合，但需要人类干预来定义技术工作流。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> 人类提供了结构化的路线图和针对 agents 的“如何做”，而 AI 仍停留在通用的概念层面。</p>
+<p><strong>差异分析：</strong> 人类提供了结构化的路线图和针对 agents 的“如何做”，而 AI 仍停留在通用的概念层面。</p>
 <h4 id="sop--research-narrative-strategy">SOP &amp; Research Narrative Strategy<a hidden class="anchor" aria-hidden="true" href="#sop--research-narrative-strategy">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>通过将 Markovian 局限性与特定任务联系起来，并构思“recovery threshold”来统一研究项目，提供了战略性的“为什么”。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初试图提取技术趋势，并进行了在笔记中并未明确说明的“推断式”连接。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> 人类提供了 AI 所缺乏的高层级概念化和逻辑流。</p>
+<p><strong>差异分析：</strong> 人类提供了 AI 所缺乏的高层级概念化和逻辑流。</p>
 <h4 id="manuscript--architecture-design">Manuscript &amp; Architecture Design<a hidden class="anchor" aria-hidden="true" href="#manuscript--architecture-design">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>建议将 agent harness 作为 pipeline 的一部分（Methods），并提出了统一的“接收/发送”架构。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>将 agent harness 视为主要的贡献/头条，并专注于单个任务的实现。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> 人类专注于战略定位和架构的简洁性，而 AI 专注于特定实现的任务。</p>
+<p><strong>差异分析：</strong> 人类专注于战略定位和架构的简洁性，而 AI 专注于特定实现的任务。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
 <ul>

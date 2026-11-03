@@ -10,7 +10,7 @@
 <meta name="description" content="将 BOSS benchmark 成功集成至 OpenPI 的 LIBERO environment，并完成了 TokenMonitor 跨平台 desktop application 的全面架构加固与 UI synchronization 修复。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-03-26/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-03-26 Daily Overview 完成工作： 通过将 BOSS benchmark evaluation pipeline 部署到 OpenPI 并解决 TokenMonitor 中的关键 layout 冲突，整合了跨项目的进展。编写了 contributor documentation，重构了 native floating ball 交互，并稳定了 chart hover-window 同步。 实施方式： 执行了深度的 codebase mapping、native Win32 geometric anchoring、Svelte/Tauri event-driven architecture 重构，并在 Windows/Linux 目标平台上进行了迭代的 constraint verification。在 sandbox 限制下，通过直接的 compiler checks 和结构化的 diff reviews 验证了输出结果。 影响： 消除了 PI-series 模型测试的环境重复问题，通过将 hover animations 与 window resizes 解耦稳定了 desktop UI rendering，并交付了一个生产就绪且空间精确的 interaction model。 tianhe 完成工作： 将 BOSS benchmark evaluation scripts 移植到 OpenPI 已有的 LIBERO setup 中，并解决了 initialization path warnings。 实施方式： 映射了 directory structures，生成了核心 registration modules，修补了 server-client eval files，并修正了 dataset configuration validation logic。 影响： 在无需环境开销的情况下实现了 seamless PI-series 模型测试，同时明确了 benchmark state-cycling mechanics。 TzJsDesktop 完成工作： 编写了 project contributor documentation，重构了 Windows/Linux floating ball 交互，并解决了持续存在的 chart detail flickering 问题。 实施方式： 审计了用于 AGENTS.md 实现的 repository structure，使用 native Win32 region clipping 替换了冲突的 CSS，并将 passive ResizeObserver logic 迁移到了显式的 event-driven height controllers。 影响： 为 desktop components 建立了清晰的 spatial layout architecture，消除了 animation jank，并确保了所有目标平台的 deployment-ready compilation。 将 BOSS benchmark 成功集成到 OpenPI 的 LIBERO 环境，并结合 TokenMonitor 跨平台 desktop application 的全面 architectural hardening 和 UI synchronization fixes 进行了合并。\nTasks Architecture \u0026 Strategy ✅ BOSS Benchmark Integration \u0026 Evaluator Adaptation — 将 BOSS benchmark assets 迁移至 OpenPI 的 LIBERO ecosystem，创建 integration modules，并为 server-client architecture 适配 evaluation scripts。 ✅ Tauri-Svelte Hover Synchronization \u0026 Chart Layout Stabilization — 通过使用显式的 toggle-driven height animations 替换 passive ResizeObserver logic，并在 transitions 期间进行临时 observer suppression，来消除 window jitter。 ✅ Cross-Platform Floating Ball Architecture Refactoring — 将 floating ball 与 embedded panels 解耦，解决 transparency/stuttering defects，实现 edge-snapping geometric state machine，并统一 status payloads。 Implementation \u0026 Fixes ✅ TokenMonitor Contributor Documentation — 生成结构化的 contributor guide，详细说明 project layout、build/test commands、coding standards 和 commit guidelines。 Problems \u0026 Solutions Critical Issues 1. Chart detail panel flickering 和 premature window shrinkage，这是由于 hover transitions 期间 passive DOM observation 级联触发了 Tauri resize events 导致的。 Solution: 从 absolute positioning 转向严格的 in-flow block structure。实现了一个显式的 onDetailToggle event system，在手动驱动 height animations 的同时，在 transitions 期间临时抑制 observer propagation。\nKey Insight: Hybrid desktop frames 无法可靠地使用 passive observers 进行 auto-sizing；必须使用具有 state isolation 的 event-driven height controllers，以防止级联的 native repaints。\n2. Windows floating ball 由于冲突的 CSS inheritance 和双重 UI initialization paths，导致了 translucent overlay overlaps、animation stuttering 以及 vertical alignment broken 的问题。 Solution: 移除了冗余的 embedded panel initialization，强制执行严格的 CSS scoping，应用 native Win32 region clipping 以保证 geometric integrity，并通过 Rust/TS patches 统一了 status payloads。\nKey Insight: 跨平台 desktop applications 需要针对特定平台的 native boundaries，而非纯 frontend styling，以消除持续的 overlay conflicts 和 layout jank。\nGeneral Issues 3. BOSS inference 触发了重复的 dataset path validation warnings，同时由于压缩的 init-state arrays 在有限的 .pruned_init files 中循环，导致了 index confusion。 Solution: 创建了 _config.yaml_ 中引用的缺失 directory structures，并明确了基于 modulo 的 state cycling 是一种刻意的 benchmark optimization。在不改变 evaluation behavior 的情况下抑制了非功能性的 log noise。\nKey Insight: Evaluation frameworks 通常会积极验证所有 configuration keys；主动进行 path preparation 或使用 lazy loading 可以防止 benchmark runners 中出现重复的 logging overhead。\nHuman vs AI Approaches Strategic Level Hover Animation Coordination \u0026 Rigorous Layout Containment Strategy Role Approach Human 准确诊断了 transition jank，并强制执行 spatial containment，优先考虑刚性的 layout boundaries 和完全 collapse，而非视觉上的 overlay smoothness。 AI 追踪了 Svelte components 中的 ResizeObserver conflicts，将候选 transition patterns 与现有 subsystems 进行映射，并构建了一个带有 post-fade contraction callbacks 的标准化 collapse protocol。 Difference Analysis: Human 优先考虑不可妥协的 spatial integrity；AI 提供了 technical mapping 和 decoupling mechanisms，但通过从 CSS overlays 转向显式的 event-driven height systems，适应了更严格的 constraint。\nFloating Ball UX Scope \u0026 Platform Constraints Role Approach Human 定义了严格的 product boundaries，要求使用 status widget replacement 而非全应用 overlay。指定了精确的 interaction models 和特定平台的 tray icon preservation rules。 AI 通过结构化 prompts 迭代以收敛至 constrained architecture，实现了 directional expansion logic 和 Rust-side geometric anchoring，同时避免了 main window accessibility conflicts。 Difference Analysis: Human 强制执行精确的 product boundaries 和设备特定的 usability standards；AI 将初始的模糊性转化为 architectural proposals，并快速调整代码以匹配受限的 UX definitions。\nAI Limitations General Limitations Sandboxed environments 限制了深度的 type checking 和 native toolchain execution，需要手动 fallback validation 和直接的 compiler verification。 初始的 architectural proposals 往往倾向于 over-engineering 或 scope misalignment，直到 stakeholders 迭代应用显式的 geometric 和 UX constraints。 Learnings Key Learnings- Benchmark 集成需要对路径解析和 state-caching 逻辑进行主动验证，而不仅仅是标准配置文件，以避免无声的 evaluation artifacts。 采用带有临时 observer 抑制的 event-driven height animation 是强制性的，以防止在 hybrid Tauri-Svelte 应用中出现级联的 layout repaints。 Cross-platform desktop UI 的稳定性需要 native geometric boundaries，而不是仅仅依赖 CSS 或 passive DOM observers 来保证 rendering integrity。 Conversation Summaries OpenPI-BOSS Integration ✅ 将 BOSS Benchmark 集成到 OpenPI 的 LIBERO Environment 中 07:13:35.580 | claude_code 将 benchmark assets 合并到现有的 evaluation pipeline 中，消除了 environment duplication。通过 script adaptation、module generation 和 config validation 解决了 path warnings 并明确了 state-cycling mechanics，从而实现了对 PI-series 模型的直接测试。\nTokenMonitor ✅ Architectural Hardening 与 UI Synchronization Refactoring 20:22:04.107 | codex 交付了 contributor documentation，使用 native geometric clipping 重构了 Windows/Linux floating ball 交互，并解决了持续存在的 chart hover jitter。主要的工程突破在于将 passive ResizeObserver 逻辑替换为显式的 toggle-driven height animations，以强制执行严格的 spatial containment 并消除级联的 repaints。\nToken Usage AI Usage · 2026-03-26\rClaude Code + Codex\rTotal cost$53.44\rTotal tokens75M\rOutput tokens1M\rCache read85.5%\rCost split\rClaude Code $5 ·\rCodex $49\rToken character\rCache reads 85.5% ·\rActive 14.5%\rMost token volume came from cache reads; Codex drove nearly all cost.\r",
-  "wordCount" : "737",
+  "articleBody": "Daily Report — 2026-03-26 Daily Overview 完成工作： 通过将 BOSS benchmark evaluation pipeline 部署到 OpenPI 并解决 TokenMonitor 中的关键 layout 冲突，整合了跨项目的进展。编写了 contributor documentation，重构了 native floating ball 交互，并稳定了 chart hover-window 同步。 实施方式： 执行了深度的 codebase mapping、native Win32 geometric anchoring、Svelte/Tauri event-driven architecture 重构，并在 Windows/Linux 目标平台上进行了迭代的 constraint verification。在 sandbox 限制下，通过直接的 compiler checks 和结构化的 diff reviews 验证了输出结果。 影响： 消除了 PI-series 模型测试的环境重复问题，通过将 hover animations 与 window resizes 解耦稳定了 desktop UI rendering，并交付了一个生产就绪且空间精确的 interaction model。 tianhe 完成工作： 将 BOSS benchmark evaluation scripts 移植到 OpenPI 已有的 LIBERO setup 中，并解决了 initialization path warnings。 实施方式： 映射了 directory structures，生成了核心 registration modules，修补了 server-client eval files，并修正了 dataset configuration validation logic。 影响： 在无需环境开销的情况下实现了 seamless PI-series 模型测试，同时明确了 benchmark state-cycling mechanics。 TzJsDesktop 完成工作： 编写了 project contributor documentation，重构了 Windows/Linux floating ball 交互，并解决了持续存在的 chart detail flickering 问题。 实施方式： 审计了用于 AGENTS.md 实现的 repository structure，使用 native Win32 region clipping 替换了冲突的 CSS，并将 passive ResizeObserver logic 迁移到了显式的 event-driven height controllers。 影响： 为 desktop components 建立了清晰的 spatial layout architecture，消除了 animation jank，并确保了所有目标平台的 deployment-ready compilation。 将 BOSS benchmark 成功集成到 OpenPI 的 LIBERO 环境，并结合 TokenMonitor 跨平台 desktop application 的全面 architectural hardening 和 UI synchronization fixes 进行了合并。\nTasks Architecture \u0026 Strategy ✅ BOSS Benchmark Integration \u0026 Evaluator Adaptation — 将 BOSS benchmark assets 迁移至 OpenPI 的 LIBERO ecosystem，创建 integration modules，并为 server-client architecture 适配 evaluation scripts。 ✅ Tauri-Svelte Hover Synchronization \u0026 Chart Layout Stabilization — 通过使用显式的 toggle-driven height animations 替换 passive ResizeObserver logic，并在 transitions 期间进行临时 observer suppression，来消除 window jitter。 ✅ Cross-Platform Floating Ball Architecture Refactoring — 将 floating ball 与 embedded panels 解耦，解决 transparency/stuttering defects，实现 edge-snapping geometric state machine，并统一 status payloads。 Implementation \u0026 Fixes ✅ TokenMonitor Contributor Documentation — 生成结构化的 contributor guide，详细说明 project layout、build/test commands、coding standards 和 commit guidelines。 Problems \u0026 Solutions Critical Issues 1. Chart detail panel flickering 和 premature window shrinkage，这是由于 hover transitions 期间 passive DOM observation 级联触发了 Tauri resize events 导致的。 Solution: 从 absolute positioning 转向严格的 in-flow block structure。实现了一个显式的 onDetailToggle event system，在手动驱动 height animations 的同时，在 transitions 期间临时抑制 observer propagation。\n关键发现： Hybrid desktop frames 无法可靠地使用 passive observers 进行 auto-sizing；必须使用具有 state isolation 的 event-driven height controllers，以防止级联的 native repaints。\n2. Windows floating ball 由于冲突的 CSS inheritance 和双重 UI initialization paths，导致了 translucent overlay overlaps、animation stuttering 以及 vertical alignment broken 的问题。 Solution: 移除了冗余的 embedded panel initialization，强制执行严格的 CSS scoping，应用 native Win32 region clipping 以保证 geometric integrity，并通过 Rust/TS patches 统一了 status payloads。\n关键发现： 跨平台 desktop applications 需要针对特定平台的 native boundaries，而非纯 frontend styling，以消除持续的 overlay conflicts 和 layout jank。\nGeneral Issues 3. BOSS inference 触发了重复的 dataset path validation warnings，同时由于压缩的 init-state arrays 在有限的 .pruned_init files 中循环，导致了 index confusion。 Solution: 创建了 _config.yaml_ 中引用的缺失 directory structures，并明确了基于 modulo 的 state cycling 是一种刻意的 benchmark optimization。在不改变 evaluation behavior 的情况下抑制了非功能性的 log noise。\n关键发现： Evaluation frameworks 通常会积极验证所有 configuration keys；主动进行 path preparation 或使用 lazy loading 可以防止 benchmark runners 中出现重复的 logging overhead。\nHuman vs AI Approaches Strategic Level Hover Animation Coordination \u0026 Rigorous Layout Containment Strategy 角色 方法 用户 准确诊断了 transition jank，并强制执行 spatial containment，优先考虑刚性的 layout boundaries 和完全 collapse，而非视觉上的 overlay smoothness。 AI 助手 追踪了 Svelte components 中的 ResizeObserver conflicts，将候选 transition patterns 与现有 subsystems 进行映射，并构建了一个带有 post-fade contraction callbacks 的标准化 collapse protocol。 差异分析： Human 优先考虑不可妥协的 spatial integrity；AI 提供了 technical mapping 和 decoupling mechanisms，但通过从 CSS overlays 转向显式的 event-driven height systems，适应了更严格的 constraint。\nFloating Ball UX Scope \u0026 Platform Constraints 角色 方法 用户 定义了严格的 product boundaries，要求使用 status widget replacement 而非全应用 overlay。指定了精确的 interaction models 和特定平台的 tray icon preservation rules。 AI 助手 通过结构化 prompts 迭代以收敛至 constrained architecture，实现了 directional expansion logic 和 Rust-side geometric anchoring，同时避免了 main window accessibility conflicts。 差异分析： Human 强制执行精确的 product boundaries 和设备特定的 usability standards；AI 将初始的模糊性转化为 architectural proposals，并快速调整代码以匹配受限的 UX definitions。\nAI Limitations General Limitations Sandboxed environments 限制了深度的 type checking 和 native toolchain execution，需要手动 fallback validation 和直接的 compiler verification。 初始的 architectural proposals 往往倾向于 over-engineering 或 scope misalignment，直到 stakeholders 迭代应用显式的 geometric 和 UX constraints。 Learnings Key Learnings- Benchmark 集成需要对路径解析和 state-caching 逻辑进行主动验证，而不仅仅是标准配置文件，以避免无声的 evaluation artifacts。 采用带有临时 observer 抑制的 event-driven height animation 是强制性的，以防止在 hybrid Tauri-Svelte 应用中出现级联的 layout repaints。 Cross-platform desktop UI 的稳定性需要 native geometric boundaries，而不是仅仅依赖 CSS 或 passive DOM observers 来保证 rendering integrity。 Conversation Summaries OpenPI-BOSS Integration ✅ 将 BOSS Benchmark 集成到 OpenPI 的 LIBERO Environment 中 07:13:35.580 | claude_code 将 benchmark assets 合并到现有的 evaluation pipeline 中，消除了 environment duplication。通过 script adaptation、module generation 和 config validation 解决了 path warnings 并明确了 state-cycling mechanics，从而实现了对 PI-series 模型的直接测试。\nTokenMonitor ✅ Architectural Hardening 与 UI Synchronization Refactoring 20:22:04.107 | codex 交付了 contributor documentation，使用 native geometric clipping 重构了 Windows/Linux floating ball 交互，并解决了持续存在的 chart hover jitter。主要的工程突破在于将 passive ResizeObserver 逻辑替换为显式的 toggle-driven height animations，以强制执行严格的 spatial containment 并消除级联的 repaints。\nToken Usage AI Usage · 2026-03-26\rClaude Code + Codex\rTotal cost$53.44\rTotal tokens75M\rOutput tokens1M\rCache read85.5%\rCost split\rClaude Code $5 ·\rCodex $49\rToken character\rCache reads 85.5% ·\rActive 14.5%\rMost token volume came from cache reads; Codex drove nearly all cost.\r",
+  "wordCount" : "734",
   "inLanguage": "zh",
   "datePublished": "2026-03-26T00:00:00-04:00",
   "dateModified": "2026-03-26T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -246,56 +246,56 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-chart-detail-panel-flickering-和-premature-window-shrinkage这是由于-hover-transitions-期间-passive-dom-observation-级联触发了-tauri-resize-events-导致的">1. Chart detail panel flickering 和 premature window shrinkage，这是由于 hover transitions 期间 passive DOM observation 级联触发了 Tauri resize events 导致的。<a hidden class="anchor" aria-hidden="true" href="#1-chart-detail-panel-flickering-和-premature-window-shrinkage这是由于-hover-transitions-期间-passive-dom-observation-级联触发了-tauri-resize-events-导致的">#</a></h4>
 <p><strong>Solution:</strong> 从 absolute positioning 转向严格的 in-flow block structure。实现了一个显式的 <code>onDetailToggle</code> event system，在手动驱动 height animations 的同时，在 transitions 期间临时抑制 observer propagation。</p>
-<p><strong>Key Insight:</strong> Hybrid desktop frames 无法可靠地使用 passive observers 进行 auto-sizing；必须使用具有 state isolation 的 event-driven height controllers，以防止级联的 native repaints。</p>
+<p><strong>关键发现：</strong> Hybrid desktop frames 无法可靠地使用 passive observers 进行 auto-sizing；必须使用具有 state isolation 的 event-driven height controllers，以防止级联的 native repaints。</p>
 <h4 id="2-windows-floating-ball-由于冲突的-css-inheritance-和双重-ui-initialization-paths导致了-translucent-overlay-overlapsanimation-stuttering-以及-vertical-alignment-broken-的问题">2. Windows floating ball 由于冲突的 CSS inheritance 和双重 UI initialization paths，导致了 translucent overlay overlaps、animation stuttering 以及 vertical alignment broken 的问题。<a hidden class="anchor" aria-hidden="true" href="#2-windows-floating-ball-由于冲突的-css-inheritance-和双重-ui-initialization-paths导致了-translucent-overlay-overlapsanimation-stuttering-以及-vertical-alignment-broken-的问题">#</a></h4>
 <p><strong>Solution:</strong> 移除了冗余的 embedded panel initialization，强制执行严格的 CSS scoping，应用 native Win32 region clipping 以保证 geometric integrity，并通过 Rust/TS patches 统一了 status payloads。</p>
-<p><strong>Key Insight:</strong> 跨平台 desktop applications 需要针对特定平台的 native boundaries，而非纯 frontend styling，以消除持续的 overlay conflicts 和 layout jank。</p>
+<p><strong>关键发现：</strong> 跨平台 desktop applications 需要针对特定平台的 native boundaries，而非纯 frontend styling，以消除持续的 overlay conflicts 和 layout jank。</p>
 <h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
 <h4 id="3-boss-inference-触发了重复的-dataset-path-validation-warnings同时由于压缩的-init-state-arrays-在有限的-pruned_init-files-中循环导致了-index-confusion">3. BOSS inference 触发了重复的 dataset path validation warnings，同时由于压缩的 init-state arrays 在有限的 <code>.pruned_init</code> files 中循环，导致了 index confusion。<a hidden class="anchor" aria-hidden="true" href="#3-boss-inference-触发了重复的-dataset-path-validation-warnings同时由于压缩的-init-state-arrays-在有限的-pruned_init-files-中循环导致了-index-confusion">#</a></h4>
 <p><strong>Solution:</strong> 创建了 <code>_config.yaml_</code> 中引用的缺失 directory structures，并明确了基于 modulo 的 state cycling 是一种刻意的 benchmark optimization。在不改变 evaluation behavior 的情况下抑制了非功能性的 log noise。</p>
-<p><strong>Key Insight:</strong> Evaluation frameworks 通常会积极验证所有 configuration keys；主动进行 path preparation 或使用 lazy loading 可以防止 benchmark runners 中出现重复的 logging overhead。</p>
+<p><strong>关键发现：</strong> Evaluation frameworks 通常会积极验证所有 configuration keys；主动进行 path preparation 或使用 lazy loading 可以防止 benchmark runners 中出现重复的 logging overhead。</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="hover-animation-coordination--rigorous-layout-containment-strategy">Hover Animation Coordination &amp; Rigorous Layout Containment Strategy<a hidden class="anchor" aria-hidden="true" href="#hover-animation-coordination--rigorous-layout-containment-strategy">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>准确诊断了 transition jank，并强制执行 spatial containment，优先考虑刚性的 layout boundaries 和完全 collapse，而非视觉上的 overlay smoothness。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>追踪了 Svelte components 中的 <code>ResizeObserver</code> conflicts，将候选 transition patterns 与现有 subsystems 进行映射，并构建了一个带有 post-fade contraction callbacks 的标准化 collapse protocol。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 优先考虑不可妥协的 spatial integrity；AI 提供了 technical mapping 和 decoupling mechanisms，但通过从 CSS overlays 转向显式的 event-driven height systems，适应了更严格的 constraint。</p>
+<p><strong>差异分析：</strong> Human 优先考虑不可妥协的 spatial integrity；AI 提供了 technical mapping 和 decoupling mechanisms，但通过从 CSS overlays 转向显式的 event-driven height systems，适应了更严格的 constraint。</p>
 <h4 id="floating-ball-ux-scope--platform-constraints">Floating Ball UX Scope &amp; Platform Constraints<a hidden class="anchor" aria-hidden="true" href="#floating-ball-ux-scope--platform-constraints">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>定义了严格的 product boundaries，要求使用 status widget replacement 而非全应用 overlay。指定了精确的 interaction models 和特定平台的 tray icon preservation rules。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>通过结构化 prompts 迭代以收敛至 constrained architecture，实现了 directional expansion logic 和 Rust-side geometric anchoring，同时避免了 main window accessibility conflicts。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 强制执行精确的 product boundaries 和设备特定的 usability standards；AI 将初始的模糊性转化为 architectural proposals，并快速调整代码以匹配受限的 UX definitions。</p>
+<p><strong>差异分析：</strong> Human 强制执行精确的 product boundaries 和设备特定的 usability standards；AI 将初始的模糊性转化为 architectural proposals，并快速调整代码以匹配受限的 UX definitions。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
 <ul>

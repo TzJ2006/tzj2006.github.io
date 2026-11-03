@@ -10,7 +10,7 @@
 <meta name="description" content="对 &lsquo;AdaptVision&rsquo; 代码库结构和训练逻辑进行全面分析，并维护 &lsquo;MIHD&rsquo; 开发文档。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-05-08/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-05-08 Daily Overview 工作内容: 今日重点深入研究了 ‘AdaptVision’ 仓库，以理解其 VLM 训练 pipeline，特别关注 PPO、multi-turn crop call 机制以及 reward 计算。次要任务是审查 ‘MIHD’ 项目现有的高质量文档。 工作方式: 在 ’tianhe’ 设备上利用 Codex，通过 grep、sed 和 find 命令在复杂的 codebase 中进行导航，以追踪跨模块的数据流。在 ‘DCC’ 上使用 Claude Code 对 MIHD 仓库的 CLAUDE.md 文件进行针对当前项目状态的静态审计。 影响: 建立了对 AdaptVision 基于 custom verl 的训练 loop 的清晰认知模型，明确了 turn-level 和 outcome-level rewards 的处理方式。确认了 MIHD 的文档非常完善，仅需极少维护。 DCC 工作内容: 审计了 MIHD 项目现有的 CLAUDE.md，检查其在 architecture、commands 和 conventions 方面的完整性。 工作方式: 阅读现有文件，检查 .cursor/Copilot rules，验证 pipeline_config.yaml 等关键文件，并评估文档的全面性。 影响: 判定当前的 CLAUDE.md 非常出色（347 行），涵盖了所有必要的 ‘big picture’ 细节，节省了原本可能用于重新生成文档的时间。 tianhe 工作内容: 分析了 AdaptVision 的 codebase 结构，特别是 verl PPO trainer 的修改、reward managers 以及用于 adaptive visual acquisition 的 vLLM rollout 逻辑。 工作方式: 在 tianhe 设备上执行文件查找 (rg/find)。当 ‘rg’ 因权限/sandbox 问题失败时，切换到 sed/awk/grep 来读取特定的代码块 (ray_trainer_bbox.py, general_qa_bbox.py, multi_modal_dataset.py)。 影响: 成功追踪了从 run_adaptvision.sh -\u003e main_ppo.py -\u003e RayPPObboxTrainer -\u003e reward calculation 的执行路径，解决了关于 DTPO 算法中 crop costs 和 accuracy 如何加权的歧义。 对 ‘AdaptVision’ codebase 结构和训练逻辑进行了全面分析，并维护了 ‘MIHD’ 的开发文档。\nTasks Architecture \u0026 Strategy ✅ AdaptVision Codebase Analysis — 梳理了 AdaptVision 项目的整个训练和评估流程，识别了用于带有 multi-turn crop calls 的 PPO 训练的关键模块。 Implementation \u0026 Fixes ✅ MIHD Documentation Audit — 评估了 MIHD 现有的 CLAUDE.md，以确定是否需要根据当前的 code structure 和 conventions 进行更新。 Problems \u0026 Solutions Critical Issues 1. 在 AI 分析日志中发现 AdaptVision 的 README.md 存在 hardcoded API keys。 解决方案: 已记录以便立即修复。AI 指出 keys 在输出中可见，建议将其移除并替换为 environment variable placeholders 或使用 .env 文件方法。\n关键洞察: 如果提示 AI 检查特定文件（如 README），AI 可以成功检测到安全泄漏，但在 CI/CD 中预先进行过滤是更优的选择。\nGeneral Issues 2. 命令 ‘rg’ (ripgrep) 在 tianhe 设备上执行失败，报错 ‘bwrap: Failed to make / slave: Permission denied’ 并受到环境限制。 解决方案: 放弃使用 ripgrep，转而使用 find、sed 和 grep 等标准 POSIX 工具。使用 sed 手动分块读取文件，以绕过 output token 限制或命令失败问题。\n关键洞察: AI assistant 可能会默认使用 rg 等高效工具；当这些工具在受限的 HPC 环境中失效时，人类必须引导其回退到稳健但冗长的标准 shell 工具。\nHuman vs AI Approaches Strategic Level Complex PPO Reward Logic Interpretation Role Approach Human Human 请求对 reward structure 进行翻译，特别询问 ’turn_level’ 与 ‘outcome_level’ 指标在最终 PPO update 中是如何加权的。 AI AI 从 RayPPObboxTrainer 追踪到 DTPO advantage calculation，并明确定义了数学上的分离：用于 answer accuracy/format 的 outcome_score 和用于 tool usage/area penalty 的 turn_score。 差异分析: AI 在此处的优势是遍历大型文件以查找函数定义，但人类提供了驱动分析方向的具体上下文（DTPO 算法的需求）。AI 正确识别了公式：advantage = outcome_level_scores - beta * kld - alpha * turn_metric。\nImplementation Level Tooling Adaptation in HPC Environment Role Approach Human Human 指示 AI 分析 code structure。 AI AI 最初尝试使用 ‘rg’ 和 ‘bwrap’ sandbox 命令但失败了。Human 没有明确纠正命令选择，而是等待 AI 在失败后自我纠正为 ‘find’/‘sed’，或者隐式接受了这种 workaround。 差异分析: N/A\nAI Limitations General Limitations AI 尝试在缺乏权限的 tianhe 设备上使用 ‘rg’ 和 sandboxed environments (bwrap)，导致在回退到基础工具之前出现了初始的工具执行失败。 AI 识别出了 README.md 文件中 hardcoded 的 API keys，但没有自主将其移除；需要通过分析输出突出这一漏洞，以便人类采取行动。 Learnings Key Learnings 在复杂的 custom RL training loops（如 AdaptVision）中，reward engineering 逻辑通常分布在多个 utility files 中 (reward_score vs trainer)。追踪数据流比单纯阅读 config 更有效。 Practical Learnings 现有的文档（如 CLAUDE.md）可能出乎意料地全面；审计它只需几分钟即可确认其稳定性，从而防止在不必要的生成工作上浪费精力。 Conversation Summaries AdaptVision ✅ AdaptVision PPO \u0026 Reward Logic Deep Dive 10:38:12.696 | codex 在 Tianhe HPC 设备上分析了 AdaptVision 仓库结构。基于 verl 追踪了 custom VLM training pipeline。特别检查了 ray_trainer_bbox.py 以理解 RayPPObboxTrainer，以及 general_qa_bbox.py 以理解涉及 accuracy、format、area penalty 和 bbox relevance 的 reward calculation 逻辑。讨论了 DTPO 算法中 outcome-level（最终答案）和 turn-level（工具使用）advantages 的分离。\n✅ Repository Structure \u0026 vLLM Rollout Flow 09:20:15.153 | codex 对 AdaptVision codebase 进行初步的广泛分析。尝试使用 ‘rg’ (ripgrep) 但因 sandbox/permission 问题失败。转向使用 find/sed/grep 来列出文件并读取核心模块，如 vLLMRollout_MultiTurn_CropCall 和 MultiModalDataset。将 README.md 中的 hardcoded API keys 识别为安全问题。\nMIHD**✅ MIHD Documentation Audit** 14:49:01.530 | claude_code 用户请求对 MIHD 项目现有的 CLAUDE.md 文件进行审计。AI 读取了该文件，检查了相关文件（README, pipeline config），并评估了其完整性。结论认为这 347 行的文档非常出色，并且已经涵盖了所有必要的架构细节，无需进行改进。\nToken Usage AI Usage · 2026-05-08\rCodex\rTotal cost$6.17\rTotal tokens6M\rOutput tokens44K\rCache read90.8%\rToken character\rCache reads 90.8% ·\rActive 9.2%\rMost token volume came from cache reads.\r",
-  "wordCount" : "506",
+  "articleBody": "Daily Report — 2026-05-08 Daily Overview 工作内容: 今日重点深入研究了 ‘AdaptVision’ 仓库，以理解其 VLM 训练 pipeline，特别关注 PPO、multi-turn crop call 机制以及 reward 计算。次要任务是审查 ‘MIHD’ 项目现有的高质量文档。 工作方式: 在 ’tianhe’ 设备上利用 Codex，通过 grep、sed 和 find 命令在复杂的 codebase 中进行导航，以追踪跨模块的数据流。在 ‘DCC’ 上使用 Claude Code 对 MIHD 仓库的 CLAUDE.md 文件进行针对当前项目状态的静态审计。 影响: 建立了对 AdaptVision 基于 custom verl 的训练 loop 的清晰认知模型，明确了 turn-level 和 outcome-level rewards 的处理方式。确认了 MIHD 的文档非常完善，仅需极少维护。 DCC 工作内容: 审计了 MIHD 项目现有的 CLAUDE.md，检查其在 architecture、commands 和 conventions 方面的完整性。 工作方式: 阅读现有文件，检查 .cursor/Copilot rules，验证 pipeline_config.yaml 等关键文件，并评估文档的全面性。 影响: 判定当前的 CLAUDE.md 非常出色（347 行），涵盖了所有必要的 ‘big picture’ 细节，节省了原本可能用于重新生成文档的时间。 tianhe 工作内容: 分析了 AdaptVision 的 codebase 结构，特别是 verl PPO trainer 的修改、reward managers 以及用于 adaptive visual acquisition 的 vLLM rollout 逻辑。 工作方式: 在 tianhe 设备上执行文件查找 (rg/find)。当 ‘rg’ 因权限/sandbox 问题失败时，切换到 sed/awk/grep 来读取特定的代码块 (ray_trainer_bbox.py, general_qa_bbox.py, multi_modal_dataset.py)。 影响: 成功追踪了从 run_adaptvision.sh -\u003e main_ppo.py -\u003e RayPPObboxTrainer -\u003e reward calculation 的执行路径，解决了关于 DTPO 算法中 crop costs 和 accuracy 如何加权的歧义。 对 ‘AdaptVision’ codebase 结构和训练逻辑进行了全面分析，并维护了 ‘MIHD’ 的开发文档。\nTasks Architecture \u0026 Strategy ✅ AdaptVision Codebase Analysis — 梳理了 AdaptVision 项目的整个训练和评估流程，识别了用于带有 multi-turn crop calls 的 PPO 训练的关键模块。 Implementation \u0026 Fixes ✅ MIHD Documentation Audit — 评估了 MIHD 现有的 CLAUDE.md，以确定是否需要根据当前的 code structure 和 conventions 进行更新。 Problems \u0026 Solutions Critical Issues 1. 在 AI 分析日志中发现 AdaptVision 的 README.md 存在 hardcoded API keys。 解决方案: 已记录以便立即修复。AI 指出 keys 在输出中可见，建议将其移除并替换为 environment variable placeholders 或使用 .env 文件方法。\n关键洞察: 如果提示 AI 检查特定文件（如 README），AI 可以成功检测到安全泄漏，但在 CI/CD 中预先进行过滤是更优的选择。\nGeneral Issues 2. 命令 ‘rg’ (ripgrep) 在 tianhe 设备上执行失败，报错 ‘bwrap: Failed to make / slave: Permission denied’ 并受到环境限制。 解决方案: 放弃使用 ripgrep，转而使用 find、sed 和 grep 等标准 POSIX 工具。使用 sed 手动分块读取文件，以绕过 output token 限制或命令失败问题。\n关键洞察: AI assistant 可能会默认使用 rg 等高效工具；当这些工具在受限的 HPC 环境中失效时，人类必须引导其回退到稳健但冗长的标准 shell 工具。\nHuman vs AI Approaches Strategic Level Complex PPO Reward Logic Interpretation 角色 方法 用户 Human 请求对 reward structure 进行翻译，特别询问 ’turn_level’ 与 ‘outcome_level’ 指标在最终 PPO update 中是如何加权的。 AI 助手 AI 从 RayPPObboxTrainer 追踪到 DTPO advantage calculation，并明确定义了数学上的分离：用于 answer accuracy/format 的 outcome_score 和用于 tool usage/area penalty 的 turn_score。 差异分析: AI 在此处的优势是遍历大型文件以查找函数定义，但人类提供了驱动分析方向的具体上下文（DTPO 算法的需求）。AI 正确识别了公式：advantage = outcome_level_scores - beta * kld - alpha * turn_metric。\nImplementation Level Tooling Adaptation in HPC Environment 角色 方法 用户 Human 指示 AI 分析 code structure。 AI 助手 AI 最初尝试使用 ‘rg’ 和 ‘bwrap’ sandbox 命令但失败了。Human 没有明确纠正命令选择，而是等待 AI 在失败后自我纠正为 ‘find’/‘sed’，或者隐式接受了这种 workaround。 差异分析: N/A\nAI Limitations General Limitations AI 尝试在缺乏权限的 tianhe 设备上使用 ‘rg’ 和 sandboxed environments (bwrap)，导致在回退到基础工具之前出现了初始的工具执行失败。 AI 识别出了 README.md 文件中 hardcoded 的 API keys，但没有自主将其移除；需要通过分析输出突出这一漏洞，以便人类采取行动。 Learnings Key Learnings 在复杂的 custom RL training loops（如 AdaptVision）中，reward engineering 逻辑通常分布在多个 utility files 中 (reward_score vs trainer)。追踪数据流比单纯阅读 config 更有效。 Practical Learnings 现有的文档（如 CLAUDE.md）可能出乎意料地全面；审计它只需几分钟即可确认其稳定性，从而防止在不必要的生成工作上浪费精力。 Conversation Summaries AdaptVision ✅ AdaptVision PPO \u0026 Reward Logic Deep Dive 10:38:12.696 | codex 在 Tianhe HPC 设备上分析了 AdaptVision 仓库结构。基于 verl 追踪了 custom VLM training pipeline。特别检查了 ray_trainer_bbox.py 以理解 RayPPObboxTrainer，以及 general_qa_bbox.py 以理解涉及 accuracy、format、area penalty 和 bbox relevance 的 reward calculation 逻辑。讨论了 DTPO 算法中 outcome-level（最终答案）和 turn-level（工具使用）advantages 的分离。\n✅ Repository Structure \u0026 vLLM Rollout Flow 09:20:15.153 | codex 对 AdaptVision codebase 进行初步的广泛分析。尝试使用 ‘rg’ (ripgrep) 但因 sandbox/permission 问题失败。转向使用 find/sed/grep 来列出文件并读取核心模块，如 vLLMRollout_MultiTurn_CropCall 和 MultiModalDataset。将 README.md 中的 hardcoded API keys 识别为安全问题。\nMIHD**✅ MIHD Documentation Audit** 14:49:01.530 | claude_code 用户请求对 MIHD 项目现有的 CLAUDE.md 文件进行审计。AI 读取了该文件，检查了相关文件（README, pipeline config），并评估了其完整性。结论认为这 347 行的文档非常出色，并且已经涵盖了所有必要的架构细节，无需进行改进。\nToken Usage AI Usage · 2026-05-08\rCodex\rTotal cost$6.17\rTotal tokens6M\rOutput tokens44K\rCache read90.8%\rToken character\rCache reads 90.8% ·\rActive 9.2%\rMost token volume came from cache reads.\r",
+  "wordCount" : "508",
   "inLanguage": "zh",
   "datePublished": "2026-05-08T00:00:00-04:00",
   "dateModified": "2026-05-08T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -255,17 +255,17 @@
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>Human 请求对 reward structure 进行翻译，特别询问 &rsquo;turn_level&rsquo; 与 &lsquo;outcome_level&rsquo; 指标在最终 PPO update 中是如何加权的。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 从 RayPPObboxTrainer 追踪到 DTPO advantage calculation，并明确定义了数学上的分离：用于 answer accuracy/format 的 outcome_score 和用于 tool usage/area penalty 的 turn_score。</td>
       </tr>
   </tbody>
@@ -276,17 +276,17 @@
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>Human 指示 AI 分析 code structure。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 最初尝试使用 &lsquo;rg&rsquo; 和 &lsquo;bwrap&rsquo; sandbox 命令但失败了。Human 没有明确纠正命令选择，而是等待 AI 在失败后自我纠正为 &lsquo;find&rsquo;/&lsquo;sed&rsquo;，或者隐式接受了这种 workaround。</td>
       </tr>
   </tbody>

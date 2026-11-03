@@ -10,7 +10,7 @@
 <meta name="description" content="诊断并修复了 RTX 5090 PCIe crash，开发了 gadget toolkit 文档，解决了 TokenMonitor 中的多个 TypeScript/Rust bugs，并发布了包含 upstream conflict resolution 的 v0.13.0 版本">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-05-05/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-05-05 Daily Overview 完成工作： 诊断了 HP OMEN RTX 5090 蓝屏崩溃问题，生成了 Python toolkit 技术文档，修复了多个 TokenMonitor bug（Svelte 标签不匹配、Rust 测试 race condition、Codex credits 显示问题、CI formatting），向 upstream maintainer 沟通了架构解决方案，并发布了 v0.13.0 工作方式： 分析 Windows event logs 以精准定位 PCIe power-state 根本原因，通过 MCP tools 探索 codebase 结构，通过针对性编辑和 race-condition 分析修复了 Svelte/Rust bugs，应用了 auto-formatting，并在详尽的 PR comment 中记录了 merge strategy 影响： 消除了系统崩溃风险（将 WHEA errors 从每天数十次降低至 2 次 boot-time events），完成了项目文档，提升了 TokenMonitor UI 准确性和 CI 可靠性，维持了 upstream fork 关系，并发布了集成 statusline 的 stable release 诊断并修复了 RTX 5090 PCIe crash，开发了 gadget toolkit 文档，解决了 TokenMonitor 中的多个 TypeScript/Rust bugs，并完成了包含 upstream conflict resolution 的 v0.13.0 发布\nTasks Architecture \u0026 Strategy ✅ 诊断 HP OMEN 45L (RTX 5090) 上的 Windows BSOD crashes — 调查了 3 次蓝屏（0xA IRQL_NOT_LESS_OR_EQUAL, 0x133 DPC_WATCHDOG_VIOLATION）和 1010 次 WHEA PCIe errors，确定 NVIDIA driver Gen5↔Gen1 link-state switching 为根本原因，并应用了修复方案（NVIDIA Power Management → Prefer Maximum Performance） ✅ 打 tag 并发布 v0.13.0 release — 在 commit 004d3f6 上创建了 v0.13.0 tag 并 push 到 TzJ2006/TokenMonitor，触发了 release workflow ✅ 向 upstream maintainer 编写 PR comment 以解释架构解决方案 — 在 PR #16 中记录了 statusline rewrite 和 OAuth/Keychain removal 的冲突已合并，且 Codex/Cursor rate limits 不依赖于已移除的 pipeline ✅ 修复 Codex credits 显示单位 bug — 将 UsageBars.svelte:234 从 formatUsdAmount() 改为带有 ‘credits’ 后缀的整数格式，因为 Codex 使用的是 credits 而非 USD ✅ 修复 Rust CI test failure 和 compiler warnings — 解决了 oauth_token_prefers_credentials_file_on_macos 的 race condition（不同 test modules 对 CLAUDE_CONFIG_DIR 使用了不同的 mutex locks），移除了 unused import，抑制了 dead_code warning，并修复了 cargo fmt import ordering ✅ 验证 SSH remote deduplication logic 实现 — 确认了两层 deduplication：remote Python script 使用由 message_id:requestId 组成的 ‘seen’ set，local cache 在 append 前使用 HashSet Implementation \u0026 Fixes ✅ 生成 gadget project 技术概览 — 创建了包含 6 个章节的论文风格文档，涵盖 Python 3.10+ toolkit (summarize/research/benchmark/website)、共享的 common/ infrastructure、两阶段 LLM pipeline 以及 Hugo deployment workflow ✅ 修复 Svelte HiddenModelsSettings.svelte closing tag mismatch — 移除了第 151 行导致 Vite pre-transform error 的多余 ，并验证没有其他可能裁剪内容的硬编码 max-height 约束 ✅ 修复 cargo fmt CI formatting failures — 在 tray.rs, usage_query.rs, mod.rs 上运行 cargo fmt，以解决 vec! macro 和 whitespace 中的格式违规问题 Problems \u0026 Solutions Critical Issues 1. NVIDIA RTX 5090 在 5 个月内产生了 1010 次 WHEA PCIe AER Unsupported Request errors，导致间歇性蓝屏。错误集中在 idle 期间和 boot-time，而非 GPU stress tests 期间。 Solution: 确定根本原因为 NVIDIA driver 的 PCIe link-state power management（idle 时从 Gen5 → Gen1 下降）。在重新协商过程中，GPU 在地址空间完全恢复前发送了 memory-mapped I/O 请求，从而触发 UR。通过设置 NVIDIA Control Panel → Power Management Mode → Prefer Maximum Performance 修复。验证修复效果：重启后 19 分钟运行期间零新错误，仅有 2 次 boot-time errors（硬件初始化，不可避免）。同时解决了 5 秒 HDMI audio delay 问题（相同根本原因：audio controller D3cold sleep）。\nKey Insight: Windows ASPM Off 设置仅影响 OS 级别的 PCIe power policy；NVIDIA driver 和 BIOS 仍可独立进行 link-state switching。WHEA 中的 ‘corrected error’ 标识掩盖了严重性——累积的 UR errors 最终会使 driver state 失稳并触发 kernel bugchecks。社区研究确认这是多个主板厂商中已知的 RTX 5090 + PCIe Gen5 兼容性问题。\n2. Upstream maintainer 担心 statusline rewrite 和 OAuth/Keychain removal 带来的架构冲突会影响 Codex/Cursor rate limits Solution: 记录了冲突已通过 merge commits f6e0982 和 4492d2f 解决，Codex 使用 CLI scraping（而非 OAuth），Cursor 不需要 keychain prompts\nKey Insight: 通过显式的 feature restoration commits 进行增量 merge 策略，可以在采用 upstream 架构变更的同时保留 downstream 的创新\n3. Codex credits balance 显示为 USD ($2,116.02) 而非 credits 单位，导致用户困惑 Solution: 在 UsageBars.svelte 中将 formatUsdAmount() 替换为 Math.round().toLocaleString() + ’ credits’ 后缀；确认修复不会影响 Cursor 的 extra_usage（后者正确使用 USD）\nKey Insight: 多 provider 系统需要针对每个 provider 进行单位处理 —— Codex 使用 ‘credits’，Cursor 使用 USD；不能假设所有 provider 之间具有统一的货币格式\n4. Rust test oauth_token_prefers_credentials_file_on_macos 在 CI 中失败，报错 ‘Claude credentials file unavailable (/var/folders/…/tmp/.claude/.credentials.json)’。测试将文件写入 tmp/.credentials.json，但 lookup 解析为 tmp/.claude/.credentials.json，表明 CLAUDE_CONFIG_DIR env var 未被遵循。 Solution: 根本原因：rate_limits/claude.rs 和 statusline/install.rs 的测试使用了不同的 mutex locks (ENV_LOCK vs. env_lock()) 来保护 CLAUDE_CONFIG_DIR 的操作。并行测试执行导致 statusline 测试覆盖了 claude 测试的 env value。通过将测试改为直接调用 read_token_from_credentials_file() 而非 get_claude_oauth_token() 来修复，从而消除了对 env var resolution 和 macOS keychain fallback 复杂性的依赖。同时修复了未使用的 import ‘Local’（test module 单独重新导入了它）以及 claude_settings_file 的 dead_code warning（将 #[cfg_attr(not(test), allow(dead_code))] 改为无条件的 #[allow(dead_code)]）。\nKey Insight: 并行测试中对 environment variable 的不安全操作需要一个在所有 test modules 之间共享的单一 global lock —— 局部的 per-module locks 会产生虚假的安全感。当 test submodule 使用 super::* 然后又重新导入相同的 item 时，#[cfg(test)] imports 可能会混淆 rustc。cargo fmt 要求 #[cfg(test)] imports 排序在 regular imports 之后。\nGeneral Issues 5. CI cargo fmt check 因格式违规（vec! macro line breaks, trailing whitespace）在 3 个 Rust 文件上失败 Solution: 运行 cargo fmt 进行自动修复，并作为 004d3f6 提交Key Insight: 自动化的格式强制执行可以及早发现风格不一致问题并保持 codebase 的一致性\nHuman vs AI Approaches Strategic Level PCIe ‘Memory Read Request’ error interpretation Role Approach Human 用户质疑 ‘GPU memory read request failure’ 是否表示 RAM sticks 损坏而非 GPU/PCIe 问题，正确识别了术语中的潜在歧义。 AI AI 最初使用缩写 ‘memory read’ 而未澄清 MMIO 与 physical memory 的区别，需要用户提示才能解释 PCIe Memory Read 针对的是 memory-mapped I/O address space (GPU BAR regions) 而非 system DRAM。 Difference Analysis: 用户通过挑战术语展示了领域知识；AI 则假设双方对 PCIe address spaces 有共同理解。用户的提问迫使 AI 提供更精确的技术解释，并展示了 GPU ↔ Root Complex 通信的图表。\nVerification approach for PCIe error diagnosis Role Approach Human 用户主动运行 GPU stress test 以检查在负载下是否会发生错误，随后报告 ’no new WHEA errors during test’——在 AI 建议正式验证步骤之前，通过经验验证了 idle-state switching 假设。 AI AI 最初推荐了诊断序列 (DDU driver reinstall → BIOS PCIe Gen4 downgrade → hardware reseating)，但尚未提出将 stress testing 作为一种诊断工具。 Difference Analysis: 用户应用科学方法（通过受控实验隔离变量）的速度快于 AI 的系统化 troubleshooting checklist。这加速了 root-cause 的确认并避免了不必要的硬件干预。\nCodex credits unit verification Role Approach Human 根据领域知识识别出 Codex 使用的是 ‘credits’ 而非 USD，建议 assistant 查阅 online documentation AI 仅分析代码模式，依赖 type definitions 和现有用法，未进行外部验证 Difference Analysis: Human 带来了关于 Codex API conventions 的外部领域知识；尽管得到了建议，AI 最初仍将搜索范围局限于 codebase 而未咨询外部文档。\nImplementation Level Locating PR #16 on GitHub Role Approach Human 最初说 ‘michaelovo’，在 AI 难以处理 repository name 变体后提供了完整 URL AI 在向用户请求澄清之前，系统地尝试了 michaelovo, Michael-OvO, movo-ai 等变体 Difference Analysis: Human 拥有确切知识但初始指令缺乏精确度（大小写敏感性、username 格式）；AI 在请求明确的 URL 之前耗尽了系统化的搜索模式。\nAI Limitations Critical Limitations 最初的诊断基于 WHEA corrected error 的存在，称其为 ‘PCIe signal quality problem’（暗示物理层的 Bad TLP/DLLP errors）。在用户对此提出质疑后（指出 PCIe x16 link 已确认且无 signal errors），AI 解析了 AER register 数据并将其修正为 ‘Unsupported Request—a logical/configuration error, not physical.’ 诊断置信度从 70% → 90% 得到提升，但初始的定性过于草率。 由于 bash extglob expansion 吞掉了 $_ 变量（例如 ’extglob.TimeCreated’ 错误），PowerShell command execution 反复失败。在找到稳定的语法之前，需要使用不同的 quoting/heredoc 策略进行多次重试。这种脆弱性表明 tool layer 需要更好的 PowerShell encapsulation。 当用户建议检查时，未在线验证 Codex API documentation，尽管外部信息是可用的，但仍仅依赖代码分析。 General Limitations 在修复 Rust test race condition 和 warnings 后，推送了 commit 但未运行 cargo fmt。CI 立即因 import ordering 失败。需要第二次 commit (ce63b8b) 来修复 #[cfg(test)] 的位置。本应应用标准的 pre-push checklist (fmt + clippy)。 由于大小写敏感性 (michaelovo vs Michael-OvO)，在解析 GitHub repository 时遇到困难，在尝试多种变体后需要用户提供明确的 URL。 在自动 context compaction 后需要用户多次进行 continuation prompts，表明丢失了 conversation state awareness。 Learnings Key Learnings PCIe Advanced Error Reporting ‘Unsupported Request’ 可能由 NVIDIA driver 在 idle 期间自动进行的 Gen5↔Gen1 link-state power management 触发。Windows powercfg ASPM setting (Link State Power Management) 仅控制 OS-level policy；GPU driver firmware 和 BIOS 会独立管理 PCIe L-states。RTX 5090 + PCIe Gen5 存在已知的兼容性问题，在 GPU 尝试在转换过程中访问 memory-mapped address space 时，会导致 re-negotiation 期间出现 UR errors。社区验证的修复方法：强制设置为 ‘Prefer Maximum Performance’ 或在 BIOS 中锁定 PCIe Gen4。 多供应商的 rate limiting systems 需要仔细处理每个供应商的 unit —— 如果供应商使用不同的单位（Codex ‘credits’ vs Cursor USD），假设统一的货币格式将会失效。 Fork maintenance strategy：通过显式的 feature restoration commits 增量合并 upstream 的架构变更，并主动记录 conflicts 以维护与 upstream 的关系。 带有 environment variable manipulation 的 Rust parallel test suite 需要一个跨所有 test modules 共享的 single global mutex——每个 module 的 local locks（module A 中的 static ENV_LOCK，module B 中的独立 env_lock()）在两者同时修改相同的 env vars 时会产生 race conditions。import 上的 #[cfg(test)] 属性如果在使用 ‘use super::*’ 的 test submodule 中冗余地导入了相同项目，可能会导致 ‘unused’ warnings。cargo fmt 强制要求 conditional imports (#[cfg(test)]) 在 unconditional imports 之后排序。 两层 deduplication（remote Python script + local HashSet）能有效防止在多个设备向 shared storage 追加数据的 distributed log aggregation systems 中出现重复记录。 Conversation Summaries Windows System Diagnostics ✅ HP OMEN 45L RTX 5090 blue-screen crash analysis 04:18:02.232 | claude_code 在 5 个月内诊断了 3 次 BSOD events (0xA, 0x133) 和 1010 次 WHEA PCIe errors。分析了 Windows Event Viewer logs、WHEA AER register data (UncorrectableErrorStatus 0x100000 = Unsupported Request)。确定 root cause 为 NVIDIA driver 在 idle 期间的 PCIe Gen5↔Gen1 power-state switching。用户运行了 stress test，验证错误仅在 idle/boot 时发生，而非负载下。应用了修复方案 (NVIDIA Power Management → Maximum Performance)。重启后验证：运行时零错误，仅有 2 次 boot-time events（符合预期）。同时解决了相关的 5 秒 YouTube 音频延迟问题 (HDMI audio controller D3cold sleep)。\nTokenMonitor**✅ 多项 bug 修复、CI formatting、upstream 通信、v0.13.0 release** 22:22:07.043 | claude_code 验证了 SSH deduplication 逻辑（两层：remote Python seen set + local HashSet）。通过将 USD 格式替换为 ‘credits’ 单位，修复了 Codex credits 显示 bug。修复了 Svelte HiddenModelsSettings.svelte closing tag 不匹配问题（删除了第 151 行多余的 ）。解决了 Rust CI test race condition (oauth_token_prefers_credentials_file_on_macos)：将测试改为直接调用 read_token_from_credentials_file()，绕过了 env var/keychain 的复杂性。修复了 cargo fmt 违规问题（import ordering, whitespace）。向 upstream maintainer 撰写了详尽的 PR comment，说明 statusline rewrite 和 OAuth/Keychain removal 的冲突已通过 merge commits 解决，且 Codex/Cursor rate limits 不受影响。标记并推送了 v0.13.0 release。\nGadget Python Toolkit ✅ 生成 paper-style 技术概览文档 01:19:19.004 | claude_code 使用 /code-summarize skill 通过 MCP hex-line tools 探索 gadget 项目结构。读取了 pyproject.toml、README 以及关键模块 (common/llm.py, translation.py, cache.py, sync.py, summarize/auto.py, research/scout/, benchmark/cli.py)。生成了包含 6 个章节的文档：Highlights（关于 two-phase LLM pipeline、SHA-256 caching、rclone sync 的 5 个要点）、Introduction（问题/解决方案/背景）、Architecture（目录树 + data flow diagram + 关键抽象表）、Implementation（LLM backends、TranslationEngine、DiskCache 的代码片段）、Results（实际使用统计数据）、Conclusion（未来工作）。\nToken Usage AI Usage · 2026-05-05\rClaude Code + Codex\rTotal cost$454.98\rTotal tokens496M\rOutput tokens3M\rCache read93.5%\rCost split\rClaude Code $240 ·\rCodex $215\rToken character\rCache reads 93.5% ·\rActive 6.5%\rMost token volume came from cache reads.\r",
-  "wordCount" : "1299",
+  "articleBody": "Daily Report — 2026-05-05 Daily Overview 完成工作： 诊断了 HP OMEN RTX 5090 蓝屏崩溃问题，生成了 Python toolkit 技术文档，修复了多个 TokenMonitor bug（Svelte 标签不匹配、Rust 测试 race condition、Codex credits 显示问题、CI formatting），向 upstream maintainer 沟通了架构解决方案，并发布了 v0.13.0 工作方式： 分析 Windows event logs 以精准定位 PCIe power-state 根本原因，通过 MCP tools 探索 codebase 结构，通过针对性编辑和 race-condition 分析修复了 Svelte/Rust bugs，应用了 auto-formatting，并在详尽的 PR comment 中记录了 merge strategy 影响： 消除了系统崩溃风险（将 WHEA errors 从每天数十次降低至 2 次 boot-time events），完成了项目文档，提升了 TokenMonitor UI 准确性和 CI 可靠性，维持了 upstream fork 关系，并发布了集成 statusline 的 stable release 诊断并修复了 RTX 5090 PCIe crash，开发了 gadget toolkit 文档，解决了 TokenMonitor 中的多个 TypeScript/Rust bugs，并完成了包含 upstream conflict resolution 的 v0.13.0 发布\nTasks Architecture \u0026 Strategy ✅ 诊断 HP OMEN 45L (RTX 5090) 上的 Windows BSOD crashes — 调查了 3 次蓝屏（0xA IRQL_NOT_LESS_OR_EQUAL, 0x133 DPC_WATCHDOG_VIOLATION）和 1010 次 WHEA PCIe errors，确定 NVIDIA driver Gen5↔Gen1 link-state switching 为根本原因，并应用了修复方案（NVIDIA Power Management → Prefer Maximum Performance） ✅ 打 tag 并发布 v0.13.0 release — 在 commit 004d3f6 上创建了 v0.13.0 tag 并 push 到 TzJ2006/TokenMonitor，触发了 release workflow ✅ 向 upstream maintainer 编写 PR comment 以解释架构解决方案 — 在 PR #16 中记录了 statusline rewrite 和 OAuth/Keychain removal 的冲突已合并，且 Codex/Cursor rate limits 不依赖于已移除的 pipeline ✅ 修复 Codex credits 显示单位 bug — 将 UsageBars.svelte:234 从 formatUsdAmount() 改为带有 ‘credits’ 后缀的整数格式，因为 Codex 使用的是 credits 而非 USD ✅ 修复 Rust CI test failure 和 compiler warnings — 解决了 oauth_token_prefers_credentials_file_on_macos 的 race condition（不同 test modules 对 CLAUDE_CONFIG_DIR 使用了不同的 mutex locks），移除了 unused import，抑制了 dead_code warning，并修复了 cargo fmt import ordering ✅ 验证 SSH remote deduplication logic 实现 — 确认了两层 deduplication：remote Python script 使用由 message_id:requestId 组成的 ‘seen’ set，local cache 在 append 前使用 HashSet Implementation \u0026 Fixes ✅ 生成 gadget project 技术概览 — 创建了包含 6 个章节的论文风格文档，涵盖 Python 3.10+ toolkit (summarize/research/benchmark/website)、共享的 common/ infrastructure、两阶段 LLM pipeline 以及 Hugo deployment workflow ✅ 修复 Svelte HiddenModelsSettings.svelte closing tag mismatch — 移除了第 151 行导致 Vite pre-transform error 的多余 ，并验证没有其他可能裁剪内容的硬编码 max-height 约束 ✅ 修复 cargo fmt CI formatting failures — 在 tray.rs, usage_query.rs, mod.rs 上运行 cargo fmt，以解决 vec! macro 和 whitespace 中的格式违规问题 Problems \u0026 Solutions Critical Issues 1. NVIDIA RTX 5090 在 5 个月内产生了 1010 次 WHEA PCIe AER Unsupported Request errors，导致间歇性蓝屏。错误集中在 idle 期间和 boot-time，而非 GPU stress tests 期间。 Solution: 确定根本原因为 NVIDIA driver 的 PCIe link-state power management（idle 时从 Gen5 → Gen1 下降）。在重新协商过程中，GPU 在地址空间完全恢复前发送了 memory-mapped I/O 请求，从而触发 UR。通过设置 NVIDIA Control Panel → Power Management Mode → Prefer Maximum Performance 修复。验证修复效果：重启后 19 分钟运行期间零新错误，仅有 2 次 boot-time errors（硬件初始化，不可避免）。同时解决了 5 秒 HDMI audio delay 问题（相同根本原因：audio controller D3cold sleep）。\n关键发现： Windows ASPM Off 设置仅影响 OS 级别的 PCIe power policy；NVIDIA driver 和 BIOS 仍可独立进行 link-state switching。WHEA 中的 ‘corrected error’ 标识掩盖了严重性——累积的 UR errors 最终会使 driver state 失稳并触发 kernel bugchecks。社区研究确认这是多个主板厂商中已知的 RTX 5090 + PCIe Gen5 兼容性问题。\n2. Upstream maintainer 担心 statusline rewrite 和 OAuth/Keychain removal 带来的架构冲突会影响 Codex/Cursor rate limits Solution: 记录了冲突已通过 merge commits f6e0982 和 4492d2f 解决，Codex 使用 CLI scraping（而非 OAuth），Cursor 不需要 keychain prompts\n关键发现： 通过显式的 feature restoration commits 进行增量 merge 策略，可以在采用 upstream 架构变更的同时保留 downstream 的创新\n3. Codex credits balance 显示为 USD ($2,116.02) 而非 credits 单位，导致用户困惑 Solution: 在 UsageBars.svelte 中将 formatUsdAmount() 替换为 Math.round().toLocaleString() + ’ credits’ 后缀；确认修复不会影响 Cursor 的 extra_usage（后者正确使用 USD）\n关键发现： 多 provider 系统需要针对每个 provider 进行单位处理 —— Codex 使用 ‘credits’，Cursor 使用 USD；不能假设所有 provider 之间具有统一的货币格式\n4. Rust test oauth_token_prefers_credentials_file_on_macos 在 CI 中失败，报错 ‘Claude credentials file unavailable (/var/folders/…/tmp/.claude/.credentials.json)’。测试将文件写入 tmp/.credentials.json，但 lookup 解析为 tmp/.claude/.credentials.json，表明 CLAUDE_CONFIG_DIR env var 未被遵循。 Solution: 根本原因：rate_limits/claude.rs 和 statusline/install.rs 的测试使用了不同的 mutex locks (ENV_LOCK vs. env_lock()) 来保护 CLAUDE_CONFIG_DIR 的操作。并行测试执行导致 statusline 测试覆盖了 claude 测试的 env value。通过将测试改为直接调用 read_token_from_credentials_file() 而非 get_claude_oauth_token() 来修复，从而消除了对 env var resolution 和 macOS keychain fallback 复杂性的依赖。同时修复了未使用的 import ‘Local’（test module 单独重新导入了它）以及 claude_settings_file 的 dead_code warning（将 #[cfg_attr(not(test), allow(dead_code))] 改为无条件的 #[allow(dead_code)]）。\n关键发现： 并行测试中对 environment variable 的不安全操作需要一个在所有 test modules 之间共享的单一 global lock —— 局部的 per-module locks 会产生虚假的安全感。当 test submodule 使用 super::* 然后又重新导入相同的 item 时，#[cfg(test)] imports 可能会混淆 rustc。cargo fmt 要求 #[cfg(test)] imports 排序在 regular imports 之后。\nGeneral Issues 5. CI cargo fmt check 因格式违规（vec! macro line breaks, trailing whitespace）在 3 个 Rust 文件上失败 Solution: 运行 cargo fmt 进行自动修复，并作为 004d3f6 提交关键发现： 自动化的格式强制执行可以及早发现风格不一致问题并保持 codebase 的一致性\nHuman vs AI Approaches Strategic Level PCIe ‘Memory Read Request’ error interpretation 角色 方法 用户 用户质疑 ‘GPU memory read request failure’ 是否表示 RAM sticks 损坏而非 GPU/PCIe 问题，正确识别了术语中的潜在歧义。 AI 助手 AI 最初使用缩写 ‘memory read’ 而未澄清 MMIO 与 physical memory 的区别，需要用户提示才能解释 PCIe Memory Read 针对的是 memory-mapped I/O address space (GPU BAR regions) 而非 system DRAM。 差异分析： 用户通过挑战术语展示了领域知识；AI 则假设双方对 PCIe address spaces 有共同理解。用户的提问迫使 AI 提供更精确的技术解释，并展示了 GPU ↔ Root Complex 通信的图表。\nVerification approach for PCIe error diagnosis 角色 方法 用户 用户主动运行 GPU stress test 以检查在负载下是否会发生错误，随后报告 ’no new WHEA errors during test’——在 AI 建议正式验证步骤之前，通过经验验证了 idle-state switching 假设。 AI 助手 AI 最初推荐了诊断序列 (DDU driver reinstall → BIOS PCIe Gen4 downgrade → hardware reseating)，但尚未提出将 stress testing 作为一种诊断工具。 差异分析： 用户应用科学方法（通过受控实验隔离变量）的速度快于 AI 的系统化 troubleshooting checklist。这加速了 root-cause 的确认并避免了不必要的硬件干预。\nCodex credits unit verification 角色 方法 用户 根据领域知识识别出 Codex 使用的是 ‘credits’ 而非 USD，建议 assistant 查阅 online documentation AI 助手 仅分析代码模式，依赖 type definitions 和现有用法，未进行外部验证 差异分析： Human 带来了关于 Codex API conventions 的外部领域知识；尽管得到了建议，AI 最初仍将搜索范围局限于 codebase 而未咨询外部文档。\nImplementation Level Locating PR #16 on GitHub 角色 方法 用户 最初说 ‘michaelovo’，在 AI 难以处理 repository name 变体后提供了完整 URL AI 助手 在向用户请求澄清之前，系统地尝试了 michaelovo, Michael-OvO, movo-ai 等变体 差异分析： Human 拥有确切知识但初始指令缺乏精确度（大小写敏感性、username 格式）；AI 在请求明确的 URL 之前耗尽了系统化的搜索模式。\nAI Limitations Critical Limitations 最初的诊断基于 WHEA corrected error 的存在，称其为 ‘PCIe signal quality problem’（暗示物理层的 Bad TLP/DLLP errors）。在用户对此提出质疑后（指出 PCIe x16 link 已确认且无 signal errors），AI 解析了 AER register 数据并将其修正为 ‘Unsupported Request—a logical/configuration error, not physical.’ 诊断置信度从 70% → 90% 得到提升，但初始的定性过于草率。 由于 bash extglob expansion 吞掉了 $_ 变量（例如 ’extglob.TimeCreated’ 错误），PowerShell command execution 反复失败。在找到稳定的语法之前，需要使用不同的 quoting/heredoc 策略进行多次重试。这种脆弱性表明 tool layer 需要更好的 PowerShell encapsulation。 当用户建议检查时，未在线验证 Codex API documentation，尽管外部信息是可用的，但仍仅依赖代码分析。 General Limitations 在修复 Rust test race condition 和 warnings 后，推送了 commit 但未运行 cargo fmt。CI 立即因 import ordering 失败。需要第二次 commit (ce63b8b) 来修复 #[cfg(test)] 的位置。本应应用标准的 pre-push checklist (fmt + clippy)。 由于大小写敏感性 (michaelovo vs Michael-OvO)，在解析 GitHub repository 时遇到困难，在尝试多种变体后需要用户提供明确的 URL。 在自动 context compaction 后需要用户多次进行 continuation prompts，表明丢失了 conversation state awareness。 Learnings Key Learnings PCIe Advanced Error Reporting ‘Unsupported Request’ 可能由 NVIDIA driver 在 idle 期间自动进行的 Gen5↔Gen1 link-state power management 触发。Windows powercfg ASPM setting (Link State Power Management) 仅控制 OS-level policy；GPU driver firmware 和 BIOS 会独立管理 PCIe L-states。RTX 5090 + PCIe Gen5 存在已知的兼容性问题，在 GPU 尝试在转换过程中访问 memory-mapped address space 时，会导致 re-negotiation 期间出现 UR errors。社区验证的修复方法：强制设置为 ‘Prefer Maximum Performance’ 或在 BIOS 中锁定 PCIe Gen4。 多供应商的 rate limiting systems 需要仔细处理每个供应商的 unit —— 如果供应商使用不同的单位（Codex ‘credits’ vs Cursor USD），假设统一的货币格式将会失效。 Fork maintenance strategy：通过显式的 feature restoration commits 增量合并 upstream 的架构变更，并主动记录 conflicts 以维护与 upstream 的关系。 带有 environment variable manipulation 的 Rust parallel test suite 需要一个跨所有 test modules 共享的 single global mutex——每个 module 的 local locks（module A 中的 static ENV_LOCK，module B 中的独立 env_lock()）在两者同时修改相同的 env vars 时会产生 race conditions。import 上的 #[cfg(test)] 属性如果在使用 ‘use super::*’ 的 test submodule 中冗余地导入了相同项目，可能会导致 ‘unused’ warnings。cargo fmt 强制要求 conditional imports (#[cfg(test)]) 在 unconditional imports 之后排序。 两层 deduplication（remote Python script + local HashSet）能有效防止在多个设备向 shared storage 追加数据的 distributed log aggregation systems 中出现重复记录。 Conversation Summaries Windows System Diagnostics ✅ HP OMEN 45L RTX 5090 blue-screen crash analysis 04:18:02.232 | claude_code 在 5 个月内诊断了 3 次 BSOD events (0xA, 0x133) 和 1010 次 WHEA PCIe errors。分析了 Windows Event Viewer logs、WHEA AER register data (UncorrectableErrorStatus 0x100000 = Unsupported Request)。确定 root cause 为 NVIDIA driver 在 idle 期间的 PCIe Gen5↔Gen1 power-state switching。用户运行了 stress test，验证错误仅在 idle/boot 时发生，而非负载下。应用了修复方案 (NVIDIA Power Management → Maximum Performance)。重启后验证：运行时零错误，仅有 2 次 boot-time events（符合预期）。同时解决了相关的 5 秒 YouTube 音频延迟问题 (HDMI audio controller D3cold sleep)。\nTokenMonitor**✅ 多项 bug 修复、CI formatting、upstream 通信、v0.13.0 release** 22:22:07.043 | claude_code 验证了 SSH deduplication 逻辑（两层：remote Python seen set + local HashSet）。通过将 USD 格式替换为 ‘credits’ 单位，修复了 Codex credits 显示 bug。修复了 Svelte HiddenModelsSettings.svelte closing tag 不匹配问题（删除了第 151 行多余的 ）。解决了 Rust CI test race condition (oauth_token_prefers_credentials_file_on_macos)：将测试改为直接调用 read_token_from_credentials_file()，绕过了 env var/keychain 的复杂性。修复了 cargo fmt 违规问题（import ordering, whitespace）。向 upstream maintainer 撰写了详尽的 PR comment，说明 statusline rewrite 和 OAuth/Keychain removal 的冲突已通过 merge commits 解决，且 Codex/Cursor rate limits 不受影响。标记并推送了 v0.13.0 release。\nGadget Python Toolkit ✅ 生成 paper-style 技术概览文档 01:19:19.004 | claude_code 使用 /code-summarize skill 通过 MCP hex-line tools 探索 gadget 项目结构。读取了 pyproject.toml、README 以及关键模块 (common/llm.py, translation.py, cache.py, sync.py, summarize/auto.py, research/scout/, benchmark/cli.py)。生成了包含 6 个章节的文档：Highlights（关于 two-phase LLM pipeline、SHA-256 caching、rclone sync 的 5 个要点）、Introduction（问题/解决方案/背景）、Architecture（目录树 + data flow diagram + 关键抽象表）、Implementation（LLM backends、TranslationEngine、DiskCache 的代码片段）、Results（实际使用统计数据）、Conclusion（未来工作）。\nToken Usage AI Usage · 2026-05-05\rClaude Code + Codex\rTotal cost$454.98\rTotal tokens496M\rOutput tokens3M\rCache read93.5%\rCost split\rClaude Code $240 ·\rCodex $215\rToken character\rCache reads 93.5% ·\rActive 6.5%\rMost token volume came from cache reads.\r",
+  "wordCount" : "1294",
   "inLanguage": "zh",
   "datePublished": "2026-05-05T00:00:00-04:00",
   "dateModified": "2026-05-05T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -239,102 +239,102 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-nvidia-rtx-5090-在-5-个月内产生了-1010-次-whea-pcie-aer-unsupported-request-errors导致间歇性蓝屏错误集中在-idle-期间和-boot-time而非-gpu-stress-tests-期间">1. NVIDIA RTX 5090 在 5 个月内产生了 1010 次 WHEA PCIe AER Unsupported Request errors，导致间歇性蓝屏。错误集中在 idle 期间和 boot-time，而非 GPU stress tests 期间。<a hidden class="anchor" aria-hidden="true" href="#1-nvidia-rtx-5090-在-5-个月内产生了-1010-次-whea-pcie-aer-unsupported-request-errors导致间歇性蓝屏错误集中在-idle-期间和-boot-time而非-gpu-stress-tests-期间">#</a></h4>
 <p><strong>Solution:</strong> 确定根本原因为 NVIDIA driver 的 PCIe link-state power management（idle 时从 Gen5 → Gen1 下降）。在重新协商过程中，GPU 在地址空间完全恢复前发送了 memory-mapped I/O 请求，从而触发 UR。通过设置 NVIDIA Control Panel → Power Management Mode → Prefer Maximum Performance 修复。验证修复效果：重启后 19 分钟运行期间零新错误，仅有 2 次 boot-time errors（硬件初始化，不可避免）。同时解决了 5 秒 HDMI audio delay 问题（相同根本原因：audio controller D3cold sleep）。</p>
-<p><strong>Key Insight:</strong> Windows ASPM Off 设置仅影响 OS 级别的 PCIe power policy；NVIDIA driver 和 BIOS 仍可独立进行 link-state switching。WHEA 中的 &lsquo;corrected error&rsquo; 标识掩盖了严重性——累积的 UR errors 最终会使 driver state 失稳并触发 kernel bugchecks。社区研究确认这是多个主板厂商中已知的 RTX 5090 + PCIe Gen5 兼容性问题。</p>
+<p><strong>关键发现：</strong> Windows ASPM Off 设置仅影响 OS 级别的 PCIe power policy；NVIDIA driver 和 BIOS 仍可独立进行 link-state switching。WHEA 中的 &lsquo;corrected error&rsquo; 标识掩盖了严重性——累积的 UR errors 最终会使 driver state 失稳并触发 kernel bugchecks。社区研究确认这是多个主板厂商中已知的 RTX 5090 + PCIe Gen5 兼容性问题。</p>
 <h4 id="2-upstream-maintainer-担心-statusline-rewrite-和-oauthkeychain-removal-带来的架构冲突会影响-codexcursor-rate-limits">2. Upstream maintainer 担心 statusline rewrite 和 OAuth/Keychain removal 带来的架构冲突会影响 Codex/Cursor rate limits<a hidden class="anchor" aria-hidden="true" href="#2-upstream-maintainer-担心-statusline-rewrite-和-oauthkeychain-removal-带来的架构冲突会影响-codexcursor-rate-limits">#</a></h4>
 <p><strong>Solution:</strong> 记录了冲突已通过 merge commits f6e0982 和 4492d2f 解决，Codex 使用 CLI scraping（而非 OAuth），Cursor 不需要 keychain prompts</p>
-<p><strong>Key Insight:</strong> 通过显式的 feature restoration commits 进行增量 merge 策略，可以在采用 upstream 架构变更的同时保留 downstream 的创新</p>
+<p><strong>关键发现：</strong> 通过显式的 feature restoration commits 进行增量 merge 策略，可以在采用 upstream 架构变更的同时保留 downstream 的创新</p>
 <h4 id="3-codex-credits-balance-显示为-usd-211602-而非-credits-单位导致用户困惑">3. Codex credits balance 显示为 USD ($2,116.02) 而非 credits 单位，导致用户困惑<a hidden class="anchor" aria-hidden="true" href="#3-codex-credits-balance-显示为-usd-211602-而非-credits-单位导致用户困惑">#</a></h4>
 <p><strong>Solution:</strong> 在 UsageBars.svelte 中将 formatUsdAmount() 替换为 Math.round().toLocaleString() + &rsquo; credits&rsquo; 后缀；确认修复不会影响 Cursor 的 extra_usage（后者正确使用 USD）</p>
-<p><strong>Key Insight:</strong> 多 provider 系统需要针对每个 provider 进行单位处理 —— Codex 使用 &lsquo;credits&rsquo;，Cursor 使用 USD；不能假设所有 provider 之间具有统一的货币格式</p>
+<p><strong>关键发现：</strong> 多 provider 系统需要针对每个 provider 进行单位处理 —— Codex 使用 &lsquo;credits&rsquo;，Cursor 使用 USD；不能假设所有 provider 之间具有统一的货币格式</p>
 <h4 id="4-rust-test-oauth_token_prefers_credentials_file_on_macos-在-ci-中失败报错-claude-credentials-file-unavailable-varfolderstmpclaudecredentialsjson测试将文件写入-tmpcredentialsjson但-lookup-解析为-tmpclaudecredentialsjson表明-claude_config_dir-env-var-未被遵循">4. Rust test oauth_token_prefers_credentials_file_on_macos 在 CI 中失败，报错 &lsquo;Claude credentials file unavailable (/var/folders/&hellip;/tmp/.claude/.credentials.json)&rsquo;。测试将文件写入 tmp/.credentials.json，但 lookup 解析为 tmp/.claude/.credentials.json，表明 CLAUDE_CONFIG_DIR env var 未被遵循。<a hidden class="anchor" aria-hidden="true" href="#4-rust-test-oauth_token_prefers_credentials_file_on_macos-在-ci-中失败报错-claude-credentials-file-unavailable-varfolderstmpclaudecredentialsjson测试将文件写入-tmpcredentialsjson但-lookup-解析为-tmpclaudecredentialsjson表明-claude_config_dir-env-var-未被遵循">#</a></h4>
 <p><strong>Solution:</strong> 根本原因：rate_limits/claude.rs 和 statusline/install.rs 的测试使用了不同的 mutex locks (ENV_LOCK vs. env_lock()) 来保护 CLAUDE_CONFIG_DIR 的操作。并行测试执行导致 statusline 测试覆盖了 claude 测试的 env value。通过将测试改为直接调用 read_token_from_credentials_file() 而非 get_claude_oauth_token() 来修复，从而消除了对 env var resolution 和 macOS keychain fallback 复杂性的依赖。同时修复了未使用的 import &lsquo;Local&rsquo;（test module 单独重新导入了它）以及 claude_settings_file 的 dead_code warning（将 #[cfg_attr(not(test), allow(dead_code))] 改为无条件的 #[allow(dead_code)]）。</p>
-<p><strong>Key Insight:</strong> 并行测试中对 environment variable 的不安全操作需要一个在所有 test modules 之间共享的单一 global lock —— 局部的 per-module locks 会产生虚假的安全感。当 test submodule 使用 super::* 然后又重新导入相同的 item 时，#[cfg(test)] imports 可能会混淆 rustc。cargo fmt 要求 #[cfg(test)] imports 排序在 regular imports 之后。</p>
+<p><strong>关键发现：</strong> 并行测试中对 environment variable 的不安全操作需要一个在所有 test modules 之间共享的单一 global lock —— 局部的 per-module locks 会产生虚假的安全感。当 test submodule 使用 super::* 然后又重新导入相同的 item 时，#[cfg(test)] imports 可能会混淆 rustc。cargo fmt 要求 #[cfg(test)] imports 排序在 regular imports 之后。</p>
 <h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
 <h4 id="5-ci-cargo-fmt-check-因格式违规vec-macro-line-breaks-trailing-whitespace在-3-个-rust-文件上失败">5. CI cargo fmt check 因格式违规（vec! macro line breaks, trailing whitespace）在 3 个 Rust 文件上失败<a hidden class="anchor" aria-hidden="true" href="#5-ci-cargo-fmt-check-因格式违规vec-macro-line-breaks-trailing-whitespace在-3-个-rust-文件上失败">#</a></h4>
-<p><strong>Solution:</strong> 运行 cargo fmt 进行自动修复，并作为 004d3f6 提交<strong>Key Insight:</strong> 自动化的格式强制执行可以及早发现风格不一致问题并保持 codebase 的一致性</p>
+<p><strong>Solution:</strong> 运行 cargo fmt 进行自动修复，并作为 004d3f6 提交<strong>关键发现：</strong> 自动化的格式强制执行可以及早发现风格不一致问题并保持 codebase 的一致性</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="pcie-memory-read-request-error-interpretation">PCIe &lsquo;Memory Read Request&rsquo; error interpretation<a hidden class="anchor" aria-hidden="true" href="#pcie-memory-read-request-error-interpretation">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>用户质疑 &lsquo;GPU memory read request failure&rsquo; 是否表示 RAM sticks 损坏而非 GPU/PCIe 问题，正确识别了术语中的潜在歧义。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 最初使用缩写 &lsquo;memory read&rsquo; 而未澄清 MMIO 与 physical memory 的区别，需要用户提示才能解释 PCIe Memory Read 针对的是 memory-mapped I/O address space (GPU BAR regions) 而非 system DRAM。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> 用户通过挑战术语展示了领域知识；AI 则假设双方对 PCIe address spaces 有共同理解。用户的提问迫使 AI 提供更精确的技术解释，并展示了 GPU ↔ Root Complex 通信的图表。</p>
+<p><strong>差异分析：</strong> 用户通过挑战术语展示了领域知识；AI 则假设双方对 PCIe address spaces 有共同理解。用户的提问迫使 AI 提供更精确的技术解释，并展示了 GPU ↔ Root Complex 通信的图表。</p>
 <h4 id="verification-approach-for-pcie-error-diagnosis">Verification approach for PCIe error diagnosis<a hidden class="anchor" aria-hidden="true" href="#verification-approach-for-pcie-error-diagnosis">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>用户主动运行 GPU stress test 以检查在负载下是否会发生错误，随后报告 &rsquo;no new WHEA errors during test&rsquo;——在 AI 建议正式验证步骤之前，通过经验验证了 idle-state switching 假设。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 最初推荐了诊断序列 (DDU driver reinstall → BIOS PCIe Gen4 downgrade → hardware reseating)，但尚未提出将 stress testing 作为一种诊断工具。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> 用户应用科学方法（通过受控实验隔离变量）的速度快于 AI 的系统化 troubleshooting checklist。这加速了 root-cause 的确认并避免了不必要的硬件干预。</p>
+<p><strong>差异分析：</strong> 用户应用科学方法（通过受控实验隔离变量）的速度快于 AI 的系统化 troubleshooting checklist。这加速了 root-cause 的确认并避免了不必要的硬件干预。</p>
 <h4 id="codex-credits-unit-verification">Codex credits unit verification<a hidden class="anchor" aria-hidden="true" href="#codex-credits-unit-verification">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>根据领域知识识别出 Codex 使用的是 &lsquo;credits&rsquo; 而非 USD，建议 assistant 查阅 online documentation</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>仅分析代码模式，依赖 type definitions 和现有用法，未进行外部验证</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 带来了关于 Codex API conventions 的外部领域知识；尽管得到了建议，AI 最初仍将搜索范围局限于 codebase 而未咨询外部文档。</p>
+<p><strong>差异分析：</strong> Human 带来了关于 Codex API conventions 的外部领域知识；尽管得到了建议，AI 最初仍将搜索范围局限于 codebase 而未咨询外部文档。</p>
 <h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
 <h4 id="locating-pr-16-on-github">Locating PR #16 on GitHub<a hidden class="anchor" aria-hidden="true" href="#locating-pr-16-on-github">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>最初说 &lsquo;michaelovo&rsquo;，在 AI 难以处理 repository name 变体后提供了完整 URL</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>在向用户请求澄清之前，系统地尝试了 michaelovo, Michael-OvO, movo-ai 等变体</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 拥有确切知识但初始指令缺乏精确度（大小写敏感性、username 格式）；AI 在请求明确的 URL 之前耗尽了系统化的搜索模式。</p>
+<p><strong>差异分析：</strong> Human 拥有确切知识但初始指令缺乏精确度（大小写敏感性、username 格式）；AI 在请求明确的 URL 之前耗尽了系统化的搜索模式。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
 <ul>

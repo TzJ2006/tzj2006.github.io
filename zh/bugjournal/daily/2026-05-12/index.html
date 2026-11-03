@@ -10,7 +10,7 @@
 <meta name="description" content="修复了阻碍 72 天报告生成的 critical summarize deployment bugs，并验证了 workflow installation">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-05-12/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-05-12 Daily Overview 完成工作： 调试了 summarize gadget 中的关键部署 bug（导致 72 天的文章缺失），并验证了新安装的 Unified Agentic Workflow 系统 实施方式： 对 daily.py 的 merge/deploy 逻辑进行了深度代码分析，发现了基础设施层面的 git repository 配置错误，并对代码和基础设施同时应用了修复 影响： 解除了 72 天历史报告部署的阻塞，并为未来的开发建立了经过验证的 workflow 系统 DesktopLinux 完成工作： 创建了文件系统 symlink 以便便捷访问 GitHub repository 实施方式： 使用单个 ln -s 命令将外部驱动器路径链接到 Desktop 影响： 对 daily workflow 进行了微小的便利性提升 TzJsDesktop 完成工作： 修复了两个阻止 summarize reports 部署到 GitHub Pages 的关键 bug，并验证了 workflow 安装 实施方式： 通过代码追踪 (daily.py) 和基础设施检查 (public/ git status) 进行根因分析，随后进行了针对性修复和测试验证 影响： 恢复了部署所有历史及未来报告的能力，确认 workflow 系统已达到生产就绪状态 修复了阻塞 72 天报告的 critical summarize deployment bugs，验证了 workflow 安装\nTasks Architecture \u0026 Strategy ✅ Debug summarize deployment pipeline issues — 调查了为什么 summarize merge \u0026 deploy 未能将所有文章发布到 GitHub Pages，并找到了两个关键 bug 并进行了修复 Implementation \u0026 Fixes ✅ Verify Unified Agentic Workflow installation — 通过结构检查、import 测试和 test suite 执行，验证了新安装的 workflow 系统功能正常 ✅ Create symlink for GitHub folder — 将 /run/media/thomas/F2A6C96DA6C932C1/GitHub 链接到 ~/Desktop/algorithm Problems \u0026 Solutions Critical Issues 1. Summarize reports not being deployed to GitHub Pages - 72 days of reports missing from staging 解决方案： 修改了 daily.py 中的 _cmd_merge_sync_all，使其从整个 reports 目录部署所有 non-staged reports，而不仅仅是当前运行中处理的日期\n关键洞察： 此前已完成但从未部署的报告被永久跳过了，因为 deploy 逻辑仅遍历 dates_to_process（当前批次），忽略了历史积压\n2. GitHub Pages website not updating despite local builds succeeding - update.sh Step 9 silently failing 解决方案： 在发现 website/public/ 缺少独立的 .git 后，将 tzj2006.github.io repository 重新 clone 到 website/public/ 目录中\n关键洞察： public/ 目录在 main repo 中被 gitignored，但它既不是一个 proper git submodule，也不是一个独立的 clone，导致 git push 操作静默失败\nHuman vs AI Approaches Strategic Level 针对部署失败的根因诊断策略 Role Approach Human 观察实际网站状态 (tzj2006.github.io)，并报告预期内容与已部署内容之间的差异 AI 最初对 daily.py 中的 merge/deploy 逻辑进行了深度代码分析，找到了代码 bug，但假设基础设施是正确的 差异分析： AI 专注于代码层的 debugging 并发现了一个 bug，但在人类观察到实际网站状态并促使验证 git repository 结构之前，未能发现基础设施层面的问题。人类的端到端验证直觉捕捉到了代码分析所遗漏的部分。\nAI Limitations Critical Limitations 最初仅诊断出代码逻辑 bug (_cmd_merge_sync_all)，直到人类观察到实际网站状态并提示后，才发现基础设施问题 (public/ 中缺失 git repo) 在宣布第一次修复完成之前，未验证从 staging → content → Hugo → GitHub Pages 的端到端部署路径 Learnings Key Learnings 在调试 deployment pipelines 时，应验证整个基础设施链（代码逻辑 + 文件路径 + git repos + 远程端点），而不仅仅是代码逻辑 应当作为独立 git submodules 的 gitignored 目录在调试期间需要进行显式验证 —— 在预期位置缺失 .git 是一个关键的诊断信号 Practical Learnings Unified Agentic Workflow 可以通过其 test suite (33 tests) 和 module import 检查进行安装和验证；当当前没有 active task 时，出现 ’no active spec’ 错误是符合预期的 Conversation Summaries Desktop Environment Setup ✅ Create symlink for GitHub repositories 01:17:58.922 | claude_code 用户请求从外部驱动器 GitHub folder 到 ~/Desktop/algorithm 的 symlink。Claude 成功执行了 ln -s 命令，顺利创建了 symbolic link。简单的文件系统操作通过单个命令完成。\nGadget Summarize Pipeline ✅ Debug and fix summarize deployment bugs 00:27:44.191 | claude_code 用户报告 merge \u0026 deploy 未能将所有文章发布到 GitHub Pages。Claude 诊断出两个根因：(1) _cmd_merge_sync_all 仅部署当前批次，跳过了此前已完成的 72 份 reports；(2) website/public/ 不是 GitHub Pages repo 的 proper git clone。通过编辑 daily.py 以部署所有 non-staged reports 并将 Pages repo 重新 clone 到 public/ 修复了这两个问题。最终状态：准备好部署 72 天的积压报告。\nGadget Workflow ✅ Verify newly installed Unified Agentic Workflow 00:29:11.791 | claude_code 用户要求验证新安装的 Workflow 是否正常运行。Claude 检查了目录结构（包含 templates/ 和 tests/ 在内的 18 个文件），运行了 module import 测试（成功），并执行了 test suite（0.56s 内通过 33 个测试）。确认了在没有 active task 时 ’no active spec’ 错误是预期行为，并建议使用 ‘python -m workflow.verify’ 而不是直接执行脚本。\nToken Usage AI Usage · 2026-05-12\rClaude Code\rTotal cost$230.79\rTotal tokens195M\rOutput tokens3M\rCache read78.4%\rToken character\rCache reads 78.4% ·\rActive 21.6%\rMost token volume came from cache reads.\r",
-  "wordCount" : "454",
+  "articleBody": "Daily Report — 2026-05-12 Daily Overview 完成工作： 调试了 summarize gadget 中的关键部署 bug（导致 72 天的文章缺失），并验证了新安装的 Unified Agentic Workflow 系统 实施方式： 对 daily.py 的 merge/deploy 逻辑进行了深度代码分析，发现了基础设施层面的 git repository 配置错误，并对代码和基础设施同时应用了修复 影响： 解除了 72 天历史报告部署的阻塞，并为未来的开发建立了经过验证的 workflow 系统 DesktopLinux 完成工作： 创建了文件系统 symlink 以便便捷访问 GitHub repository 实施方式： 使用单个 ln -s 命令将外部驱动器路径链接到 Desktop 影响： 对 daily workflow 进行了微小的便利性提升 TzJsDesktop 完成工作： 修复了两个阻止 summarize reports 部署到 GitHub Pages 的关键 bug，并验证了 workflow 安装 实施方式： 通过代码追踪 (daily.py) 和基础设施检查 (public/ git status) 进行根因分析，随后进行了针对性修复和测试验证 影响： 恢复了部署所有历史及未来报告的能力，确认 workflow 系统已达到生产就绪状态 修复了阻塞 72 天报告的 critical summarize deployment bugs，验证了 workflow 安装\nTasks Architecture \u0026 Strategy ✅ Debug summarize deployment pipeline issues — 调查了为什么 summarize merge \u0026 deploy 未能将所有文章发布到 GitHub Pages，并找到了两个关键 bug 并进行了修复 Implementation \u0026 Fixes ✅ Verify Unified Agentic Workflow installation — 通过结构检查、import 测试和 test suite 执行，验证了新安装的 workflow 系统功能正常 ✅ Create symlink for GitHub folder — 将 /run/media/thomas/F2A6C96DA6C932C1/GitHub 链接到 ~/Desktop/algorithm Problems \u0026 Solutions Critical Issues 1. Summarize reports not being deployed to GitHub Pages - 72 days of reports missing from staging 解决方案： 修改了 daily.py 中的 _cmd_merge_sync_all，使其从整个 reports 目录部署所有 non-staged reports，而不仅仅是当前运行中处理的日期\n关键洞察： 此前已完成但从未部署的报告被永久跳过了，因为 deploy 逻辑仅遍历 dates_to_process（当前批次），忽略了历史积压\n2. GitHub Pages website not updating despite local builds succeeding - update.sh Step 9 silently failing 解决方案： 在发现 website/public/ 缺少独立的 .git 后，将 tzj2006.github.io repository 重新 clone 到 website/public/ 目录中\n关键洞察： public/ 目录在 main repo 中被 gitignored，但它既不是一个 proper git submodule，也不是一个独立的 clone，导致 git push 操作静默失败\nHuman vs AI Approaches Strategic Level 针对部署失败的根因诊断策略 角色 方法 用户 观察实际网站状态 (tzj2006.github.io)，并报告预期内容与已部署内容之间的差异 AI 助手 最初对 daily.py 中的 merge/deploy 逻辑进行了深度代码分析，找到了代码 bug，但假设基础设施是正确的 差异分析： AI 专注于代码层的 debugging 并发现了一个 bug，但在人类观察到实际网站状态并促使验证 git repository 结构之前，未能发现基础设施层面的问题。人类的端到端验证直觉捕捉到了代码分析所遗漏的部分。\nAI Limitations Critical Limitations 最初仅诊断出代码逻辑 bug (_cmd_merge_sync_all)，直到人类观察到实际网站状态并提示后，才发现基础设施问题 (public/ 中缺失 git repo) 在宣布第一次修复完成之前，未验证从 staging → content → Hugo → GitHub Pages 的端到端部署路径 Learnings Key Learnings 在调试 deployment pipelines 时，应验证整个基础设施链（代码逻辑 + 文件路径 + git repos + 远程端点），而不仅仅是代码逻辑 应当作为独立 git submodules 的 gitignored 目录在调试期间需要进行显式验证 —— 在预期位置缺失 .git 是一个关键的诊断信号 Practical Learnings Unified Agentic Workflow 可以通过其 test suite (33 tests) 和 module import 检查进行安装和验证；当当前没有 active task 时，出现 ’no active spec’ 错误是符合预期的 Conversation Summaries Desktop Environment Setup ✅ Create symlink for GitHub repositories 01:17:58.922 | claude_code 用户请求从外部驱动器 GitHub folder 到 ~/Desktop/algorithm 的 symlink。Claude 成功执行了 ln -s 命令，顺利创建了 symbolic link。简单的文件系统操作通过单个命令完成。\nGadget Summarize Pipeline ✅ Debug and fix summarize deployment bugs 00:27:44.191 | claude_code 用户报告 merge \u0026 deploy 未能将所有文章发布到 GitHub Pages。Claude 诊断出两个根因：(1) _cmd_merge_sync_all 仅部署当前批次，跳过了此前已完成的 72 份 reports；(2) website/public/ 不是 GitHub Pages repo 的 proper git clone。通过编辑 daily.py 以部署所有 non-staged reports 并将 Pages repo 重新 clone 到 public/ 修复了这两个问题。最终状态：准备好部署 72 天的积压报告。\nGadget Workflow ✅ Verify newly installed Unified Agentic Workflow 00:29:11.791 | claude_code 用户要求验证新安装的 Workflow 是否正常运行。Claude 检查了目录结构（包含 templates/ 和 tests/ 在内的 18 个文件），运行了 module import 测试（成功），并执行了 test suite（0.56s 内通过 33 个测试）。确认了在没有 active task 时 ’no active spec’ 错误是预期行为，并建议使用 ‘python -m workflow.verify’ 而不是直接执行脚本。\nToken Usage AI Usage · 2026-05-12\rClaude Code\rTotal cost$230.79\rTotal tokens195M\rOutput tokens3M\rCache read78.4%\rToken character\rCache reads 78.4% ·\rActive 21.6%\rMost token volume came from cache reads.\r",
+  "wordCount" : "455",
   "inLanguage": "zh",
   "datePublished": "2026-05-12T00:00:00-04:00",
   "dateModified": "2026-05-12T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -255,17 +255,17 @@
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>观察实际网站状态 (tzj2006.github.io)，并报告预期内容与已部署内容之间的差异</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初对 daily.py 中的 merge/deploy 逻辑进行了深度代码分析，找到了代码 bug，但假设基础设施是正确的</td>
       </tr>
   </tbody>

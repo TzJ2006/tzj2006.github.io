@@ -10,7 +10,7 @@
 <meta name="description" content="解决了关键的GR00T评估流程漏洞与延迟问题，建立了pi0.5 LIBERO评估基础设施，制定了严格的量化验证框架，并开发出了功能可靠的视频OCR提取工具。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-20/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "每日报告 — 2026-07-20 日常概述 **已完成工作：**修复了 GR00T 与 Qwen3VL 集成中的静默模型绕过漏洞，分析了 SpinQuant 的延迟开销；在 Dragonwing 硬件上搭建了 pi0.5 评估环境，定义了量化精度验证方案；开发了一种具有模糊去重功能的容错视频转文本 OCR 流程。 **实现方式：**审查了 PyTorch 属性遮蔽问题以恢复正确的 shim 执行，克隆了 AI-Hub 实验版本以满足 AIMET/SpinQuant 兼容性，实现了逐层合理性检查（单调误差/FP64 等价性）用于量化验证，并设计了基于 Ollama 的帧提取与检查点恢复机制用于 OCR。 **影响：**确保了 GR00T 量化指标与 pi0.5 基线的一致性，建立了严格的压缩精度验证框架，从嘈杂视频源中生成了清晰的文本记录。 TzJsDesktop **已完成工作：**诊断了 SpinQuant 延迟根源，修复了 GR00T 静默绕过漏洞，并构建了视频 OCR 流程。 **实现方式：**追踪了 PyTorch __setattr__ 交互以修复属性获取器绕过问题；分析了 NPU 分析数据以识别旋转矩阵开销；使用 Ollama 实现了行级模糊匹配用于滚动文本去重。 **影响：**纠正了关键评估错误，识别出约 0.8% 不可避免的延迟开销，从损坏的视频输入中生成了清晰的 260 行文本记录。 athena **已完成工作：**建立了 pi0.5 比较基础设施并定义了量化验证策略。 **实现方式：**克隆了 ai-hub-models 版本，在 AIMET 环境中叠加自定义 SpinQuant 补丁，配置 Slurm 作业用于 LIBERO 评估，设计了多层验证（删除/单调检查）用于 VLA 模型。 **影响：**验证了跨模型比较的基础设施，确保量化运行通过合理性检查，并识别出需要删除研究以确认精度提升的需求。 修复了关键 GR00T 评估流程漏洞和延迟开销，建立了 pi0.5 LIBERO 评估基础设施，定义了严格的量化验证框架，并开发了一种健壮的视频 OCR 提取工具。\n任务 架构与策略 ✅ GR00T 评估流程修复 — 修复了 Qwen3VL 集成中的关键静默绕过漏洞，分析了 SpinQuant 延迟开销。 ✅ 量化验证框架 — 定义了并实现了多层验证（单调误差、FP64 等价性）用于 SpinQuant 和 SeqMSE。 ✅ 视频 OCR 流程开发 — 开发了基于 Ollama 的视频提取工具，具有模糊去重和检查点恢复功能以提高鲁棒性。 实施与修复 🔄 pi0.5 LIBERO 评估设置 — 克隆仓库，修补 AIMET/SpinQuant 环境，提交了初步评估作业用于跨模型比较。 问题与解决方案 关键问题 1. 所有量化模型均报告 100% 成功率（静默绕过），原因是 Qwen3VL 中的 PyTorch 属性遮蔽。 **解决方案：**发现 nn.Module.__setattr__ 拦截赋值并绕过属性获取器；通过在赋值时验证子模块身份来修复。\n**关键洞察：**始终通过身份检查验证子模块赋值（断言 x 是 y），特别是在处理描述符模式以确保向后兼容性时。\n2. 滚动视频 OCR 中的冗余文本输出和损坏由帧重叠和 HEVC 错误引起。 **解决方案：**实现了行级模糊匹配用于去重，并通过检查点恢复处理损坏帧以处理错误。\n**关键洞察：**OCR 噪声下精确字符串匹配会失败；使用编辑距离或归一化比较非常重要。对于长时间处理而言，灵活降级（跳过坏帧）至关重要。\n一般问题 3. SpinQuant 的延迟比预期高 3-5ms。 **解决方案：**识别了模型边界处不可避免的显式矩阵乘法（输入/输出旋转），导致约 0.8% 的开销。\n**关键洞察：**在完全部署中，旋转层可以折叠到上游/下游线性权重中，但在部分导出中仍作为操作；这种开销是当前边界定义所固有的。\n4. AI-Hub-Models SpinQuant API 缺失于标准 aimet-onnx 版本中，导致 pi0.5 设置失败。 **解决方案：**克隆同事的版本并手动在环境中叠加实验模块。\n**关键洞察：**发布的 PyPI 包可能缺少内部/实验性功能；对于最新的 VLA 工具，通常需要依赖特定的研究版本。\n人类与 AI 方法 静默漏洞诊断与量化验证 角色 方法 人类 用户提供明确的约束条件（例如“查找精确代码”，“如何证明其工作”）并质疑实现的有效性。 AI AI 综合了跨库行为理论，追踪多层交互（PyTorch/Transformers），并将复杂验证转化为可操作的工程步骤（通过合理性检查而非全量重跑）。 **差异分析：**人类定义了关键约束和高级验证目标；AI 处理复杂的依赖追踪并将证明转化为成本效益高的合理性检查。\n复杂环境设置与算法设计 角色 方法 人类 用户定义高级比较目标（pi0.5 基线）和问题领域（滚动文本）。 AI AI 自动完成 conda/venv 层的环境修补，将滚动视频转化为信号处理问题（重叠检测），并解决复杂的依赖树。 **差异分析：**人类关注“什么”和“为什么”；AI 处理复杂系统集成和算法适应的“如何”。\nAI 限制 一般限制 在活跃日志覆盖过程中遇到文件权限错误，最初建议对 OCR 进行精确字符串匹配，但在噪声条件下失败。 最初提出不安全的解决方案（直接编辑 site-packages），被阻止，且在 pi0.5 QuantSim 中忽略了 GPU 内存细节导致初始 OOM 循环。 学习成果 关键学习点 在调查静默替换时，检查目标属性是否为描述符；简单的身份断言（断言 x 是 y）是抵御属性获取器绕过的最有效防御。 通过减少位宽证明“单调误差增加”是一种快速有效的合理性检查，以确保量化确实发生，而非仅依赖可运行性。 实际学习点 – pi0.5评估需要特定的 aimet-onnx、lerobot transformers 分支以及官方版本中不存在的自定义 SpinQuant 补丁组合。\n对于不稳定的媒体源，始终需实现检查点/恢复逻辑，以高效处理损坏情况而无需完全重启。 对话总结 GR00T 量化与评估 ✅ 流水线修复与验证框架 22:11:56.449 | claude_code 解决了由 PyTorch 属性遮蔽引起的 Qwen3VL 关键静默绕过漏洞；分析了 SpinQuant 延迟，发现约 0.8% 的额外开销来自边界旋转。建立了包括 FP64 等价性及单调错误检查在内的严格 GR00T 验证框架。通过克隆 ai-hub-models、补装 AIMET 并提交任务，建立了 pi0.5 对比基础设施。\n视频 OCR 工具 ✅ 稳健的文本提取流水线 18:45:00 | cursor 使用 Ollama 和模糊线匹配技术构建了 video_ocr.py 以处理滚动终端视频并去重重叠帧。实现了对损坏的 HEVC 片段的错误处理，包括检查点恢复和正则表达式过滤，以从输出中移除系统指令。\n",
-  "wordCount" : "266",
+  "articleBody": "每日报告 — 2026-07-20 日常概述 **已完成工作：**修复了 GR00T 与 Qwen3VL 集成中的静默模型绕过漏洞，分析了 SpinQuant 的延迟开销；在 Dragonwing 硬件上搭建了 pi0.5 评估环境，定义了量化精度验证方案；开发了一种具有模糊去重功能的容错视频转文本 OCR 流程。 **实现方式：**审查了 PyTorch 属性遮蔽问题以恢复正确的 shim 执行，克隆了 AI-Hub 实验版本以满足 AIMET/SpinQuant 兼容性，实现了逐层合理性检查（单调误差/FP64 等价性）用于量化验证，并设计了基于 Ollama 的帧提取与检查点恢复机制用于 OCR。 **影响：**确保了 GR00T 量化指标与 pi0.5 基线的一致性，建立了严格的压缩精度验证框架，从嘈杂视频源中生成了清晰的文本记录。 TzJsDesktop **已完成工作：**诊断了 SpinQuant 延迟根源，修复了 GR00T 静默绕过漏洞，并构建了视频 OCR 流程。 **实现方式：**追踪了 PyTorch __setattr__ 交互以修复属性获取器绕过问题；分析了 NPU 分析数据以识别旋转矩阵开销；使用 Ollama 实现了行级模糊匹配用于滚动文本去重。 **影响：**纠正了关键评估错误，识别出约 0.8% 不可避免的延迟开销，从损坏的视频输入中生成了清晰的 260 行文本记录。 athena **已完成工作：**建立了 pi0.5 比较基础设施并定义了量化验证策略。 **实现方式：**克隆了 ai-hub-models 版本，在 AIMET 环境中叠加自定义 SpinQuant 补丁，配置 Slurm 作业用于 LIBERO 评估，设计了多层验证（删除/单调检查）用于 VLA 模型。 **影响：**验证了跨模型比较的基础设施，确保量化运行通过合理性检查，并识别出需要删除研究以确认精度提升的需求。 修复了关键 GR00T 评估流程漏洞和延迟开销，建立了 pi0.5 LIBERO 评估基础设施，定义了严格的量化验证框架，并开发了一种健壮的视频 OCR 提取工具。\n任务 架构与策略 ✅ GR00T 评估流程修复 — 修复了 Qwen3VL 集成中的关键静默绕过漏洞，分析了 SpinQuant 延迟开销。 ✅ 量化验证框架 — 定义了并实现了多层验证（单调误差、FP64 等价性）用于 SpinQuant 和 SeqMSE。 ✅ 视频 OCR 流程开发 — 开发了基于 Ollama 的视频提取工具，具有模糊去重和检查点恢复功能以提高鲁棒性。 实施与修复 🔄 pi0.5 LIBERO 评估设置 — 克隆仓库，修补 AIMET/SpinQuant 环境，提交了初步评估作业用于跨模型比较。 问题与解决方案 关键问题 1. 所有量化模型均报告 100% 成功率（静默绕过），原因是 Qwen3VL 中的 PyTorch 属性遮蔽。 **解决方案：**发现 nn.Module.__setattr__ 拦截赋值并绕过属性获取器；通过在赋值时验证子模块身份来修复。\n**关键洞察：**始终通过身份检查验证子模块赋值（断言 x 是 y），特别是在处理描述符模式以确保向后兼容性时。\n2. 滚动视频 OCR 中的冗余文本输出和损坏由帧重叠和 HEVC 错误引起。 **解决方案：**实现了行级模糊匹配用于去重，并通过检查点恢复处理损坏帧以处理错误。\n**关键洞察：**OCR 噪声下精确字符串匹配会失败；使用编辑距离或归一化比较非常重要。对于长时间处理而言，灵活降级（跳过坏帧）至关重要。\n一般问题 3. SpinQuant 的延迟比预期高 3-5ms。 **解决方案：**识别了模型边界处不可避免的显式矩阵乘法（输入/输出旋转），导致约 0.8% 的开销。\n**关键洞察：**在完全部署中，旋转层可以折叠到上游/下游线性权重中，但在部分导出中仍作为操作；这种开销是当前边界定义所固有的。\n4. AI-Hub-Models SpinQuant API 缺失于标准 aimet-onnx 版本中，导致 pi0.5 设置失败。 **解决方案：**克隆同事的版本并手动在环境中叠加实验模块。\n**关键洞察：**发布的 PyPI 包可能缺少内部/实验性功能；对于最新的 VLA 工具，通常需要依赖特定的研究版本。\n人类与 AI 方法 静默漏洞诊断与量化验证 角色 方法 人类 用户提供明确的约束条件（例如“查找精确代码”，“如何证明其工作”）并质疑实现的有效性。 AI 助手 AI 综合了跨库行为理论，追踪多层交互（PyTorch/Transformers），并将复杂验证转化为可操作的工程步骤（通过合理性检查而非全量重跑）。 **差异分析：**人类定义了关键约束和高级验证目标；AI 处理复杂的依赖追踪并将证明转化为成本效益高的合理性检查。\n复杂环境设置与算法设计 角色 方法 人类 用户定义高级比较目标（pi0.5 基线）和问题领域（滚动文本）。 AI 助手 AI 自动完成 conda/venv 层的环境修补，将滚动视频转化为信号处理问题（重叠检测），并解决复杂的依赖树。 **差异分析：**人类关注“什么”和“为什么”；AI 处理复杂系统集成和算法适应的“如何”。\nAI 限制 一般限制 在活跃日志覆盖过程中遇到文件权限错误，最初建议对 OCR 进行精确字符串匹配，但在噪声条件下失败。 最初提出不安全的解决方案（直接编辑 site-packages），被阻止，且在 pi0.5 QuantSim 中忽略了 GPU 内存细节导致初始 OOM 循环。 学习成果 关键学习点 在调查静默替换时，检查目标属性是否为描述符；简单的身份断言（断言 x 是 y）是抵御属性获取器绕过的最有效防御。 通过减少位宽证明“单调误差增加”是一种快速有效的合理性检查，以确保量化确实发生，而非仅依赖可运行性。 实际学习点 – pi0.5评估需要特定的 aimet-onnx、lerobot transformers 分支以及官方版本中不存在的自定义 SpinQuant 补丁组合。\n对于不稳定的媒体源，始终需实现检查点/恢复逻辑，以高效处理损坏情况而无需完全重启。 对话总结 GR00T 量化与评估 ✅ 流水线修复与验证框架 22:11:56.449 | claude_code 解决了由 PyTorch 属性遮蔽引起的 Qwen3VL 关键静默绕过漏洞；分析了 SpinQuant 延迟，发现约 0.8% 的额外开销来自边界旋转。建立了包括 FP64 等价性及单调错误检查在内的严格 GR00T 验证框架。通过克隆 ai-hub-models、补装 AIMET 并提交任务，建立了 pi0.5 对比基础设施。\n视频 OCR 工具 ✅ 稳健的文本提取流水线 18:45:00 | cursor 使用 Ollama 和模糊线匹配技术构建了 video_ocr.py 以处理滚动终端视频并去重重叠帧。实现了对损坏的 HEVC 片段的错误处理，包括检查点恢复和正则表达式过滤，以从输出中移除系统指令。\n",
+  "wordCount" : "268",
   "inLanguage": "zh",
   "datePublished": "2026-07-20T00:00:00-05:00",
   "dateModified": "2026-07-20T00:00:00-05:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -272,7 +272,7 @@
           <td>用户提供明确的约束条件（例如“查找精确代码”，“如何证明其工作”）并质疑实现的有效性。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 综合了跨库行为理论，追踪多层交互（PyTorch/Transformers），并将复杂验证转化为可操作的工程步骤（通过合理性检查而非全量重跑）。</td>
       </tr>
   </tbody>
@@ -292,7 +292,7 @@
           <td>用户定义高级比较目标（pi0.5 基线）和问题领域（滚动文本）。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 自动完成 conda/venv 层的环境修补，将滚动视频转化为信号处理问题（重叠检测），并解决复杂的依赖树。</td>
       </tr>
   </tbody>

@@ -10,7 +10,7 @@
 <meta name="description" content="通过将代码与原始 STAIG baseline 对齐，解决了 MIHD multimodal pipeline 中关键的架构与配置间隙，修复了 E2E fusion routing errors，稳定了环境依赖，并为统一的 end-to-end GCN training framework 进行了前瞻性规划。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-02-05/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-02-05 Daily Overview 完成工作： 评估了 benchmark 不稳定性，并实施了基础的 E2E fusion 架构修复。 实施方式： 与学术 baseline 进行取证代码对比，重构了用于灵活 encoder 路由的 CLI arguments，注入了确定性的 GPU 设置，并逐步解决了 package 依赖问题。 影响： 恢复了预期的 clustering 保真度，在统一的训练范式内实现了模块化的 gene encoding，并通过精确的架构对齐，为扩展多模态 spatial transcriptomics 实验建立了稳定的执行 baseline。 通过将代码与原始 STAIG baseline 对齐，解决了 MIHD 多模态 pipeline 中的关键架构和配置差距，修复了 E2E fusion 路由错误，稳定了环境依赖，并推进了统一 end-to-end GCN 训练框架的规划。\nTasks Architecture \u0026 Strategy ✅ Performance Analysis \u0026 Reference Baseline Alignment — 评估了 benchmark 不稳定性，并识别出与原始 STAIG 学术仓库相比的关键超参数和架构差异。 ✅ E2E Fusion Pipeline Architecture Fixes — 重构了 CLI 解析、函数签名和预处理路由，以解决阻塞性错误并实现灵活的模块化 encoder 输入。 🔄 End-to-End GCN Architecture Design — 正在起草统一的 STAIGTrainerE2E 模块，以从两阶段推理过渡到完全可训练的 spatial fusion 网络。 Implementation \u0026 Fixes ✅ Environment Configuration \u0026 Hardware Verification — 解决了递归 package 依赖，验证了默认 GPU 执行流，并强制执行了确定性训练设置以实现可复现性。 Problems \u0026 Solutions Critical Issues 1. 由于实现差距，不稳定的低 clustering 准确度 (ARI 0.09–0.35) 与 baseline 预期显著偏离。 Solution: 与官方 STAIG 参考进行了取证对齐，纠正了 dropout masking、edge weight normalization、feature clipping 和 temperature decay 中的关键偏差。\nKey Insight: 概率归一化中的数学精确度决定了跨域信息流；微小的反转会导致多模态收敛稳定性崩溃。\n2. 由于缺失动态参数处理，灵活的 E2E fusion 被僵化的 CLI 约束和致命的路由错误所阻碍。 Solution: 更新了 argparse choices，将 **kwargs 注入核心函数，并修改了验证逻辑以优雅地处理原始 latent spaces 和预编码的 latent spaces。\nKey Insight: 动态配置传递对于将 gene encoding 与 fusion strategies 解耦至关重要，从而实现灵活的多模态实验。\nHuman vs AI Approaches Strategic Level End-to-End Architecture Strategy \u0026 Baseline Alignment Role Approach Human 识别出将两阶段推理统一为 end-to-end 训练的战略必要性，识别出数学上正确的 edge weight 公式，并要求实现精确的 baseline 等效性，而不是接受次优指标作为可接受的 bug。 AI 最初默认使用标准化的 deep learning 惯例和僵化的单模态假设；随后通过文件分析追踪配置不匹配，实施了迭代式依赖补丁，并根据明确的提示应用了确定性的 GPU flags。 Difference Analysis: Human 提供了高层架构方向、领域特定的数学正确性和严格的质量基准；AI 在人类引导的修正范围内，严格执行了取证代码追踪、迭代修复实施和环境调试。\nAI Limitations Critical Limitations 最初过度依赖标准化的 deep learning 默认设置，导致僵化的单模态假设并忽视了关键的确定性 GPU 设置 (CuBLAS/cuDNN)，从而导致不可复现的推理。在处理递归依赖时遇到了环境解析限制，需要人工干预。 Learnings Key Learnings 在进行自定义框架调试之前，必须与原始学术仓库进行严格的架构和超参数对齐，因为微小的数学偏差会剧烈降低多模态收敛性。动态配置传递（例如 **kwargs）和模块化 encoder 支持是稳定 end-to-end fusion pipeline 的必要前提。 Conversation Summaries ✅ Comprehensive Pipeline Alignment, E2E Repair \u0026 Architecture Redesign Planning 2026-02-05 (Consolidated) | claude_code 多个 session 专注于诊断 benchmark 不稳定性并将 MIHD framework 与官方 STAIG 学术参考对齐。实施了关键的架构和配置修复，以解决 fusion 路由错误并实现灵活的 encoder 支持。工作流从性能差距分析和超参数校正，推进到计划向统一的 end-to-end GCN+STAIG 训练范式过渡，为规模化扩展建立了稳定的环境和硬件 baseline。\nToken Usage AI Usage · 2026-02-05\rClaude Code\rTotal cost$1.94\rTotal tokens3M\rOutput tokens153\rCache read83.5%\rToken character\rCache reads 83.5% ·\rActive 16.5%\rMost token volume came from cache reads.\r",
-  "wordCount" : "285",
+  "articleBody": "Daily Report — 2026-02-05 Daily Overview 完成工作： 评估了 benchmark 不稳定性，并实施了基础的 E2E fusion 架构修复。 实施方式： 与学术 baseline 进行取证代码对比，重构了用于灵活 encoder 路由的 CLI arguments，注入了确定性的 GPU 设置，并逐步解决了 package 依赖问题。 影响： 恢复了预期的 clustering 保真度，在统一的训练范式内实现了模块化的 gene encoding，并通过精确的架构对齐，为扩展多模态 spatial transcriptomics 实验建立了稳定的执行 baseline。 通过将代码与原始 STAIG baseline 对齐，解决了 MIHD 多模态 pipeline 中的关键架构和配置差距，修复了 E2E fusion 路由错误，稳定了环境依赖，并推进了统一 end-to-end GCN 训练框架的规划。\nTasks Architecture \u0026 Strategy ✅ Performance Analysis \u0026 Reference Baseline Alignment — 评估了 benchmark 不稳定性，并识别出与原始 STAIG 学术仓库相比的关键超参数和架构差异。 ✅ E2E Fusion Pipeline Architecture Fixes — 重构了 CLI 解析、函数签名和预处理路由，以解决阻塞性错误并实现灵活的模块化 encoder 输入。 🔄 End-to-End GCN Architecture Design — 正在起草统一的 STAIGTrainerE2E 模块，以从两阶段推理过渡到完全可训练的 spatial fusion 网络。 Implementation \u0026 Fixes ✅ Environment Configuration \u0026 Hardware Verification — 解决了递归 package 依赖，验证了默认 GPU 执行流，并强制执行了确定性训练设置以实现可复现性。 Problems \u0026 Solutions Critical Issues 1. 由于实现差距，不稳定的低 clustering 准确度 (ARI 0.09–0.35) 与 baseline 预期显著偏离。 Solution: 与官方 STAIG 参考进行了取证对齐，纠正了 dropout masking、edge weight normalization、feature clipping 和 temperature decay 中的关键偏差。\n关键发现： 概率归一化中的数学精确度决定了跨域信息流；微小的反转会导致多模态收敛稳定性崩溃。\n2. 由于缺失动态参数处理，灵活的 E2E fusion 被僵化的 CLI 约束和致命的路由错误所阻碍。 Solution: 更新了 argparse choices，将 **kwargs 注入核心函数，并修改了验证逻辑以优雅地处理原始 latent spaces 和预编码的 latent spaces。\n关键发现： 动态配置传递对于将 gene encoding 与 fusion strategies 解耦至关重要，从而实现灵活的多模态实验。\nHuman vs AI Approaches Strategic Level End-to-End Architecture Strategy \u0026 Baseline Alignment 角色 方法 用户 识别出将两阶段推理统一为 end-to-end 训练的战略必要性，识别出数学上正确的 edge weight 公式，并要求实现精确的 baseline 等效性，而不是接受次优指标作为可接受的 bug。 AI 助手 最初默认使用标准化的 deep learning 惯例和僵化的单模态假设；随后通过文件分析追踪配置不匹配，实施了迭代式依赖补丁，并根据明确的提示应用了确定性的 GPU flags。 差异分析： Human 提供了高层架构方向、领域特定的数学正确性和严格的质量基准；AI 在人类引导的修正范围内，严格执行了取证代码追踪、迭代修复实施和环境调试。\nAI Limitations Critical Limitations 最初过度依赖标准化的 deep learning 默认设置，导致僵化的单模态假设并忽视了关键的确定性 GPU 设置 (CuBLAS/cuDNN)，从而导致不可复现的推理。在处理递归依赖时遇到了环境解析限制，需要人工干预。 Learnings Key Learnings 在进行自定义框架调试之前，必须与原始学术仓库进行严格的架构和超参数对齐，因为微小的数学偏差会剧烈降低多模态收敛性。动态配置传递（例如 **kwargs）和模块化 encoder 支持是稳定 end-to-end fusion pipeline 的必要前提。 Conversation Summaries ✅ Comprehensive Pipeline Alignment, E2E Repair \u0026 Architecture Redesign Planning 2026-02-05 (Consolidated) | claude_code 多个 session 专注于诊断 benchmark 不稳定性并将 MIHD framework 与官方 STAIG 学术参考对齐。实施了关键的架构和配置修复，以解决 fusion 路由错误并实现灵活的 encoder 支持。工作流从性能差距分析和超参数校正，推进到计划向统一的 end-to-end GCN+STAIG 训练范式过渡，为规模化扩展建立了稳定的环境和硬件 baseline。\nToken Usage AI Usage · 2026-02-05\rClaude Code\rTotal cost$1.94\rTotal tokens3M\rOutput tokens153\rCache read83.5%\rToken character\rCache reads 83.5% ·\rActive 16.5%\rMost token volume came from cache reads.\r",
+  "wordCount" : "283",
   "inLanguage": "zh",
   "datePublished": "2026-02-05T00:00:00-05:00",
   "dateModified": "2026-02-05T00:00:00-05:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -234,32 +234,32 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-由于实现差距不稳定的低-clustering-准确度-ari-009035-与-baseline-预期显著偏离">1. 由于实现差距，不稳定的低 clustering 准确度 (ARI 0.09–0.35) 与 baseline 预期显著偏离。<a hidden class="anchor" aria-hidden="true" href="#1-由于实现差距不稳定的低-clustering-准确度-ari-009035-与-baseline-预期显著偏离">#</a></h4>
 <p><strong>Solution:</strong> 与官方 STAIG 参考进行了取证对齐，纠正了 dropout masking、edge weight normalization、feature clipping 和 temperature decay 中的关键偏差。</p>
-<p><strong>Key Insight:</strong> 概率归一化中的数学精确度决定了跨域信息流；微小的反转会导致多模态收敛稳定性崩溃。</p>
+<p><strong>关键发现：</strong> 概率归一化中的数学精确度决定了跨域信息流；微小的反转会导致多模态收敛稳定性崩溃。</p>
 <h4 id="2-由于缺失动态参数处理灵活的-e2e-fusion-被僵化的-cli-约束和致命的路由错误所阻碍">2. 由于缺失动态参数处理，灵活的 E2E fusion 被僵化的 CLI 约束和致命的路由错误所阻碍。<a hidden class="anchor" aria-hidden="true" href="#2-由于缺失动态参数处理灵活的-e2e-fusion-被僵化的-cli-约束和致命的路由错误所阻碍">#</a></h4>
 <p><strong>Solution:</strong> 更新了 argparse choices，将 **kwargs 注入核心函数，并修改了验证逻辑以优雅地处理原始 latent spaces 和预编码的 latent spaces。</p>
-<p><strong>Key Insight:</strong> 动态配置传递对于将 gene encoding 与 fusion strategies 解耦至关重要，从而实现灵活的多模态实验。</p>
+<p><strong>关键发现：</strong> 动态配置传递对于将 gene encoding 与 fusion strategies 解耦至关重要，从而实现灵活的多模态实验。</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="end-to-end-architecture-strategy--baseline-alignment">End-to-End Architecture Strategy &amp; Baseline Alignment<a hidden class="anchor" aria-hidden="true" href="#end-to-end-architecture-strategy--baseline-alignment">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>识别出将两阶段推理统一为 end-to-end 训练的战略必要性，识别出数学上正确的 edge weight 公式，并要求实现精确的 baseline 等效性，而不是接受次优指标作为可接受的 bug。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初默认使用标准化的 deep learning 惯例和僵化的单模态假设；随后通过文件分析追踪配置不匹配，实施了迭代式依赖补丁，并根据明确的提示应用了确定性的 GPU flags。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 提供了高层架构方向、领域特定的数学正确性和严格的质量基准；AI 在人类引导的修正范围内，严格执行了取证代码追踪、迭代修复实施和环境调试。</p>
+<p><strong>差异分析：</strong> Human 提供了高层架构方向、领域特定的数学正确性和严格的质量基准；AI 在人类引导的修正范围内，严格执行了取证代码追踪、迭代修复实施和环境调试。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
 <ul>

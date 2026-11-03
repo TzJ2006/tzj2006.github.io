@@ -10,7 +10,7 @@
 <meta name="description" content="通过修正环境依赖、将默认 hyperparameters 与原始 STAIG 架构重新对齐，并修复 graph convolution activation 逻辑，诊断并解决了 MIHD spatial transcriptomics pipeline 中一个关键的 benchmark accuracy regression 问题。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-02-01/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-02-01 Daily Overview 完成工作： 调查并修复了 MIHD benchmark 中 unexpected 的 clustering metric 下降问题（ARI 从 ~0.4 降至 ~0.13），将其 GCN 实现与原始 STAIG framework 对齐，并验证了全新的 GCN+UNI2+STAIG_fusion 配置。 实施方式： 通过交叉引用 git histories 和 experimental logs 来识别 environment mismatches 和 parameter drift；恢复了 baseline conda environments (General)；修复了 STAIGTrainer.py 和 run_benchmark_core.py；更新了 GCNGeneEncoder 以确保 activations 应用于包括 final projection layer 在内的所有 layers。 影响： 将 benchmark clustering performance 恢复至预期水平（ARI \u003e0.45），消除了 MIHD 与 STAIG codebases 之间的 architectural drift，并为未来的 multimodal fusion experiments 建立了可靠的 configuration propagation protocol。 通过纠正 environment dependencies、将 default hyperparameters 与原始 STAIG architecture 重新对齐以及修复 graph convolution activation logic，诊断并解决了 MIHD spatial transcriptomics pipeline 中一个关键的 benchmark accuracy regression 问题。\nTasks Architecture \u0026 Strategy ✅ Resolve MIHD Benchmark ARI Regression — 诊断了包括 environment mismatch (base vs General)、drifted training hyperparameters 以及错误的 raw gene expression bypass 在内的根本原因；恢复了 baseline configurations 并验证了 metric recovery。 ✅ Align MIHD GCN Architecture with STAIG — 识别了 GCNGeneEncoder 中 activation function application 的差异；修复了 forward pass 以匹配原始 STAIG 的 layer-wise activation，并记录了 cross-project 的 architectural differences。 Implementation \u0026 Fixes ✅ Test GCN + UNI2 + STAIG_fusion Configuration — 配置了 benchmark runner 以支持 --gene_encoder gcn；执行了 test suite，修复了 dependency issues (torch_geometric, scikit-misc)，并成功生成了 visualizations 和 embeddings。 Problems \u0026 Solutions Critical Issues 1. 尽管没有重大的 feature changes，Benchmark ARI 仍从 ~0.4+ 下降到了 ~0.13。 Solution: 识别出 STAIGTrainer.py 中错误的 conda environment execution 和 drifted defaults；将 tau、num_epochs 以及 edge weight methods (softmax_neglog -\u003e softmax_log) 还原为经过验证的 baseline values。\nKey Insight: 在 contrastive multimodal training 中，细微的 hyperparameter drift（如 temperature scaling, epoch counts）和 environment-level 的 dependency mismatches 会严重破坏 convergence 和 clustering boundaries。\n2. 先前的 pipeline update 通过注入 raw 3000-dim gene expression 而非 pre-computed 50-dim PCA embeddings，破坏了 STAIG fusion。 Solution: 移除了 run_benchmark_core.py 中的 raw_gene_expr bypass logic；恢复了正确的 low-dimensional embedding flow 以匹配原始 STAIG 的 training dynamics。\nKey Insight: 带有 internal GCN layers 的 hybrid models 需要严格的 input dimension alignment；使用 raw data 绕过 pre-processed embeddings 会从根本上改变 graph topology 并破坏 contrastive objectives。\n3. MIHD 的 GCNGeneEncoder 在 final layer 遗漏了 activation functions，偏离了原始 STAIG specifications。 Solution: 更新了 GCNGeneEncoder.forward() 以默认在所有 layers 应用 activations；添加了用于 backward compatibility 的可配置参数 apply_activation_to_last_layer=True。\nKey Insight: 在 channel-expansion GCNs 中，对 final projection layer 应用 non-linearities 会显著改变 feature space geometry，因此严格的 architectural replication 对于 reproducibility 至关重要。\nHuman vs AI Approaches Strategic Level ARI Drop 的 Root Cause Identification Role Approach Human 早期分析了 git diffs，对比了 successful vs failed 的 experimental logs，并迅速将 environmental (rpy2 dependency) 和 configuration drift 定位为主要原因。 AI 最初依赖于 iterative execution 和 diff analysis；在 human 强调了 environment mismatches 并交叉引用 historical baseline states 以验证 fixes 后，才纠正了方向。 Difference Analysis: Human 预先提供了 high-level 的 architectural context 和 dependency requirements，加速了 diagnosis。AI 通过 execution loops 系统地隔离参数，但需要针对性的 prompts 来优先进行 environmental 和 historical baseline checks。\nCross-Project GCN Architecture Alignment Role Approach Human 提出在所有 GCN layers 中显式对齐 activation functions，并使用原始 STAIG net.py 作为权威 reference。 AI 通过阅读 source files 验证了该 hypothesis，在 GCNGeneEncoder 中实现了 conditional patching，并将发现总结为涵盖 graph efficiency, weight calculation 和 layer defaults 的 comparative matrix。 Difference Analysis: Human 基于 mathematical implementation standards 驱动理论上的 alignment。AI 高效地执行了 structural patches，并将 practical differences（例如 O(n^2) vs KD-tree graph building）抽象为可操作的 documentation。\nAI Limitations Critical Limitations 最初未能将 code execution failures 直接与 environment dependencies (rpy2/conda mismatch) 联系起来，需要 human intervention 来识别正确的 runtime context。 General Limitations 对 iterative bash trial-and-error 的依赖引入了 latency；如果能更早地通过静态分析 git blame 或 config propagation paths 来发现 parameter drift，将会更有利。 Learnings Key Learnings 在 multimodal fusion benchmarks 中，如果不考虑 algorithmic differences 就切换 clustering backends（例如 R 的 mclust vs Python 的 kmeans），即使 encoder pipelines 在功能上是正确的，也会人为地抑制 metric scores。 Configuration-driven training loops 高度依赖显式的 parameter inheritance；在 nested object initialization 期间静默丢弃 yaml values 会导致难以通过 rigorous diff auditing 来追踪的 silent performance degradation。 Conversation Summaries ✅ Debugging ARI Drop and Aligning MIHD GCN with STAIG 05:23:52.274 | claude_code 诊断了 MIHD spatial transcriptomics pipeline 中的一个关键性能 regression，其中 clustering accuracy 从 0.4 以上下降到约 0.13。根本原因被确定为 environment mismatch（base conda env 中缺失 rpy2）、drifted default hyperparameters 以及一个错误的 data pipeline bypass（传递了 raw gene expression 而非 PCA embeddings）。修复措施包括恢复 baseline configurations、修复 STAIGTrainer.py 和 run_benchmark_core.py，以及更新 GCNGeneEncoder 以在所有 layers 应用 activations。对齐后的配置测试成功，恢复了预期的 metrics 并生成了 visualizations。\nToken Usage AI Usage · 2026-02-01\rClaude Code\rTotal cost$2.19\rTotal tokens2M\rOutput tokens33\rCache read78.3%\rToken character\rCache reads 78.3% ·\rActive 21.7%\rMost token volume came from cache reads.\r",
-  "wordCount" : "637",
+  "articleBody": "Daily Report — 2026-02-01 Daily Overview 完成工作： 调查并修复了 MIHD benchmark 中 unexpected 的 clustering metric 下降问题（ARI 从 ~0.4 降至 ~0.13），将其 GCN 实现与原始 STAIG framework 对齐，并验证了全新的 GCN+UNI2+STAIG_fusion 配置。 实施方式： 通过交叉引用 git histories 和 experimental logs 来识别 environment mismatches 和 parameter drift；恢复了 baseline conda environments (General)；修复了 STAIGTrainer.py 和 run_benchmark_core.py；更新了 GCNGeneEncoder 以确保 activations 应用于包括 final projection layer 在内的所有 layers。 影响： 将 benchmark clustering performance 恢复至预期水平（ARI \u003e0.45），消除了 MIHD 与 STAIG codebases 之间的 architectural drift，并为未来的 multimodal fusion experiments 建立了可靠的 configuration propagation protocol。 通过纠正 environment dependencies、将 default hyperparameters 与原始 STAIG architecture 重新对齐以及修复 graph convolution activation logic，诊断并解决了 MIHD spatial transcriptomics pipeline 中一个关键的 benchmark accuracy regression 问题。\nTasks Architecture \u0026 Strategy ✅ Resolve MIHD Benchmark ARI Regression — 诊断了包括 environment mismatch (base vs General)、drifted training hyperparameters 以及错误的 raw gene expression bypass 在内的根本原因；恢复了 baseline configurations 并验证了 metric recovery。 ✅ Align MIHD GCN Architecture with STAIG — 识别了 GCNGeneEncoder 中 activation function application 的差异；修复了 forward pass 以匹配原始 STAIG 的 layer-wise activation，并记录了 cross-project 的 architectural differences。 Implementation \u0026 Fixes ✅ Test GCN + UNI2 + STAIG_fusion Configuration — 配置了 benchmark runner 以支持 --gene_encoder gcn；执行了 test suite，修复了 dependency issues (torch_geometric, scikit-misc)，并成功生成了 visualizations 和 embeddings。 Problems \u0026 Solutions Critical Issues 1. 尽管没有重大的 feature changes，Benchmark ARI 仍从 ~0.4+ 下降到了 ~0.13。 Solution: 识别出 STAIGTrainer.py 中错误的 conda environment execution 和 drifted defaults；将 tau、num_epochs 以及 edge weight methods (softmax_neglog -\u003e softmax_log) 还原为经过验证的 baseline values。\n关键发现： 在 contrastive multimodal training 中，细微的 hyperparameter drift（如 temperature scaling, epoch counts）和 environment-level 的 dependency mismatches 会严重破坏 convergence 和 clustering boundaries。\n2. 先前的 pipeline update 通过注入 raw 3000-dim gene expression 而非 pre-computed 50-dim PCA embeddings，破坏了 STAIG fusion。 Solution: 移除了 run_benchmark_core.py 中的 raw_gene_expr bypass logic；恢复了正确的 low-dimensional embedding flow 以匹配原始 STAIG 的 training dynamics。\n关键发现： 带有 internal GCN layers 的 hybrid models 需要严格的 input dimension alignment；使用 raw data 绕过 pre-processed embeddings 会从根本上改变 graph topology 并破坏 contrastive objectives。\n3. MIHD 的 GCNGeneEncoder 在 final layer 遗漏了 activation functions，偏离了原始 STAIG specifications。 Solution: 更新了 GCNGeneEncoder.forward() 以默认在所有 layers 应用 activations；添加了用于 backward compatibility 的可配置参数 apply_activation_to_last_layer=True。\n关键发现： 在 channel-expansion GCNs 中，对 final projection layer 应用 non-linearities 会显著改变 feature space geometry，因此严格的 architectural replication 对于 reproducibility 至关重要。\nHuman vs AI Approaches Strategic Level ARI Drop 的 Root Cause Identification 角色 方法 用户 早期分析了 git diffs，对比了 successful vs failed 的 experimental logs，并迅速将 environmental (rpy2 dependency) 和 configuration drift 定位为主要原因。 AI 助手 最初依赖于 iterative execution 和 diff analysis；在 human 强调了 environment mismatches 并交叉引用 historical baseline states 以验证 fixes 后，才纠正了方向。 差异分析： Human 预先提供了 high-level 的 architectural context 和 dependency requirements，加速了 diagnosis。AI 通过 execution loops 系统地隔离参数，但需要针对性的 prompts 来优先进行 environmental 和 historical baseline checks。\nCross-Project GCN Architecture Alignment 角色 方法 用户 提出在所有 GCN layers 中显式对齐 activation functions，并使用原始 STAIG net.py 作为权威 reference。 AI 助手 通过阅读 source files 验证了该 hypothesis，在 GCNGeneEncoder 中实现了 conditional patching，并将发现总结为涵盖 graph efficiency, weight calculation 和 layer defaults 的 comparative matrix。 差异分析： Human 基于 mathematical implementation standards 驱动理论上的 alignment。AI 高效地执行了 structural patches，并将 practical differences（例如 O(n^2) vs KD-tree graph building）抽象为可操作的 documentation。\nAI Limitations Critical Limitations 最初未能将 code execution failures 直接与 environment dependencies (rpy2/conda mismatch) 联系起来，需要 human intervention 来识别正确的 runtime context。 General Limitations 对 iterative bash trial-and-error 的依赖引入了 latency；如果能更早地通过静态分析 git blame 或 config propagation paths 来发现 parameter drift，将会更有利。 Learnings Key Learnings 在 multimodal fusion benchmarks 中，如果不考虑 algorithmic differences 就切换 clustering backends（例如 R 的 mclust vs Python 的 kmeans），即使 encoder pipelines 在功能上是正确的，也会人为地抑制 metric scores。 Configuration-driven training loops 高度依赖显式的 parameter inheritance；在 nested object initialization 期间静默丢弃 yaml values 会导致难以通过 rigorous diff auditing 来追踪的 silent performance degradation。 Conversation Summaries ✅ Debugging ARI Drop and Aligning MIHD GCN with STAIG 05:23:52.274 | claude_code 诊断了 MIHD spatial transcriptomics pipeline 中的一个关键性能 regression，其中 clustering accuracy 从 0.4 以上下降到约 0.13。根本原因被确定为 environment mismatch（base conda env 中缺失 rpy2）、drifted default hyperparameters 以及一个错误的 data pipeline bypass（传递了 raw gene expression 而非 PCA embeddings）。修复措施包括恢复 baseline configurations、修复 STAIGTrainer.py 和 run_benchmark_core.py，以及更新 GCNGeneEncoder 以在所有 layers 应用 activations。对齐后的配置测试成功，恢复了预期的 metrics 并生成了 visualizations。\nToken Usage AI Usage · 2026-02-01\rClaude Code\rTotal cost$2.19\rTotal tokens2M\rOutput tokens33\rCache read78.3%\rToken character\rCache reads 78.3% ·\rActive 21.7%\rMost token volume came from cache reads.\r",
+  "wordCount" : "634",
   "inLanguage": "zh",
   "datePublished": "2026-02-01T00:00:00-05:00",
   "dateModified": "2026-02-01T00:00:00-05:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -233,55 +233,55 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-尽管没有重大的-feature-changesbenchmark-ari-仍从-04-下降到了-013">1. 尽管没有重大的 feature changes，Benchmark ARI 仍从 ~0.4+ 下降到了 ~0.13。<a hidden class="anchor" aria-hidden="true" href="#1-尽管没有重大的-feature-changesbenchmark-ari-仍从-04-下降到了-013">#</a></h4>
 <p><strong>Solution:</strong> 识别出 <code>STAIGTrainer.py</code> 中错误的 conda environment execution 和 drifted defaults；将 <code>tau</code>、<code>num_epochs</code> 以及 edge weight methods (<code>softmax_neglog</code> -&gt; <code>softmax_log</code>) 还原为经过验证的 baseline values。</p>
-<p><strong>Key Insight:</strong> 在 contrastive multimodal training 中，细微的 hyperparameter drift（如 temperature scaling, epoch counts）和 environment-level 的 dependency mismatches 会严重破坏 convergence 和 clustering boundaries。</p>
+<p><strong>关键发现：</strong> 在 contrastive multimodal training 中，细微的 hyperparameter drift（如 temperature scaling, epoch counts）和 environment-level 的 dependency mismatches 会严重破坏 convergence 和 clustering boundaries。</p>
 <h4 id="2-先前的-pipeline-update-通过注入-raw-3000-dim-gene-expression-而非-pre-computed-50-dim-pca-embeddings破坏了-staig-fusion">2. 先前的 pipeline update 通过注入 raw 3000-dim gene expression 而非 pre-computed 50-dim PCA embeddings，破坏了 STAIG fusion。<a hidden class="anchor" aria-hidden="true" href="#2-先前的-pipeline-update-通过注入-raw-3000-dim-gene-expression-而非-pre-computed-50-dim-pca-embeddings破坏了-staig-fusion">#</a></h4>
 <p><strong>Solution:</strong> 移除了 <code>run_benchmark_core.py</code> 中的 <code>raw_gene_expr</code> bypass logic；恢复了正确的 low-dimensional embedding flow 以匹配原始 STAIG 的 training dynamics。</p>
-<p><strong>Key Insight:</strong> 带有 internal GCN layers 的 hybrid models 需要严格的 input dimension alignment；使用 raw data 绕过 pre-processed embeddings 会从根本上改变 graph topology 并破坏 contrastive objectives。</p>
+<p><strong>关键发现：</strong> 带有 internal GCN layers 的 hybrid models 需要严格的 input dimension alignment；使用 raw data 绕过 pre-processed embeddings 会从根本上改变 graph topology 并破坏 contrastive objectives。</p>
 <h4 id="3-mihd-的-gcngeneencoder-在-final-layer-遗漏了-activation-functions偏离了原始-staig-specifications">3. MIHD 的 <code>GCNGeneEncoder</code> 在 final layer 遗漏了 activation functions，偏离了原始 STAIG specifications。<a hidden class="anchor" aria-hidden="true" href="#3-mihd-的-gcngeneencoder-在-final-layer-遗漏了-activation-functions偏离了原始-staig-specifications">#</a></h4>
 <p><strong>Solution:</strong> 更新了 <code>GCNGeneEncoder.forward()</code> 以默认在所有 layers 应用 activations；添加了用于 backward compatibility 的可配置参数 <code>apply_activation_to_last_layer=True</code>。</p>
-<p><strong>Key Insight:</strong> 在 channel-expansion GCNs 中，对 final projection layer 应用 non-linearities 会显著改变 feature space geometry，因此严格的 architectural replication 对于 reproducibility 至关重要。</p>
+<p><strong>关键发现：</strong> 在 channel-expansion GCNs 中，对 final projection layer 应用 non-linearities 会显著改变 feature space geometry，因此严格的 architectural replication 对于 reproducibility 至关重要。</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="ari-drop-的-root-cause-identification">ARI Drop 的 Root Cause Identification<a hidden class="anchor" aria-hidden="true" href="#ari-drop-的-root-cause-identification">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>早期分析了 git diffs，对比了 successful vs failed 的 experimental logs，并迅速将 environmental (<code>rpy2</code> dependency) 和 configuration drift 定位为主要原因。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初依赖于 iterative execution 和 diff analysis；在 human 强调了 environment mismatches 并交叉引用 historical baseline states 以验证 fixes 后，才纠正了方向。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 预先提供了 high-level 的 architectural context 和 dependency requirements，加速了 diagnosis。AI 通过 execution loops 系统地隔离参数，但需要针对性的 prompts 来优先进行 environmental 和 historical baseline checks。</p>
+<p><strong>差异分析：</strong> Human 预先提供了 high-level 的 architectural context 和 dependency requirements，加速了 diagnosis。AI 通过 execution loops 系统地隔离参数，但需要针对性的 prompts 来优先进行 environmental 和 historical baseline checks。</p>
 <h4 id="cross-project-gcn-architecture-alignment">Cross-Project GCN Architecture Alignment<a hidden class="anchor" aria-hidden="true" href="#cross-project-gcn-architecture-alignment">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>提出在所有 GCN layers 中显式对齐 activation functions，并使用原始 STAIG <code>net.py</code> 作为权威 reference。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>通过阅读 source files 验证了该 hypothesis，在 <code>GCNGeneEncoder</code> 中实现了 conditional patching，并将发现总结为涵盖 graph efficiency, weight calculation 和 layer defaults 的 comparative matrix。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 基于 mathematical implementation standards 驱动理论上的 alignment。AI 高效地执行了 structural patches，并将 practical differences（例如 O(n^2) vs KD-tree graph building）抽象为可操作的 documentation。</p>
+<p><strong>差异分析：</strong> Human 基于 mathematical implementation standards 驱动理论上的 alignment。AI 高效地执行了 structural patches，并将 practical differences（例如 O(n^2) vs KD-tree graph building）抽象为可操作的 documentation。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
 <ul>

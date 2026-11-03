@@ -10,7 +10,7 @@
 <meta name="description" content="这一天专注于对 robot policy quantization 失败进行高风险的技术调查，为论文提交进行大规模的研究数据重构，以及对 AI Companion 的工作流和报告标准进行系统性改革，以实现从以审计为中心向以目标为导向执行的转型。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-16/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-09-16 Daily Overview 工作内容： 当日工作涵盖三个关键支柱：先进机器人研究（诊断 Pi0.5 量化失败模式）、大规模数据与仓库管理（重新组织 25GB 研究产出并清理 Git history）以及 AI Companion 的系统性开发（通过 D33 标准化报告并优化工作流自主性）。 实施方式： 技术执行包括用于模型诊断的逐帧运动分析、通过 git filter-repo 进行复杂的 Git history 操作、基于 Python 的大规模数据集自动化路径重写，以及针对 AI 开发工具链的深度 Rust/Svelte 重构。 影响： 这些活动已将项目从不稳定的开发状态推向发布就绪阶段——具体包括确保论文提交的科学完整性、打通 CI/CD pipelines，并通过提高 AI 自主性显著降低人类的认知负荷。 MacOS 工作内容： 记录的活动极少。 实施方式： N/A 影响： 对项目无显著影响。 TzJsDesktop 工作内容： 所有主要项目（包括 AI Companion, Pi0.5, TokenMonitor, 和 MIHD）的主要开发与编排中心。 实施方式： 利用 Claude Code 进行密集的基于 terminal 的编排、shell scripting、Python 驱动的大规模文件编辑以及复杂的跨项目同步。 影响： 实现了高强度的技术执行，包括容器管理、大规模数据重组以及新 AI skills/报告标准的快速原型设计。 lighthouse 工作内容： 远程执行与存储端点。 实施方式： 通过 SCP 和远程命令执行进行访问，用于管理大规模机器人轨迹 MP4 文件和数据集。 影响： 促进了用于机器人 policy 评估的重型视觉资产的高效管理与存储。 今日重点在于对机器人 policy 量化失败进行高风险技术调查、为论文提交进行大规模研究数据重组，以及对 AI Companion 的工作流和报告标准进行系统性改革，以实现从以审计为中心向以目标为导向执行的转型。\nTasks Architecture \u0026 Strategy ✅ 从 GitHub history 中清除 companion 文件 — 重写 LiveCaption, TokenMonitor, gadget, LifeCopilot, 和 RoboMemory 的 Git history，以移除 .companion, ideas, 和 config 文件。 🔄 Libero Benchmark Evaluation \u0026 Pi0.5 Investigation — 分析 w4a4 量化 pi0.5 模型在 Libero 任务中 0/50 的成功率，以确定失败是由于 attention collapse 还是空间精度误差引起。 ✅ Update ai-companion \u0026 Workflow Optimization — 重建工具注册表，实现 D33 进度报告，并重构核心 skills (ccscan, ccthink, 等) 以允许 ‘authorize-and-proceed’ 自主性。 ✅ RecoverBench Paper v10 Generation — 创建 camera-ready LaTeX 草案，整合所有 rebuttal 承诺、数据统计和 OpenVLA 结果。 ✅ MIHD Data Reorganization \u0026 Path Sync — 将 25GB 的产出物理重组为 6 部分结构，并重写 160+ codebase 文件以反映新路径。 ✅ TokenMonitor Feature Implementation \u0026 Bug Fixes — 实现自定义周期窗口 (I-053)、Grok Bot 定价逻辑，并修复 UI 问题 (Floating Ball, SSH settings, Model normalization)。 🔄 RoboMemory I-148 Baseline Training — 使用 ’norm’ arm 重新运行训练，以修复因 imitation2 数据统计不当导致的 division-by-zero 问题。 ✅ Diagnose mouse drift — 调查 mouse drift 是由未经授权的远程控制 (RustDesk) 还是硬件/软件外设引起的。 ✅ LifeCopilotBeta Infrastructure Development — 实现 RepoSupervisor (subprocess proxy)、项目页面扩展以及安全的 portal 身份验证。 Problems \u0026 Solutions Critical Issues 1. 量化模型 (w4a4) 在所有 Libero 任务中失败，成功率为 0%。 Solution: 进行了逐帧运动幅度与视觉差异分析。发现错误并非 attention collapse，而是在初始 action block 期间由于低比特 backbone 精度损失导致的 ‘stop-before-target’ 行为。\n2. AI Companion 出现 ‘decision fatigue’ 和重复的审批提示。 Solution: 重构了 skill 文档和逻辑以实现 ‘authorize-and-proceed’ 模型，区分常规进度与关键决策点 (Ambiguity/Scope/Risk)。\n3. 移动 25GB 数据后出现路径断裂和 CI 失败。 Solution: 开发了一个使用 regex 进行路径重写的自定义 Python 重组脚本，并实现了一个集中的 figure routing 系统。\n4. 由于缺失 ’tokenUsage’ 字段，Grok Bot 的使用量显示为 $0。 Solution: 修改了 parser 以接受 ‘chargedCents’ 字段，并引入了基于回归分析的静态定价 fallback 机制。\n5. 与 npm/Node 版本及 lockfile 同步相关的 CI pipeline 失败。 Solution: 手动修补了 package-lock.json，并在 CI workflows 中固定了 Node 版本，以解决 @emnapi 依赖问题。\n6. 由于权限和分支歧义导致 Git history 重写失败。 Solution: 在本地镜像上使用 git filter-repo，并为用户提供手动 PowerShell 命令以完成 push。\n7. 由于精度/位宽不匹配导致 W4A4 的 QAIRT 部署失败。 Solution: 确定 16-bit softmax/norm scaling 会产生被 QAIRT 拒绝的 ‘activation islands’；结论是 W4A8 是目前可行的目标。\n8. Windows 上鼠标光标间歇性漂移。 Solution: 审计了远程访问进程 (RustDesk) 和 HID 设备。确定 3Dconnexion SpaceMouse 和 M-AI 软件是可能的罪魁祸首。\n9. Multi-Agent 并发写入与 Windows 原子写入风险。 Solution: 引入了 baseDigest (fingerprint) 一致性检查，以及带有临时文件隔离机制的 atomicWrite 循环重试机制。\nGeneral Issues 10. 大规模 Python 编辑导致 CRLF 换行符，破坏了 Vitest。 Solution: 执行了一个 Python one-liner，强制将所有修改过的文件中的 CRLF 替换为 LF。\nHuman vs AI Approaches Strategic Level Agent Autonomy vs. Guarding Role Approach Human 要求一个能够主动追求目标、持续更新且无需频繁审批的 agent (Execution-centric)。 AI 最初侧重于做一个优先考虑严格验证和关卡的 ‘bookkeeper’ (Audit-centric)。 Difference Analysis: 人类优先考虑最小化中断频率，而 AI 优先考虑验证的完整性。\nPi0.5 Failure Analysis Role Approach Human 建议检查任务名称不匹配问题 (semantic direction)。 AI 分析 BDDL 文件和仿真逻辑，为精度损失提供物理/逻辑层面的验证。 Output Reorganization Strategy Role Approach Human 为了长期维护，决定采取“激进的物理移动”（aggressive reorganization）。 AI 提出了非破坏性的双层 symlink 方法，以最小化路径破坏风险。 Difference Analysis: Human 优先考虑清晰的科学结构，而非即时的技术便利性。\nUI Layout and Design Role Approach Human 建议将 ‘Rolling Periods’ 合并到 ‘Week Starts’ 中，并要求将 ‘Test All’ 准确地放置在 ‘Sync All’ 旁边。 AI 最初计划使用独立的 toggles，并使用了标准的 space-between flexbox 布局。 Difference Analysis: Human 优先考虑紧凑、直观的 UI 和明确的空间定位。\nGit History Cleaning Strategy Role Approach Human 要求在所有 repositories 中彻底清除所有与 companion 相关的路径，包括 ‘ideas/’ 和 docs。 AI 最初建议采取保守的方法，区分程序文件和文档资产。 Difference Analysis: Human 推动完全移除开发者足迹，这需要更复杂的 history rewrites。\nAI Limitations Critical Limitations AI 对成功的验证往往是循环的（自我验证其自身的进度报告），缺乏客观证明。 当尝试使用 shell redirection (’\u003e’)、设置环境变量或在分配路径之外进行文件写入时，AI 反复被 security guards (D21/D26) 拦截。 General Limitations AI 在处理 MSYS 路径转换问题时表现挣扎，并偶尔误解 flexbox 布局中的 ’next to’。 由于 D16/I-147 的限制，AI 无法写入位于当前项目目录之外的项目 memory files。 Learnings Key Learnings VLA backbones 中的 Quantization 可能从第一个 action block 开始就导致系统性的 ‘drift’，使得错误在与环境接触时立即发生。 一个只能看到 tool calls 的 ‘guard’ 无法强制执行对话标准；行为必须直接嵌入到 ‘Skills’（行为指令）中。 Grok Bot 实际上是 Cursor 的一个 shell；其使用事件遵循 ‘cents-based’ 模型而非 token-based 模型。 使用单个 dropdown 来驱动多个状态（例如，将 ‘To date’ 作为特殊值）可以显著简化 UI 复杂度。 在使用 ‘idea graph’ 系统时，每个实现细节必须严格映射到一个 ID，以保持验证周期的完整性。 通过在 D33 中将 ‘Main Task’ 与 ‘Progress Four-Items’ 合并，agent 的思考成本和回复长度得以降低，同时信息密度增加。 Conversation Summaries Qualcomm Project (Pi0.5) 🔄 W4A4 Bottleneck \u0026 Libero Investigation 03:11:42.723 | claude_code 调查了 W4A4 quantized model 在 Libero goal tasks 上零成功率的问题。通过逐帧运动和视觉分歧分析确定，错误是由于 backbone 中的空间精度损失导致抓取错误，而非 attention failure。\nAI Companion ✅ Systemic Workflow \u0026 Reporting Overhaul (D33) 03:05:15.757 | claude_code 将系统从“记录工具”转变为“目标导向”的框架。实现了 D33 7-line progress block，标准化了所有五个核心 skills 的报告，针对 ‘authorize-and-proceed’ 自主性进行了优化，并执行了大规模的 Git history purge。\nTokenMonitor ✅ UI/UX, Pricing, and CI/CD Standardization 03:46:52 | claude_code 解决了多个 UI bugs (Floating Ball, SSH, Model Color)，实现了自定义 period windows 和 Grok Bot 定价逻辑，并解决了与 dependency lockfiles 和跨平台环境变量相关的 CI/CD pipeline blocker。\nMIHD ✅ Paper Preparation \u0026 Massive Data Reorganization 02:44:01.203 | claude_code 对 25GB 的输出数据进行了大规模重组，以符合论文结构。通过 regex path rewriting 同步了 codebase，并为 Paper2Agent pipeline 准备好了系统。\nLifeCopilotBeta ✅ Multi-Repo Portal Infrastructure 03:05:15.757 | claude_code 实现了核心的 ‘portal-as-hub’ 功能，包括 companion services 的 subprocess management、project dashboards 以及安全身份验证。\nRecoverBench ✅ Camera-Ready Paper v10 Drafting 03:05:15.757 | claude_code 生成了 LaTeX drafts (v10)，整合了所有 rebuttal commitments、精确的数据集计数以及新的 OpenVLA 结果，解决了所有覆盖范围不一致的问题。\nRoboMemory 🔄 Fixing 16-Task Baseline Training 03:05:15.757 | claude_code 识别出由零方差数据上错误的 ’norm_stats’ 导致的训练分歧。在 training script 中实现了修复以重新计算统计数据，并将其部署到了 Tianhe3 cluster。\nPhD Planning 🔍 Faculty Shortlist and Matching 03:05:15.757 | claude_code 审查了 146 名 faculty members，按研究匹配度（World Models, Failure Recovery, VLA）对其进行了分类，并准备了定制化的 outreach 策略。\nPersonal Website ✅ Hugo blog transformation 15:06:05.186 | codex 将基于 Hugo 的网站从产品落地页转型为个人博客，改进了 menu UI 和 work logs。\nToken Usage AI Usage · 2026-09-16\rClaude Code + Codex\rTotal cost$50.12\rTotal tokens45M\rOutput tokens135K\rCache read95.0%\rCost split\rClaude Code $30 ·\rCodex $20\rToken character\rCache reads 95.0% ·\rActive 5.0%\rMost token volume came from cache reads.\r",
-  "wordCount" : "821",
+  "articleBody": "Daily Report — 2026-09-16 Daily Overview 工作内容： 当日工作涵盖三个关键支柱：先进机器人研究（诊断 Pi0.5 量化失败模式）、大规模数据与仓库管理（重新组织 25GB 研究产出并清理 Git history）以及 AI Companion 的系统性开发（通过 D33 标准化报告并优化工作流自主性）。 实施方式： 技术执行包括用于模型诊断的逐帧运动分析、通过 git filter-repo 进行复杂的 Git history 操作、基于 Python 的大规模数据集自动化路径重写，以及针对 AI 开发工具链的深度 Rust/Svelte 重构。 影响： 这些活动已将项目从不稳定的开发状态推向发布就绪阶段——具体包括确保论文提交的科学完整性、打通 CI/CD pipelines，并通过提高 AI 自主性显著降低人类的认知负荷。 MacOS 工作内容： 记录的活动极少。 实施方式： N/A 影响： 对项目无显著影响。 TzJsDesktop 工作内容： 所有主要项目（包括 AI Companion, Pi0.5, TokenMonitor, 和 MIHD）的主要开发与编排中心。 实施方式： 利用 Claude Code 进行密集的基于 terminal 的编排、shell scripting、Python 驱动的大规模文件编辑以及复杂的跨项目同步。 影响： 实现了高强度的技术执行，包括容器管理、大规模数据重组以及新 AI skills/报告标准的快速原型设计。 lighthouse 工作内容： 远程执行与存储端点。 实施方式： 通过 SCP 和远程命令执行进行访问，用于管理大规模机器人轨迹 MP4 文件和数据集。 影响： 促进了用于机器人 policy 评估的重型视觉资产的高效管理与存储。 今日重点在于对机器人 policy 量化失败进行高风险技术调查、为论文提交进行大规模研究数据重组，以及对 AI Companion 的工作流和报告标准进行系统性改革，以实现从以审计为中心向以目标为导向执行的转型。\nTasks Architecture \u0026 Strategy ✅ 从 GitHub history 中清除 companion 文件 — 重写 LiveCaption, TokenMonitor, gadget, LifeCopilot, 和 RoboMemory 的 Git history，以移除 .companion, ideas, 和 config 文件。 🔄 Libero Benchmark Evaluation \u0026 Pi0.5 Investigation — 分析 w4a4 量化 pi0.5 模型在 Libero 任务中 0/50 的成功率，以确定失败是由于 attention collapse 还是空间精度误差引起。 ✅ Update ai-companion \u0026 Workflow Optimization — 重建工具注册表，实现 D33 进度报告，并重构核心 skills (ccscan, ccthink, 等) 以允许 ‘authorize-and-proceed’ 自主性。 ✅ RecoverBench Paper v10 Generation — 创建 camera-ready LaTeX 草案，整合所有 rebuttal 承诺、数据统计和 OpenVLA 结果。 ✅ MIHD Data Reorganization \u0026 Path Sync — 将 25GB 的产出物理重组为 6 部分结构，并重写 160+ codebase 文件以反映新路径。 ✅ TokenMonitor Feature Implementation \u0026 Bug Fixes — 实现自定义周期窗口 (I-053)、Grok Bot 定价逻辑，并修复 UI 问题 (Floating Ball, SSH settings, Model normalization)。 🔄 RoboMemory I-148 Baseline Training — 使用 ’norm’ arm 重新运行训练，以修复因 imitation2 数据统计不当导致的 division-by-zero 问题。 ✅ Diagnose mouse drift — 调查 mouse drift 是由未经授权的远程控制 (RustDesk) 还是硬件/软件外设引起的。 ✅ LifeCopilotBeta Infrastructure Development — 实现 RepoSupervisor (subprocess proxy)、项目页面扩展以及安全的 portal 身份验证。 Problems \u0026 Solutions Critical Issues 1. 量化模型 (w4a4) 在所有 Libero 任务中失败，成功率为 0%。 Solution: 进行了逐帧运动幅度与视觉差异分析。发现错误并非 attention collapse，而是在初始 action block 期间由于低比特 backbone 精度损失导致的 ‘stop-before-target’ 行为。\n2. AI Companion 出现 ‘decision fatigue’ 和重复的审批提示。 Solution: 重构了 skill 文档和逻辑以实现 ‘authorize-and-proceed’ 模型，区分常规进度与关键决策点 (Ambiguity/Scope/Risk)。\n3. 移动 25GB 数据后出现路径断裂和 CI 失败。 Solution: 开发了一个使用 regex 进行路径重写的自定义 Python 重组脚本，并实现了一个集中的 figure routing 系统。\n4. 由于缺失 ’tokenUsage’ 字段，Grok Bot 的使用量显示为 $0。 Solution: 修改了 parser 以接受 ‘chargedCents’ 字段，并引入了基于回归分析的静态定价 fallback 机制。\n5. 与 npm/Node 版本及 lockfile 同步相关的 CI pipeline 失败。 Solution: 手动修补了 package-lock.json，并在 CI workflows 中固定了 Node 版本，以解决 @emnapi 依赖问题。\n6. 由于权限和分支歧义导致 Git history 重写失败。 Solution: 在本地镜像上使用 git filter-repo，并为用户提供手动 PowerShell 命令以完成 push。\n7. 由于精度/位宽不匹配导致 W4A4 的 QAIRT 部署失败。 Solution: 确定 16-bit softmax/norm scaling 会产生被 QAIRT 拒绝的 ‘activation islands’；结论是 W4A8 是目前可行的目标。\n8. Windows 上鼠标光标间歇性漂移。 Solution: 审计了远程访问进程 (RustDesk) 和 HID 设备。确定 3Dconnexion SpaceMouse 和 M-AI 软件是可能的罪魁祸首。\n9. Multi-Agent 并发写入与 Windows 原子写入风险。 Solution: 引入了 baseDigest (fingerprint) 一致性检查，以及带有临时文件隔离机制的 atomicWrite 循环重试机制。\nGeneral Issues 10. 大规模 Python 编辑导致 CRLF 换行符，破坏了 Vitest。 Solution: 执行了一个 Python one-liner，强制将所有修改过的文件中的 CRLF 替换为 LF。\nHuman vs AI Approaches Strategic Level Agent Autonomy vs. Guarding 角色 方法 用户 要求一个能够主动追求目标、持续更新且无需频繁审批的 agent (Execution-centric)。 AI 助手 最初侧重于做一个优先考虑严格验证和关卡的 ‘bookkeeper’ (Audit-centric)。 差异分析： 人类优先考虑最小化中断频率，而 AI 优先考虑验证的完整性。\nPi0.5 Failure Analysis 角色 方法 用户 建议检查任务名称不匹配问题 (semantic direction)。 AI 助手 分析 BDDL 文件和仿真逻辑，为精度损失提供物理/逻辑层面的验证。 Output Reorganization Strategy 角色 方法 用户 为了长期维护，决定采取“激进的物理移动”（aggressive reorganization）。 AI 助手 提出了非破坏性的双层 symlink 方法，以最小化路径破坏风险。 差异分析： Human 优先考虑清晰的科学结构，而非即时的技术便利性。\nUI Layout and Design 角色 方法 用户 建议将 ‘Rolling Periods’ 合并到 ‘Week Starts’ 中，并要求将 ‘Test All’ 准确地放置在 ‘Sync All’ 旁边。 AI 助手 最初计划使用独立的 toggles，并使用了标准的 space-between flexbox 布局。 差异分析： Human 优先考虑紧凑、直观的 UI 和明确的空间定位。\nGit History Cleaning Strategy 角色 方法 用户 要求在所有 repositories 中彻底清除所有与 companion 相关的路径，包括 ‘ideas/’ 和 docs。 AI 助手 最初建议采取保守的方法，区分程序文件和文档资产。 差异分析： Human 推动完全移除开发者足迹，这需要更复杂的 history rewrites。\nAI Limitations Critical Limitations AI 对成功的验证往往是循环的（自我验证其自身的进度报告），缺乏客观证明。 当尝试使用 shell redirection (’\u003e’)、设置环境变量或在分配路径之外进行文件写入时，AI 反复被 security guards (D21/D26) 拦截。 General Limitations AI 在处理 MSYS 路径转换问题时表现挣扎，并偶尔误解 flexbox 布局中的 ’next to’。 由于 D16/I-147 的限制，AI 无法写入位于当前项目目录之外的项目 memory files。 Learnings Key Learnings VLA backbones 中的 Quantization 可能从第一个 action block 开始就导致系统性的 ‘drift’，使得错误在与环境接触时立即发生。 一个只能看到 tool calls 的 ‘guard’ 无法强制执行对话标准；行为必须直接嵌入到 ‘Skills’（行为指令）中。 Grok Bot 实际上是 Cursor 的一个 shell；其使用事件遵循 ‘cents-based’ 模型而非 token-based 模型。 使用单个 dropdown 来驱动多个状态（例如，将 ‘To date’ 作为特殊值）可以显著简化 UI 复杂度。 在使用 ‘idea graph’ 系统时，每个实现细节必须严格映射到一个 ID，以保持验证周期的完整性。 通过在 D33 中将 ‘Main Task’ 与 ‘Progress Four-Items’ 合并，agent 的思考成本和回复长度得以降低，同时信息密度增加。 Conversation Summaries Qualcomm Project (Pi0.5) 🔄 W4A4 Bottleneck \u0026 Libero Investigation 03:11:42.723 | claude_code 调查了 W4A4 quantized model 在 Libero goal tasks 上零成功率的问题。通过逐帧运动和视觉分歧分析确定，错误是由于 backbone 中的空间精度损失导致抓取错误，而非 attention failure。\nAI Companion ✅ Systemic Workflow \u0026 Reporting Overhaul (D33) 03:05:15.757 | claude_code 将系统从“记录工具”转变为“目标导向”的框架。实现了 D33 7-line progress block，标准化了所有五个核心 skills 的报告，针对 ‘authorize-and-proceed’ 自主性进行了优化，并执行了大规模的 Git history purge。\nTokenMonitor ✅ UI/UX, Pricing, and CI/CD Standardization 03:46:52 | claude_code 解决了多个 UI bugs (Floating Ball, SSH, Model Color)，实现了自定义 period windows 和 Grok Bot 定价逻辑，并解决了与 dependency lockfiles 和跨平台环境变量相关的 CI/CD pipeline blocker。\nMIHD ✅ Paper Preparation \u0026 Massive Data Reorganization 02:44:01.203 | claude_code 对 25GB 的输出数据进行了大规模重组，以符合论文结构。通过 regex path rewriting 同步了 codebase，并为 Paper2Agent pipeline 准备好了系统。\nLifeCopilotBeta ✅ Multi-Repo Portal Infrastructure 03:05:15.757 | claude_code 实现了核心的 ‘portal-as-hub’ 功能，包括 companion services 的 subprocess management、project dashboards 以及安全身份验证。\nRecoverBench ✅ Camera-Ready Paper v10 Drafting 03:05:15.757 | claude_code 生成了 LaTeX drafts (v10)，整合了所有 rebuttal commitments、精确的数据集计数以及新的 OpenVLA 结果，解决了所有覆盖范围不一致的问题。\nRoboMemory 🔄 Fixing 16-Task Baseline Training 03:05:15.757 | claude_code 识别出由零方差数据上错误的 ’norm_stats’ 导致的训练分歧。在 training script 中实现了修复以重新计算统计数据，并将其部署到了 Tianhe3 cluster。\nPhD Planning 🔍 Faculty Shortlist and Matching 03:05:15.757 | claude_code 审查了 146 名 faculty members，按研究匹配度（World Models, Failure Recovery, VLA）对其进行了分类，并准备了定制化的 outreach 策略。\nPersonal Website ✅ Hugo blog transformation 15:06:05.186 | codex 将基于 Hugo 的网站从产品落地页转型为个人博客，改进了 menu UI 和 work logs。\nToken Usage AI Usage · 2026-09-16\rClaude Code + Codex\rTotal cost$50.12\rTotal tokens45M\rOutput tokens135K\rCache read95.0%\rCost split\rClaude Code $30 ·\rCodex $20\rToken character\rCache reads 95.0% ·\rActive 5.0%\rMost token volume came from cache reads.\r",
+  "wordCount" : "822",
   "inLanguage": "zh",
   "datePublished": "2026-09-16T00:00:00-04:00",
   "dateModified": "2026-09-16T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -279,37 +279,37 @@
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>要求一个能够主动追求目标、持续更新且无需频繁审批的 agent (Execution-centric)。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初侧重于做一个优先考虑严格验证和关卡的 &lsquo;bookkeeper&rsquo; (Audit-centric)。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> 人类优先考虑最小化中断频率，而 AI 优先考虑验证的完整性。</p>
+<p><strong>差异分析：</strong> 人类优先考虑最小化中断频率，而 AI 优先考虑验证的完整性。</p>
 <h4 id="pi05-failure-analysis">Pi0.5 Failure Analysis<a hidden class="anchor" aria-hidden="true" href="#pi05-failure-analysis">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>建议检查任务名称不匹配问题 (semantic direction)。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>分析 BDDL 文件和仿真逻辑，为精度损失提供物理/逻辑层面的验证。</td>
       </tr>
   </tbody>
@@ -318,62 +318,62 @@
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>为了长期维护，决定采取“激进的物理移动”（aggressive reorganization）。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>提出了非破坏性的双层 symlink 方法，以最小化路径破坏风险。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 优先考虑清晰的科学结构，而非即时的技术便利性。</p>
+<p><strong>差异分析：</strong> Human 优先考虑清晰的科学结构，而非即时的技术便利性。</p>
 <h4 id="ui-layout-and-design">UI Layout and Design<a hidden class="anchor" aria-hidden="true" href="#ui-layout-and-design">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>建议将 &lsquo;Rolling Periods&rsquo; 合并到 &lsquo;Week Starts&rsquo; 中，并要求将 &lsquo;Test All&rsquo; 准确地放置在 &lsquo;Sync All&rsquo; 旁边。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初计划使用独立的 toggles，并使用了标准的 space-between flexbox 布局。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 优先考虑紧凑、直观的 UI 和明确的空间定位。</p>
+<p><strong>差异分析：</strong> Human 优先考虑紧凑、直观的 UI 和明确的空间定位。</p>
 <h4 id="git-history-cleaning-strategy">Git History Cleaning Strategy<a hidden class="anchor" aria-hidden="true" href="#git-history-cleaning-strategy">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>要求在所有 repositories 中彻底清除所有与 companion 相关的路径，包括 &lsquo;ideas/&rsquo; 和 docs。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初建议采取保守的方法，区分程序文件和文档资产。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 推动完全移除开发者足迹，这需要更复杂的 history rewrites。</p>
+<p><strong>差异分析：</strong> Human 推动完全移除开发者足迹，这需要更复杂的 history rewrites。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
 <ul>

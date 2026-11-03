@@ -10,7 +10,7 @@
 <meta name="description" content="修复了令牌使用摘要卡片中的CSS优先级错误，梳理了成本数据流与每日报告生成流程，并对跨设备数据同步进行了深入架构分析，从而解决了历史数据恢复问题及别名冲突风险。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-04/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "每日报告 — 2026-07-04 日常概述 已完成工作： 修复了使用指标的布局渲染问题，追踪了成本归一化流程，并评估了分布式归档格式在去重方面的潜在漏洞。 实现方式： 覆盖了冲突的CMS主题CSS选择器以恢复网格布局，对Python和Rust代码库中的导出与合并函数进行了静态分析，并通过对比外部JSONL备份与本地快照来验证数据完整性。 影响： 恢复了准确的每日报告可视化功能，明确了成本注入流程，发现了基于SSH的设备别名问题，同时保留了源端滚动删除的历史令牌成本。 修复了令牌使用摘要卡片中的CSS优先级错误，映射了成本数据流和每日报告生成流程，并对跨设备数据同步进行了深度架构分析，以解决历史数据恢复问题和别名冲突风险。\n任务 架构与策略 ✅ 审计跨设备JSONL导出模式与去重风险 — 解码了source_key与device的语义，验证了OneDrive TokenMonitor备份的历史缺失情况，并发现了同行导入中的别名冲突风险。 实施与修复 ✅ 修复令牌使用卡片布局溢出问题 — 通过提高.usage-card__stats的CSS选择器特异性来解决显示障碍，重置了定义列表宽度，并通过格式化测试进行了验证。 ✅ 追踪成本定价注入与报告生成流程 — 映射了totalCost通过usage.py的流动，确认了嵌入在usage_card.py中，并使用合并/部署命令执行了本地预览流程。 问题与解决方案 关键问题 1. 跨设备JSONL导出文件中的歧义：不同机器上的相同SSH别名在导入时会错误地将不同的主机合并，导致成本失真。 解决方案： 通过remap_peer_source定义了严格的重映射规则，确认了架构在接收时重写了同行local:*键，并发现保留用户选择的远程主机别名仍然是一个漏洞，需要稳定的主机指纹来解决。\n关键洞察： 分布式同步协议不能依赖可变的用户配置作为唯一标识符；机器身份必须与显示标签分离，从不变的硬件或网络指纹中得出，以防止隐秘数据融合攻击。\n2. 由于源生成器采用滚动窗口在完整归档捕获前删除过去的会话JSONL文件，存在历史令牌成本永久丢失的风险。 解决方案： 确认save_usage_file在现有快照上采用幂等合并策略，保留超出源导出窗口的数据；同时将外部备份文件映射以重建缺失时期。\n关键洞察： 聚合流程必须实施本地历史合并作为对抗不稳定源导出器的防御层；没有这一点，滚动清理将造成长期分析中的不可逾越的空白。\n一般问题 3. 由于PaperMod主题覆盖网格样式并强制.usage-card的dl/dt/dd元素采用固定列宽，令牌使用卡片被折叠成难以阅读的垂直文本。 解决方案： 将CSS重置范围限定在width: auto后代上，增加级联优先级，并明确应用daily merge到定义项和数据列表；通过自检查脚本进行了验证。\n关键洞察： 第三方CMS主题应用了广泛的结构样式（如定义列表），可能会默默破坏自定义组件布局，需要严格定向的选择器，而不是依赖标准HTML标签行为。\n人类与AI方法 战略层面 跨设备归档的分发模式与中央合并文件 角色 方法 人类 主张由所有设备共同编写统一的“目标”合并文件作为单一来源真相，指出大小差异和数据收敛问题。 AI 解释了多写者竞争条件在云同步文件夹中的风险，验证了当前每台设备写入模型，并展示了本地增量导入如何作为强大的合并引擎工作，无需中央协调。 差异分析： 人类关注逻辑数据统一和模式一致性；AI则针对基于文件的同步固有的操作并发约束提出反驳，成功引导方法远离脆弱的集中式写入。\nAI局限性 一般局限性 最初对source_key命令的本地与远程日志路径感到困惑，需要用户修正以指定确切的文件路径或同步标志，然后才能继续报告流程。 在初始导出分析中，延迟了对JSONL模式字段的详细解释，错过了主动澄清device和记录结构的机会。 学习成果 关键学习点 Hugo的Markdown渲染使用不安全HTML可以启用自定义组件，但要求严格的CSS隔离；标准主题重置和通用标签样式将不可避免地冲突，因此范围有限的包装器和高特异性选择器对于可靠的UI嵌入至关重要。 以本地优先的数据同步架构从单写者每文件保证与同行增量导入相结合，能极大受益；试图集中写入会引入灾难性的并发风险，这些风险超过了物理合并文件的优势。 对话总结 工具 ✅ 修复令牌使用卡片CSS溢出和主题冲突 18:59:26.574 | claude_code 解决了令牌使用页脚卡片因宽度限制而不可读的显示问题。诊断了网站PaperMod主题定义列表样式与卡片网格布局之间的级联冲突。补丁增加了选择器特异性，应用了列重置，并通过自动化格式化测试验证了功能。\n✅ 追踪成本定价注入和每日报告生成流程 21:30:58.810 | claude_code 调查了从导出归一化usage.py到HTML可视化usage_card.py的令牌成本数据完整生命周期。生成了7月3日报告的本地测试流程，修正了合并命令用法以解决同步标志问题，并解决了生成的Markdown无法进入Hugo内容树의部署漏洞。\nTokenMonitor**🔄 对历史数据恢复与去重架构进行别名冲突验证** 03:47:17.321 | claude_code 确保滚动窗口删除操作不会因快照合并逻辑导致令牌历史永久丢失，并针对缺失日期映射了外部 TokenMonitor JSONL 备份。对导出格式进行了结构审查，解析了记录语义，在评估分布式与集中式同步模型时发现了 SSH 主机去重中的关键别名冲突漏洞。\n令牌使用 AI Usage · 2026-07-04\rClaude Code\rTotal cost$7.61\rTotal tokens2M\rOutput tokens21K\rCache read80.0%\rToken character\rCache reads 80.0% ·\rActive 20.0%\rMost token volume came from cache reads.\r",
-  "wordCount" : "124",
+  "articleBody": "每日报告 — 2026-07-04 日常概述 已完成工作： 修复了使用指标的布局渲染问题，追踪了成本归一化流程，并评估了分布式归档格式在去重方面的潜在漏洞。 实现方式： 覆盖了冲突的CMS主题CSS选择器以恢复网格布局，对Python和Rust代码库中的导出与合并函数进行了静态分析，并通过对比外部JSONL备份与本地快照来验证数据完整性。 影响： 恢复了准确的每日报告可视化功能，明确了成本注入流程，发现了基于SSH的设备别名问题，同时保留了源端滚动删除的历史令牌成本。 修复了令牌使用摘要卡片中的CSS优先级错误，映射了成本数据流和每日报告生成流程，并对跨设备数据同步进行了深度架构分析，以解决历史数据恢复问题和别名冲突风险。\n任务 架构与策略 ✅ 审计跨设备JSONL导出模式与去重风险 — 解码了source_key与device的语义，验证了OneDrive TokenMonitor备份的历史缺失情况，并发现了同行导入中的别名冲突风险。 实施与修复 ✅ 修复令牌使用卡片布局溢出问题 — 通过提高.usage-card__stats的CSS选择器特异性来解决显示障碍，重置了定义列表宽度，并通过格式化测试进行了验证。 ✅ 追踪成本定价注入与报告生成流程 — 映射了totalCost通过usage.py的流动，确认了嵌入在usage_card.py中，并使用合并/部署命令执行了本地预览流程。 问题与解决方案 关键问题 1. 跨设备JSONL导出文件中的歧义：不同机器上的相同SSH别名在导入时会错误地将不同的主机合并，导致成本失真。 解决方案： 通过remap_peer_source定义了严格的重映射规则，确认了架构在接收时重写了同行local:*键，并发现保留用户选择的远程主机别名仍然是一个漏洞，需要稳定的主机指纹来解决。\n关键洞察： 分布式同步协议不能依赖可变的用户配置作为唯一标识符；机器身份必须与显示标签分离，从不变的硬件或网络指纹中得出，以防止隐秘数据融合攻击。\n2. 由于源生成器采用滚动窗口在完整归档捕获前删除过去的会话JSONL文件，存在历史令牌成本永久丢失的风险。 解决方案： 确认save_usage_file在现有快照上采用幂等合并策略，保留超出源导出窗口的数据；同时将外部备份文件映射以重建缺失时期。\n关键洞察： 聚合流程必须实施本地历史合并作为对抗不稳定源导出器的防御层；没有这一点，滚动清理将造成长期分析中的不可逾越的空白。\n一般问题 3. 由于PaperMod主题覆盖网格样式并强制.usage-card的dl/dt/dd元素采用固定列宽，令牌使用卡片被折叠成难以阅读的垂直文本。 解决方案： 将CSS重置范围限定在width: auto后代上，增加级联优先级，并明确应用daily merge到定义项和数据列表；通过自检查脚本进行了验证。\n关键洞察： 第三方CMS主题应用了广泛的结构样式（如定义列表），可能会默默破坏自定义组件布局，需要严格定向的选择器，而不是依赖标准HTML标签行为。\n人类与AI方法 战略层面 跨设备归档的分发模式与中央合并文件 角色 方法 人类 主张由所有设备共同编写统一的“目标”合并文件作为单一来源真相，指出大小差异和数据收敛问题。 AI 助手 解释了多写者竞争条件在云同步文件夹中的风险，验证了当前每台设备写入模型，并展示了本地增量导入如何作为强大的合并引擎工作，无需中央协调。 差异分析： 人类关注逻辑数据统一和模式一致性；AI则针对基于文件的同步固有的操作并发约束提出反驳，成功引导方法远离脆弱的集中式写入。\nAI局限性 一般局限性 最初对source_key命令的本地与远程日志路径感到困惑，需要用户修正以指定确切的文件路径或同步标志，然后才能继续报告流程。 在初始导出分析中，延迟了对JSONL模式字段的详细解释，错过了主动澄清device和记录结构的机会。 学习成果 关键学习点 Hugo的Markdown渲染使用不安全HTML可以启用自定义组件，但要求严格的CSS隔离；标准主题重置和通用标签样式将不可避免地冲突，因此范围有限的包装器和高特异性选择器对于可靠的UI嵌入至关重要。 以本地优先的数据同步架构从单写者每文件保证与同行增量导入相结合，能极大受益；试图集中写入会引入灾难性的并发风险，这些风险超过了物理合并文件的优势。 对话总结 工具 ✅ 修复令牌使用卡片CSS溢出和主题冲突 18:59:26.574 | claude_code 解决了令牌使用页脚卡片因宽度限制而不可读的显示问题。诊断了网站PaperMod主题定义列表样式与卡片网格布局之间的级联冲突。补丁增加了选择器特异性，应用了列重置，并通过自动化格式化测试验证了功能。\n✅ 追踪成本定价注入和每日报告生成流程 21:30:58.810 | claude_code 调查了从导出归一化usage.py到HTML可视化usage_card.py的令牌成本数据完整生命周期。生成了7月3日报告的本地测试流程，修正了合并命令用法以解决同步标志问题，并解决了生成的Markdown无法进入Hugo内容树의部署漏洞。\nTokenMonitor**🔄 对历史数据恢复与去重架构进行别名冲突验证** 03:47:17.321 | claude_code 确保滚动窗口删除操作不会因快照合并逻辑导致令牌历史永久丢失，并针对缺失日期映射了外部 TokenMonitor JSONL 备份。对导出格式进行了结构审查，解析了记录语义，在评估分布式与集中式同步模型时发现了 SSH 主机去重中的关键别名冲突漏洞。\n令牌使用 AI Usage · 2026-07-04\rClaude Code\rTotal cost$7.61\rTotal tokens2M\rOutput tokens21K\rCache read80.0%\rToken character\rCache reads 80.0% ·\rActive 20.0%\rMost token volume came from cache reads.\r",
+  "wordCount" : "125",
   "inLanguage": "zh",
   "datePublished": "2026-07-04T00:00:00-05:00",
   "dateModified": "2026-07-04T00:00:00-05:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -257,7 +257,7 @@
           <td>主张由所有设备共同编写统一的“目标”合并文件作为单一来源真相，指出大小差异和数据收敛问题。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>解释了多写者竞争条件在云同步文件夹中的风险，验证了当前每台设备写入模型，并展示了本地增量导入如何作为强大的合并引擎工作，无需中央协调。</td>
       </tr>
   </tbody>

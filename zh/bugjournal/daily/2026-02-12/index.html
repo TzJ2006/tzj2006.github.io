@@ -10,7 +10,7 @@
 <meta name="description" content="战略性地构建了 MIHD 多模态融合路线图，并成功扩展了 ccusage CLI 以支持本地化的 GLM 模型价格计算。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-02-12/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-02-12 Daily Overview 工作内容： 当日工作重点在于多模态 AI pipeline 的架构规划，以及打破 cost-tracking 工具中的 vendor lock-in。 实施方式： 通过针对性的文件分析、迭代式 code patching、dependency management 以及 JSON schema merging 策略完成。 影响： 加速了复杂 fusion modules 的开发对齐，并实现了灵活且兼容 offline 的 multi-model 计费功能。 DCC 工作内容： 将 MIHD Enhancement Plan 翻译并结构化为分阶段的中文 roadmap，涵盖 normalization、fusion architectures 和 config overhaul。 实施方式： 使用 agent tooling 读取原始 markdown，应用 technical summarization，并保留了严格的 implementation dependencies。 影响： 为即将进行的 model integration 和 batch correction 实验提供了清晰的 cross-functional 指导。 tianhe 工作内容： 在 ccusage 中实现了一个 local pricing loader patch，以便在无需外部 API 调用时进行 GLM model 的 cost calculations。 实施方式： 遍历 repository routing logic，识别出限制性的 prefixes，应用 JSON merge overrides，并通过迭代验证修复了 type/linting blockers。 影响： 解决了 vendor lock-in 问题，允许用户通过 environment variables 集成任意自定义的 pricing datasets。 战略性地构建了 MIHD multimodal fusion roadmap，并成功扩展了 ccusage CLI 以支持本地化的 GLM model pricing calculations。\nTasks Architecture \u0026 Strategy ✅ ccusage CLI GLM Pricing \u0026 Local JSON Merge Support — 通过实现一个 local pricing file loader，将用户定义的 GLM rates 合并到 fetcher 中，并解决 environment/type/validation blockers，扩展了 ccusage 以绕过 Claude-only 限制。 ✅ MIHD Enhancement Plan Translation \u0026 Structuring — 将英文 ENHANCEMENT_PLAN.md 转换为结构化的中文 roadmap，保留了关于 normalization、Q-Former/LLaVA integration、niche queries、batch correction 以及 full config overhaul 的 dependencies。 Problems \u0026 Solutions Critical Issues 1. ccusage 最初硬编码了 provider prefixes，将 pricing lookups 仅限制在 Claude models，导致 GLM cost calculations 失效。 Solution: 扩展了 filter predicates，并实现了一个动态的 local JSON loader，该 loader 可通过 environment variables 进行配置，将用户提供的 pricing data 与预取的数据集进行合并。\nKey Insight: 当被明确优先处理时，本地 configuration files 通常包含完整的、即插即用的 schemas，可以绕过限制性的外部 routing logic。\nGeneral Issues 2. 由于误用 Result monad 和直接访问 global process，迭代式 patching 触发了 typechecker 和 ESLint failures。 Solution: 将 Result.try() 的用法从期望立即返回值修正为调用返回的 parser function，并将原始的 process references 替换为 node:process imports，同时增加了 input validation guards。\nKey Insight: TypeScript 中的 functional monads 要求在 schema definition 和 execution 之间进行严格分离；sandboxed environments 也需要显式的 cache permission overrides 以避免虚假的 infrastructure failures。\nHuman vs AI Approaches Strategic Level GLM models 的 pricing data source strategy Role Approach Human 将注意力引导至一个包含完整 GLM pricing data 的现有 local JSON file，建议采用尊重 offline 约束的直接 file-merge approach。 AI 最初专注于修改硬编码的 provider prefixes 和远程 LiteLLM alias mappings，在经过明确提示后，才适应了用户基于文件的 insight。 Difference Analysis: Human 优先考虑即时可用性、air-gapped 兼容性和利用现有资产；而 AI 默认使用标准的外部 configuration patterns，需要针对性的重定向才能高效转向。\nAI Limitations 最初忽视了用户提供的 local pricing files，转而采用远程/硬编码的 routing strategies，导致实现路径出现偏差。 Learnings Key Learnings 优先使用用户直接提供的 data configurations 而非外部 routing assumptions，可以显著加速 feature implementation，并大幅提升 offline 或受限环境下的可靠性。 Conversation Summaries MIHD ✅ MIHD Enhancement Plan Translation \u0026 Structuring 23:05:59.274 | codex 用户请求 MIHD enhancement plan 的中文版本。AI 读取了 source markdown，提取了核心 dependencies 和 architectural phases，并生成了一个结构化摘要，涵盖了 normalization layers、Q-Former/LLaVA fusion strategies、QueST-style niche queries、adversarial batch correction 以及 full configuration porting。AI 确认了 dependency ordering，并针对 implementation targets 提供了更细颗粒度的信息。\nccusage ✅ ccusage CLI GLM Pricing Support \u0026 Local Data Integration 15:47:15.640 | codex 用户需要在 ccusage repository 中计算 GLM models 的成本，而该仓库最初仅限 Claude-prefixed。在识别出限制性的 prefix filters 并意识到存在 local pricing JSON file 后，AI 实现了一个 loader，将 local data 合并到 offline mode 中，解决了 Result monad typing errors，修复了 ESLint global process warnings，修补了 metadata validation leakage，并在安装后验证了 format/typecheck/test pipelines。\nToken Usage AI Usage · 2026-02-12\rClaude Code + Codex\rTotal cost$6.51\rTotal tokens18M\rOutput tokens67K\rCache read93.2%\rCost split\rClaude Code $2 ·\rCodex $5\rToken character\rCache reads 93.2% ·\rActive 6.8%\rMost token volume came from cache reads.\r",
-  "wordCount" : "463",
+  "articleBody": "Daily Report — 2026-02-12 Daily Overview 工作内容： 当日工作重点在于多模态 AI pipeline 的架构规划，以及打破 cost-tracking 工具中的 vendor lock-in。 实施方式： 通过针对性的文件分析、迭代式 code patching、dependency management 以及 JSON schema merging 策略完成。 影响： 加速了复杂 fusion modules 的开发对齐，并实现了灵活且兼容 offline 的 multi-model 计费功能。 DCC 工作内容： 将 MIHD Enhancement Plan 翻译并结构化为分阶段的中文 roadmap，涵盖 normalization、fusion architectures 和 config overhaul。 实施方式： 使用 agent tooling 读取原始 markdown，应用 technical summarization，并保留了严格的 implementation dependencies。 影响： 为即将进行的 model integration 和 batch correction 实验提供了清晰的 cross-functional 指导。 tianhe 工作内容： 在 ccusage 中实现了一个 local pricing loader patch，以便在无需外部 API 调用时进行 GLM model 的 cost calculations。 实施方式： 遍历 repository routing logic，识别出限制性的 prefixes，应用 JSON merge overrides，并通过迭代验证修复了 type/linting blockers。 影响： 解决了 vendor lock-in 问题，允许用户通过 environment variables 集成任意自定义的 pricing datasets。 战略性地构建了 MIHD multimodal fusion roadmap，并成功扩展了 ccusage CLI 以支持本地化的 GLM model pricing calculations。\nTasks Architecture \u0026 Strategy ✅ ccusage CLI GLM Pricing \u0026 Local JSON Merge Support — 通过实现一个 local pricing file loader，将用户定义的 GLM rates 合并到 fetcher 中，并解决 environment/type/validation blockers，扩展了 ccusage 以绕过 Claude-only 限制。 ✅ MIHD Enhancement Plan Translation \u0026 Structuring — 将英文 ENHANCEMENT_PLAN.md 转换为结构化的中文 roadmap，保留了关于 normalization、Q-Former/LLaVA integration、niche queries、batch correction 以及 full config overhaul 的 dependencies。 Problems \u0026 Solutions Critical Issues 1. ccusage 最初硬编码了 provider prefixes，将 pricing lookups 仅限制在 Claude models，导致 GLM cost calculations 失效。 Solution: 扩展了 filter predicates，并实现了一个动态的 local JSON loader，该 loader 可通过 environment variables 进行配置，将用户提供的 pricing data 与预取的数据集进行合并。\n关键发现： 当被明确优先处理时，本地 configuration files 通常包含完整的、即插即用的 schemas，可以绕过限制性的外部 routing logic。\nGeneral Issues 2. 由于误用 Result monad 和直接访问 global process，迭代式 patching 触发了 typechecker 和 ESLint failures。 Solution: 将 Result.try() 的用法从期望立即返回值修正为调用返回的 parser function，并将原始的 process references 替换为 node:process imports，同时增加了 input validation guards。\n关键发现： TypeScript 中的 functional monads 要求在 schema definition 和 execution 之间进行严格分离；sandboxed environments 也需要显式的 cache permission overrides 以避免虚假的 infrastructure failures。\nHuman vs AI Approaches Strategic Level GLM models 的 pricing data source strategy 角色 方法 用户 将注意力引导至一个包含完整 GLM pricing data 的现有 local JSON file，建议采用尊重 offline 约束的直接 file-merge approach。 AI 助手 最初专注于修改硬编码的 provider prefixes 和远程 LiteLLM alias mappings，在经过明确提示后，才适应了用户基于文件的 insight。 差异分析： Human 优先考虑即时可用性、air-gapped 兼容性和利用现有资产；而 AI 默认使用标准的外部 configuration patterns，需要针对性的重定向才能高效转向。\nAI Limitations 最初忽视了用户提供的 local pricing files，转而采用远程/硬编码的 routing strategies，导致实现路径出现偏差。 Learnings Key Learnings 优先使用用户直接提供的 data configurations 而非外部 routing assumptions，可以显著加速 feature implementation，并大幅提升 offline 或受限环境下的可靠性。 Conversation Summaries MIHD ✅ MIHD Enhancement Plan Translation \u0026 Structuring 23:05:59.274 | codex 用户请求 MIHD enhancement plan 的中文版本。AI 读取了 source markdown，提取了核心 dependencies 和 architectural phases，并生成了一个结构化摘要，涵盖了 normalization layers、Q-Former/LLaVA fusion strategies、QueST-style niche queries、adversarial batch correction 以及 full configuration porting。AI 确认了 dependency ordering，并针对 implementation targets 提供了更细颗粒度的信息。\nccusage ✅ ccusage CLI GLM Pricing Support \u0026 Local Data Integration 15:47:15.640 | codex 用户需要在 ccusage repository 中计算 GLM models 的成本，而该仓库最初仅限 Claude-prefixed。在识别出限制性的 prefix filters 并意识到存在 local pricing JSON file 后，AI 实现了一个 loader，将 local data 合并到 offline mode 中，解决了 Result monad typing errors，修复了 ESLint global process warnings，修补了 metadata validation leakage，并在安装后验证了 format/typecheck/test pipelines。\nToken Usage AI Usage · 2026-02-12\rClaude Code + Codex\rTotal cost$6.51\rTotal tokens18M\rOutput tokens67K\rCache read93.2%\rCost split\rClaude Code $2 ·\rCodex $5\rToken character\rCache reads 93.2% ·\rActive 6.8%\rMost token volume came from cache reads.\r",
+  "wordCount" : "461",
   "inLanguage": "zh",
   "datePublished": "2026-02-12T00:00:00-05:00",
   "dateModified": "2026-02-12T00:00:00-05:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -241,33 +241,33 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-ccusage-最初硬编码了-provider-prefixes将-pricing-lookups-仅限制在-claude-models导致-glm-cost-calculations-失效">1. ccusage 最初硬编码了 provider prefixes，将 pricing lookups 仅限制在 Claude models，导致 GLM cost calculations 失效。<a hidden class="anchor" aria-hidden="true" href="#1-ccusage-最初硬编码了-provider-prefixes将-pricing-lookups-仅限制在-claude-models导致-glm-cost-calculations-失效">#</a></h4>
 <p><strong>Solution:</strong> 扩展了 filter predicates，并实现了一个动态的 local JSON loader，该 loader 可通过 environment variables 进行配置，将用户提供的 pricing data 与预取的数据集进行合并。</p>
-<p><strong>Key Insight:</strong> 当被明确优先处理时，本地 configuration files 通常包含完整的、即插即用的 schemas，可以绕过限制性的外部 routing logic。</p>
+<p><strong>关键发现：</strong> 当被明确优先处理时，本地 configuration files 通常包含完整的、即插即用的 schemas，可以绕过限制性的外部 routing logic。</p>
 <h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
 <h4 id="2-由于误用-result-monad-和直接访问-global-process迭代式-patching-触发了-typechecker-和-eslint-failures">2. 由于误用 Result monad 和直接访问 global process，迭代式 patching 触发了 typechecker 和 ESLint failures。<a hidden class="anchor" aria-hidden="true" href="#2-由于误用-result-monad-和直接访问-global-process迭代式-patching-触发了-typechecker-和-eslint-failures">#</a></h4>
 <p><strong>Solution:</strong> 将 Result.try() 的用法从期望立即返回值修正为调用返回的 parser function，并将原始的 process references 替换为 node:process imports，同时增加了 input validation guards。</p>
-<p><strong>Key Insight:</strong> TypeScript 中的 functional monads 要求在 schema definition 和 execution 之间进行严格分离；sandboxed environments 也需要显式的 cache permission overrides 以避免虚假的 infrastructure failures。</p>
+<p><strong>关键发现：</strong> TypeScript 中的 functional monads 要求在 schema definition 和 execution 之间进行严格分离；sandboxed environments 也需要显式的 cache permission overrides 以避免虚假的 infrastructure failures。</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="glm-models-的-pricing-data-source-strategy">GLM models 的 pricing data source strategy<a hidden class="anchor" aria-hidden="true" href="#glm-models-的-pricing-data-source-strategy">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>将注意力引导至一个包含完整 GLM pricing data 的现有 local JSON file，建议采用尊重 offline 约束的直接 file-merge approach。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初专注于修改硬编码的 provider prefixes 和远程 LiteLLM alias mappings，在经过明确提示后，才适应了用户基于文件的 insight。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 优先考虑即时可用性、air-gapped 兼容性和利用现有资产；而 AI 默认使用标准的外部 configuration patterns，需要针对性的重定向才能高效转向。</p>
+<p><strong>差异分析：</strong> Human 优先考虑即时可用性、air-gapped 兼容性和利用现有资产；而 AI 默认使用标准的外部 configuration patterns，需要针对性的重定向才能高效转向。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <ul>
 <li>最初忽视了用户提供的 local pricing files，转而采用远程/硬编码的 routing strategies，导致实现路径出现偏差。</li>

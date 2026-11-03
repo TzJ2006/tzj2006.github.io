@@ -10,7 +10,7 @@
 <meta name="description" content="整合日常工作，包括视频文本提取的OCR流程开发、ErrorRecoveryBenchmark的仓库审核，以及VLA模型优化的战略规划。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-13/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "每日报告 — 2026-07-13 日常概述 完成事项： 经历了涵盖媒体处理、代码库审查与高层研究策略的多方面工作。主要活动包括构建具有容错能力的OCR管道以从损坏的视频文件中提取文本，将ErrorRecoveryBenchmark仓库状态与当前代码提交保持一致，以及制定将外部论文集成到VLA模型的基础审查标准。 实施方法： 使用FFmpeg和RapidOCR配合逐关键帧搜索来应对HEVC损坏问题；通过shell命令和git日志进行深度仓库分析以识别文档偏差；为π0.5/GR00T模型基础审查制定了分阶段路线图（阶段0）。 影响： 从损坏媒体中恢复了约17,600个字符的文本；通过验证实现状态清理了ErrorRecoveryBenchmark项目中的战略干扰；建立了关键的基础检查标准以确保未来VLA集成实验的有效性。 my-pc 完成事项： 实现了视频转文本OCR管道；进行了ErrorRecoveryBenchmark仓库审查；启动了VLA模型战略规划。 实施方法： 使用Python（FFmpeg、RapidOCR）进行媒体处理；利用CLI工具进行git日志分析和代码库扫描；通过文本界面构建复杂的研究计划。 影响： 尽管文件损坏，仍成功提取了新文本；识别出1,244个无法验证的数据候选项；明确了VLA基础验证的下一步行动。 整合了视频文本提取的OCR管道开发、ErrorRecoveryBenchmark仓库审查以及VLA模型增强的战略规划等日常工作。\n任务 架构与策略 ✅ ErrorRecoveryBenchmark仓库对齐 — 根据ECL和文档对仓库状态进行审查，发现评估协议已实施，但数据缺乏严格的来源证明。 🔄 VLA模型集成规划（π0.5/GR00T） — 制定了整合四篇论文（Action-Sketcher、MolmoMotion、PointWorld、ManipDreamer3D）能力的宏观计划。优先进行π0.5阶段的基础审查。 • 视频转文本OCR管道与媒体恢复 — 使用FFmpeg和RapidOCR编写Python脚本从视频帧中提取文本。实施逐关键帧搜索以处理HEVC损坏问题，恢复了约17,600个字符。 实施与修复 ✅ 跨操作系统文件传输研究 — 发现LocalSend和PairDrop是Windows/Mac文件共享中比AirDrop更合适的开源替代方案。 问题与解决方案 关键问题 1. HEVC流损坏导致FFmpeg在连续解码过程中停止，无法从损坏的视频文件中完整提取文本。 解决方案： 实施逐关键帧搜索策略，对每个目标帧独立调用ffmpeg以优雅地跳过损坏部分。\n关键洞察： 顺序媒体处理对比特流错误非常敏感；随机访问/搜索方法比连续解码更能抵抗损坏文件。\n2. 旧文档中声称评估协议待定与实际代码（最近提交中已实施协议）之间存在差异。 解决方案： 将git日志与文档时间戳对比，排除过时的计划，专注于当前的验证需求。\n关键洞察： 文档偏差导致战略混乱；计划必须从代码事实和最新审查中得出，而非静态文档。\n一般问题 3. 部分运行中的缓存帧导致后续脚本跳过重新处理，造成数据不完整。 解决方案： 在重新运行提取逻辑前明确清理输出目录。\n关键洞察： 幂等性在自动化中至关重要；如果不小心处理，检查现有工件可能会悄悄破坏工作流程。\n4. RapidOCR返回的置信度分数为字符串格式，导致提取脚本中的比较逻辑出现TypeError。 解决方案： 在比较前将置信度变量转换为float()类型以确保类型一致。\n关键洞察： AI通常假设库输出中的类型一致；明确检查或转换返回类型对于鲁棒性至关重要。\n人类与AI方法 战略层面 处理损坏视频输入与数据来源验证 角色 方法 人类 人类提供了损坏视频约束和区分“可用”与“严格可验证”数据的领域背景，用于科学主张。 AI AI通过日志分析（切换至关键帧搜索）推导出技术解决方案，并应用可扩展的验证规则来过滤5,499个数据候选项以符合严格的来源标准。 差异分析： 人类定义了约束和领域有效性；AI执行了诊断转向和批量过滤。AI在日志分析后识别所需修复措施的能力很强，但需要人工调整超时时间。\n实施层面 对齐过程的初始化 角色 方法 人类 在执行前要求严格计划对齐和总结。 AI 采取只读分析立场，参考ECL工作流程来构建审查，最初不修改文件。 差异分析： 人类设定了“仅对齐计划”的约束；AI将其作为流程纪律的正式阶段条目。\nAI局限性 一般局限性 AI在管理后台任务执行时间方面存在困难，反复发送超时或中断的命令，需要人工干预检查状态。 初始git状态输出可能被截断，限制了无需人工跟进即可解析大文件列表的能力。 经验教训 关键经验 处理损坏媒体文件时，独立关键帧提取优于连续解码，因为它能隔离损坏痕迹并防止级联故障。 计划必须被视为动态文档；依赖过时的检查清单会导致战略偏差。在规划新项目前始终根据最新的git diff进行验证。 实际经验 在进行算术比较之前，始终验证第三方库输出（如OCR置信度分数）的数据类型，以防止运行时错误。 科学主张所需的数据质量需要严格的来源证明；现有的“可用”数据通常不足以作为标准基准，除非可审计。 level_high 重要性：8 标记使用 AI Usage · 2026-07-13\rClaude Code + Codex\rTotal cost$94.68\rTotal tokens135M\rOutput tokens425K\rCache read97.1%\rCost split\rClaude Code $3 ·\rCodex $92\rToken character\rCache reads 97.1% ·\rActive 2.9%\rMost token volume came from cache reads; Codex drove nearly all cost.\r",
-  "wordCount" : "144",
+  "articleBody": "每日报告 — 2026-07-13 日常概述 完成事项： 经历了涵盖媒体处理、代码库审查与高层研究策略的多方面工作。主要活动包括构建具有容错能力的OCR管道以从损坏的视频文件中提取文本，将ErrorRecoveryBenchmark仓库状态与当前代码提交保持一致，以及制定将外部论文集成到VLA模型的基础审查标准。 实施方法： 使用FFmpeg和RapidOCR配合逐关键帧搜索来应对HEVC损坏问题；通过shell命令和git日志进行深度仓库分析以识别文档偏差；为π0.5/GR00T模型基础审查制定了分阶段路线图（阶段0）。 影响： 从损坏媒体中恢复了约17,600个字符的文本；通过验证实现状态清理了ErrorRecoveryBenchmark项目中的战略干扰；建立了关键的基础检查标准以确保未来VLA集成实验的有效性。 my-pc 完成事项： 实现了视频转文本OCR管道；进行了ErrorRecoveryBenchmark仓库审查；启动了VLA模型战略规划。 实施方法： 使用Python（FFmpeg、RapidOCR）进行媒体处理；利用CLI工具进行git日志分析和代码库扫描；通过文本界面构建复杂的研究计划。 影响： 尽管文件损坏，仍成功提取了新文本；识别出1,244个无法验证的数据候选项；明确了VLA基础验证的下一步行动。 整合了视频文本提取的OCR管道开发、ErrorRecoveryBenchmark仓库审查以及VLA模型增强的战略规划等日常工作。\n任务 架构与策略 ✅ ErrorRecoveryBenchmark仓库对齐 — 根据ECL和文档对仓库状态进行审查，发现评估协议已实施，但数据缺乏严格的来源证明。 🔄 VLA模型集成规划（π0.5/GR00T） — 制定了整合四篇论文（Action-Sketcher、MolmoMotion、PointWorld、ManipDreamer3D）能力的宏观计划。优先进行π0.5阶段的基础审查。 • 视频转文本OCR管道与媒体恢复 — 使用FFmpeg和RapidOCR编写Python脚本从视频帧中提取文本。实施逐关键帧搜索以处理HEVC损坏问题，恢复了约17,600个字符。 实施与修复 ✅ 跨操作系统文件传输研究 — 发现LocalSend和PairDrop是Windows/Mac文件共享中比AirDrop更合适的开源替代方案。 问题与解决方案 关键问题 1. HEVC流损坏导致FFmpeg在连续解码过程中停止，无法从损坏的视频文件中完整提取文本。 解决方案： 实施逐关键帧搜索策略，对每个目标帧独立调用ffmpeg以优雅地跳过损坏部分。\n关键洞察： 顺序媒体处理对比特流错误非常敏感；随机访问/搜索方法比连续解码更能抵抗损坏文件。\n2. 旧文档中声称评估协议待定与实际代码（最近提交中已实施协议）之间存在差异。 解决方案： 将git日志与文档时间戳对比，排除过时的计划，专注于当前的验证需求。\n关键洞察： 文档偏差导致战略混乱；计划必须从代码事实和最新审查中得出，而非静态文档。\n一般问题 3. 部分运行中的缓存帧导致后续脚本跳过重新处理，造成数据不完整。 解决方案： 在重新运行提取逻辑前明确清理输出目录。\n关键洞察： 幂等性在自动化中至关重要；如果不小心处理，检查现有工件可能会悄悄破坏工作流程。\n4. RapidOCR返回的置信度分数为字符串格式，导致提取脚本中的比较逻辑出现TypeError。 解决方案： 在比较前将置信度变量转换为float()类型以确保类型一致。\n关键洞察： AI通常假设库输出中的类型一致；明确检查或转换返回类型对于鲁棒性至关重要。\n人类与AI方法 战略层面 处理损坏视频输入与数据来源验证 角色 方法 人类 人类提供了损坏视频约束和区分“可用”与“严格可验证”数据的领域背景，用于科学主张。 AI 助手 AI通过日志分析（切换至关键帧搜索）推导出技术解决方案，并应用可扩展的验证规则来过滤5,499个数据候选项以符合严格的来源标准。 差异分析： 人类定义了约束和领域有效性；AI执行了诊断转向和批量过滤。AI在日志分析后识别所需修复措施的能力很强，但需要人工调整超时时间。\n实施层面 对齐过程的初始化 角色 方法 人类 在执行前要求严格计划对齐和总结。 AI 助手 采取只读分析立场，参考ECL工作流程来构建审查，最初不修改文件。 差异分析： 人类设定了“仅对齐计划”的约束；AI将其作为流程纪律的正式阶段条目。\nAI局限性 一般局限性 AI在管理后台任务执行时间方面存在困难，反复发送超时或中断的命令，需要人工干预检查状态。 初始git状态输出可能被截断，限制了无需人工跟进即可解析大文件列表的能力。 经验教训 关键经验 处理损坏媒体文件时，独立关键帧提取优于连续解码，因为它能隔离损坏痕迹并防止级联故障。 计划必须被视为动态文档；依赖过时的检查清单会导致战略偏差。在规划新项目前始终根据最新的git diff进行验证。 实际经验 在进行算术比较之前，始终验证第三方库输出（如OCR置信度分数）的数据类型，以防止运行时错误。 科学主张所需的数据质量需要严格的来源证明；现有的“可用”数据通常不足以作为标准基准，除非可审计。 level_high 重要性：8 标记使用 AI Usage · 2026-07-13\rClaude Code + Codex\rTotal cost$94.68\rTotal tokens135M\rOutput tokens425K\rCache read97.1%\rCost split\rClaude Code $3 ·\rCodex $92\rToken character\rCache reads 97.1% ·\rActive 2.9%\rMost token volume came from cache reads; Codex drove nearly all cost.\r",
+  "wordCount" : "146",
   "inLanguage": "zh",
   "datePublished": "2026-07-13T00:00:00-05:00",
   "dateModified": "2026-07-13T00:00:00-05:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -267,7 +267,7 @@
           <td>人类提供了损坏视频约束和区分“可用”与“严格可验证”数据的领域背景，用于科学主张。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI通过日志分析（切换至关键帧搜索）推导出技术解决方案，并应用可扩展的验证规则来过滤5,499个数据候选项以符合严格的来源标准。</td>
       </tr>
   </tbody>
@@ -288,7 +288,7 @@
           <td>在执行前要求严格计划对齐和总结。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>采取只读分析立场，参考ECL工作流程来构建审查，最初不修改文件。</td>
       </tr>
   </tbody>

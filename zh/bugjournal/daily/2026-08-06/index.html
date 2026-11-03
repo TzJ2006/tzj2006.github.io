@@ -10,7 +10,7 @@
 <meta name="description" content="解决了pi0.5管道中的关键静默量化问题，完成了MIHD研究的进展报告，同时为RoboMemory的视觉记忆实验建立了基础基础设施和MVP设计。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-06/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "每日报告 — 2026-08-06 日常概述 已完成工作： 审查并修复了 pi0.5 中的致命静默量化错误，该错误导致之前的结果无效；调整脚本以匹配上游 API 变更；开始低比特率验证；同时完成 MIHD 研究报告的架构重组和聚类分析；设计并启动 RoboMemory 的 MVP 实验，比较视觉提示与文本提示，包括烟雾训练验证。 实施方法： 进行对抗性代码审计和内部状态探测，以识别 pi0.5 中缺失的编码负载；通过 git 历史分析来协调不同的准确率指标；使用多智能体编排来构建 MIHD 报告结构和进行统计审计；通过深入文献综述和架构优化来定义 RoboMemory MVP，随后在 Tianhe3 上完成环境设置和训练部署。 影响： 恢复了 pi0.5 有效的低比特率评估能力，避免进一步计算浪费；建立了稳健且经统计验证的 MIHD 交付结构；创建了高可信度、低风险的实验流程，用于机器人中的视觉记忆注入。 MacOS 已完成工作： 协调多智能体工作流以完成 MIHD 报告，并对 pi0.5 量化脚本进行代码审计/调试。 实施方法： 使用 Claude Code CLI 进行文件探索、git 操作、脚本编辑、CUDA/CPU 资源管理，并通过 Cursor IDE 进行并行任务执行。 影响： 纠正了基本流程错误，确保数据有效性；实现了实验运行的大规模并行化和报告生成。 TzJsDesktop 已完成工作： 部署 drawn_memory 模块，通过 SSH 在 Tianhe3 上执行试点数据预处理，并管理 ErrorRecoveryBenchmark 的 git 历史。 实施方法： 使用后台 SSH 会话、nohup 进程和自定义部署脚本进行幂等性补丁；使用 Codex 检查分支并分类提交。 影响： 实现了从原始数据到处理数据集的完整流程连接；整理了仓库历史以便清晰理解。 lighthouse 已完成工作： 使用基于 CPU 的工作负载对 pi0.5 量化模型进行深度代码审计、错误修复和验证；准备评估环境配置。 实施方法： 使用 Monitor 和后台代理进行流程审计，识别由 load_checkpoint 忽略设备标志导致的 OOM 错误，修补脚本，解决检查点下载的 DNS/VPN 问题。 影响： 解决了量化结果中的致命静默错误；确保评估基础设施准备就绪。 解决了 pi0.5 流程中的关键静默量化故障，完成了 MIHD 研究进展报告，同时建立了 RoboMemory 视觉记忆实验的基础设施和 MVP 设计。\n任务 架构与策略 ✅ 修复 pi0.5 静默量化故障和对齐问题 — 发现激活编码在评估期间生成但从未加载，导致结果无效。通过添加 load_encodings_to_sim 调用来修复。合并了 5 个上游提交以将脚本与新的 SpinQuant R1/R2 接口对齐，并重写 pi05_quantize.sh 以支持每个组件精度。还修复了 aimet_quant_types 中的静默降级错误。 🔄 验证 pi0.5 流程并启动低比特率矩阵 — 使用修正后的指标重新评估现有检查点，并启动全面的 W4A4/W8A4 验证矩阵。通过隔离 GPU 环境变量解决了量化过程中的 CPU OOM 问题。 ✅ 完成 MIHD 研究报告结构和分析 — 将英文和中文报告整理为 Results/TODO/Appends。完成了 HD P2 全幻灯片聚类（GT-A），结合 scGPT/TEDDY/NCL 融合，解决了 App-M 矩阵差异，并标准化查询协议。使用 Holm 校正进行统计审计。 ✅ RoboMemory MVP：视觉与文本提示实验设计 — 将项目转向 MVP，比较 RouteStick/PatternLock 上的 oracle 驱动文本坐标与绘制覆盖层。通过文献综述确认其新颖性超过 VP-VLA/TraceVLA。实现了子目标解析器/渲染器，并验证来自文本元数据的 oracle 信号。 ✅ RoboMemory：W1 完成和基础设施设置 — 在 Tianhe3 上执行 pi0.5 烟雾训练（1000 步），验证损失收敛，并处理 pilot3 数据。在 lighthouse 上准备评估客户端代码，定义三臂实验设置（绘制/文本/基线）。 🔄 启动 RoboMemory 训练和监控状态 — 在 tianhe3 GPU 上启动 Drawn 和 Text 分支的并行 30k 步训练。监控收敛情况。 ✅ ErrorRecoveryBenchmark Git 组织和路径修复 — 将 git 历史按主题分类。在 Tianhe3 上完成文件重新定位后更新脚本中的硬编码路径，验证语法和远程目录存在性。 问题与解决方案 关键问题 1. 静默量化失败：pi0.5 评估显示有效成功率，但激活编码在推理期间未加载，导致未量化。 解决方案： 在 model.py 中为 Vision、Backbone 和 Action Expert 组件添加 load_encodings_to_sim。通过探测 QuantizationSimModel op_modes 验证激活从 updateStats 移动到 quantizeDequantize。合并了 Jinhee Kim 分支中的上游修复。\n关键洞察： AIMET-ONNX 将量化图（float ONNX）与元数据（编码 JSON）分离。仅加载 ONNX 文件而不明确加载编码会导致未量化推理，即使有“量化”检查点文件夹。\n2. RoboMME 基线模糊性和新颖性担忧：VP-VLA（视觉噪声）和 TraceVLA（微调）之间存在冲突，质疑视觉提示是否已解决。 解决方案： 将范围缩小到对两种模式都有 oracle 真实值控制的实验。文献综述确认先前工作专注于“当前意图”或需要微调，为冻结 VLMs 上的“过去记忆可视化”建立了新颖性。\n关键洞察： 当信息密度超过文本嵌入能力时（例如连续轨迹与离散坐标），视觉提示具有价值。\n3. 量化有效性方面的矛盾证据：Jinhee 的最新结果显示显著下降，与应使所有结果无效的静默错误假设相矛盾。 解决方案： 调查 git 历史发现 Jinhee 当天早就在她的分支中修复了精确的编码加载错误。这解决了我们旧损坏代码与她有效/修复结果之间的异常。\n关键洞察： 人类对最近提交的上下文知识可以迅速解决 AI 可能归因于复杂模型行为或数据问题的逻辑异常。\n4. HVG+UNI2+NCL 几何量规翻转：跨幻灯片查询显示极端反转versal（第3层映射到白质）。**解决方案：**通过Procrustes对齐证明，嵌入空间本身随幻灯片独立翻转。更新报告叙述以反映这种结构不稳定性，而非数据错误。 **关键洞察：**每张幻灯片学习的图规范可能导致任意轴翻转，这在单张幻灯片指标中不可见，但对跨幻灯片迁移造成灾难性影响。\n5. JAX CUDA 后端故障：空的 CUDA_VISIBLE_DEVICES 导致后端错误，而非回退机制。 **解决方案：**设置 JAX_PLATFORMS=cpu 用于归一化统计，然后明确指定训练使用的GPU。\n**关键洞察：**空设备列表可能导致JAX中的特定后端错误；需要明确处理。\n一般问题 6. CPU量化过程中CUDA内存不足：LeRepo的加载器忽略 --host-device cpu 标志，强制权重传输至GPU。 **解决方案：**取消设置/覆盖CUDA环境变量 CUDA_VISIBLE_DEVICES=，或修改 pi05_quantize.sh 以在应用量化前强制回退到CPU加载基础检查点。\n**关键洞察：**明确的API标志通常无法深入渗透第三方加载器；有时需要环境层面的隔离。\n7. scGPT在零UMI瓦片上的分箱失败：空数组min()操作导致具有零有效单元格的瓦片处理崩溃，尽管总UMI \u003e 0。 **解决方案：**对非零词汇基因的细胞进行过滤，或接受这些特定瓦片的部分完成结果。在Visium HD中被视为数据预处理中的边缘情况。\n**关键洞察：**Visium HD瓦片可能包含零UMI细胞，如果不预先过滤就会破坏下游分箱。\n8. 磁盘空间耗尽：AIMET外部权重在量化过程中填满根分区。通过导出 TMPDIR 并硬链接共享组件解决。 **解决方案：**无需处理\n**关键洞察：**AIMET的延迟提取会产生大临时文件；忽略临时目录是常见的设置陷阱。\n9. QFormer在完整幻灯片上内存不足：标准GPU无法支持17k点的自注意力计算。 **解决方案：**固定到高内存GPU 5000_ada，并实现分块前向传递逻辑。拒绝简单的子采样以保持科学协议的兼容性。\n**关键洞察：**没有明确的内存策略，标准VRAM限制无法支持完整幻灯片的自注意力计算。\n人类与AI方法 战略层面 无声量化错误和矛盾结果的根本原因 角色 方法 人类 人类认为结果错误是因为缺乏改进。注意到Jinhee的14.5%下降结果阻止了过快接受“完全损坏”的结论，成为逻辑锚点。 AI AI进行对抗性审计，探测 QuantSim 内部状态 op_mode，证明激活未量化，并通过git blame/日志调查与Jinhee结果的时间差异。 **差异分析：**人类提供战略怀疑和上下文异常检测；AI执行运行时检查和历史验证，解决“代码显示已量化”与“推理显示浮点”之间的矛盾。\nRoboMemory项目范围定义 角色 方法 人类 用户拒绝复杂的绘制记忆系统，坚持简单MVP问题：“视觉提示有帮助吗？”并针对文本失效的任务。 AI 初始提案过度设计解决方案。AI转向识别机制差距（轨迹的文本编码损失），并根据人类的简化约束设计控制实验。 **差异分析：**人类关注基本问题和任务选择，排除复杂性。AI将其转化为基于预言机的具体比较设计。\nHVG查询反转解释 角色 方法 人类 最初怀疑数据错误或路由错误（“完全相反”），要求调查。 AI 进行几何分析证明这是独立图学习的结构性方法限制（轴翻转），而非数据加载错误。 **差异分析：**人类寻找数据错误；AI证明这是结构性的方法限制。\n视觉记忆注入设计和预言源 角色 方法 人类 关注战略约束（零成本覆盖）并质疑扫描原始h5文件的效率。 AI 验证现有的pkl文本字段包含所有必要信号，无需复杂的侧载文件。提供解析器/渲染器的实现细节。 **差异分析：**人类通过质疑假设提高效率；AI通过模式分析进行验证。\nAI限制 关键限制 在启动长期量化任务前未能检测到Jinhee的分支领先，导致在过时的接口上浪费计算资源。 一般限制 无法阻止LeRepo/LeRobot加载器在SDK设备提示下强制使用CUDA，需要环境变量解决方案。 依赖WebSearch获取非常新的（2026年）论文存在幻觉风险；在得出新颖性结论前，手动验证arXiv链接至关重要。 未能将重复 /usage命令解释为潜在错误/挂起状态，提供通用响应而非调查用户意图。 AI对QFormer的初步修复建议为子采样，人类正确识别这是改变科学协议而非解决内存限制。 学习成果 关键学习成果 AIMET-ONNX量化不会在保存/加载循环中保持持久性，除非明确调用 load_encodings_to_sim;总是在修复后探测QuantSim op_modes。 在协作分支中启动长期量化任务前，始终获取上游主版本，避免基于过时接口构建。 实际学习成果 当集成改变CLI界面的上游变更时，完全重写驱动脚本而非补丁；无声API不匹配导致错误数据生产。 视觉记忆信号完全可以从现有数据集的文本元数据获得，避免昂贵的分割或几何投影计算。 对于HD完整幻灯片分析，使用官方8µm分片提供更好的可比性，但在分箱步骤中需小心处理零单元格瓦片。 连续几何轨迹的文本表示相比离散坐标丢失大量信息，为特定任务家族提供视觉叠加是合理的。 每张幻灯片学习的图规范可能导致任意轴翻转，这在单张幻灯片指标中不可见，但对跨幻灯片迁移造成灾难性影响。 对话总结 Qualcomm VLA量化 (pi0.5)✅ 量化错误修复与 API 对齐 19:07:08.257 | claude_code 发现一个关键错误：pi0.5评估忽略了校准编码，导致准确率结果无效（激活值仍为 FP16 格式）。通过 QuantSim 测试验证；发现 Jinhee Kim 当天早些时候在其分支中已修复此问题。合并了 5 个上游提交，与新的 SpinQuant R1/R2 接口保持一致。修复了 aimet_quant_types 中的静默降级错误及磁盘空间问题。启动了低比特率验证矩阵。\nMIHD 研究项目 ✅ 报告重构与聚类分析 00:00:00 | cursor 完成进度报告（结果/TODO/附加内容）的结构性重组。使用 scGPT/TEDDY/NCL 完成了 HD P2 全页聚类（GT-A）。解决了 App-M 矩阵中的空白区域，并标准化了查询协议。进行统计审计并应用了 Holm 校正方法。解决了 scGPT 在零 UMI 切片上的分箱失败以及 HVG 几何测量方向翻转问题。\nRoboMemory (RoboMME) ✅ MVP 设计与发布 04:37:11.950 | claude_code 从复杂的绘制记忆系统转向 MVP，比较了 RouteStick/PatternLock 任务中视觉与文本提示的效果。文献综述确认其新颖性优于 VP-VLA/TraceVLA。实现了子目标解析器/渲染器。验证了文本元数据中的预言信号。完成 pi0.5 烟雾训练及 pilot3 数据预处理。在 Tianhe3 上启动了 30k 步并行训练。\nErrorRecoveryBenchmark ✅ Git 组织与路径迁移 04:15:13.994 | codex 将仓库历史记录整理为不同的主题提交（评估、GR00T、OpenVLA-OFT）。在 Tianhe3 集群进行文件重定位后，更新脚本中的硬编码路径。通过 SSH 验证语法及远程目录存在性。\nTzJsDesktop 开发环境 ❌ 重复的使用命令执行 04:22:25.725 | claude_code 用户连续 100 次执行 /usage 命令而未收到提示。AI 保持不活动状态。没有实质性开发工作发生。\n令牌使用 AI Usage · 2026-08-06\rClaude Code + Codex\rTotal cost$263.33\rTotal tokens148M\rOutput tokens808K\rCache read95.9%\rCost split\rClaude Code $256 ·\rCodex $7\rToken character\rCache reads 95.9% ·\rActive 4.1%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
-  "wordCount" : "503",
+  "articleBody": "每日报告 — 2026-08-06 日常概述 已完成工作： 审查并修复了 pi0.5 中的致命静默量化错误，该错误导致之前的结果无效；调整脚本以匹配上游 API 变更；开始低比特率验证；同时完成 MIHD 研究报告的架构重组和聚类分析；设计并启动 RoboMemory 的 MVP 实验，比较视觉提示与文本提示，包括烟雾训练验证。 实施方法： 进行对抗性代码审计和内部状态探测，以识别 pi0.5 中缺失的编码负载；通过 git 历史分析来协调不同的准确率指标；使用多智能体编排来构建 MIHD 报告结构和进行统计审计；通过深入文献综述和架构优化来定义 RoboMemory MVP，随后在 Tianhe3 上完成环境设置和训练部署。 影响： 恢复了 pi0.5 有效的低比特率评估能力，避免进一步计算浪费；建立了稳健且经统计验证的 MIHD 交付结构；创建了高可信度、低风险的实验流程，用于机器人中的视觉记忆注入。 MacOS 已完成工作： 协调多智能体工作流以完成 MIHD 报告，并对 pi0.5 量化脚本进行代码审计/调试。 实施方法： 使用 Claude Code CLI 进行文件探索、git 操作、脚本编辑、CUDA/CPU 资源管理，并通过 Cursor IDE 进行并行任务执行。 影响： 纠正了基本流程错误，确保数据有效性；实现了实验运行的大规模并行化和报告生成。 TzJsDesktop 已完成工作： 部署 drawn_memory 模块，通过 SSH 在 Tianhe3 上执行试点数据预处理，并管理 ErrorRecoveryBenchmark 的 git 历史。 实施方法： 使用后台 SSH 会话、nohup 进程和自定义部署脚本进行幂等性补丁；使用 Codex 检查分支并分类提交。 影响： 实现了从原始数据到处理数据集的完整流程连接；整理了仓库历史以便清晰理解。 lighthouse 已完成工作： 使用基于 CPU 的工作负载对 pi0.5 量化模型进行深度代码审计、错误修复和验证；准备评估环境配置。 实施方法： 使用 Monitor 和后台代理进行流程审计，识别由 load_checkpoint 忽略设备标志导致的 OOM 错误，修补脚本，解决检查点下载的 DNS/VPN 问题。 影响： 解决了量化结果中的致命静默错误；确保评估基础设施准备就绪。 解决了 pi0.5 流程中的关键静默量化故障，完成了 MIHD 研究进展报告，同时建立了 RoboMemory 视觉记忆实验的基础设施和 MVP 设计。\n任务 架构与策略 ✅ 修复 pi0.5 静默量化故障和对齐问题 — 发现激活编码在评估期间生成但从未加载，导致结果无效。通过添加 load_encodings_to_sim 调用来修复。合并了 5 个上游提交以将脚本与新的 SpinQuant R1/R2 接口对齐，并重写 pi05_quantize.sh 以支持每个组件精度。还修复了 aimet_quant_types 中的静默降级错误。 🔄 验证 pi0.5 流程并启动低比特率矩阵 — 使用修正后的指标重新评估现有检查点，并启动全面的 W4A4/W8A4 验证矩阵。通过隔离 GPU 环境变量解决了量化过程中的 CPU OOM 问题。 ✅ 完成 MIHD 研究报告结构和分析 — 将英文和中文报告整理为 Results/TODO/Appends。完成了 HD P2 全幻灯片聚类（GT-A），结合 scGPT/TEDDY/NCL 融合，解决了 App-M 矩阵差异，并标准化查询协议。使用 Holm 校正进行统计审计。 ✅ RoboMemory MVP：视觉与文本提示实验设计 — 将项目转向 MVP，比较 RouteStick/PatternLock 上的 oracle 驱动文本坐标与绘制覆盖层。通过文献综述确认其新颖性超过 VP-VLA/TraceVLA。实现了子目标解析器/渲染器，并验证来自文本元数据的 oracle 信号。 ✅ RoboMemory：W1 完成和基础设施设置 — 在 Tianhe3 上执行 pi0.5 烟雾训练（1000 步），验证损失收敛，并处理 pilot3 数据。在 lighthouse 上准备评估客户端代码，定义三臂实验设置（绘制/文本/基线）。 🔄 启动 RoboMemory 训练和监控状态 — 在 tianhe3 GPU 上启动 Drawn 和 Text 分支的并行 30k 步训练。监控收敛情况。 ✅ ErrorRecoveryBenchmark Git 组织和路径修复 — 将 git 历史按主题分类。在 Tianhe3 上完成文件重新定位后更新脚本中的硬编码路径，验证语法和远程目录存在性。 问题与解决方案 关键问题 1. 静默量化失败：pi0.5 评估显示有效成功率，但激活编码在推理期间未加载，导致未量化。 解决方案： 在 model.py 中为 Vision、Backbone 和 Action Expert 组件添加 load_encodings_to_sim。通过探测 QuantizationSimModel op_modes 验证激活从 updateStats 移动到 quantizeDequantize。合并了 Jinhee Kim 分支中的上游修复。\n关键洞察： AIMET-ONNX 将量化图（float ONNX）与元数据（编码 JSON）分离。仅加载 ONNX 文件而不明确加载编码会导致未量化推理，即使有“量化”检查点文件夹。\n2. RoboMME 基线模糊性和新颖性担忧：VP-VLA（视觉噪声）和 TraceVLA（微调）之间存在冲突，质疑视觉提示是否已解决。 解决方案： 将范围缩小到对两种模式都有 oracle 真实值控制的实验。文献综述确认先前工作专注于“当前意图”或需要微调，为冻结 VLMs 上的“过去记忆可视化”建立了新颖性。\n关键洞察： 当信息密度超过文本嵌入能力时（例如连续轨迹与离散坐标），视觉提示具有价值。\n3. 量化有效性方面的矛盾证据：Jinhee 的最新结果显示显著下降，与应使所有结果无效的静默错误假设相矛盾。 解决方案： 调查 git 历史发现 Jinhee 当天早就在她的分支中修复了精确的编码加载错误。这解决了我们旧损坏代码与她有效/修复结果之间的异常。\n关键洞察： 人类对最近提交的上下文知识可以迅速解决 AI 可能归因于复杂模型行为或数据问题的逻辑异常。\n4. HVG+UNI2+NCL 几何量规翻转：跨幻灯片查询显示极端反转versal（第3层映射到白质）。**解决方案：**通过Procrustes对齐证明，嵌入空间本身随幻灯片独立翻转。更新报告叙述以反映这种结构不稳定性，而非数据错误。 **关键洞察：**每张幻灯片学习的图规范可能导致任意轴翻转，这在单张幻灯片指标中不可见，但对跨幻灯片迁移造成灾难性影响。\n5. JAX CUDA 后端故障：空的 CUDA_VISIBLE_DEVICES 导致后端错误，而非回退机制。 **解决方案：**设置 JAX_PLATFORMS=cpu 用于归一化统计，然后明确指定训练使用的GPU。\n**关键洞察：**空设备列表可能导致JAX中的特定后端错误；需要明确处理。\n一般问题 6. CPU量化过程中CUDA内存不足：LeRepo的加载器忽略 --host-device cpu 标志，强制权重传输至GPU。 **解决方案：**取消设置/覆盖CUDA环境变量 CUDA_VISIBLE_DEVICES=，或修改 pi05_quantize.sh 以在应用量化前强制回退到CPU加载基础检查点。\n**关键洞察：**明确的API标志通常无法深入渗透第三方加载器；有时需要环境层面的隔离。\n7. scGPT在零UMI瓦片上的分箱失败：空数组min()操作导致具有零有效单元格的瓦片处理崩溃，尽管总UMI \u003e 0。 **解决方案：**对非零词汇基因的细胞进行过滤，或接受这些特定瓦片的部分完成结果。在Visium HD中被视为数据预处理中的边缘情况。\n**关键洞察：**Visium HD瓦片可能包含零UMI细胞，如果不预先过滤就会破坏下游分箱。\n8. 磁盘空间耗尽：AIMET外部权重在量化过程中填满根分区。通过导出 TMPDIR 并硬链接共享组件解决。 **解决方案：**无需处理\n**关键洞察：**AIMET的延迟提取会产生大临时文件；忽略临时目录是常见的设置陷阱。\n9. QFormer在完整幻灯片上内存不足：标准GPU无法支持17k点的自注意力计算。 **解决方案：**固定到高内存GPU 5000_ada，并实现分块前向传递逻辑。拒绝简单的子采样以保持科学协议的兼容性。\n**关键洞察：**没有明确的内存策略，标准VRAM限制无法支持完整幻灯片的自注意力计算。\n人类与AI方法 战略层面 无声量化错误和矛盾结果的根本原因 角色 方法 人类 人类认为结果错误是因为缺乏改进。注意到Jinhee的14.5%下降结果阻止了过快接受“完全损坏”的结论，成为逻辑锚点。 AI 助手 AI进行对抗性审计，探测 QuantSim 内部状态 op_mode，证明激活未量化，并通过git blame/日志调查与Jinhee结果的时间差异。 **差异分析：**人类提供战略怀疑和上下文异常检测；AI执行运行时检查和历史验证，解决“代码显示已量化”与“推理显示浮点”之间的矛盾。\nRoboMemory项目范围定义 角色 方法 人类 用户拒绝复杂的绘制记忆系统，坚持简单MVP问题：“视觉提示有帮助吗？”并针对文本失效的任务。 AI 助手 初始提案过度设计解决方案。AI转向识别机制差距（轨迹的文本编码损失），并根据人类的简化约束设计控制实验。 **差异分析：**人类关注基本问题和任务选择，排除复杂性。AI将其转化为基于预言机的具体比较设计。\nHVG查询反转解释 角色 方法 人类 最初怀疑数据错误或路由错误（“完全相反”），要求调查。 AI 助手 进行几何分析证明这是独立图学习的结构性方法限制（轴翻转），而非数据加载错误。 **差异分析：**人类寻找数据错误；AI证明这是结构性的方法限制。\n视觉记忆注入设计和预言源 角色 方法 人类 关注战略约束（零成本覆盖）并质疑扫描原始h5文件的效率。 AI 助手 验证现有的pkl文本字段包含所有必要信号，无需复杂的侧载文件。提供解析器/渲染器的实现细节。 **差异分析：**人类通过质疑假设提高效率；AI通过模式分析进行验证。\nAI限制 关键限制 在启动长期量化任务前未能检测到Jinhee的分支领先，导致在过时的接口上浪费计算资源。 一般限制 无法阻止LeRepo/LeRobot加载器在SDK设备提示下强制使用CUDA，需要环境变量解决方案。 依赖WebSearch获取非常新的（2026年）论文存在幻觉风险；在得出新颖性结论前，手动验证arXiv链接至关重要。 未能将重复 /usage命令解释为潜在错误/挂起状态，提供通用响应而非调查用户意图。 AI对QFormer的初步修复建议为子采样，人类正确识别这是改变科学协议而非解决内存限制。 学习成果 关键学习成果 AIMET-ONNX量化不会在保存/加载循环中保持持久性，除非明确调用 load_encodings_to_sim;总是在修复后探测QuantSim op_modes。 在协作分支中启动长期量化任务前，始终获取上游主版本，避免基于过时接口构建。 实际学习成果 当集成改变CLI界面的上游变更时，完全重写驱动脚本而非补丁；无声API不匹配导致错误数据生产。 视觉记忆信号完全可以从现有数据集的文本元数据获得，避免昂贵的分割或几何投影计算。 对于HD完整幻灯片分析，使用官方8µm分片提供更好的可比性，但在分箱步骤中需小心处理零单元格瓦片。 连续几何轨迹的文本表示相比离散坐标丢失大量信息，为特定任务家族提供视觉叠加是合理的。 每张幻灯片学习的图规范可能导致任意轴翻转，这在单张幻灯片指标中不可见，但对跨幻灯片迁移造成灾难性影响。 对话总结 Qualcomm VLA量化 (pi0.5)✅ 量化错误修复与 API 对齐 19:07:08.257 | claude_code 发现一个关键错误：pi0.5评估忽略了校准编码，导致准确率结果无效（激活值仍为 FP16 格式）。通过 QuantSim 测试验证；发现 Jinhee Kim 当天早些时候在其分支中已修复此问题。合并了 5 个上游提交，与新的 SpinQuant R1/R2 接口保持一致。修复了 aimet_quant_types 中的静默降级错误及磁盘空间问题。启动了低比特率验证矩阵。\nMIHD 研究项目 ✅ 报告重构与聚类分析 00:00:00 | cursor 完成进度报告（结果/TODO/附加内容）的结构性重组。使用 scGPT/TEDDY/NCL 完成了 HD P2 全页聚类（GT-A）。解决了 App-M 矩阵中的空白区域，并标准化了查询协议。进行统计审计并应用了 Holm 校正方法。解决了 scGPT 在零 UMI 切片上的分箱失败以及 HVG 几何测量方向翻转问题。\nRoboMemory (RoboMME) ✅ MVP 设计与发布 04:37:11.950 | claude_code 从复杂的绘制记忆系统转向 MVP，比较了 RouteStick/PatternLock 任务中视觉与文本提示的效果。文献综述确认其新颖性优于 VP-VLA/TraceVLA。实现了子目标解析器/渲染器。验证了文本元数据中的预言信号。完成 pi0.5 烟雾训练及 pilot3 数据预处理。在 Tianhe3 上启动了 30k 步并行训练。\nErrorRecoveryBenchmark ✅ Git 组织与路径迁移 04:15:13.994 | codex 将仓库历史记录整理为不同的主题提交（评估、GR00T、OpenVLA-OFT）。在 Tianhe3 集群进行文件重定位后，更新脚本中的硬编码路径。通过 SSH 验证语法及远程目录存在性。\nTzJsDesktop 开发环境 ❌ 重复的使用命令执行 04:22:25.725 | claude_code 用户连续 100 次执行 /usage 命令而未收到提示。AI 保持不活动状态。没有实质性开发工作发生。\n令牌使用 AI Usage · 2026-08-06\rClaude Code + Codex\rTotal cost$263.33\rTotal tokens148M\rOutput tokens808K\rCache read95.9%\rCost split\rClaude Code $256 ·\rCodex $7\rToken character\rCache reads 95.9% ·\rActive 4.1%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "507",
   "inLanguage": "zh",
   "datePublished": "2026-08-06T00:00:00-05:00",
   "dateModified": "2026-08-06T00:00:00-05:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -293,7 +293,7 @@
           <td>人类认为结果错误是因为缺乏改进。注意到Jinhee的14.5%下降结果阻止了过快接受“完全损坏”的结论，成为逻辑锚点。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI进行对抗性审计，探测 <code>QuantSim</code> 内部状态 <code>op_mode</code>，证明激活未量化，并通过git blame/日志调查与Jinhee结果的时间差异。</td>
       </tr>
   </tbody>
@@ -313,7 +313,7 @@
           <td>用户拒绝复杂的绘制记忆系统，坚持简单MVP问题：“视觉提示有帮助吗？”并针对文本失效的任务。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>初始提案过度设计解决方案。AI转向识别机制差距（轨迹的文本编码损失），并根据人类的简化约束设计控制实验。</td>
       </tr>
   </tbody>
@@ -333,7 +333,7 @@
           <td>最初怀疑数据错误或路由错误（“完全相反”），要求调查。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>进行几何分析证明这是独立图学习的结构性方法限制（轴翻转），而非数据加载错误。</td>
       </tr>
   </tbody>
@@ -353,7 +353,7 @@
           <td>关注战略约束（零成本覆盖）并质疑扫描原始h5文件的效率。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>验证现有的pkl文本字段包含所有必要信号，无需复杂的侧载文件。提供解析器/渲染器的实现细节。</td>
       </tr>
   </tbody>

@@ -10,7 +10,7 @@
 <meta name="description" content="通过清理 TokenMonitor git history，实现了一个稳健的 single-instance guard 和 aidev install CLI，同时完成了 MIHD 数据恢复和 scientific model equivalence verification，从而整合了 critical infrastructure updates。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-06-03/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-06-03 Daily Overview 完成工作： 执行了 repository hygiene 重写以清除 TokenMonitor 中意外的大型 artifacts；实现了跨平台的 single-instance locking 和跨 repo 的 deployment CLI (aidev install)；并完成了 MIHD 丢失实验数据的恢复，以及其 scientific equivalence validation harness 的设计。 实施方式： 使用 git commit --amend 进行安全的 history preservation；构建了基于 Rust 的 loopback port locks，并配备适用于 macOS/Windows 兼容性的 native dialogs；开发了具有 fuzzy matching 功能的 TypeScript/Node.js CLI logic 以实现 idempotency；从 NetApp snapshots 中恢复了 MIHD 状态，同时设计了基于 metric (ARI/NMI) 的 verification protocols。 影响： 在不破坏 upstream synchronization 的情况下，将 TokenMonitor repository size 减少了约 99%；在五个 repositories 之间建立了标准化的 tooling deployment workflow；防止了生产环境中的 duplicate instance conflicts；并恢复了约两个月的丢失 computational biology 数据，且经过了 model fidelity 验证。 通过清理 TokenMonitor git history、实现稳健的 single-instance guard 和 aidev install CLI，同时完成 MIHD 数据恢复和 scientific model equivalence verification，巩固了关键的基础设施更新。\nTasks Architecture \u0026 Strategy ✅ Git History Rewrite Optimization — 通过对 TokenMonitor repository 进行针对性的 commit amending 来移除意外的 Rust build artifacts，在保留 upstream sync 和 release tags 的同时，回收了约 302MB 空间。 ✅ MIHD Data Recovery — 从 NetApp snapshots 中恢复了约 2 个月的未提交工作；修复了 QueST/geneenc simulations 中的关键 bugs；并解决了 GPU scheduling starvation 问题。 ✅ Implementation of Single-Instance Guard — 为 TokenMonitor Tauri app 开发了基于 loopback-port 的 locking mechanism，包括跨平台的 native dialogs 和 process detection logic，以防止启动时出现 duplicate instances。 ✅ Implementation of aidev install CLI — 创建了一个用于 cross-repo companion deployment 的 CLI command，具有 idempotency checks、platform-agnostic path normalization 以及对五个 sibling repositories 的 verification 功能。 🔄 STAIG Equivalence Verification Setup — 设计并启动了一个 harness，用于验证新的 ‘staig_fusion’ 实现与原始 STAIG reference 之间的 ARI/NMI divergence 是否在 5% 以内。 Implementation \u0026 Fixes ✅ TokenMonitor Deployment \u0026 Environment Fixes — 修复了持续存在的 white-screen bugs；将 local AI tooling 迁移至 AWS Claude Platform；并为新的 dialog capabilities 更新了 permission surface tests。 Problems \u0026 Solutions Critical Issues 1. 意外 commit 的 ~302MB build artifacts 破坏了 repository health；full history rewriting 存在破坏 upstream synchronization 的风险。 Solution: 识别出特定的 offending commit，并仅在 tip 上使用 git commit --amend 以保留 ancestor integrity，在成功减少 repo size 的同时，保持了与 upstream 的 0-behind 状态。\nKey Insight: 在清理 forks 时，改变 shared history 会改变 ancestor SHAs；相比于宽泛的 filtering tools，选择性的 amending 对于保留 upstream relationships 更为安全。\n2. MacOS ‘App is damaged’ errors 和潜在的 duplicate instance conflicts 最初被误诊为 port exhaustion 或 signing issues。 Solution: 明确了生产环境中的 Tauri apps 可能不会监听 ports；实现了一个同步的、pre-event-loop 的 loopback port lock 并配备 native dialogs，以确保 exclusive access 并稳健地处理 startup logic。\nKey Insight: 跨平台的 single-instance checks 必须独立于 app event loop，并且为了完整性，必须同时考虑 process presence 和 port occupancy。\n3. aidev install 由于不同平台间的 path separator mismatches (backslash vs slash) 和 marker text variations 而未能通过 idempotency checks。 Solution: 为 markers 实现了 fuzzy matching，并在比较前进行了 canonicalized path handling，增加了 pre-flight verification steps 以确保一致的 state detection。\nKey Insight: 跨平台的 CLI tools 必须对 separators 进行 normalization，并且要检查目标的 state，而不仅仅是文件是否存在，以保证真正的 idempotency。\n4. MIHD Slurm jobs 卡在 PD state；TokenMonitor 因 orphaned Vite ports 出现 white-screen；QueST script 出现 UnboundLocalError。 Solution: 通过切换 device types 解决了 GPU scheduling starvation；清理了 zombie processes 以实现 clean port binding；并修复了 benchmark scripts 中的 variable scoping 问题。\nKey Insight: 在 HPC 中，特定的 hardware constraints 通常比 partition priority 更容易阻塞 jobs；如果 zombie processes 在 dev server crash 后持续存在，Tauri 的 strict port mode 会发生 silent failure。\nHuman vs AI Approaches Strategic Level Git History Management Strategy Role Approach Human 用户请求了 force-push，但明确选择保留 source profiler 并拒绝推送 release tags，从而引导了 cleanup 的范围。 AI AI 最初尝试进行 full filter-repo，这破坏了 upstream sync；在用户识别出 ‘behind’ status anomaly 后，转向了针对性的 amending。 Difference Analysis: Human 提供了关于“哪些内容不能更改”（tags, shared ancestors）的关键 boundary conditions，防止了 AI 因仅关注 cleanup efficacy 而忽略的 data loss 或 sync breaks。\nScientific Model Verification Approach Role Approach Human Human 建立了科学边界，即由于 randomness，bit-identical output 是不可能实现的，从而将 validation 指向 metric divergence (ARI/NMI)。 AI AI 最初专注于 component-wise code diffing，随后根据 human 的约束设计了 empirical harness。 Difference Analysis: Human 早期提供了必要的 scientific validity check，防止了在无法实现的 reproducibility goals 上浪费精力。\nSingle Instance \u0026 macOS Error Diagnosis Role Approach Human User 将 macOS signing errors 与 instance conflicts 混淆了，但正确识别了对 exclusive access logic 的需求。 AI AI 分离了 root causes (signing vs. locking)，但在实现时通过将两者都添加到单个稳健的 mechanism 中，在逻辑上将它们合并了。 Difference Analysis: AI 弥合了 symptoms 与 implementation 之间的技术差距，确保解决方案既解决了 environmental errors，又满足了 functional requirements。\nAI Limitations Critical Limitations 第一次尝试 repository cleanup (filter-repo) 未能预见到对 shared commit history 的影响，导致破坏了 upstream synchronization。 最初将 macOS runtime errors 误诊为 port conflicts 而非 signing/Gatekeeper issues，这可能是由于之前 troubleshooting sessions 带来的 context bias。 General Limitations- 由于 SLURM queue 延迟和 wall-clock 限制，无法在单个 session 限制内执行完整的 scientific equivalence tests。 Learnings Key Learnings 在 forked repository 中清理大型 accidental commits 时，应在操作 之前 和 之后 对照 upstream 验证 behind/ahead 状态；仅 amend tip commit 可以保持 ancestor integrity。 在不同环境中验证 scientific code equivalence 时，始终应将验证锚定在最终的 output metrics（例如 ARI/NMI）上，而不是尝试实现 bit-identical reproducibility。 Production Tauri apps 在启动期间可能不会监听 ports；single-instance logic 必须是 synchronous 且独立于 app event loop 的，才能可靠运行。 Practical Learnings 用于 multi-repo deployment 的 CLI tools 必须优雅地处理特定平台的 path 差异和现有的 state variants（partial installs），以确保真正的 idempotency。 Conversation Summaries TokenMonitor Engineering \u0026 CI/CD ✅ Repository Hygiene, Single-Instance Guard, and CLI Tooling 02:53:52.859 | claude_code 执行了一次关键的 git history rewrite，在通过 selective commit amending 保留 upstream sync 的同时，移除了约 302MB 的 accidental build artifacts。使用 loopback port locking 和针对 Tauri/macOS 的 native dialogs 实现了一个健壮的 cross-platform single-instance guard。此外，开发了带有 idempotency checks 和 path normalization 功能的 aidev install CLI tool，用于在五个 sibling repositories 之间进行 deployment。\nMIHD (Computational Biology) ✅ Data Recovery and Model Validation 00:05:43.646 | claude_code 从 NetApp snapshots 中恢复了大约两个月的丢失 MIHD 实验数据，并修复了 QueST/geneenc simulations 中的 critical bugs。设计了一个全面的 equivalence verification harness，以确认新的 ‘staig_fusion’ 实现与原始 STAIG reference 在 ARI/NI metric divergence 范围内保持在 5% 以内。\nTokenMonitor Dev Environment ✅ Debugging and Configuration Migration 00:45:51.013 | claude_code 解决了由 orphaned Vite processes 引起的持续 white-screen issues，并将本地 Claude Code development environment 从 Amazon Bedrock 迁移到了 AWS 上的 Claude Platform，并相应地更新了 configuration files。\nToken Usage AI Usage · 2026-06-03\rClaude Code\rTotal cost$190.01\rTotal tokens127M\rOutput tokens2M\rCache read85.3%\rToken character\rCache reads 85.3% ·\rActive 14.7%\rMost token volume came from cache reads.\r",
-  "wordCount" : "850",
+  "articleBody": "Daily Report — 2026-06-03 Daily Overview 完成工作： 执行了 repository hygiene 重写以清除 TokenMonitor 中意外的大型 artifacts；实现了跨平台的 single-instance locking 和跨 repo 的 deployment CLI (aidev install)；并完成了 MIHD 丢失实验数据的恢复，以及其 scientific equivalence validation harness 的设计。 实施方式： 使用 git commit --amend 进行安全的 history preservation；构建了基于 Rust 的 loopback port locks，并配备适用于 macOS/Windows 兼容性的 native dialogs；开发了具有 fuzzy matching 功能的 TypeScript/Node.js CLI logic 以实现 idempotency；从 NetApp snapshots 中恢复了 MIHD 状态，同时设计了基于 metric (ARI/NMI) 的 verification protocols。 影响： 在不破坏 upstream synchronization 的情况下，将 TokenMonitor repository size 减少了约 99%；在五个 repositories 之间建立了标准化的 tooling deployment workflow；防止了生产环境中的 duplicate instance conflicts；并恢复了约两个月的丢失 computational biology 数据，且经过了 model fidelity 验证。 通过清理 TokenMonitor git history、实现稳健的 single-instance guard 和 aidev install CLI，同时完成 MIHD 数据恢复和 scientific model equivalence verification，巩固了关键的基础设施更新。\nTasks Architecture \u0026 Strategy ✅ Git History Rewrite Optimization — 通过对 TokenMonitor repository 进行针对性的 commit amending 来移除意外的 Rust build artifacts，在保留 upstream sync 和 release tags 的同时，回收了约 302MB 空间。 ✅ MIHD Data Recovery — 从 NetApp snapshots 中恢复了约 2 个月的未提交工作；修复了 QueST/geneenc simulations 中的关键 bugs；并解决了 GPU scheduling starvation 问题。 ✅ Implementation of Single-Instance Guard — 为 TokenMonitor Tauri app 开发了基于 loopback-port 的 locking mechanism，包括跨平台的 native dialogs 和 process detection logic，以防止启动时出现 duplicate instances。 ✅ Implementation of aidev install CLI — 创建了一个用于 cross-repo companion deployment 的 CLI command，具有 idempotency checks、platform-agnostic path normalization 以及对五个 sibling repositories 的 verification 功能。 🔄 STAIG Equivalence Verification Setup — 设计并启动了一个 harness，用于验证新的 ‘staig_fusion’ 实现与原始 STAIG reference 之间的 ARI/NMI divergence 是否在 5% 以内。 Implementation \u0026 Fixes ✅ TokenMonitor Deployment \u0026 Environment Fixes — 修复了持续存在的 white-screen bugs；将 local AI tooling 迁移至 AWS Claude Platform；并为新的 dialog capabilities 更新了 permission surface tests。 Problems \u0026 Solutions Critical Issues 1. 意外 commit 的 ~302MB build artifacts 破坏了 repository health；full history rewriting 存在破坏 upstream synchronization 的风险。 Solution: 识别出特定的 offending commit，并仅在 tip 上使用 git commit --amend 以保留 ancestor integrity，在成功减少 repo size 的同时，保持了与 upstream 的 0-behind 状态。\n关键发现： 在清理 forks 时，改变 shared history 会改变 ancestor SHAs；相比于宽泛的 filtering tools，选择性的 amending 对于保留 upstream relationships 更为安全。\n2. MacOS ‘App is damaged’ errors 和潜在的 duplicate instance conflicts 最初被误诊为 port exhaustion 或 signing issues。 Solution: 明确了生产环境中的 Tauri apps 可能不会监听 ports；实现了一个同步的、pre-event-loop 的 loopback port lock 并配备 native dialogs，以确保 exclusive access 并稳健地处理 startup logic。\n关键发现： 跨平台的 single-instance checks 必须独立于 app event loop，并且为了完整性，必须同时考虑 process presence 和 port occupancy。\n3. aidev install 由于不同平台间的 path separator mismatches (backslash vs slash) 和 marker text variations 而未能通过 idempotency checks。 Solution: 为 markers 实现了 fuzzy matching，并在比较前进行了 canonicalized path handling，增加了 pre-flight verification steps 以确保一致的 state detection。\n关键发现： 跨平台的 CLI tools 必须对 separators 进行 normalization，并且要检查目标的 state，而不仅仅是文件是否存在，以保证真正的 idempotency。\n4. MIHD Slurm jobs 卡在 PD state；TokenMonitor 因 orphaned Vite ports 出现 white-screen；QueST script 出现 UnboundLocalError。 Solution: 通过切换 device types 解决了 GPU scheduling starvation；清理了 zombie processes 以实现 clean port binding；并修复了 benchmark scripts 中的 variable scoping 问题。\n关键发现： 在 HPC 中，特定的 hardware constraints 通常比 partition priority 更容易阻塞 jobs；如果 zombie processes 在 dev server crash 后持续存在，Tauri 的 strict port mode 会发生 silent failure。\nHuman vs AI Approaches Strategic Level Git History Management Strategy 角色 方法 用户 用户请求了 force-push，但明确选择保留 source profiler 并拒绝推送 release tags，从而引导了 cleanup 的范围。 AI 助手 AI 最初尝试进行 full filter-repo，这破坏了 upstream sync；在用户识别出 ‘behind’ status anomaly 后，转向了针对性的 amending。 差异分析： Human 提供了关于“哪些内容不能更改”（tags, shared ancestors）的关键 boundary conditions，防止了 AI 因仅关注 cleanup efficacy 而忽略的 data loss 或 sync breaks。\nScientific Model Verification Approach 角色 方法 用户 Human 建立了科学边界，即由于 randomness，bit-identical output 是不可能实现的，从而将 validation 指向 metric divergence (ARI/NMI)。 AI 助手 AI 最初专注于 component-wise code diffing，随后根据 human 的约束设计了 empirical harness。 差异分析： Human 早期提供了必要的 scientific validity check，防止了在无法实现的 reproducibility goals 上浪费精力。\nSingle Instance \u0026 macOS Error Diagnosis 角色 方法 用户 User 将 macOS signing errors 与 instance conflicts 混淆了，但正确识别了对 exclusive access logic 的需求。 AI 助手 AI 分离了 root causes (signing vs. locking)，但在实现时通过将两者都添加到单个稳健的 mechanism 中，在逻辑上将它们合并了。 差异分析： AI 弥合了 symptoms 与 implementation 之间的技术差距，确保解决方案既解决了 environmental errors，又满足了 functional requirements。\nAI Limitations Critical Limitations 第一次尝试 repository cleanup (filter-repo) 未能预见到对 shared commit history 的影响，导致破坏了 upstream synchronization。 最初将 macOS runtime errors 误诊为 port conflicts 而非 signing/Gatekeeper issues，这可能是由于之前 troubleshooting sessions 带来的 context bias。 General Limitations- 由于 SLURM queue 延迟和 wall-clock 限制，无法在单个 session 限制内执行完整的 scientific equivalence tests。 Learnings Key Learnings 在 forked repository 中清理大型 accidental commits 时，应在操作 之前 和 之后 对照 upstream 验证 behind/ahead 状态；仅 amend tip commit 可以保持 ancestor integrity。 在不同环境中验证 scientific code equivalence 时，始终应将验证锚定在最终的 output metrics（例如 ARI/NMI）上，而不是尝试实现 bit-identical reproducibility。 Production Tauri apps 在启动期间可能不会监听 ports；single-instance logic 必须是 synchronous 且独立于 app event loop 的，才能可靠运行。 Practical Learnings 用于 multi-repo deployment 的 CLI tools 必须优雅地处理特定平台的 path 差异和现有的 state variants（partial installs），以确保真正的 idempotency。 Conversation Summaries TokenMonitor Engineering \u0026 CI/CD ✅ Repository Hygiene, Single-Instance Guard, and CLI Tooling 02:53:52.859 | claude_code 执行了一次关键的 git history rewrite，在通过 selective commit amending 保留 upstream sync 的同时，移除了约 302MB 的 accidental build artifacts。使用 loopback port locking 和针对 Tauri/macOS 的 native dialogs 实现了一个健壮的 cross-platform single-instance guard。此外，开发了带有 idempotency checks 和 path normalization 功能的 aidev install CLI tool，用于在五个 sibling repositories 之间进行 deployment。\nMIHD (Computational Biology) ✅ Data Recovery and Model Validation 00:05:43.646 | claude_code 从 NetApp snapshots 中恢复了大约两个月的丢失 MIHD 实验数据，并修复了 QueST/geneenc simulations 中的 critical bugs。设计了一个全面的 equivalence verification harness，以确认新的 ‘staig_fusion’ 实现与原始 STAIG reference 在 ARI/NI metric divergence 范围内保持在 5% 以内。\nTokenMonitor Dev Environment ✅ Debugging and Configuration Migration 00:45:51.013 | claude_code 解决了由 orphaned Vite processes 引起的持续 white-screen issues，并将本地 Claude Code development environment 从 Amazon Bedrock 迁移到了 AWS 上的 Claude Platform，并相应地更新了 configuration files。\nToken Usage AI Usage · 2026-06-03\rClaude Code\rTotal cost$190.01\rTotal tokens127M\rOutput tokens2M\rCache read85.3%\rToken character\rCache reads 85.3% ·\rActive 14.7%\rMost token volume came from cache reads.\r",
+  "wordCount" : "846",
   "inLanguage": "zh",
   "datePublished": "2026-06-03T00:00:00-04:00",
   "dateModified": "2026-06-03T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -236,78 +236,78 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-意外-commit-的-302mb-build-artifacts-破坏了-repository-healthfull-history-rewriting-存在破坏-upstream-synchronization-的风险">1. 意外 commit 的 ~302MB build artifacts 破坏了 repository health；full history rewriting 存在破坏 upstream synchronization 的风险。<a hidden class="anchor" aria-hidden="true" href="#1-意外-commit-的-302mb-build-artifacts-破坏了-repository-healthfull-history-rewriting-存在破坏-upstream-synchronization-的风险">#</a></h4>
 <p><strong>Solution:</strong> 识别出特定的 offending commit，并仅在 tip 上使用 <code>git commit --amend</code> 以保留 ancestor integrity，在成功减少 repo size 的同时，保持了与 upstream 的 0-behind 状态。</p>
-<p><strong>Key Insight:</strong> 在清理 forks 时，改变 shared history 会改变 ancestor SHAs；相比于宽泛的 filtering tools，选择性的 amending 对于保留 upstream relationships 更为安全。</p>
+<p><strong>关键发现：</strong> 在清理 forks 时，改变 shared history 会改变 ancestor SHAs；相比于宽泛的 filtering tools，选择性的 amending 对于保留 upstream relationships 更为安全。</p>
 <h4 id="2-macos-app-is-damaged-errors-和潜在的-duplicate-instance-conflicts-最初被误诊为-port-exhaustion-或-signing-issues">2. MacOS &lsquo;App is damaged&rsquo; errors 和潜在的 duplicate instance conflicts 最初被误诊为 port exhaustion 或 signing issues。<a hidden class="anchor" aria-hidden="true" href="#2-macos-app-is-damaged-errors-和潜在的-duplicate-instance-conflicts-最初被误诊为-port-exhaustion-或-signing-issues">#</a></h4>
 <p><strong>Solution:</strong> 明确了生产环境中的 Tauri apps 可能不会监听 ports；实现了一个同步的、pre-event-loop 的 loopback port lock 并配备 native dialogs，以确保 exclusive access 并稳健地处理 startup logic。</p>
-<p><strong>Key Insight:</strong> 跨平台的 single-instance checks 必须独立于 app event loop，并且为了完整性，必须同时考虑 process presence 和 port occupancy。</p>
+<p><strong>关键发现：</strong> 跨平台的 single-instance checks 必须独立于 app event loop，并且为了完整性，必须同时考虑 process presence 和 port occupancy。</p>
 <h4 id="3-aidev-install-由于不同平台间的-path-separator-mismatches-backslash-vs-slash-和-marker-text-variations-而未能通过-idempotency-checks">3. <code>aidev install</code> 由于不同平台间的 path separator mismatches (backslash vs slash) 和 marker text variations 而未能通过 idempotency checks。<a hidden class="anchor" aria-hidden="true" href="#3-aidev-install-由于不同平台间的-path-separator-mismatches-backslash-vs-slash-和-marker-text-variations-而未能通过-idempotency-checks">#</a></h4>
 <p><strong>Solution:</strong> 为 markers 实现了 fuzzy matching，并在比较前进行了 canonicalized path handling，增加了 pre-flight verification steps 以确保一致的 state detection。</p>
-<p><strong>Key Insight:</strong> 跨平台的 CLI tools 必须对 separators 进行 normalization，并且要检查目标的 <em>state</em>，而不仅仅是文件是否存在，以保证真正的 idempotency。</p>
+<p><strong>关键发现：</strong> 跨平台的 CLI tools 必须对 separators 进行 normalization，并且要检查目标的 <em>state</em>，而不仅仅是文件是否存在，以保证真正的 idempotency。</p>
 <h4 id="4-mihd-slurm-jobs-卡在-pd-statetokenmonitor-因-orphaned-vite-ports-出现-white-screenquest-script-出现-unboundlocalerror">4. MIHD Slurm jobs 卡在 PD state；TokenMonitor 因 orphaned Vite ports 出现 white-screen；QueST script 出现 UnboundLocalError。<a hidden class="anchor" aria-hidden="true" href="#4-mihd-slurm-jobs-卡在-pd-statetokenmonitor-因-orphaned-vite-ports-出现-white-screenquest-script-出现-unboundlocalerror">#</a></h4>
 <p><strong>Solution:</strong> 通过切换 device types 解决了 GPU scheduling starvation；清理了 zombie processes 以实现 clean port binding；并修复了 benchmark scripts 中的 variable scoping 问题。</p>
-<p><strong>Key Insight:</strong> 在 HPC 中，特定的 hardware constraints 通常比 partition priority 更容易阻塞 jobs；如果 zombie processes 在 dev server crash 后持续存在，Tauri 的 strict port mode 会发生 silent failure。</p>
+<p><strong>关键发现：</strong> 在 HPC 中，特定的 hardware constraints 通常比 partition priority 更容易阻塞 jobs；如果 zombie processes 在 dev server crash 后持续存在，Tauri 的 strict port mode 会发生 silent failure。</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="git-history-management-strategy">Git History Management Strategy<a hidden class="anchor" aria-hidden="true" href="#git-history-management-strategy">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>用户请求了 force-push，但明确选择保留 source profiler 并拒绝推送 release tags，从而引导了 cleanup 的范围。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 最初尝试进行 full <code>filter-repo</code>，这破坏了 upstream sync；在用户识别出 &lsquo;behind&rsquo; status anomaly 后，转向了针对性的 amending。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 提供了关于“哪些内容不能更改”（tags, shared ancestors）的关键 boundary conditions，防止了 AI 因仅关注 cleanup efficacy 而忽略的 data loss 或 sync breaks。</p>
+<p><strong>差异分析：</strong> Human 提供了关于“哪些内容不能更改”（tags, shared ancestors）的关键 boundary conditions，防止了 AI 因仅关注 cleanup efficacy 而忽略的 data loss 或 sync breaks。</p>
 <h4 id="scientific-model-verification-approach">Scientific Model Verification Approach<a hidden class="anchor" aria-hidden="true" href="#scientific-model-verification-approach">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>Human 建立了科学边界，即由于 randomness，bit-identical output 是不可能实现的，从而将 validation 指向 metric divergence (ARI/NMI)。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 最初专注于 component-wise code diffing，随后根据 human 的约束设计了 empirical harness。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 早期提供了必要的 scientific validity check，防止了在无法实现的 reproducibility goals 上浪费精力。</p>
+<p><strong>差异分析：</strong> Human 早期提供了必要的 scientific validity check，防止了在无法实现的 reproducibility goals 上浪费精力。</p>
 <h4 id="single-instance--macos-error-diagnosis">Single Instance &amp; macOS Error Diagnosis<a hidden class="anchor" aria-hidden="true" href="#single-instance--macos-error-diagnosis">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>User 将 macOS signing errors 与 instance conflicts 混淆了，但正确识别了对 exclusive access logic 的需求。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 分离了 root causes (signing vs. locking)，但在实现时通过将两者都添加到单个稳健的 mechanism 中，在逻辑上将它们合并了。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> AI 弥合了 symptoms 与 implementation 之间的技术差距，确保解决方案既解决了 environmental errors，又满足了 functional requirements。</p>
+<p><strong>差异分析：</strong> AI 弥合了 symptoms 与 implementation 之间的技术差距，确保解决方案既解决了 environmental errors，又满足了 functional requirements。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
 <ul>

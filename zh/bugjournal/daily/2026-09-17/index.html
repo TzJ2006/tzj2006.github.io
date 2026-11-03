@@ -10,7 +10,7 @@
 <meta name="description" content="今日的工作重点在于对 VLA model 量化失败进行 root-cause analysis（确定 A4 activation 为失败点），调试 RoboMemory 训练中的 normalization 问题，维护 TokenMonitor 的 dependencies 和 repository 同步，并为 PhD applications 进行广泛的学术研究。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-17/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-09-17 Daily Overview 工作内容： 当日工作涵盖四个不同领域：VLA 模型 (π0.5) 的高精度量化分析；RoboMemory 的深度学习训练调试与执行；TokenMonitor 的持续集成与依赖维护；以及用于 PhD 申请的全面学术调研。 工作方式： 量化方面采用了闭环/开环/tensor 级误差探测及离线粒度模拟；训练方面通过基于远程 SSH 的 GPU 集群管理进行；仓库管理采用了策略性的 git cherry-picking 和 CI 环境 pinning；学术数据收集则采用了并行多智能体 web 研究。 影响： 成功将 W4A8 确立为 VLA 模型的目标量化标准；通过修复归一化统计数据，防止了 RoboMemory 的灾难性训练失败；恢复了 TokenMonitor fork 的完整性；并为 PhD 申请生成了数据驱动的基准。 MacOS 工作内容： 维护 TokenMonitor 安全依赖并监控 CI 失败情况。 工作方式： 使用 Claude Code 和 Codex 审计 NPM packages，并分析 GitHub Action 日志以识别 Node 依赖不匹配问题。 影响： 解决了 Vitest 漏洞，并在 lockfile 中识别出 @emnapi peer dependency 问题。 TzJsDesktop 工作内容： 执行大规模学术研究，管理机器人训练，并进行复杂的 git 操作。 工作方式： 部署并行搜索 agents 进行 PhD 录取数据调研；通过 SSH 在 tianhe3 集群上管理远程训练；执行手动/AI 辅助的 cherry-picking 以解决 66+ 个文件冲突。 影响： 生成了全面的 PhD 录取数据库；启动了修正后的 RoboMemory 训练；成功将 TokenMonitor fork 与其 upstream 同步。 lighthouse 工作内容： 该设备上未记录显著活动。 工作方式： N/A 影响： N/A 当日工作重点在于对 VLA 模型量化失败进行根因分析（确定 A4 activation 为失败点）、调试 RoboMemory 训练归一化问题、维护 TokenMonitor 依赖与仓库同步，以及为 PhD 申请进行广泛的学术研究。\nTasks Architecture \u0026 Strategy • VLA Quantization Analysis (W4A8 vs W4A4) — 使用 SpinQuant R1-R4 + SeqMSE 对 backbone bit-widths 进行对比实验，以分析闭环性能、轨迹发散及 action block L2 误差。 • Tensor \u0026 Granularity Error Probing — 执行 layer-wise tensor probing 以定位误差来源，并对不同的 activation clipping (Min-max, MSE, Pct) 和粒度 (Per-token, Per-group) 进行离线模拟。 • Sync TokenMonitor Fork with Upstream — 通过将 10 个 commits 策略性地 cherry-pick 到 upstream PR#24 base 上，解决了由 history 重写导致的巨大冲突。 • RoboMemory Training Correction — 在发现归一化统计数据是在不足的数据集 (imitation2) 上计算导致除以零后，重新训练 ‘all16_base’ 模型。 • Fix Cursor API Parsing — 处理 Cursor 使用页面中的空 JSON 响应 ‘{}’ 情况，以防止 fetch 失败。 • RoboMemory 16-task Evaluation — 为新 checkpoint 运行 16-task × 50-episode 评估。 • Align CI Node Version — 将 CI Node 版本 pinning 至 24.12.0，以匹配本地环境并防止 npm lockfile 不匹配。 • PhD Admission Research — 使用并行 agents 研究了 36 个 robotics/ML PhD 项目的录取结果、cohort profiles 及面试时间线。 Implementation \u0026 Fixes • TokenMonitor Dependency \u0026 Security Audit — 将 Vitest 更新至 4.1.11 以解决漏洞，并处理了 fsevents install 警告。 Problems \u0026 Solutions Critical Issues 1. W4A4 quantization results in zero success rate for VLA tasks due to backbone A4 activation errors. Solution: 验证了 W4A8 (4-bit Weight, 8-bit Activation) 可达到 100% 成功率；建议将 W4A8 作为最终交付标准。\n2. RoboMemory training loss was astronomically high (2e11) due to division by zero in normalization. Solution: 确定 norm_stats 是基于一个子集，其中第 8 维 (gripper) 的 std 为零；已在完整的 16-task 数据集上重新计算了 stats。\n3. Direct git merge between TokenMonitor fork and upstream caused 66+ ‘add/add’ conflicts due to rewritten history. Solution: 放弃 merge，改为将自 v0.14.2 以来提交的 10 个特定 commits cherry-pick 到 upstream 分支。\n4. Cursor usage data was missing because the parser failed on empty JSON responses ‘{}’. Solution: 修改了 parser，将缺失的 ‘usageEvents’ 数组视为空列表而非致命错误。\n5. npm ci in GitHub Actions failed due to lockfile format mismatches between local and CI Node versions. Solution: 将 CI Node 版本 pinning 至精确的 24.12.0，以匹配本地开发环境。\nGeneral Issues 6. Seeking ways to salvage A4 precision via optimization or fine-grained quantization. Solution: 测试了 MSE clipping（效果不足），并确定 fine-grained/mixed-precision 目前受限于 QAIRT deployment 约束而无法支持。\n7. TokenMonitor had Vitest vulnerabilities and fsevents install script warnings. Solution: 将 Vitest 更新至 4.1.11，并在 package.json 中显式阻止了 fsevents install scripts。\n8. SSH connection instability to the tianhe3 cluster prevented continuous monitoring. Solution: 为 SSH 命令实现了 retry loop。\nHuman vs AI Approaches Strategic Level VLA Root-Cause Diagnosis Role Approach Human N/A AI 通过闭环/开环/tensor/离线对比，排除了 calibration、prompts 和 model structure 作为变量的可能性，精准定位 A4 activation 为数值漂移的唯一来源。 Difference Analysis: AI 通过多维交叉验证，从一般的怀疑（calibration/prompt 问题）转向了数学上的确定性。\nTraining Debugging Role Approach Human 提供了关键的项目上下文以及验证 I-148 baseline 的必要性。 AI 通过迭代分析 logs、GPU states 和 loss values，将 2e11 的 loss 与 norm_stats.json 中特定的维度不匹配联系起来。 Difference Analysis: AI 能够迅速将天文数字般的 loss 值与 JSON metadata 中的特定数学故障建立关联，这是关键的突破点。\nGit Synchronization Strategy| Role | Approach | |——|——| | Human | 最初请求一种让 fork 和 upstream 保持一致的简单方法。 | | AI | 提出了 cherry-pick 策略，在保留近期 feature 的同时，避免重写 history 导致的 ‘add/add’ 冲突陷阱。 |\nDifference Analysis: AI 识别出在处理复杂的 rewritten history 时，使用 cherry-picking 而非 merging 的技术必要性。\nPhD Research Strategy Role Approach Human 将研究方向引导至定性的“非言语”信号（例如 internal CMU connections, student profiles），而非原始统计数据。 AI 部署了多个 parallel agents，从 GradCafe、Zhihu 和 1point3acres 等多样化来源进行 scrape/search。 Difference Analysis: 人类用户为定性深度提供了战略方向，随后 AI 通过大规模 search 执行了该方向。\nImplementation Level Environment Management Role Approach Human 要求一种让 standard tools 直接可用、无需复杂 command-line overhead 的解决方案。 AI 最初建议使用 ’npx npm@latest’ 以防止 version drift，随后转向将 CI 同步至人类的环境。 Difference Analysis: 人类纠正了 AI 对理论洁癖的偏好，转而追求实际的 local parity。\nAI Limitations General Limitations 由于 anti-scraping measures，难以访问某些 web platforms (Reddit, 1point3acres)，需要人工干预。 难以协调 local npm version 与 CI requirements 之间的差异，最初导致了手动 lockfile patches 的循环。 由于不稳定的 jump host，遇到了 SSH connection timeouts 和 exit codes (107)。 被 environment security guards (D21) 阻止执行某些 git write/commit 命令。 无法直接将文件写入 project memory zone (D16/I-147)，需要通过 terminal output 得出结论。 Learnings Key Learnings 对于 VLA models，W4A8 是 ‘Sweet Spot’：weight 4-bit 的容忍度极高且性能损失极小，而 A4 activation 会导致 backbone 发生灾难性的 precision collapse。 务必确保 normalization statistics 是在完整的预期 dataset 上计算的；subset 中的 zero-std dimensions 会在 multi-task settings 中导致灾难性的 training failure。 当 fork history 被重写时，由于不断的 ‘add/add’ 冲突，‘git merge’ 通常无法使用；cherry-picking 特定的 commits 是更可靠的 reconstruction method。 顶尖 robotics programs 的 PhD admission 受 ‘prior connections’（例如 internal Master’s programs）和直接的 faculty contact 影响很大，而不仅仅是 GPA/publications。 Protobuf-JSON serialization 经常完全省略 empty arrays，这可能会破坏期望特定 field structures 的 parsers。 local 与 CI 之间 npm versions 的微小差异会导致由于 lockfile format drift 引起的灾难性 ’npm ci’ failures。 Conversation Summaries pi05-goal-task0-zero-rootcause • W4A4 归零根因调查 通过对比 W4A8 (10/10 success) 和 W4A4 (0/50 success) 的严格 controlled experiments，证明了 backbone 中的 4-bit activation 会导致快速的 error accumulation (K/V cache loss of correlation)，从而使 action output 变为 noise。Offline simulations 证实，即使是基于 MSE-based clipping 也无法弥补 VLA tasks 所需的 precision gap。\nTokenMonitor • Repository Synchronization \u0026 CI Maintenance 通过使用 cherry-picking 导航了一个复杂的 synchronization process，使 local fork 与 rewritten upstream history 对齐。此外，通过将 Node.js version 固定以匹配 local environment，解决了 recurring CI failures，并通过更新 Vitest 解决了 security vulnerabilities。\nRoboMemory • Training Debugging and Baseline Validation 诊断了由从 subset 导出的错误 normalization statistics 导致的 massive loss spike。使用 full dataset 修正了 stats，重新启动了 training，并准备了 evaluation pipeline。\nPhD Application Research • Robotics PhD Admission Data 部署了 6 个 parallel agents 来研究 36 个 programs 的 admission profiles，汇编了关于 interview signals、cohort statistics 和定性 recruitment trends 的发现。\nToken Usage AI Usage · 2026-09-17\rClaude Code\rTotal cost$9.51\rTotal tokens4M\rOutput tokens2K\rCache read83.1%\rToken character\rCache reads 83.1% ·\rActive 16.9%\rMost token volume came from cache reads.\r",
-  "wordCount" : "920",
+  "articleBody": "Daily Report — 2026-09-17 Daily Overview 工作内容： 当日工作涵盖四个不同领域：VLA 模型 (π0.5) 的高精度量化分析；RoboMemory 的深度学习训练调试与执行；TokenMonitor 的持续集成与依赖维护；以及用于 PhD 申请的全面学术调研。 工作方式： 量化方面采用了闭环/开环/tensor 级误差探测及离线粒度模拟；训练方面通过基于远程 SSH 的 GPU 集群管理进行；仓库管理采用了策略性的 git cherry-picking 和 CI 环境 pinning；学术数据收集则采用了并行多智能体 web 研究。 影响： 成功将 W4A8 确立为 VLA 模型的目标量化标准；通过修复归一化统计数据，防止了 RoboMemory 的灾难性训练失败；恢复了 TokenMonitor fork 的完整性；并为 PhD 申请生成了数据驱动的基准。 MacOS 工作内容： 维护 TokenMonitor 安全依赖并监控 CI 失败情况。 工作方式： 使用 Claude Code 和 Codex 审计 NPM packages，并分析 GitHub Action 日志以识别 Node 依赖不匹配问题。 影响： 解决了 Vitest 漏洞，并在 lockfile 中识别出 @emnapi peer dependency 问题。 TzJsDesktop 工作内容： 执行大规模学术研究，管理机器人训练，并进行复杂的 git 操作。 工作方式： 部署并行搜索 agents 进行 PhD 录取数据调研；通过 SSH 在 tianhe3 集群上管理远程训练；执行手动/AI 辅助的 cherry-picking 以解决 66+ 个文件冲突。 影响： 生成了全面的 PhD 录取数据库；启动了修正后的 RoboMemory 训练；成功将 TokenMonitor fork 与其 upstream 同步。 lighthouse 工作内容： 该设备上未记录显著活动。 工作方式： N/A 影响： N/A 当日工作重点在于对 VLA 模型量化失败进行根因分析（确定 A4 activation 为失败点）、调试 RoboMemory 训练归一化问题、维护 TokenMonitor 依赖与仓库同步，以及为 PhD 申请进行广泛的学术研究。\nTasks Architecture \u0026 Strategy • VLA Quantization Analysis (W4A8 vs W4A4) — 使用 SpinQuant R1-R4 + SeqMSE 对 backbone bit-widths 进行对比实验，以分析闭环性能、轨迹发散及 action block L2 误差。 • Tensor \u0026 Granularity Error Probing — 执行 layer-wise tensor probing 以定位误差来源，并对不同的 activation clipping (Min-max, MSE, Pct) 和粒度 (Per-token, Per-group) 进行离线模拟。 • Sync TokenMonitor Fork with Upstream — 通过将 10 个 commits 策略性地 cherry-pick 到 upstream PR#24 base 上，解决了由 history 重写导致的巨大冲突。 • RoboMemory Training Correction — 在发现归一化统计数据是在不足的数据集 (imitation2) 上计算导致除以零后，重新训练 ‘all16_base’ 模型。 • Fix Cursor API Parsing — 处理 Cursor 使用页面中的空 JSON 响应 ‘{}’ 情况，以防止 fetch 失败。 • RoboMemory 16-task Evaluation — 为新 checkpoint 运行 16-task × 50-episode 评估。 • Align CI Node Version — 将 CI Node 版本 pinning 至 24.12.0，以匹配本地环境并防止 npm lockfile 不匹配。 • PhD Admission Research — 使用并行 agents 研究了 36 个 robotics/ML PhD 项目的录取结果、cohort profiles 及面试时间线。 Implementation \u0026 Fixes • TokenMonitor Dependency \u0026 Security Audit — 将 Vitest 更新至 4.1.11 以解决漏洞，并处理了 fsevents install 警告。 Problems \u0026 Solutions Critical Issues 1. W4A4 quantization results in zero success rate for VLA tasks due to backbone A4 activation errors. Solution: 验证了 W4A8 (4-bit Weight, 8-bit Activation) 可达到 100% 成功率；建议将 W4A8 作为最终交付标准。\n2. RoboMemory training loss was astronomically high (2e11) due to division by zero in normalization. Solution: 确定 norm_stats 是基于一个子集，其中第 8 维 (gripper) 的 std 为零；已在完整的 16-task 数据集上重新计算了 stats。\n3. Direct git merge between TokenMonitor fork and upstream caused 66+ ‘add/add’ conflicts due to rewritten history. Solution: 放弃 merge，改为将自 v0.14.2 以来提交的 10 个特定 commits cherry-pick 到 upstream 分支。\n4. Cursor usage data was missing because the parser failed on empty JSON responses ‘{}’. Solution: 修改了 parser，将缺失的 ‘usageEvents’ 数组视为空列表而非致命错误。\n5. npm ci in GitHub Actions failed due to lockfile format mismatches between local and CI Node versions. Solution: 将 CI Node 版本 pinning 至精确的 24.12.0，以匹配本地开发环境。\nGeneral Issues 6. Seeking ways to salvage A4 precision via optimization or fine-grained quantization. Solution: 测试了 MSE clipping（效果不足），并确定 fine-grained/mixed-precision 目前受限于 QAIRT deployment 约束而无法支持。\n7. TokenMonitor had Vitest vulnerabilities and fsevents install script warnings. Solution: 将 Vitest 更新至 4.1.11，并在 package.json 中显式阻止了 fsevents install scripts。\n8. SSH connection instability to the tianhe3 cluster prevented continuous monitoring. Solution: 为 SSH 命令实现了 retry loop。\nHuman vs AI Approaches Strategic Level VLA Root-Cause Diagnosis 角色 方法 用户 N/A AI 助手 通过闭环/开环/tensor/离线对比，排除了 calibration、prompts 和 model structure 作为变量的可能性，精准定位 A4 activation 为数值漂移的唯一来源。 差异分析： AI 通过多维交叉验证，从一般的怀疑（calibration/prompt 问题）转向了数学上的确定性。\nTraining Debugging 角色 方法 用户 提供了关键的项目上下文以及验证 I-148 baseline 的必要性。 AI 助手 通过迭代分析 logs、GPU states 和 loss values，将 2e11 的 loss 与 norm_stats.json 中特定的维度不匹配联系起来。 差异分析： AI 能够迅速将天文数字般的 loss 值与 JSON metadata 中的特定数学故障建立关联，这是关键的突破点。\nGit Synchronization Strategy 角色 方法 用户 最初请求一种让 fork 和 upstream 保持一致的简单方法。 AI 助手 提出了 cherry-pick 策略，在保留近期 feature 的同时，避免重写 history 导致的 ‘add/add’ 冲突陷阱。 差异分析： AI 识别出在处理复杂的 rewritten history 时，使用 cherry-picking 而非 merging 的技术必要性。\nPhD Research Strategy 角色 方法 用户 将研究方向引导至定性的“非言语”信号（例如 internal CMU connections, student profiles），而非原始统计数据。 AI 助手 部署了多个 parallel agents，从 GradCafe、Zhihu 和 1point3acres 等多样化来源进行 scrape/search。 差异分析： 人类用户为定性深度提供了战略方向，随后 AI 通过大规模 search 执行了该方向。\nImplementation Level Environment Management 角色 方法 用户 要求一种让 standard tools 直接可用、无需复杂 command-line overhead 的解决方案。 AI 助手 最初建议使用 ’npx npm@latest’ 以防止 version drift，随后转向将 CI 同步至人类的环境。 差异分析： 人类纠正了 AI 对理论洁癖的偏好，转而追求实际的 local parity。\nAI Limitations General Limitations 由于 anti-scraping measures，难以访问某些 web platforms (Reddit, 1point3acres)，需要人工干预。 难以协调 local npm version 与 CI requirements 之间的差异，最初导致了手动 lockfile patches 的循环。 由于不稳定的 jump host，遇到了 SSH connection timeouts 和 exit codes (107)。 被 environment security guards (D21) 阻止执行某些 git write/commit 命令。 无法直接将文件写入 project memory zone (D16/I-147)，需要通过 terminal output 得出结论。 Learnings Key Learnings 对于 VLA models，W4A8 是 ‘Sweet Spot’：weight 4-bit 的容忍度极高且性能损失极小，而 A4 activation 会导致 backbone 发生灾难性的 precision collapse。 务必确保 normalization statistics 是在完整的预期 dataset 上计算的；subset 中的 zero-std dimensions 会在 multi-task settings 中导致灾难性的 training failure。 当 fork history 被重写时，由于不断的 ‘add/add’ 冲突，‘git merge’ 通常无法使用；cherry-picking 特定的 commits 是更可靠的 reconstruction method。 顶尖 robotics programs 的 PhD admission 受 ‘prior connections’（例如 internal Master’s programs）和直接的 faculty contact 影响很大，而不仅仅是 GPA/publications。 Protobuf-JSON serialization 经常完全省略 empty arrays，这可能会破坏期望特定 field structures 的 parsers。 local 与 CI 之间 npm versions 的微小差异会导致由于 lockfile format drift 引起的灾难性 ’npm ci’ failures。 Conversation Summaries pi05-goal-task0-zero-rootcause • W4A4 归零根因调查 通过对比 W4A8 (10/10 success) 和 W4A4 (0/50 success) 的严格 controlled experiments，证明了 backbone 中的 4-bit activation 会导致快速的 error accumulation (K/V cache loss of correlation)，从而使 action output 变为 noise。Offline simulations 证实，即使是基于 MSE-based clipping 也无法弥补 VLA tasks 所需的 precision gap。\nTokenMonitor • Repository Synchronization \u0026 CI Maintenance 通过使用 cherry-picking 导航了一个复杂的 synchronization process，使 local fork 与 rewritten upstream history 对齐。此外，通过将 Node.js version 固定以匹配 local environment，解决了 recurring CI failures，并通过更新 Vitest 解决了 security vulnerabilities。\nRoboMemory • Training Debugging and Baseline Validation 诊断了由从 subset 导出的错误 normalization statistics 导致的 massive loss spike。使用 full dataset 修正了 stats，重新启动了 training，并准备了 evaluation pipeline。\nPhD Application Research • Robotics PhD Admission Data 部署了 6 个 parallel agents 来研究 36 个 programs 的 admission profiles，汇编了关于 interview signals、cohort statistics 和定性 recruitment trends 的发现。\nToken Usage AI Usage · 2026-09-17\rClaude Code\rTotal cost$9.51\rTotal tokens4M\rOutput tokens2K\rCache read83.1%\rToken character\rCache reads 83.1% ·\rActive 16.9%\rMost token volume came from cache reads.\r",
+  "wordCount" : "911",
   "inLanguage": "zh",
   "datePublished": "2026-09-17T00:00:00-04:00",
   "dateModified": "2026-09-17T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -278,88 +278,103 @@
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>N/A</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>通过闭环/开环/tensor/离线对比，排除了 calibration、prompts 和 model structure 作为变量的可能性，精准定位 A4 activation 为数值漂移的唯一来源。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> AI 通过多维交叉验证，从一般的怀疑（calibration/prompt 问题）转向了数学上的确定性。</p>
+<p><strong>差异分析：</strong> AI 通过多维交叉验证，从一般的怀疑（calibration/prompt 问题）转向了数学上的确定性。</p>
 <h4 id="training-debugging">Training Debugging<a hidden class="anchor" aria-hidden="true" href="#training-debugging">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>提供了关键的项目上下文以及验证 I-148 baseline 的必要性。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>通过迭代分析 logs、GPU states 和 loss values，将 2e11 的 loss 与 norm_stats.json 中特定的维度不匹配联系起来。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> AI 能够迅速将天文数字般的 loss 值与 JSON metadata 中的特定数学故障建立关联，这是关键的突破点。</p>
-<h4 id="git-synchronization-strategy-role--approach-">Git Synchronization Strategy| Role | Approach |<a hidden class="anchor" aria-hidden="true" href="#git-synchronization-strategy-role--approach-">#</a></h4>
-<p>|&mdash;&mdash;|&mdash;&mdash;|
-| Human | 最初请求一种让 fork 和 upstream 保持一致的简单方法。 |
-| AI   | 提出了 cherry-pick 策略，在保留近期 feature 的同时，避免重写 history 导致的 &lsquo;add/add&rsquo; 冲突陷阱。 |</p>
-<p><strong>Difference Analysis:</strong> AI 识别出在处理复杂的 rewritten history 时，使用 cherry-picking 而非 merging 的技术必要性。</p>
-<h4 id="phd-research-strategy">PhD Research Strategy<a hidden class="anchor" aria-hidden="true" href="#phd-research-strategy">#</a></h4>
+<p><strong>差异分析：</strong> AI 能够迅速将天文数字般的 loss 值与 JSON metadata 中的特定数学故障建立关联，这是关键的突破点。</p>
+<h4 id="git-synchronization-strategy">Git Synchronization Strategy<a hidden class="anchor" aria-hidden="true" href="#git-synchronization-strategy">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
+          <td>最初请求一种让 fork 和 upstream 保持一致的简单方法。</td>
+      </tr>
+      <tr>
+          <td>AI 助手</td>
+          <td>提出了 cherry-pick 策略，在保留近期 feature 的同时，避免重写 history 导致的 &lsquo;add/add&rsquo; 冲突陷阱。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> AI 识别出在处理复杂的 rewritten history 时，使用 cherry-picking 而非 merging 的技术必要性。</p>
+<h4 id="phd-research-strategy">PhD Research Strategy<a hidden class="anchor" aria-hidden="true" href="#phd-research-strategy">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>用户</td>
           <td>将研究方向引导至定性的“非言语”信号（例如 internal CMU connections, student profiles），而非原始统计数据。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>部署了多个 parallel agents，从 GradCafe、Zhihu 和 1point3acres 等多样化来源进行 scrape/search。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> 人类用户为定性深度提供了战略方向，随后 AI 通过大规模 search 执行了该方向。</p>
+<p><strong>差异分析：</strong> 人类用户为定性深度提供了战略方向，随后 AI 通过大规模 search 执行了该方向。</p>
 <h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
 <h4 id="environment-management">Environment Management<a hidden class="anchor" aria-hidden="true" href="#environment-management">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>要求一种让 standard tools 直接可用、无需复杂 command-line overhead 的解决方案。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初建议使用 &rsquo;npx npm@latest&rsquo; 以防止 version drift，随后转向将 CI 同步至人类的环境。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> 人类纠正了 AI 对理论洁癖的偏好，转而追求实际的 local parity。</p>
+<p><strong>差异分析：</strong> 人类纠正了 AI 对理论洁癖的偏好，转而追求实际的 local parity。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
 <ul>

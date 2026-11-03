@@ -10,7 +10,7 @@
 <meta name="description" content="这一天完成了通过 LSTM 和 LoRA 实验来定稿 ECE 661 作业，准备 NeurIPS 2026 的 camera-ready 提交与发布，启动了针对 JEV-six-task 项目的诊断阶段以解决机器人任务失败问题，并将 MIHD 项目重新定位为一种多模态基准测试的科学叙事。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-10-16/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,7 +96,7 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-10-16 Daily Overview 完成内容： 工作流涵盖了学术课程作业完成、高规格会议投稿定稿、诊断性机器人测试以及战略性研究定位调整。 执行方式： 执行过程涉及深度技术任务，如 PyTorch/LoRA 实现、LaTeX/BibTeX 管理、多路径 VLM/基于 API 的诊断实验，以及通过对会议记录进行批判性分析来转向研究方向。 影响： 成功验证了作业的模型指标，确保了 NeurIPS 发布前的就绪状态，为机器人错误纠正建立了结构化的实证计划，并为 MIHD benchmark 定义了明确的科学贡献。 今日工作包括通过 LSTM 和 LoRA 实验完成 ECE 661 作业，准备 NeurIPS 2026 的 camera-ready 投稿与发布，启动 JEV-six-task 项目的诊断阶段以解决机器人任务失败问题，并将 MIHD 项目重新定位为多模态基准测试的科学叙事。\nTasks Architecture \u0026 Strategy • Advisor Consultation — 明确最终投稿的资金、计算资源来源及 COI。 • Conference Registration — 确保在 10 月 30 日前至少有一名作者完成主会议注册。 ✅ LabRNN.ipynb Completion — 为 IMDB 情感分析实现了 data loader、vocabulary builder、LSTM model 和 training loop。 ✅ LabLLM.ipynb Completion — 实现了 GPT-2 fine-tuning 和 LoRA adaptation 实验。 • Final Release Push — 在获得 advisor 反馈后，同步 HF 上传和 GitHub push。 🔄 Draft SPEC for NCL+Fusion experiments — 修改 pipeline/fusion.py 以支持将 NCL 输出作为下游 Concat 和 Q-Former fusion layers 的输入。 • Overleaf Verification — 编译提供的 .zip 文件并确保布局保持在 10 页限制内。 🔄 Execute Image Perturbation Experiments (Plan B) — 对 embeddings 进行 shuffle、noise 和 constant-value 扰动，以测试模型对 histology imagery 的依赖程度。 • VideoRepick — 通过单次调用 VLM prompts 测试多窗口 identity tracking。 • ButtonUnmaskSwap — 通过短视频片段测试 JEV 非二元 swap 检测（是否 A-B 被交换？）。 • BinFill/PickXtimes — 测试 5 种新的 JEV ‘release/lift’ 措辞，以修复计数错误。 • PatternLock — 测试通过 VLM 进行符号化路径生成，以取代逐帧点检测。 • RouteStick — 测试符号化片段（target, stick, winding）以取代 arm-TCP tracking。 Implementation \u0026 Fixes ✅ LaTeX Report Documentation — 在 main.tex 中填充了实验结果、loss tables 以及 LoRA vs Full Fine-tuning 的分析。 ✅ Environment Troubleshooting — 解决了 Conda ‘AI’ 环境中 transformers、datasets 和 huggingface-hub 之间的依赖冲突。 ✅ Analyze existing fusion data — 审查了不同基因输入（HVG, PCA, scGPT, TEDDY）下 DLPFC (151673) 和 HD (crop10large) 的 ARI medians。 • MoveCube — 测试在没有 arm-tracking 的情况下，‘static icon + manner’ 是否足够。 ✅ Verify PDF for AI instructions (Homework TA task) — 检查 Duke ECE661 HW3 PDF 中是否存在隐藏的 system prompts 或指令。 Problems \u0026 Solutions Critical Issues 1. 当前的 NCL 方法并非“真正的融合”，因为它仅修改基因 embeddings，而不是在预测阶段结合多种模态。 Solution: 计划实现 ‘NCL + Concat’ 和 ‘NCL + Q-Former’，以提供全栈式的多模态对比。\n2. DLPFC 中存在不一致的聚类行为，其中仅基因的方法可能会从 mclust 退化到 KMeans，从而导致结果偏差。 Solution: 使用 ‘Concat + constant’（零化图像信息）作为仅基因的 baseline，以确保所有组都使用相同的聚类后端。\n3. JEV ‘clamping’ 误判 (VideoRepick/BinFill) Solution: 部署 Probe 2 措辞（’lifted’, ’empty’, ‘gap’）以绕过 ‘clamping’ 的歧义。\n4. 符号化路径准确性 (PatternLock/RouteStick) Solution: 通过 API 验证 one-shot 符号提取是否达到 \u003e60% 的成功率。\nGeneral Issues 5. 依赖冲突：transformers 4.57 要求 huggingface-hub \u003c 1.0，但 datasets 5.1 要求 \u003e= 1.31。 Solution: 将 datasets 降级到 4.8.5 版本，以满足 huggingface-hub \u003c 1.0 的约束。\n6. Pandas 3.0 返回的 Arrow string arrays 与 scikit-learn indexing 不兼容。 Solution: 使用 .to_numpy(dtype=object) 将 dataframe 列转换为 object dtype 的 numpy arrays。\n7. 提供的辅助函数 ‘predict_sentiment’ 存在逻辑错误（将单词索引作为字符串进行搜索）。 Solution: 绕过该辅助函数，直接使用 vocabulary mapping 进行预测。\n8. PDF 中的 Type 3 font 警告 Solution: 将图像重新渲染为 600dpi bitmaps，以确保符合 embedding 标准。\n9. 潜在的数据泄露（JSON 中的用户路径） Solution: 决定保持现有的 HF training data 不变（名称是公开的），但清理了所有新的/发布的文档。\nHuman vs AI Approaches Strategic Level Author order/affiliations Role Approach Human N/A AI 自动化 LaTeX superscripts 以及在多个文档文件（README, Datasheet, HF Card, Croissant）中的统一。 Difference Analysis: N/A\nProject Positioning Role Approach Human 用户提供了以人为中心的 advisor feedback，将论文从 ‘Method’ 转向 ‘Benchmark’。 AI AI 最初建议将 ‘Agent Harness’ 作为核心贡献，但在用户纠正了会议记录分析后进行了修正。 Difference Analysis: 人类根据口头语境正确识别了贡献的层级（Benchmark \u003e Fusion Insights \u003e Agent）。\nButtonUnmaskSwap Role Approach Human 对所有可能的 swap pairs 进行连续的 VLM monitoring。 AI 使用 One-shot VLM 进行初始设置 + 使用 JEV ‘yes/no’ 序列进行动态检测。 Difference Analysis: N/A\nImplementation Level Code Refinement Role Approach Human 用户使用显式循环和自定义逻辑（例如在 build_vocab 和 getitem 中）重构了 AI 的初始实现。 AI AI 提供了一个功能性但更抽象的实现来解决任务。 Difference Analysis: 人类的版本更加冗长且符合其编码偏好，由于环境/实现的细微差别，导致准确率略高（87.2% vs 84.3%）。\nBibTeX verification Role Approach Human N/A AI 与已知的论文记录和出版商数据库进行手动文本匹配。 Difference Analysis: N/A\nAI Limitations Critical Limitations- 在没有 advisor 人工确认的情况下，无法验证提供的算力是“捐赠”还是“付费”。 AI 最初误解了会议 transcript，将 ‘STAIG’ 误认为 ‘STAGATE’，并误解了论文结构中 ‘Agent’ 的重要性。 StopCube InsertPeg General Limitations 由于环境中缺乏 TeX distribution，AI 无法编译 LaTeX 文档。 无法从视觉上“观察” 10 页的限制是否美观，只能检查技术性的页数。 Learnings Key Learnings histology images 的有效性在很大程度上取决于数据集（DLPFC vs HD）和基因输入方法（例如 PCA vs HVG）。 对于像 GPT-2 (124M) 这样的小模型，来自 LoRA 的加速效果微乎其微，因为通过 frozen layers 的 forward/backward passes 占据了总计算时间的主导地位。 NeurIPS camera-ready 对 funding/COI 的要求非常严格，必须精确放置（post-conclusion, pre-references）。 Gemini 3.8 Flash 在 ButtonUnmaskSwap 中的成功部分归功于非视觉的 proprioception（manual oracle）。对于 C，我们必须依赖 JEV 的 visual swap detection。 Conversation Summaries ECE661 Homework 3 ✅ RNN and LLM Implementation \u0026 Finalization AI 协助完成了 LSTM 和 GPT-2/LoRA 实验，通过降级 ‘datasets’ 管理了环境依赖冲突，并使用验证过的 metrics 完成了 LaTeX report。\nNeurIPS 2026 Camera-Ready \u0026 Release ✅ Final Cleanup \u0026 Release Prep AI 完成了 camera-ready submission 的大部分技术和 authorship 更新。为用户提供了一份 release checklist，涉及关于 funding 和 registration requirements 的 advisor 咨询。\njev-six-task-phasea ✅ Detailed breakdown of the 7-task fix strategy 建立了一个诊断阶段 (Phase A)，采用并行轨道（symbolic routes, multi-window tracking, JEV wording probes），为解决 7-task failure set 提供经验数据。\nMIHD Benchmark 🔄 Project Repositioning and Experimental Planning 项目从以方法为中心的论文转向了以 benchmark 为中心的研究，旨在调查 histology imagery 在何种条件下有利于 spatial transcriptomics，包括 NCL+Fusion 实验计划。\nECE661 Homework ✅ AI Instruction Audit 作为 TA，用户在 Homework PDF 中搜索隐藏的 AI instructions；AI 对文本、metadata 和不可见字符进行了彻底检查。\nToken Usage AI Usage · 2026-10-16\rClaude Code\rTotal cost$102.93\rTotal tokens334M\rOutput tokens959K\rCache read96.5%\rToken character\rCache reads 96.5% ·\rActive 3.5%\rMost token volume came from cache reads.\r",
+  "articleBody": "Daily Report — 2026-10-16 Daily Overview 完成内容： 工作流涵盖了学术课程作业完成、高规格会议投稿定稿、诊断性机器人测试以及战略性研究定位调整。 执行方式： 执行过程涉及深度技术任务，如 PyTorch/LoRA 实现、LaTeX/BibTeX 管理、多路径 VLM/基于 API 的诊断实验，以及通过对会议记录进行批判性分析来转向研究方向。 影响： 成功验证了作业的模型指标，确保了 NeurIPS 发布前的就绪状态，为机器人错误纠正建立了结构化的实证计划，并为 MIHD benchmark 定义了明确的科学贡献。 今日工作包括通过 LSTM 和 LoRA 实验完成 ECE 661 作业，准备 NeurIPS 2026 的 camera-ready 投稿与发布，启动 JEV-six-task 项目的诊断阶段以解决机器人任务失败问题，并将 MIHD 项目重新定位为多模态基准测试的科学叙事。\nTasks Architecture \u0026 Strategy • Advisor Consultation — 明确最终投稿的资金、计算资源来源及 COI。 • Conference Registration — 确保在 10 月 30 日前至少有一名作者完成主会议注册。 ✅ LabRNN.ipynb Completion — 为 IMDB 情感分析实现了 data loader、vocabulary builder、LSTM model 和 training loop。 ✅ LabLLM.ipynb Completion — 实现了 GPT-2 fine-tuning 和 LoRA adaptation 实验。 • Final Release Push — 在获得 advisor 反馈后，同步 HF 上传和 GitHub push。 🔄 Draft SPEC for NCL+Fusion experiments — 修改 pipeline/fusion.py 以支持将 NCL 输出作为下游 Concat 和 Q-Former fusion layers 的输入。 • Overleaf Verification — 编译提供的 .zip 文件并确保布局保持在 10 页限制内。 🔄 Execute Image Perturbation Experiments (Plan B) — 对 embeddings 进行 shuffle、noise 和 constant-value 扰动，以测试模型对 histology imagery 的依赖程度。 • VideoRepick — 通过单次调用 VLM prompts 测试多窗口 identity tracking。 • ButtonUnmaskSwap — 通过短视频片段测试 JEV 非二元 swap 检测（是否 A-B 被交换？）。 • BinFill/PickXtimes — 测试 5 种新的 JEV ‘release/lift’ 措辞，以修复计数错误。 • PatternLock — 测试通过 VLM 进行符号化路径生成，以取代逐帧点检测。 • RouteStick — 测试符号化片段（target, stick, winding）以取代 arm-TCP tracking。 Implementation \u0026 Fixes ✅ LaTeX Report Documentation — 在 main.tex 中填充了实验结果、loss tables 以及 LoRA vs Full Fine-tuning 的分析。 ✅ Environment Troubleshooting — 解决了 Conda ‘AI’ 环境中 transformers、datasets 和 huggingface-hub 之间的依赖冲突。 ✅ Analyze existing fusion data — 审查了不同基因输入（HVG, PCA, scGPT, TEDDY）下 DLPFC (151673) 和 HD (crop10large) 的 ARI medians。 • MoveCube — 测试在没有 arm-tracking 的情况下，‘static icon + manner’ 是否足够。 ✅ Verify PDF for AI instructions (Homework TA task) — 检查 Duke ECE661 HW3 PDF 中是否存在隐藏的 system prompts 或指令。 Problems \u0026 Solutions Critical Issues 1. 当前的 NCL 方法并非“真正的融合”，因为它仅修改基因 embeddings，而不是在预测阶段结合多种模态。 Solution: 计划实现 ‘NCL + Concat’ 和 ‘NCL + Q-Former’，以提供全栈式的多模态对比。\n2. DLPFC 中存在不一致的聚类行为，其中仅基因的方法可能会从 mclust 退化到 KMeans，从而导致结果偏差。 Solution: 使用 ‘Concat + constant’（零化图像信息）作为仅基因的 baseline，以确保所有组都使用相同的聚类后端。\n3. JEV ‘clamping’ 误判 (VideoRepick/BinFill) Solution: 部署 Probe 2 措辞（’lifted’, ’empty’, ‘gap’）以绕过 ‘clamping’ 的歧义。\n4. 符号化路径准确性 (PatternLock/RouteStick) Solution: 通过 API 验证 one-shot 符号提取是否达到 \u003e60% 的成功率。\nGeneral Issues 5. 依赖冲突：transformers 4.57 要求 huggingface-hub \u003c 1.0，但 datasets 5.1 要求 \u003e= 1.31。 Solution: 将 datasets 降级到 4.8.5 版本，以满足 huggingface-hub \u003c 1.0 的约束。\n6. Pandas 3.0 返回的 Arrow string arrays 与 scikit-learn indexing 不兼容。 Solution: 使用 .to_numpy(dtype=object) 将 dataframe 列转换为 object dtype 的 numpy arrays。\n7. 提供的辅助函数 ‘predict_sentiment’ 存在逻辑错误（将单词索引作为字符串进行搜索）。 Solution: 绕过该辅助函数，直接使用 vocabulary mapping 进行预测。\n8. PDF 中的 Type 3 font 警告 Solution: 将图像重新渲染为 600dpi bitmaps，以确保符合 embedding 标准。\n9. 潜在的数据泄露（JSON 中的用户路径） Solution: 决定保持现有的 HF training data 不变（名称是公开的），但清理了所有新的/发布的文档。\nHuman vs AI Approaches Strategic Level Author order/affiliations 角色 方法 用户 N/A AI 助手 自动化 LaTeX superscripts 以及在多个文档文件（README, Datasheet, HF Card, Croissant）中的统一。 差异分析： N/A\nProject Positioning 角色 方法 用户 用户提供了以人为中心的 advisor feedback，将论文从 ‘Method’ 转向 ‘Benchmark’。 AI 助手 AI 最初建议将 ‘Agent Harness’ 作为核心贡献，但在用户纠正了会议记录分析后进行了修正。 差异分析： 人类根据口头语境正确识别了贡献的层级（Benchmark \u003e Fusion Insights \u003e Agent）。\nButtonUnmaskSwap 角色 方法 用户 对所有可能的 swap pairs 进行连续的 VLM monitoring。 AI 助手 使用 One-shot VLM 进行初始设置 + 使用 JEV ‘yes/no’ 序列进行动态检测。 差异分析： N/A\nImplementation Level Code Refinement 角色 方法 用户 用户使用显式循环和自定义逻辑（例如在 build_vocab 和 getitem 中）重构了 AI 的初始实现。 AI 助手 AI 提供了一个功能性但更抽象的实现来解决任务。 差异分析： 人类的版本更加冗长且符合其编码偏好，由于环境/实现的细微差别，导致准确率略高（87.2% vs 84.3%）。\nBibTeX verification 角色 方法 用户 N/A AI 助手 与已知的论文记录和出版商数据库进行手动文本匹配。 差异分析： N/A\nAI Limitations Critical Limitations- 在没有 advisor 人工确认的情况下，无法验证提供的算力是“捐赠”还是“付费”。 AI 最初误解了会议 transcript，将 ‘STAIG’ 误认为 ‘STAGATE’，并误解了论文结构中 ‘Agent’ 的重要性。 StopCube InsertPeg General Limitations 由于环境中缺乏 TeX distribution，AI 无法编译 LaTeX 文档。 无法从视觉上“观察” 10 页的限制是否美观，只能检查技术性的页数。 Learnings Key Learnings histology images 的有效性在很大程度上取决于数据集（DLPFC vs HD）和基因输入方法（例如 PCA vs HVG）。 对于像 GPT-2 (124M) 这样的小模型，来自 LoRA 的加速效果微乎其微，因为通过 frozen layers 的 forward/backward passes 占据了总计算时间的主导地位。 NeurIPS camera-ready 对 funding/COI 的要求非常严格，必须精确放置（post-conclusion, pre-references）。 Gemini 3.8 Flash 在 ButtonUnmaskSwap 中的成功部分归功于非视觉的 proprioception（manual oracle）。对于 C，我们必须依赖 JEV 的 visual swap detection。 Conversation Summaries ECE661 Homework 3 ✅ RNN and LLM Implementation \u0026 Finalization AI 协助完成了 LSTM 和 GPT-2/LoRA 实验，通过降级 ‘datasets’ 管理了环境依赖冲突，并使用验证过的 metrics 完成了 LaTeX report。\nNeurIPS 2026 Camera-Ready \u0026 Release ✅ Final Cleanup \u0026 Release Prep AI 完成了 camera-ready submission 的大部分技术和 authorship 更新。为用户提供了一份 release checklist，涉及关于 funding 和 registration requirements 的 advisor 咨询。\njev-six-task-phasea ✅ Detailed breakdown of the 7-task fix strategy 建立了一个诊断阶段 (Phase A)，采用并行轨道（symbolic routes, multi-window tracking, JEV wording probes），为解决 7-task failure set 提供经验数据。\nMIHD Benchmark 🔄 Project Repositioning and Experimental Planning 项目从以方法为中心的论文转向了以 benchmark 为中心的研究，旨在调查 histology imagery 在何种条件下有利于 spatial transcriptomics，包括 NCL+Fusion 实验计划。\nECE661 Homework ✅ AI Instruction Audit 作为 TA，用户在 Homework PDF 中搜索隐藏的 AI instructions；AI 对文本、metadata 和不可见字符进行了彻底检查。\nToken Usage AI Usage · 2026-10-16\rClaude Code\rTotal cost$102.93\rTotal tokens334M\rOutput tokens959K\rCache read96.5%\rToken character\rCache reads 96.5% ·\rActive 3.5%\rMost token volume came from cache reads.\r",
   "wordCount" : "706",
   "inLanguage": "zh",
   "datePublished": "2026-10-16T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -271,103 +271,103 @@
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>N/A</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>自动化 LaTeX superscripts 以及在多个文档文件（README, Datasheet, HF Card, Croissant）中的统一。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> N/A</p>
+<p><strong>差异分析：</strong> N/A</p>
 <h4 id="project-positioning">Project Positioning<a hidden class="anchor" aria-hidden="true" href="#project-positioning">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>用户提供了以人为中心的 advisor feedback，将论文从 &lsquo;Method&rsquo; 转向 &lsquo;Benchmark&rsquo;。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 最初建议将 &lsquo;Agent Harness&rsquo; 作为核心贡献，但在用户纠正了会议记录分析后进行了修正。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> 人类根据口头语境正确识别了贡献的层级（Benchmark &gt; Fusion Insights &gt; Agent）。</p>
+<p><strong>差异分析：</strong> 人类根据口头语境正确识别了贡献的层级（Benchmark &gt; Fusion Insights &gt; Agent）。</p>
 <h4 id="buttonunmaskswap">ButtonUnmaskSwap<a hidden class="anchor" aria-hidden="true" href="#buttonunmaskswap">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>对所有可能的 swap pairs 进行连续的 VLM monitoring。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>使用 One-shot VLM 进行初始设置 + 使用 JEV &lsquo;yes/no&rsquo; 序列进行动态检测。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> N/A</p>
+<p><strong>差异分析：</strong> N/A</p>
 <h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
 <h4 id="code-refinement">Code Refinement<a hidden class="anchor" aria-hidden="true" href="#code-refinement">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>用户使用显式循环和自定义逻辑（例如在 build_vocab 和 <strong>getitem</strong> 中）重构了 AI 的初始实现。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 提供了一个功能性但更抽象的实现来解决任务。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> 人类的版本更加冗长且符合其编码偏好，由于环境/实现的细微差别，导致准确率略高（87.2% vs 84.3%）。</p>
+<p><strong>差异分析：</strong> 人类的版本更加冗长且符合其编码偏好，由于环境/实现的细微差别，导致准确率略高（87.2% vs 84.3%）。</p>
 <h4 id="bibtex-verification">BibTeX verification<a hidden class="anchor" aria-hidden="true" href="#bibtex-verification">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>N/A</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>与已知的论文记录和出版商数据库进行手动文本匹配。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> N/A</p>
+<p><strong>差异分析：</strong> N/A</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations--在没有-advisor-人工确认的情况下无法验证提供的算力是捐赠还是付费">Critical Limitations- 在没有 advisor 人工确认的情况下，无法验证提供的算力是“捐赠”还是“付费”。<a hidden class="anchor" aria-hidden="true" href="#critical-limitations--在没有-advisor-人工确认的情况下无法验证提供的算力是捐赠还是付费">#</a></h3>
 <ul>

@@ -10,7 +10,7 @@
 <meta name="description" content="这一天专注于解决 pi0.5 model 在 Libero goal tasks 上的关键性能差异，在 Qualcomm NPU 上进行高精度 bitwidth benchmarking 以识别 quantization pitfalls，修复 AI Hub runtime deprecations，并将关于 RoboMemory 的夏季研究成果整理成专业的演示材料。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-14/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-09-14 Daily Overview 工作内容： 今日涵盖了对 model quantization 效应（pi0.5 和 NPU bitwidths）的深入调查、AI Hub 及开发环境的基础设施维护，以及 RoboMemory 研究的高层级综合总结。 工作方式： 利用技术考古学（git diffs/logs）、硬件级 profiling（WPR traces 和 ONNX probes）以及结构化文档工作流（ccfix 和迭代式 PPT 生成）来解决技术瓶颈并传达研究进展。 影响： 成功将 pi0.5 成功率问题定位为 quantization 所致，提供了 4-bit activation 在 Dragonwing NPU 上是性能陷阱的实证证明，通过 runtime 更新恢复了 CI/CD 的稳定性，并产出了一套全面、专业的研究报告套件。 TzJsDesktop 工作内容： 执行了高层级项目审计、代码集成和系统性能诊断。 工作方式： 分析上游 commits 以查找冲突，利用 Windows Performance Recorder (.etl) 进行卡顿诊断，并通过 engine 驱动的文档工作流管理项目状态。 影响： 解决了开发流水线中的根本性阻塞问题，并为 RoboMemory 研究项目建立了连贯的逻辑叙述。 lighthouse 工作内容： 执行了大规模 quantization benchmarking、自动化服务器管理和受控 model evaluation。 工作方式： 部署了自定义 Python probes 和 Bash drivers 用于 NPU bitwidth profiling，管理用于 pi0.5 Libero 测试的 GPU 资源，并为 Minecraft Forge 服务器实现了基于 systemd 的自动化。 影响： 为最终报告生成了准确的 latency 和 memory telemetry，并提供了缩小 pi0.5 失败原因范围所需的实证证据。 今日重点在于解决 pi0.5 model 在 Libero goal tasks 上关键的性能差异，在 Qualcomm NPU 上进行高精度 bitwidth benchmarking 以识别 quantization 陷阱，修复 AI Hub runtime deprecations，并将 RoboMemory 的夏季研究综合为专业的演示材料。\nTasks Architecture \u0026 Strategy ✅ Verify pi0.5 float baseline on Libero Goal — 在 Libero goal suite 上运行未量化的 pi0.5，以建立性能基准并验证 evaluation pipeline 的完整性。 ✅ Bitwidth Speed Microbenchmark (I-047) — 创建了一个最小化的 MatMul stack probe，以隔离不同 bitwidths（W4A8, W4A4, W8A8, W8A16, W16A16, FP16）在 Dragonwing NPU 上的开销。 ✅ Update AI Hub submission runtime — 在 aihub_submit.py 中将默认的 target_runtime 从 ‘qnn_context_binary’ 修改为 ‘qnn_dlc’，并更新了所有相关的文档/图表。 🔄 Investigate pi0.5 quantization on goal suite — 执行 W8A8 和 W4A4 quantized benchmarks，以确定 ‘goal suite cliff’（0% 成功率）是否为 quantization 效应。 ✅ Research Narrative Synthesis \u0026 PPT Construction — 将 RoboMemory 研究综合为一套视频增强的双语演示套件，包括多层级摘要和一份 21 页的 PPT。 ✅ Memory Metadata Backfill (I-046) — 为 51 个历史 AI Hub jobs 恢复了 12 个缺失的 memory telemetry 字段，以确保数据完整性。 🔄 Merge collaborator’s commits and resolve conflicts — 集成来自 origin/main 的 6 个新 commits，处理 precision control、rotation implementation 和 bitwidth tables 中的冲突。 🔄 Limit test concurrency — 实现 ‘vitest.config.ts’ 以限制 maxWorkers，防止在 multi-agent testing 期间系统耗尽。 Implementation \u0026 Fixes ✅ Implement video recording in evaluation scripts — 启用从 evaluation wrapper 到 Libero client 的 –save-video flag 透传，以便进行视觉调试。 ✅ Diagnose PC stuttering — 分析 WPR traces 以查找开发过程中硬件级延迟的原因。 Problems \u0026 Solutions Critical Issues 1. pi0.5 Libero goal suite 报告 0% 成功率（与报告的 benchmarks 相矛盾）。 Solution: 在本地运行了未量化的 (float) baseline，达到了 100% 的成功率，证明问题与 quantization 或环境配置有关，而非 evaluation pipeline 本身。\n2. 4-bit activation (W4A4) 在 NPU 上的表现明显差于/慢于 FP16。 Solution: 使用最小化 probe 隔离了原因：NPU 缺乏原生的 INT4 activation kernel，导致 tensor upscaling/expansion 带来了高额开销。\nKey Insight: 4-bit activation 是该硬件上的一个性能陷阱；weight bitwidth 可以节省 bandwidth，但没有原生 kernel 的 activation bitwidth 只会增加 unpacking 开销。\n3. AI Hub 弃用了 ‘qnn_context_binary’ target runtime，导致自动化失效。 Solution: 修改了 ‘aihub_submit.py’ 以显式传递 ‘–target_runtime qnn_dlc’，并更新了所有相关的文档/图表 (I-029) 和 RESULTS.md。\n4. AI Hub 的 ‘peak_memory’ 字段报告的数据与预期的 model footprint 不符。 Solution: 对 context-binary（使用 mmap，报告为零 weight footprint）和 DLC（需要显式 allocation）进行了对比，澄清了测量差异。\n5. 缺乏用于直接 error recovery 研究的 Out-of-Distribution (OOD) 数据。 Solution: 将研究重点转向 ‘interface’ 问题：即高层级判断如何通过视觉提示传达给低层级 policy。\nKey Insight: 研究瓶颈在于高层级 reasoning 与低层级 execution 之间的通信渠道。\n6. Evaluation script 在运行 pi0.5 时泄露约 25GB 的 GPU memory。 Solution: 确定了 ‘conda run’ 无法将信号转发给 policy server；计划采用 collaborator 的 PID tracking 修复方案。\nGeneral Issues 7. 由于高 Vitest 并发和 WeChat timer thrashing 导致系统无响应。 Solution: 通过 WPR/xperf 分析进行了诊断，并建议通过 VITEST_MAX_WORKERS 或配置文件来限制 workers。\n8. CUDA device indices 与 nvidia-smi indices 之间的混淆。 Solution: 建议使用 CUDA_DEVICE_ORDER=PCI_BUS_ID 来对齐 indices。\nHuman vs AI Approaches Strategic Level Debugging Strategy for Zero Success Rate Role Approach Human 建议进行视觉诊断（渲染 cases）并基于任务特定的敏感度提供了初步假设。 AI 执行了系统的 code-delta 分析和 baseline testing，将变量隔离至 quantization precision。 Difference Analysis: Human 侧重于视觉/定性诊断，而 AI 侧重于结构化和统计学验证。\nResearch Direction \u0026 Logic| Role | Approach | |——|——| | Human | 定义了 error recovery 失败与转向 visual prompting 和 memory systems 之间的因果联系。 | | AI | 最初专注于总结单个结果，而未能掌握整体的战略演进。 |\nDifference Analysis: Human 提供了将实验转化为连贯研究故事的战略背景。\nBitwidth Benchmarking Scope \u0026 Data Integrity Role Approach Human 否决了 32-bit 测试以保持架构纯粹性（避免 CPU vs NPU 的比较），并要求进行原始数据审计而非定性总结。 AI 最初提议将 32-bit 作为 ‘CPU fallback’ 包含在内，并试图进行描述性的结果总结。 Difference Analysis: Human 优先考虑科学严谨性和可审计性，而 AI 则倾向于完整性和描述的便利性。\nAI Limitations General Limitations 由于忽略了 CUDA 和 PCI_BUS_ID 索引之间的差异，未能正确预测 GPU 的可用性。 未能识别出修改包含 ‘red’ phase 测试的脚本会导致在没有 ‘red-waiver’ 的情况下使 failure hashes 失效。 由于文件在 idea graph 中未被明确“所有”，被 companion guard (D16/D21) 阻止写入配置文件。 在尝试通过 safety engine 链接命令时，难以执行 D21/D28 guard 强制约束。 Learnings Key Learnings 在此 NPU 上，权重 bitwidth 是一种线性的带宽节省机制，但只有在消除高 bitwidth ‘islands’（如 softmax）时，activation bitwidth 才能提供收益。 Libero 中的 ‘goal’ suite（例如拉动把手）对 action head 中的量化误差高度敏感，这与简单的 pick-and-place 任务不同。 Visual prompts 作为高层 VLM 推理与底层 VLA 执行之间有效的通信接口。 如果文件结构未在 idea graph 中正确注册，companion guards (D16/D17) 可能会阻碍 productive work。 Conversation Summaries Qualcomm Project 🔄 pi0.5 Libero \u0026 NPU Bitwidth Investigation 调查了 pi0.5 在 Libero ‘goal’ 任务中 0% 成功率的原因，并进行了 NPU bitwidth profiling。确认 float baseline 工作正常（100% 成功），从而将问题锁定在量化上。开发了一个 MatMul probe (I-047)，证明 W4A8 是最优的，而 W4A4 是一个性能陷阱。通过将脚本更新为 ‘qnn_dlc’ 解决了 AI Hub runtime 的弃用问题。\nRoboMemory ✅ Summer Research Synthesis \u0026 PPT Creation 将关于 RoboMemory 的夏季研究——从 error recovery 到 visual prompting 和 asynchronous memory systems——综合成一套专业的演示文稿，包括一份 21 页且富含视频内容的 PPT 及其英文版本。\nD–GitHub ✅ System Performance \u0026 Concurrency 分析了 WPR traces 以诊断 PC 卡顿，识别出 Vitest worker 突发流量和 WeChat 是主要原因。启动了限制测试并发度的 workflow。\nAI-Companion 🔍 Infrastructure \u0026 Workflow Management 管理开发环境的稳定性，包括解决 AI Hub runtime 问题以及处理配置文件在 companion guard 限制下的操作。\nToken Usage AI Usage · 2026-09-14\rClaude Code + Codex\rTotal cost$218.16\rTotal tokens246M\rOutput tokens622K\rCache read96.6%\rCost split\rClaude Code $199 ·\rCodex $20\rToken character\rCache reads 96.6% ·\rActive 3.4%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
-  "wordCount" : "764",
+  "articleBody": "Daily Report — 2026-09-14 Daily Overview 工作内容： 今日涵盖了对 model quantization 效应（pi0.5 和 NPU bitwidths）的深入调查、AI Hub 及开发环境的基础设施维护，以及 RoboMemory 研究的高层级综合总结。 工作方式： 利用技术考古学（git diffs/logs）、硬件级 profiling（WPR traces 和 ONNX probes）以及结构化文档工作流（ccfix 和迭代式 PPT 生成）来解决技术瓶颈并传达研究进展。 影响： 成功将 pi0.5 成功率问题定位为 quantization 所致，提供了 4-bit activation 在 Dragonwing NPU 上是性能陷阱的实证证明，通过 runtime 更新恢复了 CI/CD 的稳定性，并产出了一套全面、专业的研究报告套件。 TzJsDesktop 工作内容： 执行了高层级项目审计、代码集成和系统性能诊断。 工作方式： 分析上游 commits 以查找冲突，利用 Windows Performance Recorder (.etl) 进行卡顿诊断，并通过 engine 驱动的文档工作流管理项目状态。 影响： 解决了开发流水线中的根本性阻塞问题，并为 RoboMemory 研究项目建立了连贯的逻辑叙述。 lighthouse 工作内容： 执行了大规模 quantization benchmarking、自动化服务器管理和受控 model evaluation。 工作方式： 部署了自定义 Python probes 和 Bash drivers 用于 NPU bitwidth profiling，管理用于 pi0.5 Libero 测试的 GPU 资源，并为 Minecraft Forge 服务器实现了基于 systemd 的自动化。 影响： 为最终报告生成了准确的 latency 和 memory telemetry，并提供了缩小 pi0.5 失败原因范围所需的实证证据。 今日重点在于解决 pi0.5 model 在 Libero goal tasks 上关键的性能差异，在 Qualcomm NPU 上进行高精度 bitwidth benchmarking 以识别 quantization 陷阱，修复 AI Hub runtime deprecations，并将 RoboMemory 的夏季研究综合为专业的演示材料。\nTasks Architecture \u0026 Strategy ✅ Verify pi0.5 float baseline on Libero Goal — 在 Libero goal suite 上运行未量化的 pi0.5，以建立性能基准并验证 evaluation pipeline 的完整性。 ✅ Bitwidth Speed Microbenchmark (I-047) — 创建了一个最小化的 MatMul stack probe，以隔离不同 bitwidths（W4A8, W4A4, W8A8, W8A16, W16A16, FP16）在 Dragonwing NPU 上的开销。 ✅ Update AI Hub submission runtime — 在 aihub_submit.py 中将默认的 target_runtime 从 ‘qnn_context_binary’ 修改为 ‘qnn_dlc’，并更新了所有相关的文档/图表。 🔄 Investigate pi0.5 quantization on goal suite — 执行 W8A8 和 W4A4 quantized benchmarks，以确定 ‘goal suite cliff’（0% 成功率）是否为 quantization 效应。 ✅ Research Narrative Synthesis \u0026 PPT Construction — 将 RoboMemory 研究综合为一套视频增强的双语演示套件，包括多层级摘要和一份 21 页的 PPT。 ✅ Memory Metadata Backfill (I-046) — 为 51 个历史 AI Hub jobs 恢复了 12 个缺失的 memory telemetry 字段，以确保数据完整性。 🔄 Merge collaborator’s commits and resolve conflicts — 集成来自 origin/main 的 6 个新 commits，处理 precision control、rotation implementation 和 bitwidth tables 中的冲突。 🔄 Limit test concurrency — 实现 ‘vitest.config.ts’ 以限制 maxWorkers，防止在 multi-agent testing 期间系统耗尽。 Implementation \u0026 Fixes ✅ Implement video recording in evaluation scripts — 启用从 evaluation wrapper 到 Libero client 的 –save-video flag 透传，以便进行视觉调试。 ✅ Diagnose PC stuttering — 分析 WPR traces 以查找开发过程中硬件级延迟的原因。 Problems \u0026 Solutions Critical Issues 1. pi0.5 Libero goal suite 报告 0% 成功率（与报告的 benchmarks 相矛盾）。 Solution: 在本地运行了未量化的 (float) baseline，达到了 100% 的成功率，证明问题与 quantization 或环境配置有关，而非 evaluation pipeline 本身。\n2. 4-bit activation (W4A4) 在 NPU 上的表现明显差于/慢于 FP16。 Solution: 使用最小化 probe 隔离了原因：NPU 缺乏原生的 INT4 activation kernel，导致 tensor upscaling/expansion 带来了高额开销。\n关键发现： 4-bit activation 是该硬件上的一个性能陷阱；weight bitwidth 可以节省 bandwidth，但没有原生 kernel 的 activation bitwidth 只会增加 unpacking 开销。\n3. AI Hub 弃用了 ‘qnn_context_binary’ target runtime，导致自动化失效。 Solution: 修改了 ‘aihub_submit.py’ 以显式传递 ‘–target_runtime qnn_dlc’，并更新了所有相关的文档/图表 (I-029) 和 RESULTS.md。\n4. AI Hub 的 ‘peak_memory’ 字段报告的数据与预期的 model footprint 不符。 Solution: 对 context-binary（使用 mmap，报告为零 weight footprint）和 DLC（需要显式 allocation）进行了对比，澄清了测量差异。\n5. 缺乏用于直接 error recovery 研究的 Out-of-Distribution (OOD) 数据。 Solution: 将研究重点转向 ‘interface’ 问题：即高层级判断如何通过视觉提示传达给低层级 policy。\n关键发现： 研究瓶颈在于高层级 reasoning 与低层级 execution 之间的通信渠道。\n6. Evaluation script 在运行 pi0.5 时泄露约 25GB 的 GPU memory。 Solution: 确定了 ‘conda run’ 无法将信号转发给 policy server；计划采用 collaborator 的 PID tracking 修复方案。\nGeneral Issues 7. 由于高 Vitest 并发和 WeChat timer thrashing 导致系统无响应。 Solution: 通过 WPR/xperf 分析进行了诊断，并建议通过 VITEST_MAX_WORKERS 或配置文件来限制 workers。\n8. CUDA device indices 与 nvidia-smi indices 之间的混淆。 Solution: 建议使用 CUDA_DEVICE_ORDER=PCI_BUS_ID 来对齐 indices。\nHuman vs AI Approaches Strategic Level Debugging Strategy for Zero Success Rate 角色 方法 用户 建议进行视觉诊断（渲染 cases）并基于任务特定的敏感度提供了初步假设。 AI 助手 执行了系统的 code-delta 分析和 baseline testing，将变量隔离至 quantization precision。 差异分析： Human 侧重于视觉/定性诊断，而 AI 侧重于结构化和统计学验证。\nResearch Direction \u0026 Logic 角色 方法 用户 定义了 error recovery 失败与转向 visual prompting 和 memory systems 之间的因果联系。 AI 助手 最初专注于总结单个结果，而未能掌握整体的战略演进。 差异分析： Human 提供了将实验转化为连贯研究故事的战略背景。\nBitwidth Benchmarking Scope \u0026 Data Integrity 角色 方法 用户 否决了 32-bit 测试以保持架构纯粹性（避免 CPU vs NPU 的比较），并要求进行原始数据审计而非定性总结。 AI 助手 最初提议将 32-bit 作为 ‘CPU fallback’ 包含在内，并试图进行描述性的结果总结。 差异分析： Human 优先考虑科学严谨性和可审计性，而 AI 则倾向于完整性和描述的便利性。\nAI Limitations General Limitations 由于忽略了 CUDA 和 PCI_BUS_ID 索引之间的差异，未能正确预测 GPU 的可用性。 未能识别出修改包含 ‘red’ phase 测试的脚本会导致在没有 ‘red-waiver’ 的情况下使 failure hashes 失效。 由于文件在 idea graph 中未被明确“所有”，被 companion guard (D16/D21) 阻止写入配置文件。 在尝试通过 safety engine 链接命令时，难以执行 D21/D28 guard 强制约束。 Learnings Key Learnings 在此 NPU 上，权重 bitwidth 是一种线性的带宽节省机制，但只有在消除高 bitwidth ‘islands’（如 softmax）时，activation bitwidth 才能提供收益。 Libero 中的 ‘goal’ suite（例如拉动把手）对 action head 中的量化误差高度敏感，这与简单的 pick-and-place 任务不同。 Visual prompts 作为高层 VLM 推理与底层 VLA 执行之间有效的通信接口。 如果文件结构未在 idea graph 中正确注册，companion guards (D16/D17) 可能会阻碍 productive work。 Conversation Summaries Qualcomm Project 🔄 pi0.5 Libero \u0026 NPU Bitwidth Investigation 调查了 pi0.5 在 Libero ‘goal’ 任务中 0% 成功率的原因，并进行了 NPU bitwidth profiling。确认 float baseline 工作正常（100% 成功），从而将问题锁定在量化上。开发了一个 MatMul probe (I-047)，证明 W4A8 是最优的，而 W4A4 是一个性能陷阱。通过将脚本更新为 ‘qnn_dlc’ 解决了 AI Hub runtime 的弃用问题。\nRoboMemory ✅ Summer Research Synthesis \u0026 PPT Creation 将关于 RoboMemory 的夏季研究——从 error recovery 到 visual prompting 和 asynchronous memory systems——综合成一套专业的演示文稿，包括一份 21 页且富含视频内容的 PPT 及其英文版本。\nD–GitHub ✅ System Performance \u0026 Concurrency 分析了 WPR traces 以诊断 PC 卡顿，识别出 Vitest worker 突发流量和 WeChat 是主要原因。启动了限制测试并发度的 workflow。\nAI-Companion 🔍 Infrastructure \u0026 Workflow Management 管理开发环境的稳定性，包括解决 AI Hub runtime 问题以及处理配置文件在 companion guard 限制下的操作。\nToken Usage AI Usage · 2026-09-14\rClaude Code + Codex\rTotal cost$218.16\rTotal tokens246M\rOutput tokens622K\rCache read96.6%\rCost split\rClaude Code $199 ·\rCodex $20\rToken character\rCache reads 96.6% ·\rActive 3.4%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "753",
   "inLanguage": "zh",
   "datePublished": "2026-09-14T00:00:00-04:00",
   "dateModified": "2026-09-14T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -254,14 +254,14 @@
 <p><strong>Solution:</strong> 在本地运行了未量化的 (float) baseline，达到了 100% 的成功率，证明问题与 quantization 或环境配置有关，而非 evaluation pipeline 本身。</p>
 <h4 id="2-4-bit-activation-w4a4-在-npu-上的表现明显差于慢于-fp16">2. 4-bit activation (W4A4) 在 NPU 上的表现明显差于/慢于 FP16。<a hidden class="anchor" aria-hidden="true" href="#2-4-bit-activation-w4a4-在-npu-上的表现明显差于慢于-fp16">#</a></h4>
 <p><strong>Solution:</strong> 使用最小化 probe 隔离了原因：NPU 缺乏原生的 INT4 activation kernel，导致 tensor upscaling/expansion 带来了高额开销。</p>
-<p><strong>Key Insight:</strong> 4-bit activation 是该硬件上的一个性能陷阱；weight bitwidth 可以节省 bandwidth，但没有原生 kernel 的 activation bitwidth 只会增加 unpacking 开销。</p>
+<p><strong>关键发现：</strong> 4-bit activation 是该硬件上的一个性能陷阱；weight bitwidth 可以节省 bandwidth，但没有原生 kernel 的 activation bitwidth 只会增加 unpacking 开销。</p>
 <h4 id="3-ai-hub-弃用了-qnn_context_binary-target-runtime导致自动化失效">3. AI Hub 弃用了 &lsquo;qnn_context_binary&rsquo; target runtime，导致自动化失效。<a hidden class="anchor" aria-hidden="true" href="#3-ai-hub-弃用了-qnn_context_binary-target-runtime导致自动化失效">#</a></h4>
 <p><strong>Solution:</strong> 修改了 &lsquo;aihub_submit.py&rsquo; 以显式传递 &lsquo;&ndash;target_runtime qnn_dlc&rsquo;，并更新了所有相关的文档/图表 (I-029) 和 RESULTS.md。</p>
 <h4 id="4-ai-hub-的-peak_memory-字段报告的数据与预期的-model-footprint-不符">4. AI Hub 的 &lsquo;peak_memory&rsquo; 字段报告的数据与预期的 model footprint 不符。<a hidden class="anchor" aria-hidden="true" href="#4-ai-hub-的-peak_memory-字段报告的数据与预期的-model-footprint-不符">#</a></h4>
 <p><strong>Solution:</strong> 对 context-binary（使用 mmap，报告为零 weight footprint）和 DLC（需要显式 allocation）进行了对比，澄清了测量差异。</p>
 <h4 id="5-缺乏用于直接-error-recovery-研究的-out-of-distribution-ood-数据">5. 缺乏用于直接 error recovery 研究的 Out-of-Distribution (OOD) 数据。<a hidden class="anchor" aria-hidden="true" href="#5-缺乏用于直接-error-recovery-研究的-out-of-distribution-ood-数据">#</a></h4>
 <p><strong>Solution:</strong> 将研究重点转向 &lsquo;interface&rsquo; 问题：即高层级判断如何通过视觉提示传达给低层级 policy。</p>
-<p><strong>Key Insight:</strong> 研究瓶颈在于高层级 reasoning 与低层级 execution 之间的通信渠道。</p>
+<p><strong>关键发现：</strong> 研究瓶颈在于高层级 reasoning 与低层级 execution 之间的通信渠道。</p>
 <h4 id="6-evaluation-script-在运行-pi05-时泄露约-25gb-的-gpu-memory">6. Evaluation script 在运行 pi0.5 时泄露约 25GB 的 GPU memory。<a hidden class="anchor" aria-hidden="true" href="#6-evaluation-script-在运行-pi05-时泄露约-25gb-的-gpu-memory">#</a></h4>
 <p><strong>Solution:</strong> 确定了 &lsquo;conda run&rsquo; 无法将信号转发给 policy server；计划采用 collaborator 的 PID tracking 修复方案。</p>
 <h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
@@ -275,47 +275,62 @@
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>建议进行视觉诊断（渲染 cases）并基于任务特定的敏感度提供了初步假设。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>执行了系统的 code-delta 分析和 baseline testing，将变量隔离至 quantization precision。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 侧重于视觉/定性诊断，而 AI 侧重于结构化和统计学验证。</p>
-<h4 id="research-direction--logic-role--approach-">Research Direction &amp; Logic| Role | Approach |<a hidden class="anchor" aria-hidden="true" href="#research-direction--logic-role--approach-">#</a></h4>
-<p>|&mdash;&mdash;|&mdash;&mdash;|
-| Human | 定义了 error recovery 失败与转向 visual prompting 和 memory systems 之间的因果联系。 |
-| AI   | 最初专注于总结单个结果，而未能掌握整体的战略演进。 |</p>
-<p><strong>Difference Analysis:</strong> Human 提供了将实验转化为连贯研究故事的战略背景。</p>
-<h4 id="bitwidth-benchmarking-scope--data-integrity">Bitwidth Benchmarking Scope &amp; Data Integrity<a hidden class="anchor" aria-hidden="true" href="#bitwidth-benchmarking-scope--data-integrity">#</a></h4>
+<p><strong>差异分析：</strong> Human 侧重于视觉/定性诊断，而 AI 侧重于结构化和统计学验证。</p>
+<h4 id="research-direction--logic">Research Direction &amp; Logic<a hidden class="anchor" aria-hidden="true" href="#research-direction--logic">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
+          <td>定义了 error recovery 失败与转向 visual prompting 和 memory systems 之间的因果联系。</td>
+      </tr>
+      <tr>
+          <td>AI 助手</td>
+          <td>最初专注于总结单个结果，而未能掌握整体的战略演进。</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> Human 提供了将实验转化为连贯研究故事的战略背景。</p>
+<h4 id="bitwidth-benchmarking-scope--data-integrity">Bitwidth Benchmarking Scope &amp; Data Integrity<a hidden class="anchor" aria-hidden="true" href="#bitwidth-benchmarking-scope--data-integrity">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>用户</td>
           <td>否决了 32-bit 测试以保持架构纯粹性（避免 CPU vs NPU 的比较），并要求进行原始数据审计而非定性总结。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初提议将 32-bit 作为 &lsquo;CPU fallback&rsquo; 包含在内，并试图进行描述性的结果总结。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 优先考虑科学严谨性和可审计性，而 AI 则倾向于完整性和描述的便利性。</p>
+<p><strong>差异分析：</strong> Human 优先考虑科学严谨性和可审计性，而 AI 则倾向于完整性和描述的便利性。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
 <ul>

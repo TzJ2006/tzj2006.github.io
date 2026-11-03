@@ -10,7 +10,7 @@
 <meta name="description" content="修复了 6 个以上的 Windows 特定 TokenMonitor bug（包括 tray focus、PowerShell popups、window anchor detection、hover oscillation、warning thresholds、bottom edge alignment），并实现了带有 token refresh polling 功能的 Cursor IDE 一键自动重连。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-04-27/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-04-27 Daily Overview 完成工作： 调试并解决了 TokenMonitor 系统托盘应用中影响窗口聚焦、进程生成、定位、悬停行为、警告逻辑和视觉对齐的严重 Windows 平台 bug；同时构建了自动化的 Cursor IDE 连接恢复功能 实现方式： 结合了 Win32 API 分析（SetForegroundWindow 前台权限、CREATE_NO_WINDOW 标志、work area 计算）、多层悬停振荡防御（基于状态的伪事件检测、observer 阻塞、shrink guards）、Rust IPC 命令新增（open_cursor_app, retry_cursor_auth）以及数据流水线逻辑优化（双 API fallback、自动重试轮询） 影响： 消除了所有主要的 Windows 视觉错误和误报警告，打破了导致快速振荡的反馈循环，实现了无需重启应用即可自动恢复连接，并推动 TokenMonitor 向生产级跨平台支持迈进 修复了 6 个以上的 Windows 特定 TokenMonitor bug（托盘聚焦、PowerShell 弹出窗口、窗口锚点检测、悬停振荡、警告阈值、底部边缘对齐）并实现了带有 token 刷新轮询的一键式 Cursor IDE 自动重连功能\nTasks Architecture \u0026 Strategy ✅ Windows 悬停振荡 bug 的根因诊断与修复 — 分析了“窗口调整大小 → 位置变化 → 浏览器伪 mouseLeave 事件 → 详情面板切换 → 重复”的反馈循环。实现了三层防御：在 onLeave timer 中进行 hoveredIdx 状态检查（300ms 延迟）、在 chartHoverActive 期间进行 observer 驱动的 resize 阻塞，以及在 applyWindowHeight 中的 shrink-guard ✅ 实现 Cursor IDE 自动重连功能 — 新增了 open_cursor_app 和 retry_cursor_auth Rust IPC 命令；实现了带有 4 秒轮询（最多 8 次尝试，总计 32s）的前端按钮，可在无需重启应用的情况下启动 Cursor、自动检测 token 刷新并清除警告 ✅ 修复托盘图标首次点击动画失败问题 — Windows 托盘图标首次点击显示空白窗口，第二次点击才正常。诊断出 SetFocus 的竞态条件，即调用线程缺乏前台所有权，通过实现带有 200ms fallback 超时的 SetForegroundWindow（具有隐式托盘上下文权限）来解决 ✅ 实现动态窗口锚点检测 — 构建了锚点检测系统（AnchorCorner enum, detect_anchor_corner, AtomicU8 存储），使窗口定位能够适应 taskbar 位置，并消除 taskbar 不在底部时的视觉闪烁 ✅ 修复 Cursor 使用警告的误报 — 优化了双流水线警告逻辑，仅在 rate limits 和 usage events APIs 同时失败时才触发；当 rate limits 工作正常时，将 usage events 失败从 warning 降级为 logging ✅ 修复窗口底部边缘对齐和透明间隙问题 — 将 anchored_resize_origin 修改为使用 work.bottom 而非 current_rect.bottom，以在 resize 期间保持稳定的锚点；添加了 data-anchor 属性，以便在底部锚定时有条件地移除 bottom border-radius，从而消除与 taskbar 之间的透明间隙 ✅ 消除 PowerShell 窗口弹出 — cursor_parser.rs 中的 sqlite3 进程生成缺少 CREATE_NO_WINDOW 标志，导致在 Windows 上进行数据库操作时控制台窗口闪烁 Implementation \u0026 Fixes ✅ 在 Model Visibility 设置中添加 ‘x of y enabled’ 格式 — 更新了 HiddenModelsSettings.svelte，显示 ‘x of y enabled’ 格式而非 ‘x hidden’，以保持与 Provider visibility UI 的一致性 Problems \u0026 Solutions Critical Issues 1. 悬停在图表柱状图上时，窗口高度快速振荡（150-200ms 周期），导致详情面板在持续的反馈循环中闪烁开关 Solution: 实现了三层防御：(1) onLeave timer 检查 hoveredIdx \u003e= 0 以跳过伪 leave 事件，(2) ResizeOrchestrator 在 chartHoverActive 期间阻塞 observer 驱动的 resize，(3) shrink-guard 防止窗口在悬停期间缩小\nKey Insight: 振荡是一个反馈循环，其中 SetWindowPos 改变窗口位置会导致浏览器触发伪 mouseLeave 事件；打破该循环需要在多个点进行干预，而不仅仅是阻塞 resize\n2. SetFocus Win32 API 要求调用线程拥有前台窗口所有权，但托盘点击处理器不具备前台所有权 Solution: 使用在托盘图标上下文中具有隐式前台权限的 SetForegroundWindow，并结合 Svelte 中的 200ms fallback timer 来处理边缘情况\nKey Insight: Win32 前台窗口规则是依赖上下文的：托盘图标事件授予 SetForegroundWindow 前台权限，但不授予 SetFocus；理解上下文至关重要\n3. Resize 期间窗口底部边缘会偏离 taskbar，产生视觉间隙；使用 current_rect.bottom 会导致底部边缘发生不可预测的跳变 Solution: 将 anchored_resize_origin 从 current_rect.bottom - height 改为 work.bottom - height；work area 边界是稳定的常量，而 current_rect 反映的是中间的异步 SetWindowPos 状态\nKey Insight: 在异步窗口管理系统中，快速变化期间查询“当前状态”会返回中间值，导致不稳定；应锚定到固定的参考点（work area 边界）而非当前状态\n4. 硬编码的右下角锚点在 taskbar 位置改变，或窗口被用户/系统重新定位时会导致闪烁 Solution: 构建了动态锚点检测：将窗口中心与 work area 中心进行比较，将结果存储在 AtomicU8 中，并在所有定位函数中使用检测到的锚点\nKey Insight: 窗口锚点必须根据相对于 work area 的实际位置动态检测，而不是假设默认的 taskbar 位置\n5. 即使 rate limits API 工作正常，Cursor 使用警告也会出现，导致用户对实际连接状态感到困惑 Solution: 将 remote usage events API 的失败从 set_cursor_warning 降级为 logging；仅在身份验证确实不可用（两个流水线都失败）时才发出警告\nKey Insight: 服务于不同功能的多层数据流水线应当独立失败——不要在其中一个流水线工作时向用户报告另一个流水线的失败\n6. 使用 clientX/Y + getBoundingClientRect 的鼠标位置检测无法防止窗口移动期间的伪 leave 事件 Solution: 放弃了基于坐标的检测；转而在 timer 回调中使用 hoveredIdx 状态检查——如果 300ms 后 hoveredIdx \u003e= 0，说明发生了 re-enter，因此跳过 leave 处理\nKey Insight: 当窗口移动时，pointermove 不会触发（鼠标实际上并未移动），因此追踪的坐标会变得陈旧；基于状态的检测 (hoveredIdx) 比基于坐标的检测更可靠\n7. 当 auth token 过期时，用户必须手动重新打开 Cursor 并重启 TokenMonitor 才能修复黄色的 ‘Connected’ 警告状态Solution: 实现了用于跨平台应用启动的 open_cursor_app 命令（macOS 使用 open -a，Windows 使用 .exe 路径，Linux 使用 cursor 命令）以及 retry_cursor_auth 轮询机制，该机制可自动检测 token 刷新并清除警告 Key Insight: 带有定时器清理的自动重试模式可防止资源泄漏；每 4 秒轮询一次，持续约 32 秒，在响应速度与资源占用之间取得了平衡\n8. 当底部锚定到 taskbar 时，由于 14px 的 border-radius 导致窗口底部边缘显示透明间隙 Solution: 通过 get_window_anchor_edge IPC 在启动时查询窗口锚定方向，在 上设置 data-anchor 属性，并在 CSS 中当 data-anchor='bottom' 时有条件地移除底部 border-radius\nKey Insight: 带有 border-radius 的透明窗口在边缘需要与屏幕边界对齐时会产生视觉间隙；需要根据运行时的锚定位置进行条件样式设置\n9. sqlite3 命令 spawn 缺少 CREATE_NO_WINDOW 标志导致在 Windows 上弹出控制台窗口 Solution: 在 cursor_parser.rs 中添加了 const CREATE_NO_WINDOW: u32 = 0x0800_0000，并使用 #[cfg(target_os = \"windows\")] 保护的 .creation_flags() 调用\nKey Insight: 所有 Windows 进程的 spawn 都需要显式的 CREATE_NO_WINDOW 标志；任何模块中遗漏一个 spawn 都会破坏整个 UX\nHuman vs AI Approaches Strategic Level 对底部边缘“未移动”的理解 Role Approach Human 明确了“底部边缘未移动”意味着窗口底部 AND 内容底部（cache text）都应该在屏幕上保持视觉固定，而不仅仅是日志中窗口底部坐标保持不变 AI 最初理解为日志中 window.bottom 坐标保持不变，忽略了视觉/内容的定位方面 Difference Analysis: Human 关注终端用户的视觉体验，AI 关注技术测量；突显了理解技术需求背后的用户意图的重要性\n迭代调试 vs 尝试完整解决方案 Role Approach Human 在实施修复之前，反复要求检查日志、描述当前更改并逐步验证特定行为 AI 尝试在没有确认中间诊断数据的情况下，基于假设实施完整的解决方案 Difference Analysis: Human 倾向于对假设进行增量验证，AI 倾向于“完整修复”式的实现；Human 的方法防止了在错误假设上浪费精力\nCursor 警告条件与用户体验 Role Approach Human 意识到如果 rate limits 工作正常，那么警告就是错误的——“工作正常”意味着“不要警告”，无论内部 pipeline 细节如何；应用了整体 UX 推理 AI 准确解释了双 pipeline 架构，但在用户指出 UX 差距之前，没有立即建议更改警告阈值 Difference Analysis: Human 应用了整体 UX 推理（功能正常 = 无警告）；AI 专注于技术准确性，而没有综合考虑 UX 的影响\n症状描述 vs 关注根本原因 Role Approach Human 在深入研究根本原因之前，强调清晰的症状描述（“窗口快速上下跳动”）；要求关注用户体验到的视觉行为 AI 最初直接跳到根本原因分析和技术实现细节，而没有清晰地阐述面向用户的症状 Difference Analysis: Human 希望先有清晰的问题陈述（用户看到了什么），AI 默认进入技术诊断模式；Human 的方法确保了在“我们实际在修复什么”上达成一致\n针对 Cursor 连接问题的用户体验改进 Role Approach Human 识别出增加一个按钮的机会，该按钮可以打开 Cursor 并自动检测连接何时恢复，从而消除重启需求 AI 专注于对现有代码模式（连接状态、IPC 机制、特定平台的启动方式）的技术探索和实现规划 Difference Analysis: Human 优先考虑消除终端用户的痛点；AI 将 UX 目标转化为具有跨平台考量的技术架构\nAI Limitations Critical Limitations 最初专注于防止 resize，而不是理解震荡是由窗口移动产生的伪 mouseLeave 事件引起的，而非 resize 本身；经过多次轮次才识别出反馈循环 过度依赖日志分析而没有看到实际的控制台输出；添加了 console.warn 日志，但如果不通过用户手动检查 devtools，无法验证 chartHoverActive 是否真的被设置了 在充分理解“初始定位”与“resize 时的重新定位”之间的区别以及 SetWindowPos 的异步特性之前，多次尝试修改 aligned_window_origin 尝试进行复杂的基于坐标的鼠标位置检测 (clientX/Y + getBoundingClientRect)，却没意识到当仅窗口移动时 pointermove 不会触发，导致了陈旧的坐标追踪 没有立即将“rate limits 工作正常”与“警告阈值错误”联系起来——需要用户明确指出技术正确性与面向用户行为之间的 UX 差距 Learnings Key Learnings- UI 系统中的 Feedback loops 可能具有非显而易见的触发机制：window resize → position change → browser event → state change → resize。打破该循环需要识别多个层级的正确干预点 Win32 foreground window 规则是 context-dependent 的：SetFocus 要求调用线程拥有 foreground，但 SetForegroundWindow 在 tray icon event 上下文中具有隐式权限 —— 这对于 system tray applications 至关重要 Async window management (SetWindowPos) 意味着在快速变化期间，‘current state’ 查询 (GetWindowRect) 会返回中间值；相比查询 current state，使用 stable anchors (work area bounds) 更可靠 窗口移动期间的 Browser mouse events 从用户视角看是 ‘fake’ 的，但从 browser 视角看是 ‘real’ 的；需要基于 state 而非基于 coordinate 的检测，以区分真实的 user actions 与 window-movement artifacts Multi-tier data pipeline 设计：当 pipelines 服务于不同的 features（rate limits vs usage events）时，failure handling 应反映 feature independence —— 不要因为一个 feature 的失败而阻塞另一个 feature Svelte 5 reactivity timing：$state 更新将 DOM changes 排队在 micro-tasks 中，但 CustomEvent dispatch 是 synchronous 的 —— 当 measurements 在 DOM updates 之前发生时，可能会导致 race conditions Auto-retry pattern 设计：使用 onDestroy/cleanup 来防止 timer leaks；平衡 polling frequency (4s) 和 max attempts (8)，以实现覆盖典型 auth refresh 时间的 32 秒 window 带有 border-radius 的 Transparent windows 需要仔细考虑 anchor position，以避免在 screen edges 出现视觉间隙；基于 runtime anchor detection 的 conditional styling 可以解决此问题 Tauri v2 IPC command pattern：使用 #[tauri::command] 定义 Rust command，在 invoke_handler 中注册，并通过 frontend 的 invoke() 调用；对于 external app launching 需要进行 platform-specific handling Conversation Summaries ✅ Windows hover oscillation bug - root cause diagnosis and multi-layer fix 05:35:35.315 | claude_code 诊断了 Windows 特有的 bug，即悬停在 chart bars 上会导致窗口快速 oscillation（在 1244↔1337↔1364px 之间进行 150-200ms 的循环）。识别出 feedback loop：window resize → position change → fake browser mouseLeave → detail panel toggle → repeat。尝试了多种解决方案，包括基于 coordinate 的检测，最终采用了三层防御机制：在 onLeave timer (300ms delay) 中的 hoveredIdx state check，hover 期间由 observer-driven 的 resize blocking，以及 applyWindowHeight 中的 shrink-guard。还通过根据 anchor direction 有条件地移除 border-radius，修复了 bottom-edge transparency gap。\n✅ Cursor IDE auto-reconnect feature with token refresh 05:38:14.862 | claude_code 设计并实现了针对 Cursor yellow warning state 的一键修复功能。添加了 Rust commands：open_cursor_app（跨平台 app launching）和 retry_cursor_auth（token refresh + warning clear）。Frontend 部分：按钮触发 Cursor launch，然后每 4s 进行一次 poll（最多 8 次尝试），直到 token refresh。当 auth 成功时，自动清除 warnings 和 usage cache。包括在 component destroy 时的 timer cleanup。\n✅ Fix Windows tray icon first-click animation failure 05:39:18.949 | claude_code 诊断了 tray icon 第一次点击显示 blank window（第二次点击正常）的 race condition。根本原因是 SplashScreen.svelte 的 animation 依赖于 window focus event，但 Win32 SetFocus API 要求调用线程拥有 foreground。实现了双重修复：Rust 端的 SetForegroundWindow（在 tray context 中具有隐式 foreground 权限）+ frontend 200ms fallback timer。通过 cargo check + 422 passing tests 进行了验证。\n✅ Implement adaptive window anchor for taskbar position 05:43:36.127 | claude_code 用户报告当 taskbar 不在底部或 window 被重新定位时，会出现 window visual flashing。构建了完整的 anchor detection system：AnchorCorner enum (TopLeft/TopRight/BottomLeft/BottomRight)，通过比较 window/work area centers 的 detect_anchor_corner()，AtomicU8 存储，并更新了 aligned_window_origin 和 anchored_resize_origin 以使用检测到的 anchor。添加了 5 个 anchor detection tests。修复了 clippy warning (.map_or → .is_some_and)。所有 422 tests 全部通过。\n✅ Fix false ‘usage warning’ when rate limits work 18:23:28.135 | claude_code 用户注意到尽管 Cursor rate limits 显示正确，但仍会出现 ‘Usage warning’。分析了双重 Cursor pipeline：rate limits API（正常工作）vs usage events API（返回空数组）。用户指出，既然 rate limits 正常工作，那么 warning 就是错误的。修改了 parser.rs，将 remote usage events 的失败从 set_cursor_warning 降级为 logging。现在只有在 auth 真正不可用（两个 pipelines 都失败）时才会发出 warning。\n✅ Fix PowerShell window popups from sqlite3 calls 04:56:21.981 | claude_code 用户报告在 Windows 上运行 TokenMonitor 时会弹出多个 PowerShell windows。检查了 Rust backend 中的所有 process spawns，发现 cursor_parser.rs:490 中的 sqlite3 command 缺少 CREATE_NO_WINDOW flag（所有其他 spawns 都有此 flag）。添加了带有 platform guard 的 const CREATE_NO_WINDOW 和 creation_flags 调用。通过 410 passing tests 进行了验证。\n✅ Add ‘x of y enabled’ format to Model Visibility 05:36:52.157 | claude_code 用户要求 Settings 中 Provider 和 Model visibility sections 保持一致。修改了 HiddenModelsSettings.svelte，使其显示 ‘x of y enabled’ 而不是 ‘x hidden’，将 derived calculation 从 hiddenCount 改为 visibleCount 并更新了 template text。\nToken Usage AI Usage · 2026-04-27\rClaude Code + Codex\rTotal cost$270.80\rTotal tokens312M\rOutput tokens2M\rCache read92.9%\rCost split\rClaude Code $231 ·\rCodex $40\rToken character\rCache reads 92.9% ·\rActive 7.1%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
-  "wordCount" : "1162",
+  "articleBody": "Daily Report — 2026-04-27 Daily Overview 完成工作： 调试并解决了 TokenMonitor 系统托盘应用中影响窗口聚焦、进程生成、定位、悬停行为、警告逻辑和视觉对齐的严重 Windows 平台 bug；同时构建了自动化的 Cursor IDE 连接恢复功能 实现方式： 结合了 Win32 API 分析（SetForegroundWindow 前台权限、CREATE_NO_WINDOW 标志、work area 计算）、多层悬停振荡防御（基于状态的伪事件检测、observer 阻塞、shrink guards）、Rust IPC 命令新增（open_cursor_app, retry_cursor_auth）以及数据流水线逻辑优化（双 API fallback、自动重试轮询） 影响： 消除了所有主要的 Windows 视觉错误和误报警告，打破了导致快速振荡的反馈循环，实现了无需重启应用即可自动恢复连接，并推动 TokenMonitor 向生产级跨平台支持迈进 修复了 6 个以上的 Windows 特定 TokenMonitor bug（托盘聚焦、PowerShell 弹出窗口、窗口锚点检测、悬停振荡、警告阈值、底部边缘对齐）并实现了带有 token 刷新轮询的一键式 Cursor IDE 自动重连功能\nTasks Architecture \u0026 Strategy ✅ Windows 悬停振荡 bug 的根因诊断与修复 — 分析了“窗口调整大小 → 位置变化 → 浏览器伪 mouseLeave 事件 → 详情面板切换 → 重复”的反馈循环。实现了三层防御：在 onLeave timer 中进行 hoveredIdx 状态检查（300ms 延迟）、在 chartHoverActive 期间进行 observer 驱动的 resize 阻塞，以及在 applyWindowHeight 中的 shrink-guard ✅ 实现 Cursor IDE 自动重连功能 — 新增了 open_cursor_app 和 retry_cursor_auth Rust IPC 命令；实现了带有 4 秒轮询（最多 8 次尝试，总计 32s）的前端按钮，可在无需重启应用的情况下启动 Cursor、自动检测 token 刷新并清除警告 ✅ 修复托盘图标首次点击动画失败问题 — Windows 托盘图标首次点击显示空白窗口，第二次点击才正常。诊断出 SetFocus 的竞态条件，即调用线程缺乏前台所有权，通过实现带有 200ms fallback 超时的 SetForegroundWindow（具有隐式托盘上下文权限）来解决 ✅ 实现动态窗口锚点检测 — 构建了锚点检测系统（AnchorCorner enum, detect_anchor_corner, AtomicU8 存储），使窗口定位能够适应 taskbar 位置，并消除 taskbar 不在底部时的视觉闪烁 ✅ 修复 Cursor 使用警告的误报 — 优化了双流水线警告逻辑，仅在 rate limits 和 usage events APIs 同时失败时才触发；当 rate limits 工作正常时，将 usage events 失败从 warning 降级为 logging ✅ 修复窗口底部边缘对齐和透明间隙问题 — 将 anchored_resize_origin 修改为使用 work.bottom 而非 current_rect.bottom，以在 resize 期间保持稳定的锚点；添加了 data-anchor 属性，以便在底部锚定时有条件地移除 bottom border-radius，从而消除与 taskbar 之间的透明间隙 ✅ 消除 PowerShell 窗口弹出 — cursor_parser.rs 中的 sqlite3 进程生成缺少 CREATE_NO_WINDOW 标志，导致在 Windows 上进行数据库操作时控制台窗口闪烁 Implementation \u0026 Fixes ✅ 在 Model Visibility 设置中添加 ‘x of y enabled’ 格式 — 更新了 HiddenModelsSettings.svelte，显示 ‘x of y enabled’ 格式而非 ‘x hidden’，以保持与 Provider visibility UI 的一致性 Problems \u0026 Solutions Critical Issues 1. 悬停在图表柱状图上时，窗口高度快速振荡（150-200ms 周期），导致详情面板在持续的反馈循环中闪烁开关 Solution: 实现了三层防御：(1) onLeave timer 检查 hoveredIdx \u003e= 0 以跳过伪 leave 事件，(2) ResizeOrchestrator 在 chartHoverActive 期间阻塞 observer 驱动的 resize，(3) shrink-guard 防止窗口在悬停期间缩小\n关键发现： 振荡是一个反馈循环，其中 SetWindowPos 改变窗口位置会导致浏览器触发伪 mouseLeave 事件；打破该循环需要在多个点进行干预，而不仅仅是阻塞 resize\n2. SetFocus Win32 API 要求调用线程拥有前台窗口所有权，但托盘点击处理器不具备前台所有权 Solution: 使用在托盘图标上下文中具有隐式前台权限的 SetForegroundWindow，并结合 Svelte 中的 200ms fallback timer 来处理边缘情况\n关键发现： Win32 前台窗口规则是依赖上下文的：托盘图标事件授予 SetForegroundWindow 前台权限，但不授予 SetFocus；理解上下文至关重要\n3. Resize 期间窗口底部边缘会偏离 taskbar，产生视觉间隙；使用 current_rect.bottom 会导致底部边缘发生不可预测的跳变 Solution: 将 anchored_resize_origin 从 current_rect.bottom - height 改为 work.bottom - height；work area 边界是稳定的常量，而 current_rect 反映的是中间的异步 SetWindowPos 状态\n关键发现： 在异步窗口管理系统中，快速变化期间查询“当前状态”会返回中间值，导致不稳定；应锚定到固定的参考点（work area 边界）而非当前状态\n4. 硬编码的右下角锚点在 taskbar 位置改变，或窗口被用户/系统重新定位时会导致闪烁 Solution: 构建了动态锚点检测：将窗口中心与 work area 中心进行比较，将结果存储在 AtomicU8 中，并在所有定位函数中使用检测到的锚点\n关键发现： 窗口锚点必须根据相对于 work area 的实际位置动态检测，而不是假设默认的 taskbar 位置\n5. 即使 rate limits API 工作正常，Cursor 使用警告也会出现，导致用户对实际连接状态感到困惑 Solution: 将 remote usage events API 的失败从 set_cursor_warning 降级为 logging；仅在身份验证确实不可用（两个流水线都失败）时才发出警告\n关键发现： 服务于不同功能的多层数据流水线应当独立失败——不要在其中一个流水线工作时向用户报告另一个流水线的失败\n6. 使用 clientX/Y + getBoundingClientRect 的鼠标位置检测无法防止窗口移动期间的伪 leave 事件 Solution: 放弃了基于坐标的检测；转而在 timer 回调中使用 hoveredIdx 状态检查——如果 300ms 后 hoveredIdx \u003e= 0，说明发生了 re-enter，因此跳过 leave 处理\n关键发现： 当窗口移动时，pointermove 不会触发（鼠标实际上并未移动），因此追踪的坐标会变得陈旧；基于状态的检测 (hoveredIdx) 比基于坐标的检测更可靠\n7. 当 auth token 过期时，用户必须手动重新打开 Cursor 并重启 TokenMonitor 才能修复黄色的 ‘Connected’ 警告状态Solution: 实现了用于跨平台应用启动的 open_cursor_app 命令（macOS 使用 open -a，Windows 使用 .exe 路径，Linux 使用 cursor 命令）以及 retry_cursor_auth 轮询机制，该机制可自动检测 token 刷新并清除警告 关键发现： 带有定时器清理的自动重试模式可防止资源泄漏；每 4 秒轮询一次，持续约 32 秒，在响应速度与资源占用之间取得了平衡\n8. 当底部锚定到 taskbar 时，由于 14px 的 border-radius 导致窗口底部边缘显示透明间隙 Solution: 通过 get_window_anchor_edge IPC 在启动时查询窗口锚定方向，在 上设置 data-anchor 属性，并在 CSS 中当 data-anchor='bottom' 时有条件地移除底部 border-radius\n关键发现： 带有 border-radius 的透明窗口在边缘需要与屏幕边界对齐时会产生视觉间隙；需要根据运行时的锚定位置进行条件样式设置\n9. sqlite3 命令 spawn 缺少 CREATE_NO_WINDOW 标志导致在 Windows 上弹出控制台窗口 Solution: 在 cursor_parser.rs 中添加了 const CREATE_NO_WINDOW: u32 = 0x0800_0000，并使用 #[cfg(target_os = \"windows\")] 保护的 .creation_flags() 调用\n关键发现： 所有 Windows 进程的 spawn 都需要显式的 CREATE_NO_WINDOW 标志；任何模块中遗漏一个 spawn 都会破坏整个 UX\nHuman vs AI Approaches Strategic Level 对底部边缘“未移动”的理解 角色 方法 用户 明确了“底部边缘未移动”意味着窗口底部 AND 内容底部（cache text）都应该在屏幕上保持视觉固定，而不仅仅是日志中窗口底部坐标保持不变 AI 助手 最初理解为日志中 window.bottom 坐标保持不变，忽略了视觉/内容的定位方面 差异分析： Human 关注终端用户的视觉体验，AI 关注技术测量；突显了理解技术需求背后的用户意图的重要性\n迭代调试 vs 尝试完整解决方案 角色 方法 用户 在实施修复之前，反复要求检查日志、描述当前更改并逐步验证特定行为 AI 助手 尝试在没有确认中间诊断数据的情况下，基于假设实施完整的解决方案 差异分析： Human 倾向于对假设进行增量验证，AI 倾向于“完整修复”式的实现；Human 的方法防止了在错误假设上浪费精力\nCursor 警告条件与用户体验 角色 方法 用户 意识到如果 rate limits 工作正常，那么警告就是错误的——“工作正常”意味着“不要警告”，无论内部 pipeline 细节如何；应用了整体 UX 推理 AI 助手 准确解释了双 pipeline 架构，但在用户指出 UX 差距之前，没有立即建议更改警告阈值 差异分析： Human 应用了整体 UX 推理（功能正常 = 无警告）；AI 专注于技术准确性，而没有综合考虑 UX 的影响\n症状描述 vs 关注根本原因 角色 方法 用户 在深入研究根本原因之前，强调清晰的症状描述（“窗口快速上下跳动”）；要求关注用户体验到的视觉行为 AI 助手 最初直接跳到根本原因分析和技术实现细节，而没有清晰地阐述面向用户的症状 差异分析： Human 希望先有清晰的问题陈述（用户看到了什么），AI 默认进入技术诊断模式；Human 的方法确保了在“我们实际在修复什么”上达成一致\n针对 Cursor 连接问题的用户体验改进 角色 方法 用户 识别出增加一个按钮的机会，该按钮可以打开 Cursor 并自动检测连接何时恢复，从而消除重启需求 AI 助手 专注于对现有代码模式（连接状态、IPC 机制、特定平台的启动方式）的技术探索和实现规划 差异分析： Human 优先考虑消除终端用户的痛点；AI 将 UX 目标转化为具有跨平台考量的技术架构\nAI Limitations Critical Limitations 最初专注于防止 resize，而不是理解震荡是由窗口移动产生的伪 mouseLeave 事件引起的，而非 resize 本身；经过多次轮次才识别出反馈循环 过度依赖日志分析而没有看到实际的控制台输出；添加了 console.warn 日志，但如果不通过用户手动检查 devtools，无法验证 chartHoverActive 是否真的被设置了 在充分理解“初始定位”与“resize 时的重新定位”之间的区别以及 SetWindowPos 的异步特性之前，多次尝试修改 aligned_window_origin 尝试进行复杂的基于坐标的鼠标位置检测 (clientX/Y + getBoundingClientRect)，却没意识到当仅窗口移动时 pointermove 不会触发，导致了陈旧的坐标追踪 没有立即将“rate limits 工作正常”与“警告阈值错误”联系起来——需要用户明确指出技术正确性与面向用户行为之间的 UX 差距 Learnings Key Learnings- UI 系统中的 Feedback loops 可能具有非显而易见的触发机制：window resize → position change → browser event → state change → resize。打破该循环需要识别多个层级的正确干预点 Win32 foreground window 规则是 context-dependent 的：SetFocus 要求调用线程拥有 foreground，但 SetForegroundWindow 在 tray icon event 上下文中具有隐式权限 —— 这对于 system tray applications 至关重要 Async window management (SetWindowPos) 意味着在快速变化期间，‘current state’ 查询 (GetWindowRect) 会返回中间值；相比查询 current state，使用 stable anchors (work area bounds) 更可靠 窗口移动期间的 Browser mouse events 从用户视角看是 ‘fake’ 的，但从 browser 视角看是 ‘real’ 的；需要基于 state 而非基于 coordinate 的检测，以区分真实的 user actions 与 window-movement artifacts Multi-tier data pipeline 设计：当 pipelines 服务于不同的 features（rate limits vs usage events）时，failure handling 应反映 feature independence —— 不要因为一个 feature 的失败而阻塞另一个 feature Svelte 5 reactivity timing：$state 更新将 DOM changes 排队在 micro-tasks 中，但 CustomEvent dispatch 是 synchronous 的 —— 当 measurements 在 DOM updates 之前发生时，可能会导致 race conditions Auto-retry pattern 设计：使用 onDestroy/cleanup 来防止 timer leaks；平衡 polling frequency (4s) 和 max attempts (8)，以实现覆盖典型 auth refresh 时间的 32 秒 window 带有 border-radius 的 Transparent windows 需要仔细考虑 anchor position，以避免在 screen edges 出现视觉间隙；基于 runtime anchor detection 的 conditional styling 可以解决此问题 Tauri v2 IPC command pattern：使用 #[tauri::command] 定义 Rust command，在 invoke_handler 中注册，并通过 frontend 的 invoke() 调用；对于 external app launching 需要进行 platform-specific handling Conversation Summaries ✅ Windows hover oscillation bug - root cause diagnosis and multi-layer fix 05:35:35.315 | claude_code 诊断了 Windows 特有的 bug，即悬停在 chart bars 上会导致窗口快速 oscillation（在 1244↔1337↔1364px 之间进行 150-200ms 的循环）。识别出 feedback loop：window resize → position change → fake browser mouseLeave → detail panel toggle → repeat。尝试了多种解决方案，包括基于 coordinate 的检测，最终采用了三层防御机制：在 onLeave timer (300ms delay) 中的 hoveredIdx state check，hover 期间由 observer-driven 的 resize blocking，以及 applyWindowHeight 中的 shrink-guard。还通过根据 anchor direction 有条件地移除 border-radius，修复了 bottom-edge transparency gap。\n✅ Cursor IDE auto-reconnect feature with token refresh 05:38:14.862 | claude_code 设计并实现了针对 Cursor yellow warning state 的一键修复功能。添加了 Rust commands：open_cursor_app（跨平台 app launching）和 retry_cursor_auth（token refresh + warning clear）。Frontend 部分：按钮触发 Cursor launch，然后每 4s 进行一次 poll（最多 8 次尝试），直到 token refresh。当 auth 成功时，自动清除 warnings 和 usage cache。包括在 component destroy 时的 timer cleanup。\n✅ Fix Windows tray icon first-click animation failure 05:39:18.949 | claude_code 诊断了 tray icon 第一次点击显示 blank window（第二次点击正常）的 race condition。根本原因是 SplashScreen.svelte 的 animation 依赖于 window focus event，但 Win32 SetFocus API 要求调用线程拥有 foreground。实现了双重修复：Rust 端的 SetForegroundWindow（在 tray context 中具有隐式 foreground 权限）+ frontend 200ms fallback timer。通过 cargo check + 422 passing tests 进行了验证。\n✅ Implement adaptive window anchor for taskbar position 05:43:36.127 | claude_code 用户报告当 taskbar 不在底部或 window 被重新定位时，会出现 window visual flashing。构建了完整的 anchor detection system：AnchorCorner enum (TopLeft/TopRight/BottomLeft/BottomRight)，通过比较 window/work area centers 的 detect_anchor_corner()，AtomicU8 存储，并更新了 aligned_window_origin 和 anchored_resize_origin 以使用检测到的 anchor。添加了 5 个 anchor detection tests。修复了 clippy warning (.map_or → .is_some_and)。所有 422 tests 全部通过。\n✅ Fix false ‘usage warning’ when rate limits work 18:23:28.135 | claude_code 用户注意到尽管 Cursor rate limits 显示正确，但仍会出现 ‘Usage warning’。分析了双重 Cursor pipeline：rate limits API（正常工作）vs usage events API（返回空数组）。用户指出，既然 rate limits 正常工作，那么 warning 就是错误的。修改了 parser.rs，将 remote usage events 的失败从 set_cursor_warning 降级为 logging。现在只有在 auth 真正不可用（两个 pipelines 都失败）时才会发出 warning。\n✅ Fix PowerShell window popups from sqlite3 calls 04:56:21.981 | claude_code 用户报告在 Windows 上运行 TokenMonitor 时会弹出多个 PowerShell windows。检查了 Rust backend 中的所有 process spawns，发现 cursor_parser.rs:490 中的 sqlite3 command 缺少 CREATE_NO_WINDOW flag（所有其他 spawns 都有此 flag）。添加了带有 platform guard 的 const CREATE_NO_WINDOW 和 creation_flags 调用。通过 410 passing tests 进行了验证。\n✅ Add ‘x of y enabled’ format to Model Visibility 05:36:52.157 | claude_code 用户要求 Settings 中 Provider 和 Model visibility sections 保持一致。修改了 HiddenModelsSettings.svelte，使其显示 ‘x of y enabled’ 而不是 ‘x hidden’，将 derived calculation 从 hiddenCount 改为 visibleCount 并更新了 template text。\nToken Usage AI Usage · 2026-04-27\rClaude Code + Codex\rTotal cost$270.80\rTotal tokens312M\rOutput tokens2M\rCache read92.9%\rCost split\rClaude Code $231 ·\rCodex $40\rToken character\rCache reads 92.9% ·\rActive 7.1%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "1153",
   "inLanguage": "zh",
   "datePublished": "2026-04-27T00:00:00-04:00",
   "dateModified": "2026-04-27T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -238,132 +238,132 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-悬停在图表柱状图上时窗口高度快速振荡150-200ms-周期导致详情面板在持续的反馈循环中闪烁开关">1. 悬停在图表柱状图上时，窗口高度快速振荡（150-200ms 周期），导致详情面板在持续的反馈循环中闪烁开关<a hidden class="anchor" aria-hidden="true" href="#1-悬停在图表柱状图上时窗口高度快速振荡150-200ms-周期导致详情面板在持续的反馈循环中闪烁开关">#</a></h4>
 <p><strong>Solution:</strong> 实现了三层防御：(1) onLeave timer 检查 hoveredIdx &gt;= 0 以跳过伪 leave 事件，(2) ResizeOrchestrator 在 chartHoverActive 期间阻塞 observer 驱动的 resize，(3) shrink-guard 防止窗口在悬停期间缩小</p>
-<p><strong>Key Insight:</strong> 振荡是一个反馈循环，其中 SetWindowPos 改变窗口位置会导致浏览器触发伪 mouseLeave 事件；打破该循环需要在多个点进行干预，而不仅仅是阻塞 resize</p>
+<p><strong>关键发现：</strong> 振荡是一个反馈循环，其中 SetWindowPos 改变窗口位置会导致浏览器触发伪 mouseLeave 事件；打破该循环需要在多个点进行干预，而不仅仅是阻塞 resize</p>
 <h4 id="2-setfocus-win32-api-要求调用线程拥有前台窗口所有权但托盘点击处理器不具备前台所有权">2. SetFocus Win32 API 要求调用线程拥有前台窗口所有权，但托盘点击处理器不具备前台所有权<a hidden class="anchor" aria-hidden="true" href="#2-setfocus-win32-api-要求调用线程拥有前台窗口所有权但托盘点击处理器不具备前台所有权">#</a></h4>
 <p><strong>Solution:</strong> 使用在托盘图标上下文中具有隐式前台权限的 SetForegroundWindow，并结合 Svelte 中的 200ms fallback timer 来处理边缘情况</p>
-<p><strong>Key Insight:</strong> Win32 前台窗口规则是依赖上下文的：托盘图标事件授予 SetForegroundWindow 前台权限，但不授予 SetFocus；理解上下文至关重要</p>
+<p><strong>关键发现：</strong> Win32 前台窗口规则是依赖上下文的：托盘图标事件授予 SetForegroundWindow 前台权限，但不授予 SetFocus；理解上下文至关重要</p>
 <h4 id="3-resize-期间窗口底部边缘会偏离-taskbar产生视觉间隙使用-current_rectbottom-会导致底部边缘发生不可预测的跳变">3. Resize 期间窗口底部边缘会偏离 taskbar，产生视觉间隙；使用 current_rect.bottom 会导致底部边缘发生不可预测的跳变<a hidden class="anchor" aria-hidden="true" href="#3-resize-期间窗口底部边缘会偏离-taskbar产生视觉间隙使用-current_rectbottom-会导致底部边缘发生不可预测的跳变">#</a></h4>
 <p><strong>Solution:</strong> 将 anchored_resize_origin 从 current_rect.bottom - height 改为 work.bottom - height；work area 边界是稳定的常量，而 current_rect 反映的是中间的异步 SetWindowPos 状态</p>
-<p><strong>Key Insight:</strong> 在异步窗口管理系统中，快速变化期间查询“当前状态”会返回中间值，导致不稳定；应锚定到固定的参考点（work area 边界）而非当前状态</p>
+<p><strong>关键发现：</strong> 在异步窗口管理系统中，快速变化期间查询“当前状态”会返回中间值，导致不稳定；应锚定到固定的参考点（work area 边界）而非当前状态</p>
 <h4 id="4-硬编码的右下角锚点在-taskbar-位置改变或窗口被用户系统重新定位时会导致闪烁">4. 硬编码的右下角锚点在 taskbar 位置改变，或窗口被用户/系统重新定位时会导致闪烁<a hidden class="anchor" aria-hidden="true" href="#4-硬编码的右下角锚点在-taskbar-位置改变或窗口被用户系统重新定位时会导致闪烁">#</a></h4>
 <p><strong>Solution:</strong> 构建了动态锚点检测：将窗口中心与 work area 中心进行比较，将结果存储在 AtomicU8 中，并在所有定位函数中使用检测到的锚点</p>
-<p><strong>Key Insight:</strong> 窗口锚点必须根据相对于 work area 的实际位置动态检测，而不是假设默认的 taskbar 位置</p>
+<p><strong>关键发现：</strong> 窗口锚点必须根据相对于 work area 的实际位置动态检测，而不是假设默认的 taskbar 位置</p>
 <h4 id="5-即使-rate-limits-api-工作正常cursor-使用警告也会出现导致用户对实际连接状态感到困惑">5. 即使 rate limits API 工作正常，Cursor 使用警告也会出现，导致用户对实际连接状态感到困惑<a hidden class="anchor" aria-hidden="true" href="#5-即使-rate-limits-api-工作正常cursor-使用警告也会出现导致用户对实际连接状态感到困惑">#</a></h4>
 <p><strong>Solution:</strong> 将 remote usage events API 的失败从 set_cursor_warning 降级为 logging；仅在身份验证确实不可用（两个流水线都失败）时才发出警告</p>
-<p><strong>Key Insight:</strong> 服务于不同功能的多层数据流水线应当独立失败——不要在其中一个流水线工作时向用户报告另一个流水线的失败</p>
+<p><strong>关键发现：</strong> 服务于不同功能的多层数据流水线应当独立失败——不要在其中一个流水线工作时向用户报告另一个流水线的失败</p>
 <h4 id="6-使用-clientxy--getboundingclientrect-的鼠标位置检测无法防止窗口移动期间的伪-leave-事件">6. 使用 clientX/Y + getBoundingClientRect 的鼠标位置检测无法防止窗口移动期间的伪 leave 事件<a hidden class="anchor" aria-hidden="true" href="#6-使用-clientxy--getboundingclientrect-的鼠标位置检测无法防止窗口移动期间的伪-leave-事件">#</a></h4>
 <p><strong>Solution:</strong> 放弃了基于坐标的检测；转而在 timer 回调中使用 hoveredIdx 状态检查——如果 300ms 后 hoveredIdx &gt;= 0，说明发生了 re-enter，因此跳过 leave 处理</p>
-<p><strong>Key Insight:</strong> 当窗口移动时，pointermove 不会触发（鼠标实际上并未移动），因此追踪的坐标会变得陈旧；基于状态的检测 (hoveredIdx) 比基于坐标的检测更可靠</p>
+<p><strong>关键发现：</strong> 当窗口移动时，pointermove 不会触发（鼠标实际上并未移动），因此追踪的坐标会变得陈旧；基于状态的检测 (hoveredIdx) 比基于坐标的检测更可靠</p>
 <h4 id="7-当-auth-token-过期时用户必须手动重新打开-cursor-并重启-tokenmonitor-才能修复黄色的-connected-警告状态solution-实现了用于跨平台应用启动的-open_cursor_app-命令macos-使用-open--awindows-使用-exe-路径linux-使用-cursor-命令以及-retry_cursor_auth-轮询机制该机制可自动检测-token-刷新并清除警告">7. 当 auth token 过期时，用户必须手动重新打开 Cursor 并重启 TokenMonitor 才能修复黄色的 &lsquo;Connected&rsquo; 警告状态<strong>Solution:</strong> 实现了用于跨平台应用启动的 <code>open_cursor_app</code> 命令（macOS 使用 <code>open -a</code>，Windows 使用 <code>.exe</code> 路径，Linux 使用 <code>cursor</code> 命令）以及 <code>retry_cursor_auth</code> 轮询机制，该机制可自动检测 token 刷新并清除警告<a hidden class="anchor" aria-hidden="true" href="#7-当-auth-token-过期时用户必须手动重新打开-cursor-并重启-tokenmonitor-才能修复黄色的-connected-警告状态solution-实现了用于跨平台应用启动的-open_cursor_app-命令macos-使用-open--awindows-使用-exe-路径linux-使用-cursor-命令以及-retry_cursor_auth-轮询机制该机制可自动检测-token-刷新并清除警告">#</a></h4>
-<p><strong>Key Insight:</strong> 带有定时器清理的自动重试模式可防止资源泄漏；每 4 秒轮询一次，持续约 32 秒，在响应速度与资源占用之间取得了平衡</p>
+<p><strong>关键发现：</strong> 带有定时器清理的自动重试模式可防止资源泄漏；每 4 秒轮询一次，持续约 32 秒，在响应速度与资源占用之间取得了平衡</p>
 <h4 id="8-当底部锚定到-taskbar-时由于-14px-的-border-radius-导致窗口底部边缘显示透明间隙">8. 当底部锚定到 taskbar 时，由于 14px 的 border-radius 导致窗口底部边缘显示透明间隙<a hidden class="anchor" aria-hidden="true" href="#8-当底部锚定到-taskbar-时由于-14px-的-border-radius-导致窗口底部边缘显示透明间隙">#</a></h4>
 <p><strong>Solution:</strong> 通过 <code>get_window_anchor_edge</code> IPC 在启动时查询窗口锚定方向，在 <code>&lt;html&gt;</code> 上设置 <code>data-anchor</code> 属性，并在 CSS 中当 <code>data-anchor='bottom'</code> 时有条件地移除底部 <code>border-radius</code></p>
-<p><strong>Key Insight:</strong> 带有 <code>border-radius</code> 的透明窗口在边缘需要与屏幕边界对齐时会产生视觉间隙；需要根据运行时的锚定位置进行条件样式设置</p>
+<p><strong>关键发现：</strong> 带有 <code>border-radius</code> 的透明窗口在边缘需要与屏幕边界对齐时会产生视觉间隙；需要根据运行时的锚定位置进行条件样式设置</p>
 <h4 id="9-sqlite3-命令-spawn-缺少-create_no_window-标志导致在-windows-上弹出控制台窗口">9. sqlite3 命令 spawn 缺少 CREATE_NO_WINDOW 标志导致在 Windows 上弹出控制台窗口<a hidden class="anchor" aria-hidden="true" href="#9-sqlite3-命令-spawn-缺少-create_no_window-标志导致在-windows-上弹出控制台窗口">#</a></h4>
 <p><strong>Solution:</strong> 在 <code>cursor_parser.rs</code> 中添加了 <code>const CREATE_NO_WINDOW: u32 = 0x0800_0000</code>，并使用 <code>#[cfg(target_os = &quot;windows&quot;)]</code> 保护的 <code>.creation_flags()</code> 调用</p>
-<p><strong>Key Insight:</strong> 所有 Windows 进程的 spawn 都需要显式的 <code>CREATE_NO_WINDOW</code> 标志；任何模块中遗漏一个 spawn 都会破坏整个 UX</p>
+<p><strong>关键发现：</strong> 所有 Windows 进程的 spawn 都需要显式的 <code>CREATE_NO_WINDOW</code> 标志；任何模块中遗漏一个 spawn 都会破坏整个 UX</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="对底部边缘未移动的理解">对底部边缘“未移动”的理解<a hidden class="anchor" aria-hidden="true" href="#对底部边缘未移动的理解">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>明确了“底部边缘未移动”意味着窗口底部 AND 内容底部（cache text）都应该在屏幕上保持视觉固定，而不仅仅是日志中窗口底部坐标保持不变</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初理解为日志中 <code>window.bottom</code> 坐标保持不变，忽略了视觉/内容的定位方面</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 关注终端用户的视觉体验，AI 关注技术测量；突显了理解技术需求背后的用户意图的重要性</p>
+<p><strong>差异分析：</strong> Human 关注终端用户的视觉体验，AI 关注技术测量；突显了理解技术需求背后的用户意图的重要性</p>
 <h4 id="迭代调试-vs-尝试完整解决方案">迭代调试 vs 尝试完整解决方案<a hidden class="anchor" aria-hidden="true" href="#迭代调试-vs-尝试完整解决方案">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>在实施修复之前，反复要求检查日志、描述当前更改并逐步验证特定行为</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>尝试在没有确认中间诊断数据的情况下，基于假设实施完整的解决方案</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 倾向于对假设进行增量验证，AI 倾向于“完整修复”式的实现；Human 的方法防止了在错误假设上浪费精力</p>
+<p><strong>差异分析：</strong> Human 倾向于对假设进行增量验证，AI 倾向于“完整修复”式的实现；Human 的方法防止了在错误假设上浪费精力</p>
 <h4 id="cursor-警告条件与用户体验">Cursor 警告条件与用户体验<a hidden class="anchor" aria-hidden="true" href="#cursor-警告条件与用户体验">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>意识到如果 rate limits 工作正常，那么警告就是错误的——“工作正常”意味着“不要警告”，无论内部 pipeline 细节如何；应用了整体 UX 推理</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>准确解释了双 pipeline 架构，但在用户指出 UX 差距之前，没有立即建议更改警告阈值</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 应用了整体 UX 推理（功能正常 = 无警告）；AI 专注于技术准确性，而没有综合考虑 UX 的影响</p>
+<p><strong>差异分析：</strong> Human 应用了整体 UX 推理（功能正常 = 无警告）；AI 专注于技术准确性，而没有综合考虑 UX 的影响</p>
 <h4 id="症状描述-vs-关注根本原因">症状描述 vs 关注根本原因<a hidden class="anchor" aria-hidden="true" href="#症状描述-vs-关注根本原因">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>在深入研究根本原因之前，强调清晰的症状描述（“窗口快速上下跳动”）；要求关注用户体验到的视觉行为</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初直接跳到根本原因分析和技术实现细节，而没有清晰地阐述面向用户的症状</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 希望先有清晰的问题陈述（用户看到了什么），AI 默认进入技术诊断模式；Human 的方法确保了在“我们实际在修复什么”上达成一致</p>
+<p><strong>差异分析：</strong> Human 希望先有清晰的问题陈述（用户看到了什么），AI 默认进入技术诊断模式；Human 的方法确保了在“我们实际在修复什么”上达成一致</p>
 <h4 id="针对-cursor-连接问题的用户体验改进">针对 Cursor 连接问题的用户体验改进<a hidden class="anchor" aria-hidden="true" href="#针对-cursor-连接问题的用户体验改进">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>识别出增加一个按钮的机会，该按钮可以打开 Cursor 并自动检测连接何时恢复，从而消除重启需求</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>专注于对现有代码模式（连接状态、IPC 机制、特定平台的启动方式）的技术探索和实现规划</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 优先考虑消除终端用户的痛点；AI 将 UX 目标转化为具有跨平台考量的技术架构</p>
+<p><strong>差异分析：</strong> Human 优先考虑消除终端用户的痛点；AI 将 UX 目标转化为具有跨平台考量的技术架构</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
 <ul>

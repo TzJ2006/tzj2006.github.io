@@ -10,7 +10,7 @@
 <meta name="description" content="为 NeurIPS 2026 double-blind submission 准备了 ErrorRecoveryBench：生成了 Croissant metadata，下载了 30GB dataset，修复了 paper tables 中的主要数据错误 (BC-RNN Normal SR 21%→56%)，并创建了 publication-quality figures。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-05-07/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-05-07 Daily Overview 完成工作： 为 NeurIPS 2026 Evaluations \u0026 Datasets track 投稿准备了 ErrorRecoveryBench 代码库和 30GB 数据集，修正了论文中的关键数据错误，并生成了所有必需的图表。 实施方式： 生成了 Croissant JSON-LD metadata，通过 SSH/scp 从 tianhe server 下载数据，将论文表格与 fact-check JSON 文件进行交叉验证，并迭代优化 matplotlib 图表以达到出版标准。 影响： 确保了投稿符合 NeurIPS 2026 的强制要求，修复了会导致结果失效的严重数据不准确问题（BC-RNN Normal SR 偏差达 167%），并完成了所有 camera-ready 图表。 为 NeurIPS 2026 double-blind 投稿准备了 ErrorRecoveryBench：生成了 Croissant metadata，下载了 30GB 数据集，修复了论文表格中的重大数据错误（BC-RNN Normal SR 从 21%→56%），并创建了出版质量的图表。\nTasks Architecture \u0026 Strategy ✅ 修正论文 Table 6 中的关键 BC-RNN 数据错误 — 将 BC-RNN Normal SR 从 21% 修正为 56%/42% (V1/V2)，将单个 BC-RNN 行拆分为两行（Nominal FT + Recovery），并根据 fact-check 验证将 Pi 0.5 Recovery Normal SR 从 56% 修正为 60% ✅ 为 NeurIPS 2026 投稿生成 Croissant metadata — 创建了 croissant.json，包含数据集描述、4 个 FileObjects (error_scenes/recovery_demos_human/augmented/mimicgen_prepared)、2 个 RecordSets 以及满足 NeurIPS E\u0026D track 强制要求的 RAI 字段 ✅ 从 tianhe server 下载 30GB release_data — 使用 scp 从 /XYFS01/…/release_data 下载完整数据集（20958 个文件，30GB）到本地机器，以便在 Hugging Face 上托管 ✅ 生成出版质量的图表 (Fig 4/5/6/7) — 创建了 Fig 4 (stack per-subtype heatmap)、Fig 5+6 组合图 (RBG bar + Normal vs Recovery scatter)、Fig 7 (D0 vs D1 comparison)，采用了科学蓝配色方案和 Arial 字体 🔄 诊断 MimicGen segmentation 和 filter 失败问题 — 调查为何 step logic 不匹配会导致低成功率，filter 减少了训练数据不平衡问题（pick 160 / stack 175 / coffee 85 / serving 32），以及 RPG cross-step transfer \u003c5% 的问题 Implementation \u0026 Fixes ✅ 修复 README.md Environment Setup 部分 — 完全重写了被 terminal spinner 垃圾信息污染的 README 部分，添加了正确的 bash 代码块和安装命令 Problems \u0026 Solutions Critical Issues 1. 论文中 BC-RNN Normal SR 严重错误 (21% vs 实际 56%) Solution: 将所有表格数值与验证运行产生的 fact-check JSON 进行交叉验证，修正为 V1=56% / V2=42%，并拆分为两个 policy 行\nKey Insight: 根据原始实验输出进行 fact-checking 至关重要；此错误会导致论文结果失效（167% 的差异）\n2. Kirk 质疑应使用 per-task cherry-picked checkpoints 还是 unified checkpoint Solution: 用户确认了 per-task best RSR 方法：pick=step 19000 (31.7%), stack=19999 (76.7%), coffee=16000 (54.5%) 等。\nKey Insight: 必须明确记录 checkpoint 选择策略，以应对审稿人关于“使用了哪个 checkpoint”的提问\n3. 初始 matplotlib 图表颜色不专业且标签重叠 Solution: 迭代优化为科学蓝渐变 colormap，统一使用 Arial 字体，调整布局以消除重叠（Fig 4 横向展示，Fig 5+6 合并）\nKey Insight: 出版质量的图表需要多次迭代和特定领域的审美标准\nGeneral Issues 4. README.md Environment Setup 被 terminal spinner 输出污染 Solution: 使用干净的 markdown、正确的代码块和实际的安装命令完全重写了相关章节\nKey Insight: 自动化日志捕获可能会损坏文档文件；务必验证生成的内容\n5. SSH host key 变更导致无法访问服务器 Solution: 使用 ssh-keygen -R [121.46.19.6]:6688 移除旧 key，并使用 StrictHostKeyChecking=accept-new 重新连接\nKey Insight: 服务器基础设施的变化需要主动维护 known_hosts\nHuman vs AI Approaches Strategic Level 实验数据准确性要求 Role Approach Human Kirk 坚持“必须使用测量数据而非估计值”，反复检查数据源一致性（80 vs 168 个样本），要求对所有表格进行 fact-check AI Claude 最初在未经验证的情况下直接使用了 LaTeX 中过时的 BC-RNN 数值，需要用户纠正并与 JSON fact-check 文件进行交叉比对 Difference Analysis: Human 执行了严格的数据溯源标准；AI 依赖现有文档内容而缺乏独立验证\nMimicGen RPG 设计有效性 Role Approach Human Kirk 质疑核心设计目标，并指出如果 transfer 失败，整个 Table 3 的设计将变得毫无意义；要求提供具体的成功案例 AI Thomas 辩护其理论可行性，但无法提供 cross-step 成功的证据（成功率 \u003c5%），侧重于实现细节而非基本假设 Difference Analysis: Human (Kirk) 应用了系统级批判，揭示了架构风险；student 则陷入防御性推理，缺乏实证验证\n检测 MimicGen 中的 step logic mismatch Role Approach Human Thomas 识别出旧的 contact-detection segmentation 已不再适用，导致 per-segment 成功率崩溃 AI AI 未能主动注意到这一算法迭代的兼容性问题 Difference Analysis: Human 从实验失败模式中检测到了细微的逻辑不兼容；AI 缺乏对 robotic manipulation pipeline 调试的领域直觉\nAI Limitations Critical Limitations 未能独立根据实验输出验证论文表格数值，在用户指出 BC-RNN Normal SR 存在 167% 的错误之前，一直信任现有的 LaTeX 内容。 无法预见到 RPG 设计中的架构缺陷，而 Kirk 立即将其识别为根本风险。 初始图表美学（颜色刺眼、标签重叠）未达到科学出版标准，需要用户引导进行多次迭代。 General Limitations 无法直接访问远程服务器数据文件，需要用户手动 SSH 并提供文件列表。 Learnings Key Learnings- 针对原始 experiment JSONs 的 Fact-check 验证至关重要；论文中 BC-RNN Normal SR 存在 167% 的错误 (21% vs 56%)，这会导致结果失效 NeurIPS 2026 E\u0026D track 要求对于 \u003e4GB 的数据集必须提供 Croissant JSON-LD metadata + small sample subset Per-task checkpoint cherry-picking 可以最大化 RSR，但需要为询问“which checkpoint”的 reviewers 提供统一的解释 Double-blind submission 要求严格的身份隔离 (不能从个人账号 TzJ2006 push 到匿名 org ErrorRecoveryBenchmark) Publication figures 需要科学配色方案 (blue gradients)、统一的 typography (Arial) 以及 zero-overlap layout Conversation Summaries ErrorRecoveryBench ✅ NeurIPS 2026 double-blind submission prep 00:48:05.361 | claude_code 生成了 Croissant metadata file (NeurIPS E\u0026D track 强制要求)，调查了 tianhe server 上 30GB 数据集的结构，修复了被 terminal 垃圾信息污染的 README.md Environment Setup 部分。讨论了针对 NeurIPS reviewers 需要提供 small sample subset 的 4GB threshold rule。\n🔍 Kirk meeting notes archival 03:52:30.961 | claude_code 保存了记录 MimicGen 问题的会议摘要：step segmentation logic 不匹配，filter 导致数据不平衡 (pick 160/stack 175/coffee 85/serving 32)，RPG cross-step transfer 成功率 \u003c5%，pmplace augmentation 性能下降，BCRN GPU interruption。列出了 action items：检查 filter logic，修复 pmplace，监控 stackthree training，添加 paper figures。\nErrorRecoveryBenchData ✅ Dataset download from tianhe server 00:56:20.711 | claude_code 通过 scp 从 tianhe:/XYFS01/…/tangzijia/release_data 下载了 30GB (20958 files) 的 release_data。处理了 SSH host key change。确认数据集超过了 4GB threshold，需要为 NeurIPS reviewers 提供 small sample。\nNIPS 2026 Error Recovery ✅ Paper table data correction 08:00:56.210 | claude_code 基于 fact-check 验证修正了 main results table 中的关键错误：BC-RNN Normal SR 从 21%→56% (V1)/42% (V2)，Pi 0.5 Recovery Normal SR 从 56%→60%，将 BC-RNN 分为两行。User 确认了使用每个 task 最佳 RSR checkpoint 的 per-task cherry-pick 策略。\n✅ Publication figure generation 05:55:14.684 | claude_code 生成了 Fig 4 (stack per-subtype RSR heatmap, horizontal layout)，Fig 5+6 combined (RBG bar + Normal vs Recovery scatter)，Fig 7 (D0 vs D1 comparison)。迭代优化了配色方案为 scientific blue palette，统一使用 Arial font，调整了 layout 以消除 label overlap。评估了 4 种 Fig 4 layout variants (grouped bar, radar, merged heatmap, stacked)。\nToken Usage AI Usage · 2026-05-07\rClaude Code\rTotal cost$80.38\rTotal tokens105M\rOutput tokens914K\rCache read80.6%\rToken character\rCache reads 80.6% ·\rActive 19.4%\rMost token volume came from cache reads.\r",
-  "wordCount" : "717",
+  "articleBody": "Daily Report — 2026-05-07 Daily Overview 完成工作： 为 NeurIPS 2026 Evaluations \u0026 Datasets track 投稿准备了 ErrorRecoveryBench 代码库和 30GB 数据集，修正了论文中的关键数据错误，并生成了所有必需的图表。 实施方式： 生成了 Croissant JSON-LD metadata，通过 SSH/scp 从 tianhe server 下载数据，将论文表格与 fact-check JSON 文件进行交叉验证，并迭代优化 matplotlib 图表以达到出版标准。 影响： 确保了投稿符合 NeurIPS 2026 的强制要求，修复了会导致结果失效的严重数据不准确问题（BC-RNN Normal SR 偏差达 167%），并完成了所有 camera-ready 图表。 为 NeurIPS 2026 double-blind 投稿准备了 ErrorRecoveryBench：生成了 Croissant metadata，下载了 30GB 数据集，修复了论文表格中的重大数据错误（BC-RNN Normal SR 从 21%→56%），并创建了出版质量的图表。\nTasks Architecture \u0026 Strategy ✅ 修正论文 Table 6 中的关键 BC-RNN 数据错误 — 将 BC-RNN Normal SR 从 21% 修正为 56%/42% (V1/V2)，将单个 BC-RNN 行拆分为两行（Nominal FT + Recovery），并根据 fact-check 验证将 Pi 0.5 Recovery Normal SR 从 56% 修正为 60% ✅ 为 NeurIPS 2026 投稿生成 Croissant metadata — 创建了 croissant.json，包含数据集描述、4 个 FileObjects (error_scenes/recovery_demos_human/augmented/mimicgen_prepared)、2 个 RecordSets 以及满足 NeurIPS E\u0026D track 强制要求的 RAI 字段 ✅ 从 tianhe server 下载 30GB release_data — 使用 scp 从 /XYFS01/…/release_data 下载完整数据集（20958 个文件，30GB）到本地机器，以便在 Hugging Face 上托管 ✅ 生成出版质量的图表 (Fig 4/5/6/7) — 创建了 Fig 4 (stack per-subtype heatmap)、Fig 5+6 组合图 (RBG bar + Normal vs Recovery scatter)、Fig 7 (D0 vs D1 comparison)，采用了科学蓝配色方案和 Arial 字体 🔄 诊断 MimicGen segmentation 和 filter 失败问题 — 调查为何 step logic 不匹配会导致低成功率，filter 减少了训练数据不平衡问题（pick 160 / stack 175 / coffee 85 / serving 32），以及 RPG cross-step transfer \u003c5% 的问题 Implementation \u0026 Fixes ✅ 修复 README.md Environment Setup 部分 — 完全重写了被 terminal spinner 垃圾信息污染的 README 部分，添加了正确的 bash 代码块和安装命令 Problems \u0026 Solutions Critical Issues 1. 论文中 BC-RNN Normal SR 严重错误 (21% vs 实际 56%) Solution: 将所有表格数值与验证运行产生的 fact-check JSON 进行交叉验证，修正为 V1=56% / V2=42%，并拆分为两个 policy 行\n关键发现： 根据原始实验输出进行 fact-checking 至关重要；此错误会导致论文结果失效（167% 的差异）\n2. Kirk 质疑应使用 per-task cherry-picked checkpoints 还是 unified checkpoint Solution: 用户确认了 per-task best RSR 方法：pick=step 19000 (31.7%), stack=19999 (76.7%), coffee=16000 (54.5%) 等。\n关键发现： 必须明确记录 checkpoint 选择策略，以应对审稿人关于“使用了哪个 checkpoint”的提问\n3. 初始 matplotlib 图表颜色不专业且标签重叠 Solution: 迭代优化为科学蓝渐变 colormap，统一使用 Arial 字体，调整布局以消除重叠（Fig 4 横向展示，Fig 5+6 合并）\n关键发现： 出版质量的图表需要多次迭代和特定领域的审美标准\nGeneral Issues 4. README.md Environment Setup 被 terminal spinner 输出污染 Solution: 使用干净的 markdown、正确的代码块和实际的安装命令完全重写了相关章节\n关键发现： 自动化日志捕获可能会损坏文档文件；务必验证生成的内容\n5. SSH host key 变更导致无法访问服务器 Solution: 使用 ssh-keygen -R [121.46.19.6]:6688 移除旧 key，并使用 StrictHostKeyChecking=accept-new 重新连接\n关键发现： 服务器基础设施的变化需要主动维护 known_hosts\nHuman vs AI Approaches Strategic Level 实验数据准确性要求 角色 方法 用户 Kirk 坚持“必须使用测量数据而非估计值”，反复检查数据源一致性（80 vs 168 个样本），要求对所有表格进行 fact-check AI 助手 Claude 最初在未经验证的情况下直接使用了 LaTeX 中过时的 BC-RNN 数值，需要用户纠正并与 JSON fact-check 文件进行交叉比对 差异分析： Human 执行了严格的数据溯源标准；AI 依赖现有文档内容而缺乏独立验证\nMimicGen RPG 设计有效性 角色 方法 用户 Kirk 质疑核心设计目标，并指出如果 transfer 失败，整个 Table 3 的设计将变得毫无意义；要求提供具体的成功案例 AI 助手 Thomas 辩护其理论可行性，但无法提供 cross-step 成功的证据（成功率 \u003c5%），侧重于实现细节而非基本假设 差异分析： Human (Kirk) 应用了系统级批判，揭示了架构风险；student 则陷入防御性推理，缺乏实证验证\n检测 MimicGen 中的 step logic mismatch 角色 方法 用户 Thomas 识别出旧的 contact-detection segmentation 已不再适用，导致 per-segment 成功率崩溃 AI 助手 AI 未能主动注意到这一算法迭代的兼容性问题 差异分析： Human 从实验失败模式中检测到了细微的逻辑不兼容；AI 缺乏对 robotic manipulation pipeline 调试的领域直觉\nAI Limitations Critical Limitations 未能独立根据实验输出验证论文表格数值，在用户指出 BC-RNN Normal SR 存在 167% 的错误之前，一直信任现有的 LaTeX 内容。 无法预见到 RPG 设计中的架构缺陷，而 Kirk 立即将其识别为根本风险。 初始图表美学（颜色刺眼、标签重叠）未达到科学出版标准，需要用户引导进行多次迭代。 General Limitations 无法直接访问远程服务器数据文件，需要用户手动 SSH 并提供文件列表。 Learnings Key Learnings- 针对原始 experiment JSONs 的 Fact-check 验证至关重要；论文中 BC-RNN Normal SR 存在 167% 的错误 (21% vs 56%)，这会导致结果失效 NeurIPS 2026 E\u0026D track 要求对于 \u003e4GB 的数据集必须提供 Croissant JSON-LD metadata + small sample subset Per-task checkpoint cherry-picking 可以最大化 RSR，但需要为询问“which checkpoint”的 reviewers 提供统一的解释 Double-blind submission 要求严格的身份隔离 (不能从个人账号 TzJ2006 push 到匿名 org ErrorRecoveryBenchmark) Publication figures 需要科学配色方案 (blue gradients)、统一的 typography (Arial) 以及 zero-overlap layout Conversation Summaries ErrorRecoveryBench ✅ NeurIPS 2026 double-blind submission prep 00:48:05.361 | claude_code 生成了 Croissant metadata file (NeurIPS E\u0026D track 强制要求)，调查了 tianhe server 上 30GB 数据集的结构，修复了被 terminal 垃圾信息污染的 README.md Environment Setup 部分。讨论了针对 NeurIPS reviewers 需要提供 small sample subset 的 4GB threshold rule。\n🔍 Kirk meeting notes archival 03:52:30.961 | claude_code 保存了记录 MimicGen 问题的会议摘要：step segmentation logic 不匹配，filter 导致数据不平衡 (pick 160/stack 175/coffee 85/serving 32)，RPG cross-step transfer 成功率 \u003c5%，pmplace augmentation 性能下降，BCRN GPU interruption。列出了 action items：检查 filter logic，修复 pmplace，监控 stackthree training，添加 paper figures。\nErrorRecoveryBenchData ✅ Dataset download from tianhe server 00:56:20.711 | claude_code 通过 scp 从 tianhe:/XYFS01/…/tangzijia/release_data 下载了 30GB (20958 files) 的 release_data。处理了 SSH host key change。确认数据集超过了 4GB threshold，需要为 NeurIPS reviewers 提供 small sample。\nNIPS 2026 Error Recovery ✅ Paper table data correction 08:00:56.210 | claude_code 基于 fact-check 验证修正了 main results table 中的关键错误：BC-RNN Normal SR 从 21%→56% (V1)/42% (V2)，Pi 0.5 Recovery Normal SR 从 56%→60%，将 BC-RNN 分为两行。User 确认了使用每个 task 最佳 RSR checkpoint 的 per-task cherry-pick 策略。\n✅ Publication figure generation 05:55:14.684 | claude_code 生成了 Fig 4 (stack per-subtype RSR heatmap, horizontal layout)，Fig 5+6 combined (RBG bar + Normal vs Recovery scatter)，Fig 7 (D0 vs D1 comparison)。迭代优化了配色方案为 scientific blue palette，统一使用 Arial font，调整了 layout 以消除 label overlap。评估了 4 种 Fig 4 layout variants (grouped bar, radar, merged heatmap, stacked)。\nToken Usage AI Usage · 2026-05-07\rClaude Code\rTotal cost$80.38\rTotal tokens105M\rOutput tokens914K\rCache read80.6%\rToken character\rCache reads 80.6% ·\rActive 19.4%\rMost token volume came from cache reads.\r",
+  "wordCount" : "712",
   "inLanguage": "zh",
   "datePublished": "2026-05-07T00:00:00-04:00",
   "dateModified": "2026-05-07T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -236,82 +236,82 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-论文中-bc-rnn-normal-sr-严重错误-21-vs-实际-56">1. 论文中 BC-RNN Normal SR 严重错误 (21% vs 实际 56%)<a hidden class="anchor" aria-hidden="true" href="#1-论文中-bc-rnn-normal-sr-严重错误-21-vs-实际-56">#</a></h4>
 <p><strong>Solution:</strong> 将所有表格数值与验证运行产生的 fact-check JSON 进行交叉验证，修正为 V1=56% / V2=42%，并拆分为两个 policy 行</p>
-<p><strong>Key Insight:</strong> 根据原始实验输出进行 fact-checking 至关重要；此错误会导致论文结果失效（167% 的差异）</p>
+<p><strong>关键发现：</strong> 根据原始实验输出进行 fact-checking 至关重要；此错误会导致论文结果失效（167% 的差异）</p>
 <h4 id="2-kirk-质疑应使用-per-task-cherry-picked-checkpoints-还是-unified-checkpoint">2. Kirk 质疑应使用 per-task cherry-picked checkpoints 还是 unified checkpoint<a hidden class="anchor" aria-hidden="true" href="#2-kirk-质疑应使用-per-task-cherry-picked-checkpoints-还是-unified-checkpoint">#</a></h4>
 <p><strong>Solution:</strong> 用户确认了 per-task best RSR 方法：pick=step 19000 (31.7%), stack=19999 (76.7%), coffee=16000 (54.5%) 等。</p>
-<p><strong>Key Insight:</strong> 必须明确记录 checkpoint 选择策略，以应对审稿人关于“使用了哪个 checkpoint”的提问</p>
+<p><strong>关键发现：</strong> 必须明确记录 checkpoint 选择策略，以应对审稿人关于“使用了哪个 checkpoint”的提问</p>
 <h4 id="3-初始-matplotlib-图表颜色不专业且标签重叠">3. 初始 matplotlib 图表颜色不专业且标签重叠<a hidden class="anchor" aria-hidden="true" href="#3-初始-matplotlib-图表颜色不专业且标签重叠">#</a></h4>
 <p><strong>Solution:</strong> 迭代优化为科学蓝渐变 colormap，统一使用 Arial 字体，调整布局以消除重叠（Fig 4 横向展示，Fig 5+6 合并）</p>
-<p><strong>Key Insight:</strong> 出版质量的图表需要多次迭代和特定领域的审美标准</p>
+<p><strong>关键发现：</strong> 出版质量的图表需要多次迭代和特定领域的审美标准</p>
 <h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
 <h4 id="4-readmemd-environment-setup-被-terminal-spinner-输出污染">4. README.md Environment Setup 被 terminal spinner 输出污染<a hidden class="anchor" aria-hidden="true" href="#4-readmemd-environment-setup-被-terminal-spinner-输出污染">#</a></h4>
 <p><strong>Solution:</strong> 使用干净的 markdown、正确的代码块和实际的安装命令完全重写了相关章节</p>
-<p><strong>Key Insight:</strong> 自动化日志捕获可能会损坏文档文件；务必验证生成的内容</p>
+<p><strong>关键发现：</strong> 自动化日志捕获可能会损坏文档文件；务必验证生成的内容</p>
 <h4 id="5-ssh-host-key-变更导致无法访问服务器">5. SSH host key 变更导致无法访问服务器<a hidden class="anchor" aria-hidden="true" href="#5-ssh-host-key-变更导致无法访问服务器">#</a></h4>
 <p><strong>Solution:</strong> 使用 <code>ssh-keygen -R [121.46.19.6]:6688</code> 移除旧 key，并使用 <code>StrictHostKeyChecking=accept-new</code> 重新连接</p>
-<p><strong>Key Insight:</strong> 服务器基础设施的变化需要主动维护 known_hosts</p>
+<p><strong>关键发现：</strong> 服务器基础设施的变化需要主动维护 known_hosts</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="实验数据准确性要求">实验数据准确性要求<a hidden class="anchor" aria-hidden="true" href="#实验数据准确性要求">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>Kirk 坚持“必须使用测量数据而非估计值”，反复检查数据源一致性（80 vs 168 个样本），要求对所有表格进行 fact-check</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>Claude 最初在未经验证的情况下直接使用了 LaTeX 中过时的 BC-RNN 数值，需要用户纠正并与 JSON fact-check 文件进行交叉比对</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 执行了严格的数据溯源标准；AI 依赖现有文档内容而缺乏独立验证</p>
+<p><strong>差异分析：</strong> Human 执行了严格的数据溯源标准；AI 依赖现有文档内容而缺乏独立验证</p>
 <h4 id="mimicgen-rpg-设计有效性">MimicGen RPG 设计有效性<a hidden class="anchor" aria-hidden="true" href="#mimicgen-rpg-设计有效性">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>Kirk 质疑核心设计目标，并指出如果 transfer 失败，整个 Table 3 的设计将变得毫无意义；要求提供具体的成功案例</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>Thomas 辩护其理论可行性，但无法提供 cross-step 成功的证据（成功率 &lt;5%），侧重于实现细节而非基本假设</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human (Kirk) 应用了系统级批判，揭示了架构风险；student 则陷入防御性推理，缺乏实证验证</p>
+<p><strong>差异分析：</strong> Human (Kirk) 应用了系统级批判，揭示了架构风险；student 则陷入防御性推理，缺乏实证验证</p>
 <h4 id="检测-mimicgen-中的-step-logic-mismatch">检测 MimicGen 中的 step logic mismatch<a hidden class="anchor" aria-hidden="true" href="#检测-mimicgen-中的-step-logic-mismatch">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>Thomas 识别出旧的 contact-detection segmentation 已不再适用，导致 per-segment 成功率崩溃</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 未能主动注意到这一算法迭代的兼容性问题</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 从实验失败模式中检测到了细微的逻辑不兼容；AI 缺乏对 robotic manipulation pipeline 调试的领域直觉</p>
+<p><strong>差异分析：</strong> Human 从实验失败模式中检测到了细微的逻辑不兼容；AI 缺乏对 robotic manipulation pipeline 调试的领域直觉</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
 <ul>

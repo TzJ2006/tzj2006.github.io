@@ -10,7 +10,7 @@
 <meta name="description" content="将 Claude 代码的认证从 AWS Bedrock 切换为直接在所有设备（MacOS、Lighthouse、Athena、TzJsDesktop）上使用 Claude 订阅。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-08-03/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "每日报告 — 2026-08-03 日常概述 已执行事项： 用户要求将 CLI 工具 ‘Claude Code’ 从使用 AWS Bedrock 工作空间端点改为直接使用 Claude.ai 订阅进行认证。此任务在四台不同设备上同时执行。 执行方式： AI 检查了每台设备上的 ~/.claude/settings.json 和环境变量，识别出了 CLAUDE_CODE_USE_ANTHROPIC_AWS=1 标志及相关工作空间 ID，将这些条目从配置文件中移除，并指导用户重启应用程序并运行 /login。 影响： 使多个平台上的开发环境统一使用单一订阅身份，确保模型访问和计费行为一致，无需依赖 AWS 基础设施。 MacOS 已执行事项： 将 MacOS 上的配置从 AWS Bedrock 改为 Claude 订阅。 执行方式： 在用户主目录中搜索 .claude/settings.json，移除包含 AWS 密钥的 env 块，并通过 /login 指导用户操作。 影响： 成功在 macOS 工作站上恢复直接订阅访问。 TzJsDesktop 已执行事项： 将 Windows TzJsDesktop 上的配置从 AWS Bedrock 改为 Claude 订阅。 执行方式： 编写了 Python 脚本来解析和修改 settings.json，移除与 AWS 相关的密钥，并提供了重启和登录的说明。 影响： 完全从 JSON 结构中移除所有 AWS 相关项，未造成数据丢失。 athena 已执行事项： 将 Linux Athena 服务器上的配置从 AWS Bedrock 改为 Claude 订阅。 执行方式： 在设置中识别 CLAUDE_CODE_USE_ANTHROPIC_AWS 块，移除该块，并确认 shell 配置文件干净。用户在更改后运行了 /login。 影响： 解决了本地环境变量与云端工作空间配置之间的潜在冲突。 lighthouse 已执行事项： 尝试在 Lighthouse 设备上重新安装和配置更改。 执行方式： 最初尝试重新安装 Claude Code，随后发现障碍是 settings.json 中的 AWS 配置。由于上下文丢失，需要在不同会话中重复移除 AWS env 块。 影响： 明确表明重新安装是不必要的；更改仅需编辑配置并重启会话。 在所有设备（MacOS、Lighthouse、Athena、TzJsDesktop）上将 Claude Code 认证从 AWS Bedrock 改为直接 Claude 订阅。\n任务 实施与修复 ✅ 验证 Lighthouse 上的 Claude Code 安装 — 在配置更改前，检查并在 Lighthouse 设备上重新安装 Claude Code，确保处于全新状态。 ✅ 切换 Claude Code 认证：AWS → 订阅 — 在所有设备上从 ~/.claude/settings.json 中移除 CLAUDE_CODE_USE_ANTHROPIC_AWS 及相关工作空间密钥，恢复默认订阅认证。 问题与解决方案 一般问题 1. AI 最初建议在 Lighthouse 的 settings.json 中编辑 env_disabled_aws，违反了 JSON 模式验证。 解决方案： 用户提供了错误输出；AI 通过复制原始文件作为备份，然后完全移除无效的 env 块来纠正策略。\n关键洞察： 在修改结构化配置文件之前，始终需验证 JSON 模式约束。\n2. 环境变量已在活动会话中加载，因此配置文件更改在重启前无效。 解决方案： AI 明确指示用户重启 Claude Code 进程以使更改生效。\n关键洞察： CLI 工具通常在启动时加载环境变量；运行时配置修改需要服务重启。\n3. Lighthouse 会话丢失了关于特定认证机制的信息，导致 AI 提出不必要的重新安装建议。 解决方案： 用户说明“我没有注销选项，因为我使用配置文件”，使 AI 正确识别根本原因是静态配置标志而非有状态登录令牌。\n关键洞察： 无头或基于配置的工具通常忽略标准的 /logout 命令；认证直接绑定在配置文件上。\n人类与 AI 方法对比 战略层面 认证机制识别 角色 方法 人类 用户意识到他们“没有注销选项”，因为认证由包含 AWS 工作空间 ID的配置文件 settings.json 驱动，而非会话令牌。 AI AI 最初假设标准 OAuth/令牌流程，建议 /logout 或重新安装应用。在用户纠正后必须调整策略。 差异分析： 人类正确理解了底层认证架构（基于配置 vs. 有状态），而 AI 依赖 CLI 工具的默认交互模式。\n实施层面 配置文件修改策略 角色 方法 人类 MacOS 和 Athena 上的用户直接请求更改，提供了清晰上下文。Lighthouse 上的用户提供错误日志以引导 AI 避免无效 JSON 修改。 AI AI 使用 grep 和 cat 定位文件，然后应用 Edit 或 Python 脚本来移除密钥。在 TzJsDesktop 上，由于复杂性原因，首先编写计划。 差异分析： 人类提供了战略意图；AI 处理了精确的文件操作逻辑。人类干预对于 Windows 上的错误纠正至关重要。\nAI 限制 一般限制 AI 为 TzJsDesktop 提出了不存在的 JSON 字段 env_disabled_aws，表明在代码生成过程中缺乏严格的模式验证。 AI 无法在 Lighthouse 设备上跨会话保持上下文，导致重复重新安装尝试和相同问题的反复说明。 学习成果 关键学习点 当将 Claude Code 从 AWS Bedrock 切换为标准认证时，主要变化是移除 env 块中的 ~/.claude/settings.json。无需系统级卸载。 实际学习点 在无头 Linux 服务器（如 Athena）上，OAuth 登录需要复制 URL 模式并粘贴代码；如果没有浏览器，AI 应预期这种工作流程。 对话总结 ✅ 将 CLI 认证改为订阅 00:58:11 | claude_code 用户请求从 AWS Bedrock 切换为订阅。AI 在 MacOS 上找到 ~/.claude/settings.json，识别出包含 CLAUDE_CODE_USE_ANTHROPIC_AWS 的 env 块，并将其移除。用户通过 /login 确认切换成功。\n✅ 移除 AWS 配置密钥 00:58:53 | claude_code TzJsDesktop（Windows）上的用户请求相同切换。AI 编写了 Python 单行脚本来解析 settings.json 并移除与 AWS 相关的密钥。还生成了计划 MD 文件以便跟踪。用户批准计划，执行成功。✅ Athena上的最终认证同步 01:00:03 | claude_code 在Athena（Linux）上的用户请求了切换操作。AI验证了环境变量，从settings.json中移除了AWS env块，并确认没有shell配置文件覆盖。用户成功完成了/login。\n✅ Lighthouse上的重新安装与认证修复 00:31:04 | claude_code 在Lighthouse（Linux）上的用户请求重新安装并修复登录问题。AI最初重新安装了应用，随后发现认证被settings.json阻塞。在上下文丢失/重置后，AI调整了策略，从JSON中移除了AWS密钥，并引导用户前往/login。\n令牌使用 AI Usage · 2026-08-03\rClaude Code\rTotal cost$1.00\rTotal tokens191K\rOutput tokens1K\rCache read65.5%\rToken character\rCache reads 65.5% ·\rActive 34.5%\rMost token volume came from cache reads.\r",
-  "wordCount" : "372",
+  "articleBody": "每日报告 — 2026-08-03 日常概述 已执行事项： 用户要求将 CLI 工具 ‘Claude Code’ 从使用 AWS Bedrock 工作空间端点改为直接使用 Claude.ai 订阅进行认证。此任务在四台不同设备上同时执行。 执行方式： AI 检查了每台设备上的 ~/.claude/settings.json 和环境变量，识别出了 CLAUDE_CODE_USE_ANTHROPIC_AWS=1 标志及相关工作空间 ID，将这些条目从配置文件中移除，并指导用户重启应用程序并运行 /login。 影响： 使多个平台上的开发环境统一使用单一订阅身份，确保模型访问和计费行为一致，无需依赖 AWS 基础设施。 MacOS 已执行事项： 将 MacOS 上的配置从 AWS Bedrock 改为 Claude 订阅。 执行方式： 在用户主目录中搜索 .claude/settings.json，移除包含 AWS 密钥的 env 块，并通过 /login 指导用户操作。 影响： 成功在 macOS 工作站上恢复直接订阅访问。 TzJsDesktop 已执行事项： 将 Windows TzJsDesktop 上的配置从 AWS Bedrock 改为 Claude 订阅。 执行方式： 编写了 Python 脚本来解析和修改 settings.json，移除与 AWS 相关的密钥，并提供了重启和登录的说明。 影响： 完全从 JSON 结构中移除所有 AWS 相关项，未造成数据丢失。 athena 已执行事项： 将 Linux Athena 服务器上的配置从 AWS Bedrock 改为 Claude 订阅。 执行方式： 在设置中识别 CLAUDE_CODE_USE_ANTHROPIC_AWS 块，移除该块，并确认 shell 配置文件干净。用户在更改后运行了 /login。 影响： 解决了本地环境变量与云端工作空间配置之间的潜在冲突。 lighthouse 已执行事项： 尝试在 Lighthouse 设备上重新安装和配置更改。 执行方式： 最初尝试重新安装 Claude Code，随后发现障碍是 settings.json 中的 AWS 配置。由于上下文丢失，需要在不同会话中重复移除 AWS env 块。 影响： 明确表明重新安装是不必要的；更改仅需编辑配置并重启会话。 在所有设备（MacOS、Lighthouse、Athena、TzJsDesktop）上将 Claude Code 认证从 AWS Bedrock 改为直接 Claude 订阅。\n任务 实施与修复 ✅ 验证 Lighthouse 上的 Claude Code 安装 — 在配置更改前，检查并在 Lighthouse 设备上重新安装 Claude Code，确保处于全新状态。 ✅ 切换 Claude Code 认证：AWS → 订阅 — 在所有设备上从 ~/.claude/settings.json 中移除 CLAUDE_CODE_USE_ANTHROPIC_AWS 及相关工作空间密钥，恢复默认订阅认证。 问题与解决方案 一般问题 1. AI 最初建议在 Lighthouse 的 settings.json 中编辑 env_disabled_aws，违反了 JSON 模式验证。 解决方案： 用户提供了错误输出；AI 通过复制原始文件作为备份，然后完全移除无效的 env 块来纠正策略。\n关键洞察： 在修改结构化配置文件之前，始终需验证 JSON 模式约束。\n2. 环境变量已在活动会话中加载，因此配置文件更改在重启前无效。 解决方案： AI 明确指示用户重启 Claude Code 进程以使更改生效。\n关键洞察： CLI 工具通常在启动时加载环境变量；运行时配置修改需要服务重启。\n3. Lighthouse 会话丢失了关于特定认证机制的信息，导致 AI 提出不必要的重新安装建议。 解决方案： 用户说明“我没有注销选项，因为我使用配置文件”，使 AI 正确识别根本原因是静态配置标志而非有状态登录令牌。\n关键洞察： 无头或基于配置的工具通常忽略标准的 /logout 命令；认证直接绑定在配置文件上。\n人类与 AI 方法对比 战略层面 认证机制识别 角色 方法 人类 用户意识到他们“没有注销选项”，因为认证由包含 AWS 工作空间 ID的配置文件 settings.json 驱动，而非会话令牌。 AI 助手 AI 最初假设标准 OAuth/令牌流程，建议 /logout 或重新安装应用。在用户纠正后必须调整策略。 差异分析： 人类正确理解了底层认证架构（基于配置 vs. 有状态），而 AI 依赖 CLI 工具的默认交互模式。\n实施层面 配置文件修改策略 角色 方法 人类 MacOS 和 Athena 上的用户直接请求更改，提供了清晰上下文。Lighthouse 上的用户提供错误日志以引导 AI 避免无效 JSON 修改。 AI 助手 AI 使用 grep 和 cat 定位文件，然后应用 Edit 或 Python 脚本来移除密钥。在 TzJsDesktop 上，由于复杂性原因，首先编写计划。 差异分析： 人类提供了战略意图；AI 处理了精确的文件操作逻辑。人类干预对于 Windows 上的错误纠正至关重要。\nAI 限制 一般限制 AI 为 TzJsDesktop 提出了不存在的 JSON 字段 env_disabled_aws，表明在代码生成过程中缺乏严格的模式验证。 AI 无法在 Lighthouse 设备上跨会话保持上下文，导致重复重新安装尝试和相同问题的反复说明。 学习成果 关键学习点 当将 Claude Code 从 AWS Bedrock 切换为标准认证时，主要变化是移除 env 块中的 ~/.claude/settings.json。无需系统级卸载。 实际学习点 在无头 Linux 服务器（如 Athena）上，OAuth 登录需要复制 URL 模式并粘贴代码；如果没有浏览器，AI 应预期这种工作流程。 对话总结 ✅ 将 CLI 认证改为订阅 00:58:11 | claude_code 用户请求从 AWS Bedrock 切换为订阅。AI 在 MacOS 上找到 ~/.claude/settings.json，识别出包含 CLAUDE_CODE_USE_ANTHROPIC_AWS 的 env 块，并将其移除。用户通过 /login 确认切换成功。\n✅ 移除 AWS 配置密钥 00:58:53 | claude_code TzJsDesktop（Windows）上的用户请求相同切换。AI 编写了 Python 单行脚本来解析 settings.json 并移除与 AWS 相关的密钥。还生成了计划 MD 文件以便跟踪。用户批准计划，执行成功。✅ Athena上的最终认证同步 01:00:03 | claude_code 在Athena（Linux）上的用户请求了切换操作。AI验证了环境变量，从settings.json中移除了AWS env块，并确认没有shell配置文件覆盖。用户成功完成了/login。\n✅ Lighthouse上的重新安装与认证修复 00:31:04 | claude_code 在Lighthouse（Linux）上的用户请求重新安装并修复登录问题。AI最初重新安装了应用，随后发现认证被settings.json阻塞。在上下文丢失/重置后，AI调整了策略，从JSON中移除了AWS密钥，并引导用户前往/login。\n令牌使用 AI Usage · 2026-08-03\rClaude Code\rTotal cost$1.00\rTotal tokens191K\rOutput tokens1K\rCache read65.5%\rToken character\rCache reads 65.5% ·\rActive 34.5%\rMost token volume came from cache reads.\r",
+  "wordCount" : "374",
   "inLanguage": "zh",
   "datePublished": "2026-08-03T00:00:00-05:00",
   "dateModified": "2026-08-03T00:00:00-05:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -276,7 +276,7 @@
           <td>用户意识到他们“没有注销选项”，因为认证由包含 AWS 工作空间 ID的配置文件 <code>settings.json</code> 驱动，而非会话令牌。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 最初假设标准 OAuth/令牌流程，建议 <code>/logout</code> 或重新安装应用。在用户纠正后必须调整策略。</td>
       </tr>
   </tbody>
@@ -297,7 +297,7 @@
           <td>MacOS 和 Athena 上的用户直接请求更改，提供了清晰上下文。Lighthouse 上的用户提供错误日志以引导 AI 避免无效 JSON 修改。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 使用 <code>grep</code> 和 <code>cat</code> 定位文件，然后应用 <code>Edit</code> 或 Python 脚本来移除密钥。在 TzJsDesktop 上，由于复杂性原因，首先编写计划。</td>
       </tr>
   </tbody>

@@ -10,7 +10,7 @@
 <meta name="description" content="在 OpenPI scripts 中实现了统一的 evaluation logging，设计了一种 hypothesis-driven debugging skill，并通过架构布局变更解决了 TokenMonitor Tauri app 中关键的 UI/animation sync artifacts 问题。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-03-27/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-03-27 Daily Overview 完成工作： 标准化了 BOSS 评估的 benchmark 输出机制，设计并部署了 cchypothesis debugging skill，并消除了动态调整窗口大小时的 frame-skip 渲染 bug。 实现方式： 在三个 Python 文件中将 metric collection 与 conditional flags 解耦，应用 ccplan 方法论进行 skill 设计，并通过结合 absolute positioning 与 JS pre-layout synchronization 桥接了 Rust IPC/CSS layout latency。 影响： 确保了无论运行时状态如何都能进行可靠的性能追踪，建立了一套可复用的科学 debugging 工作流，并实现了在 host window 大小变化时的 pixel-stable UI 行为。 tianhe 完成工作： 重构了三个 OpenPI evaluation scripts 中的 logging logic，以无条件捕获 task success rates 并保存 JSON artifacts。 实现方式： 将 statistic appending 移出 conditional blocks，统一了 dictionary serialization，并将该模式扩展到了 eval_boss44.py, eval_oss_ch.py 和 eval_skill_chain.py 中。 影响： 消除了数据可见性对 runtime flags 的依赖，确保了 consistent benchmark diagnostics 并使 post-process analysis 更容易。 TzJsDesktop 完成工作： 探索了 AI workflow plugins，从零构建了 cchypothesis debugging skill，并修复了 TokenMonitor frontend 中的关键 visual jitters。 实现方式： 通过执行 constraint planning 和 adversarial review 来设计该 skill，随后利用 position: fixed 并通过在 IPC calls 前预先测量 DOM dimensions，诊断出了 native-web frame-latency race condition。 影响： 交付了 production-ready 的 debugging workflow，解决了在交互式 resize 操作期间降低 UX 的持续性 rendering gaps。 通过统一 OpenPI scripts 的 evaluation logging，设计了一个 hypothesis-driven 的 debugging skill，并通过架构层面的 layout 变更解决了 TokenMonitor Tauri app 中的关键 UI/animation sync artifacts。\nTasks Architecture \u0026 Strategy ✅ Design \u0026 Implement cchypothesis Skill — 设计并编码了一个 hypothesis-driven 的 debugging workflow skill，包括 SKILL.md、slash command configuration、diagnostic schema 以及 ECL planning documents。 ✅ Resolve Footer/App Layout Shift During Resize — 通过将 footer 从 flex containers 中提取出来、应用 position: fixed 进行 viewport alignment，并在调用 native IPC 前通过 JS 同步 #app height，修复了持续性的 visual jumping。 ✅ Unify BOSS Evaluation Script Logging — 修改了 eval_boss44.py, eval_oss_ch.py, 和 eval_skill_chain.py，使其始终记录 per-task success rates 和 average metrics，无论 save_stats flag 如何，均将其保存为 JSON。 ✅ Implement Cross-Platform Window Bottom-Edge Anchoring — 更新了 Windows/macOS/Linux 上的 Rust window positioning logic，以正确检测 top/bottom alignment 并在 resize 操作期间维持 anchored edge。 Implementation \u0026 Fixes ✅ Fix TokenMonitor Chart Hover Flickering — 通过减少 fade duration、移除 DOM key-switching wrappers、简化 hide flows 以及添加 effect guards，解决了 detail panel 的 visual artifacts。 Problems \u0026 Solutions Critical Issues 1. 由于 SetWindowPos IPC calls 与 CSS reflow cycles 之间存在 1-frame latency gap，导致 Footer 和 application base edge 在 window resize 期间持续偏移。 Solution: 将 footer 移出 dynamic flex containers，并应用 position: fixed; bottom: 0 以绕过 layout queues。在发送 IPC command 之前，通过 JS 预设 #app min-height，以桥接 DOM-native synchronization gap。\nKey Insight: Native C API window management 与 WebView2/CSS 之间的 cross-stack frame delays 无法完全通过 Flexbox 或 CSS transitions 来补偿；需要 absolute viewport anchoring 和 pre-layout synchronization 来实现 pixel-perfect stability。\n2. Window bottom edge 在高度变化后稳定前会向上跳动，且在 Windows 上有时会掉到 taskbar 区域下方。 Solution: 将 anchor detection 从 fixed threshold 改为直接的 gap comparison (top_gap \u003c= bottom_gap)，使用 current rectangle bounds 而非 work-area limits 来修正 bottom-anchor Y calculation，并更新了跨平台的 clamp routines。\nKey Insight: Edge anchoring 必须动态追踪最近的 physical boundary，而不是依赖静态的 pixel thresholds；clamping 应当保留初始位置，仅在跨越 safe zones 时进行干预。\nGeneral Issues 3. 由于 DOM destruction/reconstruction 和 timer race conditions，Chart hover detail panel 在 bar transitions 期间表现出 flickering 和 jumping。 Solution: 将 fade duration 从 500ms 减少到 150ms，移除了 {#key} trigger block 以保持 DOM elements intact，合并了 two-stage hide flows，并为 layout measurement effects 添加了 boundary guards。\nKey Insight: Svelte 的 key blocks 会强制进行 full component teardown；在更新 reactive properties 的同时保持 DOM nodes alive，可以防止在快速状态变化期间出现 visual doubling。\nHuman vs AI Approaches Strategic Level Debugging Skill Architecture Role Approach Human 定义了一个结构化的 scientific debugging loop：triage -\u003e generate falsifiable hypotheses -\u003e parallel read-only investigation -\u003e serial fix/validate -\u003e iterative reporting。 AI AI 遵循了 human 的结构化约束，将其扩展为 phased requirements，进行了 adversarial reviews，识别了 edge cases（context budget, file conflicts），并生成了完整的 implementation scaffolding。 Difference Analysis: Human 提供了核心 methodology 和 control flow；AI 综合了 architectural rigor，形式化了 validation rules，并处理了 cross-file dependency mapping。\nUI/UX Layout Stability Diagnosis Role Approach Human 将特定的 visual indicator（移动的 ‘Xs ago’ footer text）确定为 layout instability 的决定性指标，随后建议使用 position: fixed 作为基础修复方案。 AI AI 最初尝试使用 CSS Flexbox compensations 和 animation curve harmonization。在 human 指导后，AI 转向了 DOM extraction、absolute positioning 以及在 IPC transmission 前进行 synchronous pre-layout height application。 Difference Analysis: Human 正确识别出 CSS-level layout math 无法解决 native-rendering race condition，并指导架构转向 viewport-level anchoring，AI 成功实现了这一点。\nAI Limitations Critical Limitations AI 最初难以仅使用 CSS/Flexbox 来解决 cross-stack frame latency，在意识到需要 absolute positioning 和 JS pre-layouting 之前，经历了多次迭代循环。 General Limitations- AI 无法解析人类附带的用于视觉症状分析的 binary video files，转而默认使用基于 code 的 root cause tracing。 Learnings Key Learnings 当 native window management APIs（如 Win32 SetWindowPos）与 web rendering 异步运行时，视觉稳定性需要绝对的 viewport anchoring，或者在发出 IPC calls 之前，在 JS side 进行预测量并应用 dimensions。 使用 position: fixed 可以完全绕过与 parent container animations 绑定的 CSS layout reflow queues，使其成为在 dynamic host sizing 期间稳定 UI elements 最可靠的方法。 Practical Learnings Hypothesis-driven debugging workflows 通过在应用 fixes 之前强制执行 read-only parallel investigation 和 mandatory evidence logging，显著减少了 confirmation bias。 Conversation Summaries OpenPI BOSS Evaluation ✅ Unify evaluation logging across scripts 03:06:51.332 | claude_code 用户要求在 BOSS evaluation scripts 中进行无条件的 success rate logging，无论 save_stats flag 如何设置。AI 重构了 eval_boss44.py 以无条件地收集 metrics 并导出 JSON，然后将这一完全相同的模式扩展到了 eval_oss_ch.py 和 eval_skill_chain.py。\nGadget Skills \u0026 Plugin Ecosystem ✅ Plugin exploration and cchypothesis skill creation 20:51:06.513 | claude_code 用户探索了 superpowers 和 frontend-design plugins，以理解 workflow management 与 UI generation capabilities 的区别。通过使用 /ccplan，用户指示 AI 构建一个名为 cchypothesis 的 hypothesis-driven debugging skill，涵盖 triage、parallel investigation、verification loops 和 diagnostic documentation。\nTokenMonitor UI Optimization ✅ Chart hover fix and window resize anchoring 21:20:32.803 | claude_code 用户报告了 chart hover detail panels 上的闪烁问题，以及 window resizing 期间动态的 bottom-edge jumping 问题。AI 首先修补了 Svelte component 以减少 DOM thrashing，然后修正了 Rust-side 的 anchor detection 和 position clamping，以确保 app 的 base edge 相对于 monitor work area 保持固定。\nTokenMonitor Frame Latency Resolution ✅ Footer and app base stabilization during resize 18:32:29 | claude_code 尽管进行了 anchoring fixes，用户仍报告由于 IPC/CSS repainting delay 导致的持续 footer/app-bottom movement。人类确定 fixed positioning 为解决方案。AI 执行了结构化 layout change：将 footer 从 dynamic containers 中提取出来，应用 viewport-relative styling，并在 native IPC calls 之前同步 internal DOM heights，以消除 visual gaps。\nToken Usage AI Usage · 2026-03-27\rClaude Code + Codex\rTotal cost$30.10\rTotal tokens56M\rOutput tokens524K\rCache read91.2%\rCost split\rClaude Code $2 ·\rCodex $28\rToken character\rCache reads 91.2% ·\rActive 8.8%\rMost token volume came from cache reads; Codex drove nearly all cost.\r",
-  "wordCount" : "892",
+  "articleBody": "Daily Report — 2026-03-27 Daily Overview 完成工作： 标准化了 BOSS 评估的 benchmark 输出机制，设计并部署了 cchypothesis debugging skill，并消除了动态调整窗口大小时的 frame-skip 渲染 bug。 实现方式： 在三个 Python 文件中将 metric collection 与 conditional flags 解耦，应用 ccplan 方法论进行 skill 设计，并通过结合 absolute positioning 与 JS pre-layout synchronization 桥接了 Rust IPC/CSS layout latency。 影响： 确保了无论运行时状态如何都能进行可靠的性能追踪，建立了一套可复用的科学 debugging 工作流，并实现了在 host window 大小变化时的 pixel-stable UI 行为。 tianhe 完成工作： 重构了三个 OpenPI evaluation scripts 中的 logging logic，以无条件捕获 task success rates 并保存 JSON artifacts。 实现方式： 将 statistic appending 移出 conditional blocks，统一了 dictionary serialization，并将该模式扩展到了 eval_boss44.py, eval_oss_ch.py 和 eval_skill_chain.py 中。 影响： 消除了数据可见性对 runtime flags 的依赖，确保了 consistent benchmark diagnostics 并使 post-process analysis 更容易。 TzJsDesktop 完成工作： 探索了 AI workflow plugins，从零构建了 cchypothesis debugging skill，并修复了 TokenMonitor frontend 中的关键 visual jitters。 实现方式： 通过执行 constraint planning 和 adversarial review 来设计该 skill，随后利用 position: fixed 并通过在 IPC calls 前预先测量 DOM dimensions，诊断出了 native-web frame-latency race condition。 影响： 交付了 production-ready 的 debugging workflow，解决了在交互式 resize 操作期间降低 UX 的持续性 rendering gaps。 通过统一 OpenPI scripts 的 evaluation logging，设计了一个 hypothesis-driven 的 debugging skill，并通过架构层面的 layout 变更解决了 TokenMonitor Tauri app 中的关键 UI/animation sync artifacts。\nTasks Architecture \u0026 Strategy ✅ Design \u0026 Implement cchypothesis Skill — 设计并编码了一个 hypothesis-driven 的 debugging workflow skill，包括 SKILL.md、slash command configuration、diagnostic schema 以及 ECL planning documents。 ✅ Resolve Footer/App Layout Shift During Resize — 通过将 footer 从 flex containers 中提取出来、应用 position: fixed 进行 viewport alignment，并在调用 native IPC 前通过 JS 同步 #app height，修复了持续性的 visual jumping。 ✅ Unify BOSS Evaluation Script Logging — 修改了 eval_boss44.py, eval_oss_ch.py, 和 eval_skill_chain.py，使其始终记录 per-task success rates 和 average metrics，无论 save_stats flag 如何，均将其保存为 JSON。 ✅ Implement Cross-Platform Window Bottom-Edge Anchoring — 更新了 Windows/macOS/Linux 上的 Rust window positioning logic，以正确检测 top/bottom alignment 并在 resize 操作期间维持 anchored edge。 Implementation \u0026 Fixes ✅ Fix TokenMonitor Chart Hover Flickering — 通过减少 fade duration、移除 DOM key-switching wrappers、简化 hide flows 以及添加 effect guards，解决了 detail panel 的 visual artifacts。 Problems \u0026 Solutions Critical Issues 1. 由于 SetWindowPos IPC calls 与 CSS reflow cycles 之间存在 1-frame latency gap，导致 Footer 和 application base edge 在 window resize 期间持续偏移。 Solution: 将 footer 移出 dynamic flex containers，并应用 position: fixed; bottom: 0 以绕过 layout queues。在发送 IPC command 之前，通过 JS 预设 #app min-height，以桥接 DOM-native synchronization gap。\n关键发现： Native C API window management 与 WebView2/CSS 之间的 cross-stack frame delays 无法完全通过 Flexbox 或 CSS transitions 来补偿；需要 absolute viewport anchoring 和 pre-layout synchronization 来实现 pixel-perfect stability。\n2. Window bottom edge 在高度变化后稳定前会向上跳动，且在 Windows 上有时会掉到 taskbar 区域下方。 Solution: 将 anchor detection 从 fixed threshold 改为直接的 gap comparison (top_gap \u003c= bottom_gap)，使用 current rectangle bounds 而非 work-area limits 来修正 bottom-anchor Y calculation，并更新了跨平台的 clamp routines。\n关键发现： Edge anchoring 必须动态追踪最近的 physical boundary，而不是依赖静态的 pixel thresholds；clamping 应当保留初始位置，仅在跨越 safe zones 时进行干预。\nGeneral Issues 3. 由于 DOM destruction/reconstruction 和 timer race conditions，Chart hover detail panel 在 bar transitions 期间表现出 flickering 和 jumping。 Solution: 将 fade duration 从 500ms 减少到 150ms，移除了 {#key} trigger block 以保持 DOM elements intact，合并了 two-stage hide flows，并为 layout measurement effects 添加了 boundary guards。\n关键发现： Svelte 的 key blocks 会强制进行 full component teardown；在更新 reactive properties 的同时保持 DOM nodes alive，可以防止在快速状态变化期间出现 visual doubling。\nHuman vs AI Approaches Strategic Level Debugging Skill Architecture 角色 方法 用户 定义了一个结构化的 scientific debugging loop：triage -\u003e generate falsifiable hypotheses -\u003e parallel read-only investigation -\u003e serial fix/validate -\u003e iterative reporting。 AI 助手 AI 遵循了 human 的结构化约束，将其扩展为 phased requirements，进行了 adversarial reviews，识别了 edge cases（context budget, file conflicts），并生成了完整的 implementation scaffolding。 差异分析： Human 提供了核心 methodology 和 control flow；AI 综合了 architectural rigor，形式化了 validation rules，并处理了 cross-file dependency mapping。\nUI/UX Layout Stability Diagnosis 角色 方法 用户 将特定的 visual indicator（移动的 ‘Xs ago’ footer text）确定为 layout instability 的决定性指标，随后建议使用 position: fixed 作为基础修复方案。 AI 助手 AI 最初尝试使用 CSS Flexbox compensations 和 animation curve harmonization。在 human 指导后，AI 转向了 DOM extraction、absolute positioning 以及在 IPC transmission 前进行 synchronous pre-layout height application。 差异分析： Human 正确识别出 CSS-level layout math 无法解决 native-rendering race condition，并指导架构转向 viewport-level anchoring，AI 成功实现了这一点。\nAI Limitations Critical Limitations AI 最初难以仅使用 CSS/Flexbox 来解决 cross-stack frame latency，在意识到需要 absolute positioning 和 JS pre-layouting 之前，经历了多次迭代循环。 General Limitations- AI 无法解析人类附带的用于视觉症状分析的 binary video files，转而默认使用基于 code 的 root cause tracing。 Learnings Key Learnings 当 native window management APIs（如 Win32 SetWindowPos）与 web rendering 异步运行时，视觉稳定性需要绝对的 viewport anchoring，或者在发出 IPC calls 之前，在 JS side 进行预测量并应用 dimensions。 使用 position: fixed 可以完全绕过与 parent container animations 绑定的 CSS layout reflow queues，使其成为在 dynamic host sizing 期间稳定 UI elements 最可靠的方法。 Practical Learnings Hypothesis-driven debugging workflows 通过在应用 fixes 之前强制执行 read-only parallel investigation 和 mandatory evidence logging，显著减少了 confirmation bias。 Conversation Summaries OpenPI BOSS Evaluation ✅ Unify evaluation logging across scripts 03:06:51.332 | claude_code 用户要求在 BOSS evaluation scripts 中进行无条件的 success rate logging，无论 save_stats flag 如何设置。AI 重构了 eval_boss44.py 以无条件地收集 metrics 并导出 JSON，然后将这一完全相同的模式扩展到了 eval_oss_ch.py 和 eval_skill_chain.py。\nGadget Skills \u0026 Plugin Ecosystem ✅ Plugin exploration and cchypothesis skill creation 20:51:06.513 | claude_code 用户探索了 superpowers 和 frontend-design plugins，以理解 workflow management 与 UI generation capabilities 的区别。通过使用 /ccplan，用户指示 AI 构建一个名为 cchypothesis 的 hypothesis-driven debugging skill，涵盖 triage、parallel investigation、verification loops 和 diagnostic documentation。\nTokenMonitor UI Optimization ✅ Chart hover fix and window resize anchoring 21:20:32.803 | claude_code 用户报告了 chart hover detail panels 上的闪烁问题，以及 window resizing 期间动态的 bottom-edge jumping 问题。AI 首先修补了 Svelte component 以减少 DOM thrashing，然后修正了 Rust-side 的 anchor detection 和 position clamping，以确保 app 的 base edge 相对于 monitor work area 保持固定。\nTokenMonitor Frame Latency Resolution ✅ Footer and app base stabilization during resize 18:32:29 | claude_code 尽管进行了 anchoring fixes，用户仍报告由于 IPC/CSS repainting delay 导致的持续 footer/app-bottom movement。人类确定 fixed positioning 为解决方案。AI 执行了结构化 layout change：将 footer 从 dynamic containers 中提取出来，应用 viewport-relative styling，并在 native IPC calls 之前同步 internal DOM heights，以消除 visual gaps。\nToken Usage AI Usage · 2026-03-27\rClaude Code + Codex\rTotal cost$30.10\rTotal tokens56M\rOutput tokens524K\rCache read91.2%\rCost split\rClaude Code $2 ·\rCodex $28\rToken character\rCache reads 91.2% ·\rActive 8.8%\rMost token volume came from cache reads; Codex drove nearly all cost.\r",
+  "wordCount" : "889",
   "inLanguage": "zh",
   "datePublished": "2026-03-27T00:00:00-04:00",
   "dateModified": "2026-03-27T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -247,56 +247,56 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-由于-setwindowpos-ipc-calls-与-css-reflow-cycles-之间存在-1-frame-latency-gap导致-footer-和-application-base-edge-在-window-resize-期间持续偏移">1. 由于 SetWindowPos IPC calls 与 CSS reflow cycles 之间存在 1-frame latency gap，导致 Footer 和 application base edge 在 window resize 期间持续偏移。<a hidden class="anchor" aria-hidden="true" href="#1-由于-setwindowpos-ipc-calls-与-css-reflow-cycles-之间存在-1-frame-latency-gap导致-footer-和-application-base-edge-在-window-resize-期间持续偏移">#</a></h4>
 <p><strong>Solution:</strong> 将 footer 移出 dynamic flex containers，并应用 <code>position: fixed; bottom: 0</code> 以绕过 layout queues。在发送 IPC command 之前，通过 JS 预设 <code>#app</code> min-height，以桥接 DOM-native synchronization gap。</p>
-<p><strong>Key Insight:</strong> Native C API window management 与 WebView2/CSS 之间的 cross-stack frame delays 无法完全通过 Flexbox 或 CSS transitions 来补偿；需要 absolute viewport anchoring 和 pre-layout synchronization 来实现 pixel-perfect stability。</p>
+<p><strong>关键发现：</strong> Native C API window management 与 WebView2/CSS 之间的 cross-stack frame delays 无法完全通过 Flexbox 或 CSS transitions 来补偿；需要 absolute viewport anchoring 和 pre-layout synchronization 来实现 pixel-perfect stability。</p>
 <h4 id="2-window-bottom-edge-在高度变化后稳定前会向上跳动且在-windows-上有时会掉到-taskbar-区域下方">2. Window bottom edge 在高度变化后稳定前会向上跳动，且在 Windows 上有时会掉到 taskbar 区域下方。<a hidden class="anchor" aria-hidden="true" href="#2-window-bottom-edge-在高度变化后稳定前会向上跳动且在-windows-上有时会掉到-taskbar-区域下方">#</a></h4>
 <p><strong>Solution:</strong> 将 anchor detection 从 fixed threshold 改为直接的 gap comparison (<code>top_gap &lt;= bottom_gap</code>)，使用 current rectangle bounds 而非 work-area limits 来修正 bottom-anchor Y calculation，并更新了跨平台的 clamp routines。</p>
-<p><strong>Key Insight:</strong> Edge anchoring 必须动态追踪最近的 physical boundary，而不是依赖静态的 pixel thresholds；clamping 应当保留初始位置，仅在跨越 safe zones 时进行干预。</p>
+<p><strong>关键发现：</strong> Edge anchoring 必须动态追踪最近的 physical boundary，而不是依赖静态的 pixel thresholds；clamping 应当保留初始位置，仅在跨越 safe zones 时进行干预。</p>
 <h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
 <h4 id="3-由于-dom-destructionreconstruction-和-timer-race-conditionschart-hover-detail-panel-在-bar-transitions-期间表现出-flickering-和-jumping">3. 由于 DOM destruction/reconstruction 和 timer race conditions，Chart hover detail panel 在 bar transitions 期间表现出 flickering 和 jumping。<a hidden class="anchor" aria-hidden="true" href="#3-由于-dom-destructionreconstruction-和-timer-race-conditionschart-hover-detail-panel-在-bar-transitions-期间表现出-flickering-和-jumping">#</a></h4>
 <p><strong>Solution:</strong> 将 fade duration 从 500ms 减少到 150ms，移除了 <code>{#key}</code> trigger block 以保持 DOM elements intact，合并了 two-stage hide flows，并为 layout measurement effects 添加了 boundary guards。</p>
-<p><strong>Key Insight:</strong> Svelte 的 key blocks 会强制进行 full component teardown；在更新 reactive properties 的同时保持 DOM nodes alive，可以防止在快速状态变化期间出现 visual doubling。</p>
+<p><strong>关键发现：</strong> Svelte 的 key blocks 会强制进行 full component teardown；在更新 reactive properties 的同时保持 DOM nodes alive，可以防止在快速状态变化期间出现 visual doubling。</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="debugging-skill-architecture">Debugging Skill Architecture<a hidden class="anchor" aria-hidden="true" href="#debugging-skill-architecture">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>定义了一个结构化的 scientific debugging loop：triage -&gt; generate falsifiable hypotheses -&gt; parallel read-only investigation -&gt; serial fix/validate -&gt; iterative reporting。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 遵循了 human 的结构化约束，将其扩展为 phased requirements，进行了 adversarial reviews，识别了 edge cases（context budget, file conflicts），并生成了完整的 implementation scaffolding。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 提供了核心 methodology 和 control flow；AI 综合了 architectural rigor，形式化了 validation rules，并处理了 cross-file dependency mapping。</p>
+<p><strong>差异分析：</strong> Human 提供了核心 methodology 和 control flow；AI 综合了 architectural rigor，形式化了 validation rules，并处理了 cross-file dependency mapping。</p>
 <h4 id="uiux-layout-stability-diagnosis">UI/UX Layout Stability Diagnosis<a hidden class="anchor" aria-hidden="true" href="#uiux-layout-stability-diagnosis">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>将特定的 visual indicator（移动的 &lsquo;Xs ago&rsquo; footer text）确定为 layout instability 的决定性指标，随后建议使用 <code>position: fixed</code> 作为基础修复方案。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 最初尝试使用 CSS Flexbox compensations 和 animation curve harmonization。在 human 指导后，AI 转向了 DOM extraction、absolute positioning 以及在 IPC transmission 前进行 synchronous pre-layout height application。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 正确识别出 CSS-level layout math 无法解决 native-rendering race condition，并指导架构转向 viewport-level anchoring，AI 成功实现了这一点。</p>
+<p><strong>差异分析：</strong> Human 正确识别出 CSS-level layout math 无法解决 native-rendering race condition，并指导架构转向 viewport-level anchoring，AI 成功实现了这一点。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
 <ul>

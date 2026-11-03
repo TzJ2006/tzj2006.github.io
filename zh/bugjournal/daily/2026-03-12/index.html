@@ -10,7 +10,7 @@
 <meta name="description" content="解决了 macOS 文件权限 entitlements 以支持 media playback，优化了 GPU monitoring terminal interface，并诊断了 deep learning dependency chains 以恢复 policy evaluation execution。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-03-12/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-03-12 Daily Overview 完成工作： 解决了 desktop wallpaper app 中关键的文件访问失败问题，优化了 containerized GPU monitoring tool 的显示逻辑，并调试了 robotic policy evaluation 过程中级联的 framework 冲突。 实现方式： 通过使用 security-scoped bookmark fallback 激活 sandbox entitlements，针对 terminal 限制重构了 process deduplication 算法，并通过迭代环境映射和 JIT rebuilds 对齐了 CUDA/PyTorch ABIs。 影响： 确保了 macOS media retrieval 的长期权限稳定性，提高了 containerized workloads 的 CLI monitoring 精度，并通过系统的 dependency resolution 疏通了 deep learning evaluation pipelines。 MacBook 完成工作： 针对由 macOS TCC 拒绝和缺失 sandbox 配置导致的 historical video playback 失败，实现了一套全面的解决方案。 实现方式： 启用了 application sandboxing，引入了 non-scoped bookmark fallback 逻辑，实现了 automatic NSOpenPanel re-authorization triggers，并相应地同步了 localization files。 影响： 在严格遵守现代 Apple security standards 以防止未来权限回退的同时，恢复了对 archived media entries 的可靠访问。 tianhe 完成工作： 调试了基于 terminal 的 GPU monitoring script 的布局限制，并解决了 policy inference 中复杂的 deep learning framework dependency mismatches 问题。 实现方式： 重新定义了 process deduplication 以遵循 per-GPU context limits，升级 torchvision 以匹配现有的 PyTorch release，注入 custom CUDA headers 用于 native extension builds，并验证了 cross-package imports。 影响： 通过消除关键的 cross-version ABI breaks，提供了更整洁的 terminal monitoring interface 并恢复了核心算法执行能力。 解决了 media playback 的 macOS file permission entitlements 问题，优化了 GPU monitoring terminal interface，并诊断了 deep learning dependency chains 以恢复 policy evaluation 执行。\nTasks Architecture \u0026 Strategy ✅ Fix Desktop Video Wallpaper history playback failure — 通过激活 app sandbox、添加 non-scoped bookmark fallback 并实现 automatic NSOpenPanel re-authorization logic，解决了打开 historical media files 时持续出现的 ‘Operation not permitted’ 错误。 ✅ Resolve PyTorch/torchvision ABI mismatch for PI05 — 通过将 torchvision 升级到 0.22.1+cu126 以匹配已安装的 torch 2.7.1 framework，诊断并修复了 ’torchvision::nms does not exist’ runtime error。 ✅ Fix Curobo JIT compilation and CUDA header mapping — 通过定位 pip-installed CUDA runtime headers、配置 environment paths 并使用 ninja 成功 rebuild curobo package，解决了 native extension build failures。 🔄 Investigate missing model checkpoint directory — 发现执行 eval.sh 时因指定路径下缺失 checkpoint assets 而导致 FileNotFoundError；正在等待对正确 model version mapping 的验证。 Implementation \u0026 Fixes ✅ Optimize GPU Monitor process display and width — 优化了 gpumon.py 的 terminal output，使其严格适配 80 columns，按 per-GPU context 进行 process deduplication，并过滤了 background worker noise 以实现更清晰的 workload tracking。 Problems \u0026 Solutions Critical Issues 1. History media entries fail to open with ‘Operation not permitted’ due to missing sandbox entitlements and TCC permission expiration for long-term access. Solution: 在 entitlements 中启用了 com.apple.security.app-sandbox，更新 ensureFileAccess 以 fallback 到 non-scoped bookmark parsing，并添加了 automatic NSOpenPanel prompts 以在被拒绝时重新授予权限。\nKey Insight: 在没有 active sandbox 的情况下，security-scoped bookmarks 会静默创建失败；需要一种结合显式 sandbox activation 与交互式 re-authorization 的 hybrid approach 来实现可靠的长期文件访问。\n2. Runtime crash during evaluation due to torchvision::nms operator registration failure caused by PyTorch version drift. Solution: 验证了 environment versions，通过 official PyTorch index 将 torchvision 从 0.21.0 升级到 0.22.1+cu126，确认了 native operator 的可用性，并重新运行了 evaluation pipeline。\nKey Insight: PyTorch ecosystem 中的 minor version mismatches 会在 module initialization 期间触发硬性的 C-ABI breaks；为了稳定的 inference training loops，精确的 release pairing 是强制性的。\n3. Curobo JIT compilation fails with missing cuda_runtime.h and undefined symbols due to non-standard conda/pip CUDA path isolation. Solution: 在 pip-installed nvidia packages 中定位了 CUDA headers，显式配置了 CPATH 和 CUDA_HOME environment variables，移除了过时的 .so files，并通过 pip editable install 重建了 extension。\nKey Insight: 混合使用 conda 和 pip environments 会掩盖标准的 toolkit paths；native extensions 需要显式的 include directory mapping，而不是依赖默认的 system symlinks 或 build isolation。\nHuman vs AI Approaches Strategic Level macOS Sandbox and fallback strategy for history playback Role Approach Human 得出结论：必须采用结合 sandbox activation 与交互式 NSOpenPanel re-authorization 的 hybrid architecture，以同时满足 Apple 的 security requirements 和实际的用户流预期。 AI 最初倾向于纯程序化的 permission handling 或隔离的代码修复，低估了在应用重启后维持长期访问所需的显式 UI triggers 的必要性。 Difference Analysis: Human 正确地优先考虑了端到端的 UX/security balance，引导 AI 实现并发的 sandbox configuration 与 manual fallback mechanisms，而不是依赖静默的 auto-recovery。\nImplementation Level GPU process deduplication scope in terminal output Role Approach Human 指定必须在 per-GPU context 内严格执行 uniqueness，以避免错误地合并分配给不同 accelerators 的并发 workloads。 AI 最初在所有可见的 GPUs 上实现了 global process deduplication，这导致不同的 containerized workload assignments 被合并成了单一条目。 Difference Analysis: Human 为分布式计算追踪提供了精确的 domain-specific constraints，纠正了 AI 过度宽泛的 aggregation logic，从而避免了监控准确性的下降。\nAI Limitations Critical Limitations 未能预见到 parallel Agent tool calls 中缺失的 required parameters，并且在没有进行迭代式 filesystem discovery 的情况下，错误地假设远程 Linux 机器上存在标准的 system CUDA paths。 General Limitations- 在快速进行 Swift 重构期间引入了变量命名不一致（image vs finalImage），在人工指导精确的读取/编辑协调之前，暂时破坏了作用域解析。 Learnings Key Learnings macOS TCC 合规性从根本上要求 entitlement 对齐；绕过 sandbox 会破坏 security-scoped bookmark 持久性，并需要显式的 fallback 或手动重新授权路径。 在隔离的虚拟环境中构建 Deep learning native extension 需要显式的 CUDA header 路径注入，而不是依赖默认的系统 symlinks 或隐式的 build backend 检测。 Conversation Summaries Desktop Video Wallpaper ✅ Fix history media playback failures 07:19:11.220 | claude_code 本次会话调查了一个关键 bug，即由于 macOS TCC 权限拒绝和缺失 sandbox 配置，导致历史视频条目无法播放。人工提供了一个详细的四步计划，结合了 sandbox 激活、bookmark fallback 逻辑以及 NSOpenPanel 重新授权触发机制。AI 在 entitlements、Swift access resolvers 和 localization 文件中执行了该计划，成功编译了修复程序并更新了 changelog。\nGPU Monitor Tool ✅ Refine GPU monitoring CLI display 15:48:28.705 | claude_code 人工要求修复 gpumon.py 脚本超出终端宽度限制以及在多个 GPU 上重复进程条目的问题。AI 重新设计了输出格式以强制执行 80 列限制，实现了每 GPU 的去重逻辑，并添加了过滤规则以抑制后台 worker 噪声。测试确认修改后的输出符合标准终端边界，并能准确隔离工作负载分配。\nRoboTwin PI05 Policy Eval 🔄 Debug evaluation dependency chains 02:23:18.758 | claude_code 本次会话诊断了机器人 policy 执行过程中的级联故障，该故障始于 torchvision 版本不匹配导致的 PyTorch ABI break。人工指导 AI 升级依赖项，使用自定义 CUDA header 路径重新构建 Curobo JIT extensions，并重新测试 pipeline。AI 成功修复了依赖链，但遇到了新的缺失 checkpoint directory 错误，导致环境就绪状态处于部分解决状态，需等待 asset 验证。\nToken Usage AI Usage · 2026-03-12\rClaude Code\rTotal cost$0.49\rTotal tokens2M\rOutput tokens11K\rCache read91.0%\rToken character\rCache reads 91.0% ·\rActive 9.0%\rMost token volume came from cache reads.\r",
-  "wordCount" : "742",
+  "articleBody": "Daily Report — 2026-03-12 Daily Overview 完成工作： 解决了 desktop wallpaper app 中关键的文件访问失败问题，优化了 containerized GPU monitoring tool 的显示逻辑，并调试了 robotic policy evaluation 过程中级联的 framework 冲突。 实现方式： 通过使用 security-scoped bookmark fallback 激活 sandbox entitlements，针对 terminal 限制重构了 process deduplication 算法，并通过迭代环境映射和 JIT rebuilds 对齐了 CUDA/PyTorch ABIs。 影响： 确保了 macOS media retrieval 的长期权限稳定性，提高了 containerized workloads 的 CLI monitoring 精度，并通过系统的 dependency resolution 疏通了 deep learning evaluation pipelines。 MacBook 完成工作： 针对由 macOS TCC 拒绝和缺失 sandbox 配置导致的 historical video playback 失败，实现了一套全面的解决方案。 实现方式： 启用了 application sandboxing，引入了 non-scoped bookmark fallback 逻辑，实现了 automatic NSOpenPanel re-authorization triggers，并相应地同步了 localization files。 影响： 在严格遵守现代 Apple security standards 以防止未来权限回退的同时，恢复了对 archived media entries 的可靠访问。 tianhe 完成工作： 调试了基于 terminal 的 GPU monitoring script 的布局限制，并解决了 policy inference 中复杂的 deep learning framework dependency mismatches 问题。 实现方式： 重新定义了 process deduplication 以遵循 per-GPU context limits，升级 torchvision 以匹配现有的 PyTorch release，注入 custom CUDA headers 用于 native extension builds，并验证了 cross-package imports。 影响： 通过消除关键的 cross-version ABI breaks，提供了更整洁的 terminal monitoring interface 并恢复了核心算法执行能力。 解决了 media playback 的 macOS file permission entitlements 问题，优化了 GPU monitoring terminal interface，并诊断了 deep learning dependency chains 以恢复 policy evaluation 执行。\nTasks Architecture \u0026 Strategy ✅ Fix Desktop Video Wallpaper history playback failure — 通过激活 app sandbox、添加 non-scoped bookmark fallback 并实现 automatic NSOpenPanel re-authorization logic，解决了打开 historical media files 时持续出现的 ‘Operation not permitted’ 错误。 ✅ Resolve PyTorch/torchvision ABI mismatch for PI05 — 通过将 torchvision 升级到 0.22.1+cu126 以匹配已安装的 torch 2.7.1 framework，诊断并修复了 ’torchvision::nms does not exist’ runtime error。 ✅ Fix Curobo JIT compilation and CUDA header mapping — 通过定位 pip-installed CUDA runtime headers、配置 environment paths 并使用 ninja 成功 rebuild curobo package，解决了 native extension build failures。 🔄 Investigate missing model checkpoint directory — 发现执行 eval.sh 时因指定路径下缺失 checkpoint assets 而导致 FileNotFoundError；正在等待对正确 model version mapping 的验证。 Implementation \u0026 Fixes ✅ Optimize GPU Monitor process display and width — 优化了 gpumon.py 的 terminal output，使其严格适配 80 columns，按 per-GPU context 进行 process deduplication，并过滤了 background worker noise 以实现更清晰的 workload tracking。 Problems \u0026 Solutions Critical Issues 1. History media entries fail to open with ‘Operation not permitted’ due to missing sandbox entitlements and TCC permission expiration for long-term access. Solution: 在 entitlements 中启用了 com.apple.security.app-sandbox，更新 ensureFileAccess 以 fallback 到 non-scoped bookmark parsing，并添加了 automatic NSOpenPanel prompts 以在被拒绝时重新授予权限。\n关键发现： 在没有 active sandbox 的情况下，security-scoped bookmarks 会静默创建失败；需要一种结合显式 sandbox activation 与交互式 re-authorization 的 hybrid approach 来实现可靠的长期文件访问。\n2. Runtime crash during evaluation due to torchvision::nms operator registration failure caused by PyTorch version drift. Solution: 验证了 environment versions，通过 official PyTorch index 将 torchvision 从 0.21.0 升级到 0.22.1+cu126，确认了 native operator 的可用性，并重新运行了 evaluation pipeline。\n关键发现： PyTorch ecosystem 中的 minor version mismatches 会在 module initialization 期间触发硬性的 C-ABI breaks；为了稳定的 inference training loops，精确的 release pairing 是强制性的。\n3. Curobo JIT compilation fails with missing cuda_runtime.h and undefined symbols due to non-standard conda/pip CUDA path isolation. Solution: 在 pip-installed nvidia packages 中定位了 CUDA headers，显式配置了 CPATH 和 CUDA_HOME environment variables，移除了过时的 .so files，并通过 pip editable install 重建了 extension。\n关键发现： 混合使用 conda 和 pip environments 会掩盖标准的 toolkit paths；native extensions 需要显式的 include directory mapping，而不是依赖默认的 system symlinks 或 build isolation。\nHuman vs AI Approaches Strategic Level macOS Sandbox and fallback strategy for history playback 角色 方法 用户 得出结论：必须采用结合 sandbox activation 与交互式 NSOpenPanel re-authorization 的 hybrid architecture，以同时满足 Apple 的 security requirements 和实际的用户流预期。 AI 助手 最初倾向于纯程序化的 permission handling 或隔离的代码修复，低估了在应用重启后维持长期访问所需的显式 UI triggers 的必要性。 差异分析： Human 正确地优先考虑了端到端的 UX/security balance，引导 AI 实现并发的 sandbox configuration 与 manual fallback mechanisms，而不是依赖静默的 auto-recovery。\nImplementation Level GPU process deduplication scope in terminal output 角色 方法 用户 指定必须在 per-GPU context 内严格执行 uniqueness，以避免错误地合并分配给不同 accelerators 的并发 workloads。 AI 助手 最初在所有可见的 GPUs 上实现了 global process deduplication，这导致不同的 containerized workload assignments 被合并成了单一条目。 差异分析： Human 为分布式计算追踪提供了精确的 domain-specific constraints，纠正了 AI 过度宽泛的 aggregation logic，从而避免了监控准确性的下降。\nAI Limitations Critical Limitations 未能预见到 parallel Agent tool calls 中缺失的 required parameters，并且在没有进行迭代式 filesystem discovery 的情况下，错误地假设远程 Linux 机器上存在标准的 system CUDA paths。 General Limitations- 在快速进行 Swift 重构期间引入了变量命名不一致（image vs finalImage），在人工指导精确的读取/编辑协调之前，暂时破坏了作用域解析。 Learnings Key Learnings macOS TCC 合规性从根本上要求 entitlement 对齐；绕过 sandbox 会破坏 security-scoped bookmark 持久性，并需要显式的 fallback 或手动重新授权路径。 在隔离的虚拟环境中构建 Deep learning native extension 需要显式的 CUDA header 路径注入，而不是依赖默认的系统 symlinks 或隐式的 build backend 检测。 Conversation Summaries Desktop Video Wallpaper ✅ Fix history media playback failures 07:19:11.220 | claude_code 本次会话调查了一个关键 bug，即由于 macOS TCC 权限拒绝和缺失 sandbox 配置，导致历史视频条目无法播放。人工提供了一个详细的四步计划，结合了 sandbox 激活、bookmark fallback 逻辑以及 NSOpenPanel 重新授权触发机制。AI 在 entitlements、Swift access resolvers 和 localization 文件中执行了该计划，成功编译了修复程序并更新了 changelog。\nGPU Monitor Tool ✅ Refine GPU monitoring CLI display 15:48:28.705 | claude_code 人工要求修复 gpumon.py 脚本超出终端宽度限制以及在多个 GPU 上重复进程条目的问题。AI 重新设计了输出格式以强制执行 80 列限制，实现了每 GPU 的去重逻辑，并添加了过滤规则以抑制后台 worker 噪声。测试确认修改后的输出符合标准终端边界，并能准确隔离工作负载分配。\nRoboTwin PI05 Policy Eval 🔄 Debug evaluation dependency chains 02:23:18.758 | claude_code 本次会话诊断了机器人 policy 执行过程中的级联故障，该故障始于 torchvision 版本不匹配导致的 PyTorch ABI break。人工指导 AI 升级依赖项，使用自定义 CUDA header 路径重新构建 Curobo JIT extensions，并重新测试 pipeline。AI 成功修复了依赖链，但遇到了新的缺失 checkpoint directory 错误，导致环境就绪状态处于部分解决状态，需等待 asset 验证。\nToken Usage AI Usage · 2026-03-12\rClaude Code\rTotal cost$0.49\rTotal tokens2M\rOutput tokens11K\rCache read91.0%\rToken character\rCache reads 91.0% ·\rActive 9.0%\rMost token volume came from cache reads.\r",
+  "wordCount" : "739",
   "inLanguage": "zh",
   "datePublished": "2026-03-12T00:00:00-04:00",
   "dateModified": "2026-03-12T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -247,56 +247,56 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-history-media-entries-fail-to-open-with-operation-not-permitted-due-to-missing-sandbox-entitlements-and-tcc-permission-expiration-for-long-term-access">1. History media entries fail to open with &lsquo;Operation not permitted&rsquo; due to missing sandbox entitlements and TCC permission expiration for long-term access.<a hidden class="anchor" aria-hidden="true" href="#1-history-media-entries-fail-to-open-with-operation-not-permitted-due-to-missing-sandbox-entitlements-and-tcc-permission-expiration-for-long-term-access">#</a></h4>
 <p><strong>Solution:</strong> 在 entitlements 中启用了 com.apple.security.app-sandbox，更新 ensureFileAccess 以 fallback 到 non-scoped bookmark parsing，并添加了 automatic NSOpenPanel prompts 以在被拒绝时重新授予权限。</p>
-<p><strong>Key Insight:</strong> 在没有 active sandbox 的情况下，security-scoped bookmarks 会静默创建失败；需要一种结合显式 sandbox activation 与交互式 re-authorization 的 hybrid approach 来实现可靠的长期文件访问。</p>
+<p><strong>关键发现：</strong> 在没有 active sandbox 的情况下，security-scoped bookmarks 会静默创建失败；需要一种结合显式 sandbox activation 与交互式 re-authorization 的 hybrid approach 来实现可靠的长期文件访问。</p>
 <h4 id="2-runtime-crash-during-evaluation-due-to-torchvisionnms-operator-registration-failure-caused-by-pytorch-version-drift">2. Runtime crash during evaluation due to torchvision::nms operator registration failure caused by PyTorch version drift.<a hidden class="anchor" aria-hidden="true" href="#2-runtime-crash-during-evaluation-due-to-torchvisionnms-operator-registration-failure-caused-by-pytorch-version-drift">#</a></h4>
 <p><strong>Solution:</strong> 验证了 environment versions，通过 official PyTorch index 将 torchvision 从 0.21.0 升级到 0.22.1+cu126，确认了 native operator 的可用性，并重新运行了 evaluation pipeline。</p>
-<p><strong>Key Insight:</strong> PyTorch ecosystem 中的 minor version mismatches 会在 module initialization 期间触发硬性的 C-ABI breaks；为了稳定的 inference training loops，精确的 release pairing 是强制性的。</p>
+<p><strong>关键发现：</strong> PyTorch ecosystem 中的 minor version mismatches 会在 module initialization 期间触发硬性的 C-ABI breaks；为了稳定的 inference training loops，精确的 release pairing 是强制性的。</p>
 <h4 id="3-curobo-jit-compilation-fails-with-missing-cuda_runtimeh-and-undefined-symbols-due-to-non-standard-condapip-cuda-path-isolation">3. Curobo JIT compilation fails with missing cuda_runtime.h and undefined symbols due to non-standard conda/pip CUDA path isolation.<a hidden class="anchor" aria-hidden="true" href="#3-curobo-jit-compilation-fails-with-missing-cuda_runtimeh-and-undefined-symbols-due-to-non-standard-condapip-cuda-path-isolation">#</a></h4>
 <p><strong>Solution:</strong> 在 pip-installed nvidia packages 中定位了 CUDA headers，显式配置了 CPATH 和 CUDA_HOME environment variables，移除了过时的 .so files，并通过 pip editable install 重建了 extension。</p>
-<p><strong>Key Insight:</strong> 混合使用 conda 和 pip environments 会掩盖标准的 toolkit paths；native extensions 需要显式的 include directory mapping，而不是依赖默认的 system symlinks 或 build isolation。</p>
+<p><strong>关键发现：</strong> 混合使用 conda 和 pip environments 会掩盖标准的 toolkit paths；native extensions 需要显式的 include directory mapping，而不是依赖默认的 system symlinks 或 build isolation。</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="macos-sandbox-and-fallback-strategy-for-history-playback">macOS Sandbox and fallback strategy for history playback<a hidden class="anchor" aria-hidden="true" href="#macos-sandbox-and-fallback-strategy-for-history-playback">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>得出结论：必须采用结合 sandbox activation 与交互式 NSOpenPanel re-authorization 的 hybrid architecture，以同时满足 Apple 的 security requirements 和实际的用户流预期。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初倾向于纯程序化的 permission handling 或隔离的代码修复，低估了在应用重启后维持长期访问所需的显式 UI triggers 的必要性。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 正确地优先考虑了端到端的 UX/security balance，引导 AI 实现并发的 sandbox configuration 与 manual fallback mechanisms，而不是依赖静默的 auto-recovery。</p>
+<p><strong>差异分析：</strong> Human 正确地优先考虑了端到端的 UX/security balance，引导 AI 实现并发的 sandbox configuration 与 manual fallback mechanisms，而不是依赖静默的 auto-recovery。</p>
 <h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
 <h4 id="gpu-process-deduplication-scope-in-terminal-output">GPU process deduplication scope in terminal output<a hidden class="anchor" aria-hidden="true" href="#gpu-process-deduplication-scope-in-terminal-output">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>指定必须在 per-GPU context 内严格执行 uniqueness，以避免错误地合并分配给不同 accelerators 的并发 workloads。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初在所有可见的 GPUs 上实现了 global process deduplication，这导致不同的 containerized workload assignments 被合并成了单一条目。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 为分布式计算追踪提供了精确的 domain-specific constraints，纠正了 AI 过度宽泛的 aggregation logic，从而避免了监控准确性的下降。</p>
+<p><strong>差异分析：</strong> Human 为分布式计算追踪提供了精确的 domain-specific constraints，纠正了 AI 过度宽泛的 aggregation logic，从而避免了监控准确性的下降。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
 <ul>

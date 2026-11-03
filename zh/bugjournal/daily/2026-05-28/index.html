@@ -10,7 +10,7 @@
 <meta name="description" content="为 LifeCopilot 执行了关键基础设施修复（CLI deadlock, session context, launcher consolidation），并为 TokenMonitor 修复了问题（disk cache stalency, cost display logic），同时优化了个人简历资产。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-05-28/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-05-28 Daily Overview 完成工作： 通过切换到 subprocess isolation 和 native session management，解决了 LifeCopilot 中导致超时和 context loss 的复杂 Windows CLI stdio deadlock 问题；同时修复了 TokenMonitor Rust/Tauri backend 中持续存在的 disk cache 问题，该问题曾导致远程设备的 cost 显示不准确。 实现方式： 重构了 claude_adapter.py 以使用 shell=False，通过 launcher.py 实现了统一的 entry points，并更新了所有 CLI adapters 以支持 native session IDs；在 TokenMonitor 中，在 SSH sync loops 期间增加了 disk cache prefix clearing，并修正了 Rust/TypeScript stores 中的默认 configuration flags。 影响： 消除了 LifeCopilot 用户的 false-positive timeouts 并恢复了准确的 conversation memory；确保了 TokenMonitor dashboard 中实时财务数据的准确性和一致的 device listing，防止了由 stale caches 导致的数据不一致。 为 LifeCopilot 执行了关键的基础设施修复（CLI deadlock, session context, launcher consolidation），并为 TokenMonitor 执行了修复（disk cache stalency, cost display logic），同时优化了个人简历资产。\nTasks Architecture \u0026 Strategy ✅ Fix Claude CLI + MCP Pipe Deadlock — 诊断并修复了在 Windows 上 shell=True 导致 Claude CLI 在为 MCP tools（如 Google Calendar）生成 sub-processes 时发生 stdio deadlocks 的问题。切换到了 shell=False 并通过直接的 subprocess testing 进行了验证。 ✅ Fix Main Interface Cost Display \u0026 Cache Stalency — 调查了为什么 ‘Device Cost’ 在 main App.svelte 中缺失，尽管它在 DevicesView 中存在；确定 disk cache stalency 是根本原因。在 SSH sync 和 usage view update 函数中为 payload disk cache 实现了 clear_prefix，以防止检索到 stale data。 ✅ Implement Native Session Context — 使用 Claude CLI 的 native --resume / --session-id 能力取代了手动的 prompt-injection history 机制。更新了所有 adapters（Claude, Codex, Gemini）以传递 user IDs 进行 session isolation。 ✅ Consolidate Startup Entry Points — 创建了 launcher.py 作为 server startup logic（preflight checks, PID management, port binding）的 single source of truth。将 start.bat, start.ps1 和 start.sh 重构为仅处理 conda activation 的 thin wrappers。 Implementation \u0026 Fixes ✅ Correct Default Configuration Flags — 更新了新设备的 include_in_stats 默认为 true，并修正了 Rust backend (ssh.rs, ssh_remote.rs) 和 TypeScript frontend stores 中的 deserialization。修改了 aggregation logic，使其依赖于 enabled status 而非独立的 flags。 ✅ Resume Optimization \u0026 Conversion — 审查并优化了用于 CVPR networking 的简历，重点关注 narrative structure 和 author formatting。在安装必要的 dependencies 后，使用 python-docx 将 resume.md 转换为 resume.docx。 Problems \u0026 Solutions Critical Issues 1. Main interface showed stale costs because disk cache was never cleared after SSH sync in TokenMonitor, only the memory cache was invalidated. Solution: 在 sync_ssh_host, clear_usage_view_cache 以及后台 SSH sync loops 中添加了 disk_cache.clear_prefix(\"usage-view:\") 调用，以确保始终重新计算 fresh data。确认尽管之前对 ‘Tianhe’ 设备记录存在担忧，但并未发生 raw data loss。\nKey Insight: 在 Tauri 等 persistent desktop environments 中，如果只在某一层（memory cache）销毁 state 而使其在另一层（disk cache）中持续存在，会导致 views 不一致；在 invalidation 期间必须使两者同步。\n2. Claude CLI consistently timed out (120s) with zero output for complex calendar requests due to Windows shell=True causing stdio deadlocks when spawning child MCP processes. Solution: 诊断出 inherited pipe handles 导致了 silent deadlocks。通过在 subprocess calls 中设置 shell=False 并使用 native session persistence (--resume) 来管理 context，从而解决了该问题，确保了可靠的 execution 和 memory retention。\nKey Insight: Windows cmd.exe shell 在处理 Popen 和 child process inheritance 时的行为可能会导致在 high-level logs 中不可见的 silent stdio deadlocks；需要通过 empirical isolation testing 来识别该 vector。\nGeneral Issues 3. Multiple ways to start the server in LifeCopilot led to configuration drift, while new SSH devices in TokenMonitor defaulted to excluding stats due to config mismatch. Solution: 将 LifeCopilot 的所有 preflight logic 集中到 launcher.py 中。标准化了 TokenMonitor 中 Rust/TS layers 的默认 flags，以确保 ‘connected’ 设备会自动包含在 cost reports 中，除非被显式 opt out。\nKey Insight: Configuration management 应该被编入单个 executable script 或统一的 store 中，而不是分散式的，从而减少 cognitive load 并防止 drift。\nHuman vs AI Approaches Strategic Level Debugging Methodology: Evidence vs. Hypothesis Role Approach Human 在 LifeCopilot 中，用户要求提供 timeout 原因的具体证据，而不是接受理论解释（例如 MCP cold start）。在 TokenMonitor 中，用户通过提供 cost discrepancies 的视觉对比来消除 debugging ambiguities。 AI AI 最初会猜测原因，但随后根据 empirical demands 优化了分析，从 hypothesis-driven debugging 转向了 controlled variable testing (subprocess isolation)，并将 code paths 与 visual UI states 进行 cross-referencing。 Difference Analysis: Human 优先考虑 empirical verification 而非理论解释，迫使 AI 通过直接的 system interaction 和 visual data correlation 来验证假设，而不是仅仅依赖 code logic analysis。\nArchitectural Requirements for Context and Persistence Role Approach Human 用户拒绝使用 manual prompt injection 来处理 context，坚持要求类似于 Claude Code 的 native session handling。对于 TokenMonitor，关于 Tauri persistence 的直觉促使调查方向转向 file system state 而不仅仅是 code logic。 AI AI 在所有 adapters 中识别并实现了 --resume/--session-id 支持，并在最初对 in-memory changes 感到困惑后，正确推断出在 persistent Tauri processes 中需要进行 disk cache invalidation。 Difference Analysis: User 定义了 high-level architectural requirements（native sessions, persistent state awareness）；AI 执行了 implementation details 和 system-specific optimizations。\nAI Limitations Critical Limitations- 最初错误地猜测了 CLI timeout 的根本原因，并对 Tauri 的 persistence model 感到困惑，未能立即意识到除了修复 memory cache 之外，还需要进行 disk cache invalidation。 未能立即识别出 Windows 上的 shell=True 会导致与 child processes 的 stdio deadlocks，需要大量的手动测试和用户提供的视觉证据才能隔离该问题。 Learnings Key Learnings 在 Windows 上，使用 subprocess.Popen 配合 shell=True 启动会产生自身 child processes 的进程（例如 MCP servers）时，可能会由于 handle inheritance 导致 stdio deadlocks。除非对于 command parsing 是严格必要的，否则应避免使用 shell=True。 在 Tauri/desktop apps 中，务必确保在状态变更期间将 disk caches 与 memory caches 结合进行 invalidation，以防止 stale data leaks；remote sync caches 在没有 persistent archiving 的情况下是 ephemeral 的。 Practical Learnings 在调试 CLI tools 或 UI discrepancies 时，始终应根据视觉证据验证 raw payloads 和 cache keys，以隔离 caching layers 与 calculation logic，而不是仅仅依赖 code tracing。 Conversation Summaries LifeCopilot ✅ CLI Debugging, Session Context, and Launcher Consolidation 01:24:24.057 | claude_code 通过诊断由 shell=True 引起的 Windows 特有的 stdio deadlock，并切换到 native session management (--resume)，解决了关键的 CLI timeout 和 context loss bugs。将所有 startup entry points 整合进一个统一的 launcher.py 中，以防止 configuration drift。此外，审查了用于 CVPR networking 的 resume 内容，并将其从 Markdown 转换为 DOCX。\nTokenMonitor ✅ Cost Display and Cache Invalidation Fix 00:39:12.553 | claude_code 诊断了为什么尽管在 DevicesView 中可以看到详情，但 remote SSH device costs 却未显示在 main dashboard 中的原因。确定了 get_usage_data 在 SSH sync 仅清除 memory 后，会从 disk cache 提供 stale payloads。实施了在 sync/toggle operations 期间清除 disk cache prefixes 的修复方案，并修正了 Rust/TypeScript 层中 include_in_stats 的默认值，以确保新设备默认被包含在内。\nToken Usage AI Usage · 2026-05-28\rClaude Code\rTotal cost$11.87\rTotal tokens33M\rOutput tokens150K\rCache read93.8%\rToken character\rCache reads 93.8% ·\rActive 6.2%\rMost token volume came from cache reads.\r",
-  "wordCount" : "829",
+  "articleBody": "Daily Report — 2026-05-28 Daily Overview 完成工作： 通过切换到 subprocess isolation 和 native session management，解决了 LifeCopilot 中导致超时和 context loss 的复杂 Windows CLI stdio deadlock 问题；同时修复了 TokenMonitor Rust/Tauri backend 中持续存在的 disk cache 问题，该问题曾导致远程设备的 cost 显示不准确。 实现方式： 重构了 claude_adapter.py 以使用 shell=False，通过 launcher.py 实现了统一的 entry points，并更新了所有 CLI adapters 以支持 native session IDs；在 TokenMonitor 中，在 SSH sync loops 期间增加了 disk cache prefix clearing，并修正了 Rust/TypeScript stores 中的默认 configuration flags。 影响： 消除了 LifeCopilot 用户的 false-positive timeouts 并恢复了准确的 conversation memory；确保了 TokenMonitor dashboard 中实时财务数据的准确性和一致的 device listing，防止了由 stale caches 导致的数据不一致。 为 LifeCopilot 执行了关键的基础设施修复（CLI deadlock, session context, launcher consolidation），并为 TokenMonitor 执行了修复（disk cache stalency, cost display logic），同时优化了个人简历资产。\nTasks Architecture \u0026 Strategy ✅ Fix Claude CLI + MCP Pipe Deadlock — 诊断并修复了在 Windows 上 shell=True 导致 Claude CLI 在为 MCP tools（如 Google Calendar）生成 sub-processes 时发生 stdio deadlocks 的问题。切换到了 shell=False 并通过直接的 subprocess testing 进行了验证。 ✅ Fix Main Interface Cost Display \u0026 Cache Stalency — 调查了为什么 ‘Device Cost’ 在 main App.svelte 中缺失，尽管它在 DevicesView 中存在；确定 disk cache stalency 是根本原因。在 SSH sync 和 usage view update 函数中为 payload disk cache 实现了 clear_prefix，以防止检索到 stale data。 ✅ Implement Native Session Context — 使用 Claude CLI 的 native --resume / --session-id 能力取代了手动的 prompt-injection history 机制。更新了所有 adapters（Claude, Codex, Gemini）以传递 user IDs 进行 session isolation。 ✅ Consolidate Startup Entry Points — 创建了 launcher.py 作为 server startup logic（preflight checks, PID management, port binding）的 single source of truth。将 start.bat, start.ps1 和 start.sh 重构为仅处理 conda activation 的 thin wrappers。 Implementation \u0026 Fixes ✅ Correct Default Configuration Flags — 更新了新设备的 include_in_stats 默认为 true，并修正了 Rust backend (ssh.rs, ssh_remote.rs) 和 TypeScript frontend stores 中的 deserialization。修改了 aggregation logic，使其依赖于 enabled status 而非独立的 flags。 ✅ Resume Optimization \u0026 Conversion — 审查并优化了用于 CVPR networking 的简历，重点关注 narrative structure 和 author formatting。在安装必要的 dependencies 后，使用 python-docx 将 resume.md 转换为 resume.docx。 Problems \u0026 Solutions Critical Issues 1. Main interface showed stale costs because disk cache was never cleared after SSH sync in TokenMonitor, only the memory cache was invalidated. Solution: 在 sync_ssh_host, clear_usage_view_cache 以及后台 SSH sync loops 中添加了 disk_cache.clear_prefix(\"usage-view:\") 调用，以确保始终重新计算 fresh data。确认尽管之前对 ‘Tianhe’ 设备记录存在担忧，但并未发生 raw data loss。\n关键发现： 在 Tauri 等 persistent desktop environments 中，如果只在某一层（memory cache）销毁 state 而使其在另一层（disk cache）中持续存在，会导致 views 不一致；在 invalidation 期间必须使两者同步。\n2. Claude CLI consistently timed out (120s) with zero output for complex calendar requests due to Windows shell=True causing stdio deadlocks when spawning child MCP processes. Solution: 诊断出 inherited pipe handles 导致了 silent deadlocks。通过在 subprocess calls 中设置 shell=False 并使用 native session persistence (--resume) 来管理 context，从而解决了该问题，确保了可靠的 execution 和 memory retention。\n关键发现： Windows cmd.exe shell 在处理 Popen 和 child process inheritance 时的行为可能会导致在 high-level logs 中不可见的 silent stdio deadlocks；需要通过 empirical isolation testing 来识别该 vector。\nGeneral Issues 3. Multiple ways to start the server in LifeCopilot led to configuration drift, while new SSH devices in TokenMonitor defaulted to excluding stats due to config mismatch. Solution: 将 LifeCopilot 的所有 preflight logic 集中到 launcher.py 中。标准化了 TokenMonitor 中 Rust/TS layers 的默认 flags，以确保 ‘connected’ 设备会自动包含在 cost reports 中，除非被显式 opt out。\n关键发现： Configuration management 应该被编入单个 executable script 或统一的 store 中，而不是分散式的，从而减少 cognitive load 并防止 drift。\nHuman vs AI Approaches Strategic Level Debugging Methodology: Evidence vs. Hypothesis 角色 方法 用户 在 LifeCopilot 中，用户要求提供 timeout 原因的具体证据，而不是接受理论解释（例如 MCP cold start）。在 TokenMonitor 中，用户通过提供 cost discrepancies 的视觉对比来消除 debugging ambiguities。 AI 助手 AI 最初会猜测原因，但随后根据 empirical demands 优化了分析，从 hypothesis-driven debugging 转向了 controlled variable testing (subprocess isolation)，并将 code paths 与 visual UI states 进行 cross-referencing。 差异分析： Human 优先考虑 empirical verification 而非理论解释，迫使 AI 通过直接的 system interaction 和 visual data correlation 来验证假设，而不是仅仅依赖 code logic analysis。\nArchitectural Requirements for Context and Persistence 角色 方法 用户 用户拒绝使用 manual prompt injection 来处理 context，坚持要求类似于 Claude Code 的 native session handling。对于 TokenMonitor，关于 Tauri persistence 的直觉促使调查方向转向 file system state 而不仅仅是 code logic。 AI 助手 AI 在所有 adapters 中识别并实现了 --resume/--session-id 支持，并在最初对 in-memory changes 感到困惑后，正确推断出在 persistent Tauri processes 中需要进行 disk cache invalidation。 差异分析： User 定义了 high-level architectural requirements（native sessions, persistent state awareness）；AI 执行了 implementation details 和 system-specific optimizations。\nAI Limitations Critical Limitations- 最初错误地猜测了 CLI timeout 的根本原因，并对 Tauri 的 persistence model 感到困惑，未能立即意识到除了修复 memory cache 之外，还需要进行 disk cache invalidation。 未能立即识别出 Windows 上的 shell=True 会导致与 child processes 的 stdio deadlocks，需要大量的手动测试和用户提供的视觉证据才能隔离该问题。 Learnings Key Learnings 在 Windows 上，使用 subprocess.Popen 配合 shell=True 启动会产生自身 child processes 的进程（例如 MCP servers）时，可能会由于 handle inheritance 导致 stdio deadlocks。除非对于 command parsing 是严格必要的，否则应避免使用 shell=True。 在 Tauri/desktop apps 中，务必确保在状态变更期间将 disk caches 与 memory caches 结合进行 invalidation，以防止 stale data leaks；remote sync caches 在没有 persistent archiving 的情况下是 ephemeral 的。 Practical Learnings 在调试 CLI tools 或 UI discrepancies 时，始终应根据视觉证据验证 raw payloads 和 cache keys，以隔离 caching layers 与 calculation logic，而不是仅仅依赖 code tracing。 Conversation Summaries LifeCopilot ✅ CLI Debugging, Session Context, and Launcher Consolidation 01:24:24.057 | claude_code 通过诊断由 shell=True 引起的 Windows 特有的 stdio deadlock，并切换到 native session management (--resume)，解决了关键的 CLI timeout 和 context loss bugs。将所有 startup entry points 整合进一个统一的 launcher.py 中，以防止 configuration drift。此外，审查了用于 CVPR networking 的 resume 内容，并将其从 Markdown 转换为 DOCX。\nTokenMonitor ✅ Cost Display and Cache Invalidation Fix 00:39:12.553 | claude_code 诊断了为什么尽管在 DevicesView 中可以看到详情，但 remote SSH device costs 却未显示在 main dashboard 中的原因。确定了 get_usage_data 在 SSH sync 仅清除 memory 后，会从 disk cache 提供 stale payloads。实施了在 sync/toggle operations 期间清除 disk cache prefixes 的修复方案，并修正了 Rust/TypeScript 层中 include_in_stats 的默认值，以确保新设备默认被包含在内。\nToken Usage AI Usage · 2026-05-28\rClaude Code\rTotal cost$11.87\rTotal tokens33M\rOutput tokens150K\rCache read93.8%\rToken character\rCache reads 93.8% ·\rActive 6.2%\rMost token volume came from cache reads.\r",
+  "wordCount" : "826",
   "inLanguage": "zh",
   "datePublished": "2026-05-28T00:00:00-04:00",
   "dateModified": "2026-05-28T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -236,56 +236,56 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-main-interface-showed-stale-costs-because-disk-cache-was-never-cleared-after-ssh-sync-in-tokenmonitor-only-the-memory-cache-was-invalidated">1. Main interface showed stale costs because disk cache was never cleared after SSH sync in TokenMonitor, only the memory cache was invalidated.<a hidden class="anchor" aria-hidden="true" href="#1-main-interface-showed-stale-costs-because-disk-cache-was-never-cleared-after-ssh-sync-in-tokenmonitor-only-the-memory-cache-was-invalidated">#</a></h4>
 <p><strong>Solution:</strong> 在 <code>sync_ssh_host</code>, <code>clear_usage_view_cache</code> 以及后台 SSH sync loops 中添加了 <code>disk_cache.clear_prefix(&quot;usage-view:&quot;)</code> 调用，以确保始终重新计算 fresh data。确认尽管之前对 &lsquo;Tianhe&rsquo; 设备记录存在担忧，但并未发生 raw data loss。</p>
-<p><strong>Key Insight:</strong> 在 Tauri 等 persistent desktop environments 中，如果只在某一层（memory cache）销毁 state 而使其在另一层（disk cache）中持续存在，会导致 views 不一致；在 invalidation 期间必须使两者同步。</p>
+<p><strong>关键发现：</strong> 在 Tauri 等 persistent desktop environments 中，如果只在某一层（memory cache）销毁 state 而使其在另一层（disk cache）中持续存在，会导致 views 不一致；在 invalidation 期间必须使两者同步。</p>
 <h4 id="2-claude-cli-consistently-timed-out-120s-with-zero-output-for-complex-calendar-requests-due-to-windows-shelltrue-causing-stdio-deadlocks-when-spawning-child-mcp-processes">2. Claude CLI consistently timed out (120s) with zero output for complex calendar requests due to Windows <code>shell=True</code> causing stdio deadlocks when spawning child MCP processes.<a hidden class="anchor" aria-hidden="true" href="#2-claude-cli-consistently-timed-out-120s-with-zero-output-for-complex-calendar-requests-due-to-windows-shelltrue-causing-stdio-deadlocks-when-spawning-child-mcp-processes">#</a></h4>
 <p><strong>Solution:</strong> 诊断出 inherited pipe handles 导致了 silent deadlocks。通过在 subprocess calls 中设置 <code>shell=False</code> 并使用 native session persistence (<code>--resume</code>) 来管理 context，从而解决了该问题，确保了可靠的 execution 和 memory retention。</p>
-<p><strong>Key Insight:</strong> Windows cmd.exe shell 在处理 Popen 和 child process inheritance 时的行为可能会导致在 high-level logs 中不可见的 silent stdio deadlocks；需要通过 empirical isolation testing 来识别该 vector。</p>
+<p><strong>关键发现：</strong> Windows cmd.exe shell 在处理 Popen 和 child process inheritance 时的行为可能会导致在 high-level logs 中不可见的 silent stdio deadlocks；需要通过 empirical isolation testing 来识别该 vector。</p>
 <h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
 <h4 id="3-multiple-ways-to-start-the-server-in-lifecopilot-led-to-configuration-drift-while-new-ssh-devices-in-tokenmonitor-defaulted-to-excluding-stats-due-to-config-mismatch">3. Multiple ways to start the server in LifeCopilot led to configuration drift, while new SSH devices in TokenMonitor defaulted to excluding stats due to config mismatch.<a hidden class="anchor" aria-hidden="true" href="#3-multiple-ways-to-start-the-server-in-lifecopilot-led-to-configuration-drift-while-new-ssh-devices-in-tokenmonitor-defaulted-to-excluding-stats-due-to-config-mismatch">#</a></h4>
 <p><strong>Solution:</strong> 将 LifeCopilot 的所有 preflight logic 集中到 <code>launcher.py</code> 中。标准化了 TokenMonitor 中 Rust/TS layers 的默认 flags，以确保 &lsquo;connected&rsquo; 设备会自动包含在 cost reports 中，除非被显式 opt out。</p>
-<p><strong>Key Insight:</strong> Configuration management 应该被编入单个 executable script 或统一的 store 中，而不是分散式的，从而减少 cognitive load 并防止 drift。</p>
+<p><strong>关键发现：</strong> Configuration management 应该被编入单个 executable script 或统一的 store 中，而不是分散式的，从而减少 cognitive load 并防止 drift。</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="debugging-methodology-evidence-vs-hypothesis">Debugging Methodology: Evidence vs. Hypothesis<a hidden class="anchor" aria-hidden="true" href="#debugging-methodology-evidence-vs-hypothesis">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>在 LifeCopilot 中，用户要求提供 timeout 原因的具体证据，而不是接受理论解释（例如 MCP cold start）。在 TokenMonitor 中，用户通过提供 cost discrepancies 的视觉对比来消除 debugging ambiguities。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 最初会猜测原因，但随后根据 empirical demands 优化了分析，从 hypothesis-driven debugging 转向了 controlled variable testing (subprocess isolation)，并将 code paths 与 visual UI states 进行 cross-referencing。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 优先考虑 empirical verification 而非理论解释，迫使 AI 通过直接的 system interaction 和 visual data correlation 来验证假设，而不是仅仅依赖 code logic analysis。</p>
+<p><strong>差异分析：</strong> Human 优先考虑 empirical verification 而非理论解释，迫使 AI 通过直接的 system interaction 和 visual data correlation 来验证假设，而不是仅仅依赖 code logic analysis。</p>
 <h4 id="architectural-requirements-for-context-and-persistence">Architectural Requirements for Context and Persistence<a hidden class="anchor" aria-hidden="true" href="#architectural-requirements-for-context-and-persistence">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>用户拒绝使用 manual prompt injection 来处理 context，坚持要求类似于 Claude Code 的 native session handling。对于 TokenMonitor，关于 Tauri persistence 的直觉促使调查方向转向 file system state 而不仅仅是 code logic。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 在所有 adapters 中识别并实现了 <code>--resume</code>/<code>--session-id</code> 支持，并在最初对 in-memory changes 感到困惑后，正确推断出在 persistent Tauri processes 中需要进行 disk cache invalidation。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> User 定义了 high-level architectural requirements（native sessions, persistent state awareness）；AI 执行了 implementation details 和 system-specific optimizations。</p>
+<p><strong>差异分析：</strong> User 定义了 high-level architectural requirements（native sessions, persistent state awareness）；AI 执行了 implementation details 和 system-specific optimizations。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations--最初错误地猜测了-cli-timeout-的根本原因并对-tauri-的-persistence-model-感到困惑未能立即意识到除了修复-memory-cache-之外还需要进行-disk-cache-invalidation">Critical Limitations- 最初错误地猜测了 CLI timeout 的根本原因，并对 Tauri 的 persistence model 感到困惑，未能立即意识到除了修复 memory cache 之外，还需要进行 disk cache invalidation。<a hidden class="anchor" aria-hidden="true" href="#critical-limitations--最初错误地猜测了-cli-timeout-的根本原因并对-tauri-的-persistence-model-感到困惑未能立即意识到除了修复-memory-cache-之外还需要进行-disk-cache-invalidation">#</a></h3>
 <ul>

@@ -10,7 +10,7 @@
 <meta name="description" content="通过创建诊断和修复脚本解决了 LeRobot 视频数据集损坏的问题，在 PairedDataset 中实现了鲁棒的错误处理，并为 error_recovery_benchmark 项目清理了 GPU 资源。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-05-09/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-05-09 Daily Overview 完成工作： 修复了 LeRobot 数据集中因损坏的 MP4 文件导致的训练中断问题，并为 Tangzijia 团队管理了 GPU 资源分配。 实施方式： 开发了 Python 脚本，通过原始 HDF5 文件诊断并重新编码损坏的视频；更新了数据加载代码，增加了预检查和优雅的回退机制；使用 shell 命令识别并终止了特定的用户任务。 影响： 通过解决数据完整性问题恢复了稳定的训练能力，并为 error_recovery_benchmark 项目优化了计算资源的可用性。 通过创建诊断和修复脚本解决了 LeRobot 视频数据集损坏的问题，在 PairedDataset 中实现了鲁棒的错误处理，并为 error_recovery_benchmark 项目清理了 GPU 资源。\nTasks Architecture \u0026 Strategy ✅ LeRobot Video Data Diagnosis and Repair — 创建了 diagnose_corrupted_videos.py 和 repair_corrupted_videos.py，识别出单个及多个 OSS 数据集中共计 60 个损坏的 episodes，随后从原始 HDF5 源进行重新编码。 ✅ PairedDataset Error Handling Optimization — 重构了 paired_dataset.py，实现了对 augmented frames 的预检查、损坏视频的黑名单管理，以及在发生错误时通过显著的 console logging 进行记录以辅助调试。 Implementation \u0026 Fixes ✅ GPU Resource Cleanup for Tangzijia — 在 GPU 4 和 5 上识别并终止了属于 tangzijia/error_recovery_benchmark 的残留 PyTorch 进程，每个 GPU 释放了约 60GB VRAM。 ✅ BOSS Project README Documentation — 为 BOSS 目录下的所有脚本（data collection, conversion, mapping, validation）添加了说明，以提高项目的可用性。 Problems \u0026 Solutions Critical Issues 1. RuntimeError: InvalidDataError in DataLoader when decoding augmented video frames due to corrupted MP4 files generated during HDF5 conversion. Solution: 实施了两层修复方案：1) 通过脚本进行静态修复，从原始 HDF5 重新编码损坏的 episodes；2) 通过预检查（在修复后禁用）和 try-except 块进行动态处理，在不中断训练的情况下跳过损坏的 frames。\nKey Insight: LeRobot 数据集中的损坏视频在文件层面通常是“静默”的，但在特定的解码操作期间会失败；诊断它们需要显式的 PyAV 解码，而不仅仅是检查文件头。\n2. JAX JIT compilation constraints prevented conditional skipping of forward passes based on corrupted mask status at runtime. Solution: 接受了损坏样本的计算仍会运行的事实，但确保它们的 loss 贡献被 masked 为零，从而在不破坏静态图要求的情况下防止梯度污染。\nKey Insight: 像 JAX 这样的静态图框架要求控制流在编译期间独立于 tensor 值；规避策略必须尊重这些编译时约束。\nGeneral Issues 3. Initial error handling masked clean dataset errors by only fixing augmented dataset corruption, leading to new InvalidDataError from clean data (boss44_lerobot). Solution: 意识到损坏范围超出了 augmented sets；将诊断和修复逻辑应用于所有涉及的 LeRobot 数据集。\nKey Insight: 数据流水线 bug 可能分布在多个数据集版本中；如果不进行整体验证，对一部分的修复可能会暴露另一部分中潜在的问题。\nHuman vs AI Approaches Strategic Level Root Cause Analysis of Data Corruption Role Approach Human 用户怀疑损坏起源于 HDF5 到 LeRobot 的转换过程，并提出从源数据重新编码，而不仅仅是屏蔽错误。 AI AI 最初专注于运行时处理（try-except 占位符），随后才探索转换脚本逻辑并创建专门的修复工具。 Difference Analysis: Human 优先考虑永久性的数据完整性解决方案，而非临时规避方案；AI 通过最终转向用户偏好的源数据修正，平衡了即时运行稳定性与长期修复。\nImplementation Level GPU Process Management Complexity Role Approach Human 用户请求停止特定团队的任务而不影响他人，这意味着信任 AI 能够准确区分进程所有权。 AI AI 使用了多个验证步骤（nvidia-smi, ps, tmux, fuser/procfs）将 GPU 显存使用情况映射到特定的进程 PID，并通过路径/字符串匹配在杀死进程前验证用户所有权。 Difference Analysis: Human 提供了目标（释放资源）；AI 则必须在复杂的容器/沙箱权限限制下执行安全的资源清理。\nAI Limitations Critical Limitations AI 最初未能识别出 clean datasets (boss44_lerobot) 也包含损坏的视频，误以为只有 augmented datasets 需要修复。 General Limitations AI 在尝试通过 fuser 访问沙箱环境中的 /dev/nvidia 设备时遇到了 permission denied 错误，需要使用 /proc scanning 等替代方法。 Learnings Key Learnings 在修复数据流水线问题时，务必验证根本原因是否适用于所有数据集版本（clean vs. augmented），而不仅仅是观察第一个出现的错误表面。 Practical Learnings 在数据调试阶段，添加显著的 logging（例如带有清晰标记的 ERROR 级别日志）对于快速区分预期的占位符和真实的失败至关重要。 Conversation Summaries RoboBrain PI 🔄 Debugging LeRobot Config AssertionError 11:04:28.272 | claude_code 调查了运行 compute_norm_stats.py 时出现的 AssertionError。错误表明 LeRobot 将本地数据集路径误认为是 HuggingFace Hub 的 repo ID。用户在修复应用前中断了调查。\nError Recovery Benchmark 🔍 GPU Resource Cleanup Request 20:44:10.699 | claude_code 用户请求停止可用 GPU 上用户 ’tangzijia’ 的所有活动任务。会话记录了此请求，并将执行委托给 Codex session。\n✅ Identifying and Killing Tangzijia’s GPU Jobs 20:47:17.389 | codex 执行了复杂的进程管理以停止 GPU 4 和 5 上 tangzijia 的训练任务。使用 nvidia-smi, ps, tmux 和 /proc fs 扫描来验证消耗 VRAM 的 PID 的所有权。成功向特定 PID (start_openpi_serve_policy_safe.py, run_pi05_tuning_grid.py) 发送了 SIGTERM，在保持其他用户工作不受影响的同时，每个 GPU 释放了约 60GB 显存。\nOpenPI (Chenjunye)✅ 修复损坏的 LeRobot 视频解码错误 06:19:52.420 | claude_code 解决了 augmented datasets 中损坏的 MP4 文件导致的持续性 InvalidDataError。创建了 diagnose_corrupted_videos.py 和 repair_corrupted_videos.py，用于从 HDF5 源重新编码损坏的 episodes。更新了 paired_dataset.py，增加了预检查（随后禁用）、blacklist 跳过机制以及健壮的 error logging。在 README 中记录了所有 BOSS project 脚本。\nToken Usage AI Usage · 2026-05-09\rClaude Code + Codex\rTotal cost$25.51\rTotal tokens34M\rOutput tokens138K\rCache read4.6%\rCost split\rClaude Code $24 ·\rCodex $2\rToken character\rCache reads 4.6% ·\rActive 95.4%\rClaude Code drove nearly all cost.\r",
-  "wordCount" : "460",
+  "articleBody": "Daily Report — 2026-05-09 Daily Overview 完成工作： 修复了 LeRobot 数据集中因损坏的 MP4 文件导致的训练中断问题，并为 Tangzijia 团队管理了 GPU 资源分配。 实施方式： 开发了 Python 脚本，通过原始 HDF5 文件诊断并重新编码损坏的视频；更新了数据加载代码，增加了预检查和优雅的回退机制；使用 shell 命令识别并终止了特定的用户任务。 影响： 通过解决数据完整性问题恢复了稳定的训练能力，并为 error_recovery_benchmark 项目优化了计算资源的可用性。 通过创建诊断和修复脚本解决了 LeRobot 视频数据集损坏的问题，在 PairedDataset 中实现了鲁棒的错误处理，并为 error_recovery_benchmark 项目清理了 GPU 资源。\nTasks Architecture \u0026 Strategy ✅ LeRobot Video Data Diagnosis and Repair — 创建了 diagnose_corrupted_videos.py 和 repair_corrupted_videos.py，识别出单个及多个 OSS 数据集中共计 60 个损坏的 episodes，随后从原始 HDF5 源进行重新编码。 ✅ PairedDataset Error Handling Optimization — 重构了 paired_dataset.py，实现了对 augmented frames 的预检查、损坏视频的黑名单管理，以及在发生错误时通过显著的 console logging 进行记录以辅助调试。 Implementation \u0026 Fixes ✅ GPU Resource Cleanup for Tangzijia — 在 GPU 4 和 5 上识别并终止了属于 tangzijia/error_recovery_benchmark 的残留 PyTorch 进程，每个 GPU 释放了约 60GB VRAM。 ✅ BOSS Project README Documentation — 为 BOSS 目录下的所有脚本（data collection, conversion, mapping, validation）添加了说明，以提高项目的可用性。 Problems \u0026 Solutions Critical Issues 1. RuntimeError: InvalidDataError in DataLoader when decoding augmented video frames due to corrupted MP4 files generated during HDF5 conversion. Solution: 实施了两层修复方案：1) 通过脚本进行静态修复，从原始 HDF5 重新编码损坏的 episodes；2) 通过预检查（在修复后禁用）和 try-except 块进行动态处理，在不中断训练的情况下跳过损坏的 frames。\n关键发现： LeRobot 数据集中的损坏视频在文件层面通常是“静默”的，但在特定的解码操作期间会失败；诊断它们需要显式的 PyAV 解码，而不仅仅是检查文件头。\n2. JAX JIT compilation constraints prevented conditional skipping of forward passes based on corrupted mask status at runtime. Solution: 接受了损坏样本的计算仍会运行的事实，但确保它们的 loss 贡献被 masked 为零，从而在不破坏静态图要求的情况下防止梯度污染。\n关键发现： 像 JAX 这样的静态图框架要求控制流在编译期间独立于 tensor 值；规避策略必须尊重这些编译时约束。\nGeneral Issues 3. Initial error handling masked clean dataset errors by only fixing augmented dataset corruption, leading to new InvalidDataError from clean data (boss44_lerobot). Solution: 意识到损坏范围超出了 augmented sets；将诊断和修复逻辑应用于所有涉及的 LeRobot 数据集。\n关键发现： 数据流水线 bug 可能分布在多个数据集版本中；如果不进行整体验证，对一部分的修复可能会暴露另一部分中潜在的问题。\nHuman vs AI Approaches Strategic Level Root Cause Analysis of Data Corruption 角色 方法 用户 用户怀疑损坏起源于 HDF5 到 LeRobot 的转换过程，并提出从源数据重新编码，而不仅仅是屏蔽错误。 AI 助手 AI 最初专注于运行时处理（try-except 占位符），随后才探索转换脚本逻辑并创建专门的修复工具。 差异分析： Human 优先考虑永久性的数据完整性解决方案，而非临时规避方案；AI 通过最终转向用户偏好的源数据修正，平衡了即时运行稳定性与长期修复。\nImplementation Level GPU Process Management Complexity 角色 方法 用户 用户请求停止特定团队的任务而不影响他人，这意味着信任 AI 能够准确区分进程所有权。 AI 助手 AI 使用了多个验证步骤（nvidia-smi, ps, tmux, fuser/procfs）将 GPU 显存使用情况映射到特定的进程 PID，并通过路径/字符串匹配在杀死进程前验证用户所有权。 差异分析： Human 提供了目标（释放资源）；AI 则必须在复杂的容器/沙箱权限限制下执行安全的资源清理。\nAI Limitations Critical Limitations AI 最初未能识别出 clean datasets (boss44_lerobot) 也包含损坏的视频，误以为只有 augmented datasets 需要修复。 General Limitations AI 在尝试通过 fuser 访问沙箱环境中的 /dev/nvidia 设备时遇到了 permission denied 错误，需要使用 /proc scanning 等替代方法。 Learnings Key Learnings 在修复数据流水线问题时，务必验证根本原因是否适用于所有数据集版本（clean vs. augmented），而不仅仅是观察第一个出现的错误表面。 Practical Learnings 在数据调试阶段，添加显著的 logging（例如带有清晰标记的 ERROR 级别日志）对于快速区分预期的占位符和真实的失败至关重要。 Conversation Summaries RoboBrain PI 🔄 Debugging LeRobot Config AssertionError 11:04:28.272 | claude_code 调查了运行 compute_norm_stats.py 时出现的 AssertionError。错误表明 LeRobot 将本地数据集路径误认为是 HuggingFace Hub 的 repo ID。用户在修复应用前中断了调查。\nError Recovery Benchmark 🔍 GPU Resource Cleanup Request 20:44:10.699 | claude_code 用户请求停止可用 GPU 上用户 ’tangzijia’ 的所有活动任务。会话记录了此请求，并将执行委托给 Codex session。\n✅ Identifying and Killing Tangzijia’s GPU Jobs 20:47:17.389 | codex 执行了复杂的进程管理以停止 GPU 4 和 5 上 tangzijia 的训练任务。使用 nvidia-smi, ps, tmux 和 /proc fs 扫描来验证消耗 VRAM 的 PID 的所有权。成功向特定 PID (start_openpi_serve_policy_safe.py, run_pi05_tuning_grid.py) 发送了 SIGTERM，在保持其他用户工作不受影响的同时，每个 GPU 释放了约 60GB 显存。\nOpenPI (Chenjunye)✅ 修复损坏的 LeRobot 视频解码错误 06:19:52.420 | claude_code 解决了 augmented datasets 中损坏的 MP4 文件导致的持续性 InvalidDataError。创建了 diagnose_corrupted_videos.py 和 repair_corrupted_videos.py，用于从 HDF5 源重新编码损坏的 episodes。更新了 paired_dataset.py，增加了预检查（随后禁用）、blacklist 跳过机制以及健壮的 error logging。在 README 中记录了所有 BOSS project 脚本。\nToken Usage AI Usage · 2026-05-09\rClaude Code + Codex\rTotal cost$25.51\rTotal tokens34M\rOutput tokens138K\rCache read4.6%\rCost split\rClaude Code $24 ·\rCodex $2\rToken character\rCache reads 4.6% ·\rActive 95.4%\rClaude Code drove nearly all cost.\r",
+  "wordCount" : "457",
   "inLanguage": "zh",
   "datePublished": "2026-05-09T00:00:00-04:00",
   "dateModified": "2026-05-09T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -234,57 +234,57 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-runtimeerror-invaliddataerror-in-dataloader-when-decoding-augmented-video-frames-due-to-corrupted-mp4-files-generated-during-hdf5-conversion">1. RuntimeError: InvalidDataError in DataLoader when decoding augmented video frames due to corrupted MP4 files generated during HDF5 conversion.<a hidden class="anchor" aria-hidden="true" href="#1-runtimeerror-invaliddataerror-in-dataloader-when-decoding-augmented-video-frames-due-to-corrupted-mp4-files-generated-during-hdf5-conversion">#</a></h4>
 <p><strong>Solution:</strong> 实施了两层修复方案：1) 通过脚本进行静态修复，从原始 HDF5 重新编码损坏的 episodes；2) 通过预检查（在修复后禁用）和 try-except 块进行动态处理，在不中断训练的情况下跳过损坏的 frames。</p>
-<p><strong>Key Insight:</strong> LeRobot 数据集中的损坏视频在文件层面通常是“静默”的，但在特定的解码操作期间会失败；诊断它们需要显式的 PyAV 解码，而不仅仅是检查文件头。</p>
+<p><strong>关键发现：</strong> LeRobot 数据集中的损坏视频在文件层面通常是“静默”的，但在特定的解码操作期间会失败；诊断它们需要显式的 PyAV 解码，而不仅仅是检查文件头。</p>
 <h4 id="2-jax-jit-compilation-constraints-prevented-conditional-skipping-of-forward-passes-based-on-corrupted-mask-status-at-runtime">2. JAX JIT compilation constraints prevented conditional skipping of forward passes based on corrupted mask status at runtime.<a hidden class="anchor" aria-hidden="true" href="#2-jax-jit-compilation-constraints-prevented-conditional-skipping-of-forward-passes-based-on-corrupted-mask-status-at-runtime">#</a></h4>
 <p><strong>Solution:</strong> 接受了损坏样本的计算仍会运行的事实，但确保它们的 loss 贡献被 masked 为零，从而在不破坏静态图要求的情况下防止梯度污染。</p>
-<p><strong>Key Insight:</strong> 像 JAX 这样的静态图框架要求控制流在编译期间独立于 tensor 值；规避策略必须尊重这些编译时约束。</p>
+<p><strong>关键发现：</strong> 像 JAX 这样的静态图框架要求控制流在编译期间独立于 tensor 值；规避策略必须尊重这些编译时约束。</p>
 <h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
 <h4 id="3-initial-error-handling-masked-clean-dataset-errors-by-only-fixing-augmented-dataset-corruption-leading-to-new-invaliddataerror-from-clean-data-boss44_lerobot">3. Initial error handling masked clean dataset errors by only fixing augmented dataset corruption, leading to new InvalidDataError from clean data (boss44_lerobot).<a hidden class="anchor" aria-hidden="true" href="#3-initial-error-handling-masked-clean-dataset-errors-by-only-fixing-augmented-dataset-corruption-leading-to-new-invaliddataerror-from-clean-data-boss44_lerobot">#</a></h4>
 <p><strong>Solution:</strong> 意识到损坏范围超出了 augmented sets；将诊断和修复逻辑应用于所有涉及的 LeRobot 数据集。</p>
-<p><strong>Key Insight:</strong> 数据流水线 bug 可能分布在多个数据集版本中；如果不进行整体验证，对一部分的修复可能会暴露另一部分中潜在的问题。</p>
+<p><strong>关键发现：</strong> 数据流水线 bug 可能分布在多个数据集版本中；如果不进行整体验证，对一部分的修复可能会暴露另一部分中潜在的问题。</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="root-cause-analysis-of-data-corruption">Root Cause Analysis of Data Corruption<a hidden class="anchor" aria-hidden="true" href="#root-cause-analysis-of-data-corruption">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>用户怀疑损坏起源于 HDF5 到 LeRobot 的转换过程，并提出从源数据重新编码，而不仅仅是屏蔽错误。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 最初专注于运行时处理（try-except 占位符），随后才探索转换脚本逻辑并创建专门的修复工具。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 优先考虑永久性的数据完整性解决方案，而非临时规避方案；AI 通过最终转向用户偏好的源数据修正，平衡了即时运行稳定性与长期修复。</p>
+<p><strong>差异分析：</strong> Human 优先考虑永久性的数据完整性解决方案，而非临时规避方案；AI 通过最终转向用户偏好的源数据修正，平衡了即时运行稳定性与长期修复。</p>
 <h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
 <h4 id="gpu-process-management-complexity">GPU Process Management Complexity<a hidden class="anchor" aria-hidden="true" href="#gpu-process-management-complexity">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>用户请求停止特定团队的任务而不影响他人，这意味着信任 AI 能够准确区分进程所有权。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 使用了多个验证步骤（nvidia-smi, ps, tmux, fuser/procfs）将 GPU 显存使用情况映射到特定的进程 PID，并通过路径/字符串匹配在杀死进程前验证用户所有权。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 提供了目标（释放资源）；AI 则必须在复杂的容器/沙箱权限限制下执行安全的资源清理。</p>
+<p><strong>差异分析：</strong> Human 提供了目标（释放资源）；AI 则必须在复杂的容器/沙箱权限限制下执行安全的资源清理。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
 <ul>

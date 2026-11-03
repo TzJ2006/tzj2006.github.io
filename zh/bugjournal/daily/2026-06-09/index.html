@@ -10,7 +10,7 @@
 <meta name="description" content="在两天内，Error Recovery 项目在 benchmark evaluation rigor 方面取得了显著进展，JEPA robotics 研究完成了 strategic literature synthesis，并且 TokenMonitor 应用程序修复了 model pricing 和 data persistence 的关键 bug。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-06-09/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-06-09 Daily Overview 完成工作： 标准化了 recovery 评估协议，为 JEPA/Robotics 合成了高价值研究方向，并解决了 TokenMonitor 中新 Anthropic 模型在显示/持久化方面的 bug。 实施方式： 通过对抗性测试实现了严格的“连续 10 帧”成功标准；筛选并分析了学术论文以制定三个混合架构提案；更新了 Rust 归一化逻辑，添加了 pricing flags，并修复了 archive override 机制。 影响： 确保了 recovery policy 的有效 benchmark 指标，为基于 JEPA 的 robotic perception 建立了清晰的战略路径，并保证了未来 Anthropic 发布模型的准确计费和模型识别。 在两天内，Error Recovery 项目在 benchmark 评估严谨性方面取得了显著进展，JEPA robotics 研究完成了战略性文献合成，同时修复了 TokenMonitor 应用中模型计费和数据持久化的关键 bug。\nTasks Architecture \u0026 Strategy ✅ JEPA and Robotics Literature Analysis \u0026 Strategy — 筛选了相关论文（MemoryVLA++、iMaC、PRISM 等），进行了深层的结构化分析，并制定了结合 hierarchical planning 和 episodic memory 的三个可执行研究方向。 ✅ Error Recovery Benchmark Protocol Implementation — 将所有评估的成功标准统一为连续 10 帧，标准化了 step budgets (500)，并创建了对抗性 unit tests 以强制执行协议一致性。 ✅ TokenMonitor Model Normalization and Pricing Fix — 更新了 Rust 逻辑以识别 Fable/Mythos 模型家族，添加了 pricing_available flags，修正了官方 pricing rates，并修复了用于 cost 渲染的 UI 格式。 ✅ TokenMonitor Archive Data Persistence Fix — 修改了解析逻辑，使 live logs 的优先级高于过时的 hourly archives，防止新模型的数据丢失；重置了 usage payload caches。 Implementation \u0026 Fixes ✅ Gadget Toolkit Documentation Maintenance — 审计并更新了 Gadget 仓库的根目录 CLAUDE.md，以反映当前的 architecture、MCP paths 和 CLI interfaces。 Problems \u0026 Solutions Critical Issues 1. RecoverBench scripts 使用了 ‘first-frame success’ 逻辑，导致指标虚高，且偏离了要求 10 帧连续成功的文档说明。 Solution: 实施了 ConsecutiveSuccessTracker 并首先编写了 L2 specification tests，随后重构了所有 eval loops 以强制执行严格的时间约束。\nKey Insight: 单帧成功验证会严重高估可靠性；严格的时间窗口对于有效的 recovery rate 计算至关重要。\n2. 新的 Anthropic 模型显示为 ‘Unknown’ 或 ‘$0.00’，原因是归一化差距以及过时的 archive data 覆盖了 live logs。 Solution: 为新家族更新了 normalize_model，添加了显式的 pricing flags，并修改了 parser logic 以使 live log data 的优先级高于历史 archives。\nKey Insight: 在没有 flag 的情况下，显示零成本与数据缺失无法区分；归一化修复必须配合 cache invalidation，以防止历史数据损坏。\n3. 在文献综述过程中，难以区分 video generation 和 robotics control 论文，从而导致研究范围蔓延。 Solution: 基于 ‘robot perception, planning, manipulation’ 相关性应用了严格的过滤，仅保留对 JEPA 具有直接 architecture 见解的 video 论文。\nKey Insight: Diffusion models 中的 latent spatial memory 与 JEPA 具有结构相似性，尽管领域不同，但允许架构的类比迁移。\nGeneral Issues 4. Research Scout pipeline 在处理大规模（100 篇论文）的基于 LLM 的筛选时发生超时。 Solution: 重构了 pipeline 以使用更小的 batch (50 篇论文) 并增加了 timeout thresholds，确保 JEPA/World Models 搜索能够可靠完成。\nKey Insight: LLM tool calls 有硬性的时间限制；大规模 batch processing 必须进行分块处理，以确保长时工作流的可靠性。\nHuman vs AI Approaches Strategic Level Research Strategy Synthesis Role Approach Human 定义战略边界，专注于“可执行”的见解和高分论文合成，而非通用总结。 AI 执行语义提取、结构化 JSON 输出，并将概念（例如 intuitive physics）映射到 JEPA/W-VLA 上下文中。 Difference Analysis: Human 设定了战略范围；AI 弥合了孤立论文之间的差距（例如将 video models 的 physics priors 与 robotics perception 联系起来）。\nBenchmark Protocol Definitions Role Approach Human 定义了严谨的理论基准：gap reporting (CSR-RSR)、严格的 10-frame success 以及特定的 metric constraints。 AI 通过先编写失败的 unit tests，然后针对代码进行合规性调整，将抽象规则转化为具体的实现。 Difference Analysis: Human 提供了领域特定的正确性标准；AI 通过 test-driven engineering 确保了软件 artifact 的一致性。\nProduct Logic and UX Correction Role Approach Human 作为领域权威，纠正计费错误并要求使用 AI 最初认为正确的特定 UX terms（‘Free’, ‘N/A’）。 AI 执行了请求的更改，但在没有用户提示的情况下，最初难以诊断数据缺失（archive override）的根本原因。 Difference Analysis: Human 识别了业务逻辑错误；AI 执行了技术修复，但在受到提示之前缺乏对 persistence layer 交互的上下文理解。\nAI Limitations General Limitations 通过 subprocess 进行的 LLM tool calls 有硬性的时间限制；- 大批量处理需要进行分块以确保可靠性，正如在 Research Scout pipeline 中所见。 Local Windows 环境的 DLL/runtime 问题导致无法执行实际的 Rust 测试，被迫仅依赖基于编译的验证。 AI 最初未能诊断出 TokenMonitor 中陈旧的 archive 数据覆盖了实时 logs 的问题，在收到提示前一直误以为是逻辑错误而非检查 persistence layers。 Learnings Key Learnings Latent-space interaction 是 robotics perception 中新兴的趋势，V-JEPA 的 latent space 在直观物理方面表现出优于 video diffusion baselines 的特性。 在使代码与技术文档保持一致时，“test-first”方法（adversarial/unit tests）对于确保即时合规并防止 regression 非常有效。 在修复 model normalization 时，务必审计 data persistence layer（archives/caches），因为陈旧的历史数据很容易覆盖实时改进。 Practical Learnings 使用显式 flags（例如 pricing_available）比使用 sentinel values 更适合区分“无成本”与“缺失价格数据”。 Conversation Summaries Error Recovery Benchmark / Gadget Toolkit**✅ RecoverBench Protocol Compliance and Documentation Updates** 18:29:00 | claude_code 用户指示 AI 使 RecoverBench eval scripts 与文档保持一致，特别是强制执行 10-consecutive-frame 成功标准。AI 分析了差异，编写了 adversarial tests，并重构了 Python evaluators。同时，用户要求维护 Gadget toolkit 的 CLAUDE.md，AI 通过审计 repo 结构并更新过时的 architecture references 完成了这一任务。\nJEPA Robotics Research ✅ Literature Screening and Strategic Direction Formulation 18:30:00 | claude_code 用户启动了对 JEPA 和用于 robotics 的 world models 的深入研究。AI 筛选了相关论文，识别出高价值候选项目 (MemoryVLA++, PRISM)，并促进了涉及 hierarchical planning 和 physics-aware representations 的三个战略研究方向的制定，综合了来自多个领域的见解。\nTokenMonitor ✅ Model Pricing and Persistence Bug Fixes 04:00:00 | codex 用户报告了 TokenMonitor 中新 Anthropic models (Fable/Mythos) 的显示问题。AI 修复了 model normalization，通过新的 availability flag 修正了 pricing logic，并解决了一个关键的数据丢失问题，即过时的 hourly archives 覆盖了 live logs。解决方案涉及更新 Rust structs、parser logic 和 UI components。\nToken Usage AI Usage · 2026-06-09\rClaude Code + Codex\rTotal cost$247.24\rTotal tokens130M\rOutput tokens2M\rCache read88.4%\rCost split\rClaude Code $243 ·\rCodex $4\rToken character\rCache reads 88.4% ·\rActive 11.6%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
-  "wordCount" : "582",
+  "articleBody": "Daily Report — 2026-06-09 Daily Overview 完成工作： 标准化了 recovery 评估协议，为 JEPA/Robotics 合成了高价值研究方向，并解决了 TokenMonitor 中新 Anthropic 模型在显示/持久化方面的 bug。 实施方式： 通过对抗性测试实现了严格的“连续 10 帧”成功标准；筛选并分析了学术论文以制定三个混合架构提案；更新了 Rust 归一化逻辑，添加了 pricing flags，并修复了 archive override 机制。 影响： 确保了 recovery policy 的有效 benchmark 指标，为基于 JEPA 的 robotic perception 建立了清晰的战略路径，并保证了未来 Anthropic 发布模型的准确计费和模型识别。 在两天内，Error Recovery 项目在 benchmark 评估严谨性方面取得了显著进展，JEPA robotics 研究完成了战略性文献合成，同时修复了 TokenMonitor 应用中模型计费和数据持久化的关键 bug。\nTasks Architecture \u0026 Strategy ✅ JEPA and Robotics Literature Analysis \u0026 Strategy — 筛选了相关论文（MemoryVLA++、iMaC、PRISM 等），进行了深层的结构化分析，并制定了结合 hierarchical planning 和 episodic memory 的三个可执行研究方向。 ✅ Error Recovery Benchmark Protocol Implementation — 将所有评估的成功标准统一为连续 10 帧，标准化了 step budgets (500)，并创建了对抗性 unit tests 以强制执行协议一致性。 ✅ TokenMonitor Model Normalization and Pricing Fix — 更新了 Rust 逻辑以识别 Fable/Mythos 模型家族，添加了 pricing_available flags，修正了官方 pricing rates，并修复了用于 cost 渲染的 UI 格式。 ✅ TokenMonitor Archive Data Persistence Fix — 修改了解析逻辑，使 live logs 的优先级高于过时的 hourly archives，防止新模型的数据丢失；重置了 usage payload caches。 Implementation \u0026 Fixes ✅ Gadget Toolkit Documentation Maintenance — 审计并更新了 Gadget 仓库的根目录 CLAUDE.md，以反映当前的 architecture、MCP paths 和 CLI interfaces。 Problems \u0026 Solutions Critical Issues 1. RecoverBench scripts 使用了 ‘first-frame success’ 逻辑，导致指标虚高，且偏离了要求 10 帧连续成功的文档说明。 Solution: 实施了 ConsecutiveSuccessTracker 并首先编写了 L2 specification tests，随后重构了所有 eval loops 以强制执行严格的时间约束。\n关键发现： 单帧成功验证会严重高估可靠性；严格的时间窗口对于有效的 recovery rate 计算至关重要。\n2. 新的 Anthropic 模型显示为 ‘Unknown’ 或 ‘$0.00’，原因是归一化差距以及过时的 archive data 覆盖了 live logs。 Solution: 为新家族更新了 normalize_model，添加了显式的 pricing flags，并修改了 parser logic 以使 live log data 的优先级高于历史 archives。\n关键发现： 在没有 flag 的情况下，显示零成本与数据缺失无法区分；归一化修复必须配合 cache invalidation，以防止历史数据损坏。\n3. 在文献综述过程中，难以区分 video generation 和 robotics control 论文，从而导致研究范围蔓延。 Solution: 基于 ‘robot perception, planning, manipulation’ 相关性应用了严格的过滤，仅保留对 JEPA 具有直接 architecture 见解的 video 论文。\n关键发现： Diffusion models 中的 latent spatial memory 与 JEPA 具有结构相似性，尽管领域不同，但允许架构的类比迁移。\nGeneral Issues 4. Research Scout pipeline 在处理大规模（100 篇论文）的基于 LLM 的筛选时发生超时。 Solution: 重构了 pipeline 以使用更小的 batch (50 篇论文) 并增加了 timeout thresholds，确保 JEPA/World Models 搜索能够可靠完成。\n关键发现： LLM tool calls 有硬性的时间限制；大规模 batch processing 必须进行分块处理，以确保长时工作流的可靠性。\nHuman vs AI Approaches Strategic Level Research Strategy Synthesis 角色 方法 用户 定义战略边界，专注于“可执行”的见解和高分论文合成，而非通用总结。 AI 助手 执行语义提取、结构化 JSON 输出，并将概念（例如 intuitive physics）映射到 JEPA/W-VLA 上下文中。 差异分析： Human 设定了战略范围；AI 弥合了孤立论文之间的差距（例如将 video models 的 physics priors 与 robotics perception 联系起来）。\nBenchmark Protocol Definitions 角色 方法 用户 定义了严谨的理论基准：gap reporting (CSR-RSR)、严格的 10-frame success 以及特定的 metric constraints。 AI 助手 通过先编写失败的 unit tests，然后针对代码进行合规性调整，将抽象规则转化为具体的实现。 差异分析： Human 提供了领域特定的正确性标准；AI 通过 test-driven engineering 确保了软件 artifact 的一致性。\nProduct Logic and UX Correction 角色 方法 用户 作为领域权威，纠正计费错误并要求使用 AI 最初认为正确的特定 UX terms（‘Free’, ‘N/A’）。 AI 助手 执行了请求的更改，但在没有用户提示的情况下，最初难以诊断数据缺失（archive override）的根本原因。 差异分析： Human 识别了业务逻辑错误；AI 执行了技术修复，但在受到提示之前缺乏对 persistence layer 交互的上下文理解。\nAI Limitations General Limitations 通过 subprocess 进行的 LLM tool calls 有硬性的时间限制；- 大批量处理需要进行分块以确保可靠性，正如在 Research Scout pipeline 中所见。 Local Windows 环境的 DLL/runtime 问题导致无法执行实际的 Rust 测试，被迫仅依赖基于编译的验证。 AI 最初未能诊断出 TokenMonitor 中陈旧的 archive 数据覆盖了实时 logs 的问题，在收到提示前一直误以为是逻辑错误而非检查 persistence layers。 Learnings Key Learnings Latent-space interaction 是 robotics perception 中新兴的趋势，V-JEPA 的 latent space 在直观物理方面表现出优于 video diffusion baselines 的特性。 在使代码与技术文档保持一致时，“test-first”方法（adversarial/unit tests）对于确保即时合规并防止 regression 非常有效。 在修复 model normalization 时，务必审计 data persistence layer（archives/caches），因为陈旧的历史数据很容易覆盖实时改进。 Practical Learnings 使用显式 flags（例如 pricing_available）比使用 sentinel values 更适合区分“无成本”与“缺失价格数据”。 Conversation Summaries Error Recovery Benchmark / Gadget Toolkit**✅ RecoverBench Protocol Compliance and Documentation Updates** 18:29:00 | claude_code 用户指示 AI 使 RecoverBench eval scripts 与文档保持一致，特别是强制执行 10-consecutive-frame 成功标准。AI 分析了差异，编写了 adversarial tests，并重构了 Python evaluators。同时，用户要求维护 Gadget toolkit 的 CLAUDE.md，AI 通过审计 repo 结构并更新过时的 architecture references 完成了这一任务。\nJEPA Robotics Research ✅ Literature Screening and Strategic Direction Formulation 18:30:00 | claude_code 用户启动了对 JEPA 和用于 robotics 的 world models 的深入研究。AI 筛选了相关论文，识别出高价值候选项目 (MemoryVLA++, PRISM)，并促进了涉及 hierarchical planning 和 physics-aware representations 的三个战略研究方向的制定，综合了来自多个领域的见解。\nTokenMonitor ✅ Model Pricing and Persistence Bug Fixes 04:00:00 | codex 用户报告了 TokenMonitor 中新 Anthropic models (Fable/Mythos) 的显示问题。AI 修复了 model normalization，通过新的 availability flag 修正了 pricing logic，并解决了一个关键的数据丢失问题，即过时的 hourly archives 覆盖了 live logs。解决方案涉及更新 Rust structs、parser logic 和 UI components。\nToken Usage AI Usage · 2026-06-09\rClaude Code + Codex\rTotal cost$247.24\rTotal tokens130M\rOutput tokens2M\rCache read88.4%\rCost split\rClaude Code $243 ·\rCodex $4\rToken character\rCache reads 88.4% ·\rActive 11.6%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "578",
   "inLanguage": "zh",
   "datePublished": "2026-06-09T00:00:00-04:00",
   "dateModified": "2026-06-09T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -235,79 +235,79 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-recoverbench-scripts-使用了-first-frame-success-逻辑导致指标虚高且偏离了要求-10-帧连续成功的文档说明">1. RecoverBench scripts 使用了 &lsquo;first-frame success&rsquo; 逻辑，导致指标虚高，且偏离了要求 10 帧连续成功的文档说明。<a hidden class="anchor" aria-hidden="true" href="#1-recoverbench-scripts-使用了-first-frame-success-逻辑导致指标虚高且偏离了要求-10-帧连续成功的文档说明">#</a></h4>
 <p><strong>Solution:</strong> 实施了 <code>ConsecutiveSuccessTracker</code> 并首先编写了 L2 specification tests，随后重构了所有 eval loops 以强制执行严格的时间约束。</p>
-<p><strong>Key Insight:</strong> 单帧成功验证会严重高估可靠性；严格的时间窗口对于有效的 recovery rate 计算至关重要。</p>
+<p><strong>关键发现：</strong> 单帧成功验证会严重高估可靠性；严格的时间窗口对于有效的 recovery rate 计算至关重要。</p>
 <h4 id="2-新的-anthropic-模型显示为-unknown-或-000原因是归一化差距以及过时的-archive-data-覆盖了-live-logs">2. 新的 Anthropic 模型显示为 &lsquo;Unknown&rsquo; 或 &lsquo;$0.00&rsquo;，原因是归一化差距以及过时的 archive data 覆盖了 live logs。<a hidden class="anchor" aria-hidden="true" href="#2-新的-anthropic-模型显示为-unknown-或-000原因是归一化差距以及过时的-archive-data-覆盖了-live-logs">#</a></h4>
 <p><strong>Solution:</strong> 为新家族更新了 <code>normalize_model</code>，添加了显式的 pricing flags，并修改了 parser logic 以使 live log data 的优先级高于历史 archives。</p>
-<p><strong>Key Insight:</strong> 在没有 flag 的情况下，显示零成本与数据缺失无法区分；归一化修复必须配合 cache invalidation，以防止历史数据损坏。</p>
+<p><strong>关键发现：</strong> 在没有 flag 的情况下，显示零成本与数据缺失无法区分；归一化修复必须配合 cache invalidation，以防止历史数据损坏。</p>
 <h4 id="3-在文献综述过程中难以区分-video-generation-和-robotics-control-论文从而导致研究范围蔓延">3. 在文献综述过程中，难以区分 video generation 和 robotics control 论文，从而导致研究范围蔓延。<a hidden class="anchor" aria-hidden="true" href="#3-在文献综述过程中难以区分-video-generation-和-robotics-control-论文从而导致研究范围蔓延">#</a></h4>
 <p><strong>Solution:</strong> 基于 &lsquo;robot perception, planning, manipulation&rsquo; 相关性应用了严格的过滤，仅保留对 JEPA 具有直接 architecture 见解的 video 论文。</p>
-<p><strong>Key Insight:</strong> Diffusion models 中的 latent spatial memory 与 JEPA 具有结构相似性，尽管领域不同，但允许架构的类比迁移。</p>
+<p><strong>关键发现：</strong> Diffusion models 中的 latent spatial memory 与 JEPA 具有结构相似性，尽管领域不同，但允许架构的类比迁移。</p>
 <h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
 <h4 id="4-research-scout-pipeline-在处理大规模100-篇论文的基于-llm-的筛选时发生超时">4. Research Scout pipeline 在处理大规模（100 篇论文）的基于 LLM 的筛选时发生超时。<a hidden class="anchor" aria-hidden="true" href="#4-research-scout-pipeline-在处理大规模100-篇论文的基于-llm-的筛选时发生超时">#</a></h4>
 <p><strong>Solution:</strong> 重构了 pipeline 以使用更小的 batch (50 篇论文) 并增加了 timeout thresholds，确保 JEPA/World Models 搜索能够可靠完成。</p>
-<p><strong>Key Insight:</strong> LLM tool calls 有硬性的时间限制；大规模 batch processing 必须进行分块处理，以确保长时工作流的可靠性。</p>
+<p><strong>关键发现：</strong> LLM tool calls 有硬性的时间限制；大规模 batch processing 必须进行分块处理，以确保长时工作流的可靠性。</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="research-strategy-synthesis">Research Strategy Synthesis<a hidden class="anchor" aria-hidden="true" href="#research-strategy-synthesis">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>定义战略边界，专注于“可执行”的见解和高分论文合成，而非通用总结。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>执行语义提取、结构化 JSON 输出，并将概念（例如 intuitive physics）映射到 JEPA/W-VLA 上下文中。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 设定了战略范围；AI 弥合了孤立论文之间的差距（例如将 video models 的 physics priors 与 robotics perception 联系起来）。</p>
+<p><strong>差异分析：</strong> Human 设定了战略范围；AI 弥合了孤立论文之间的差距（例如将 video models 的 physics priors 与 robotics perception 联系起来）。</p>
 <h4 id="benchmark-protocol-definitions">Benchmark Protocol Definitions<a hidden class="anchor" aria-hidden="true" href="#benchmark-protocol-definitions">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>定义了严谨的理论基准：gap reporting (CSR-RSR)、严格的 10-frame success 以及特定的 metric constraints。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>通过先编写失败的 unit tests，然后针对代码进行合规性调整，将抽象规则转化为具体的实现。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 提供了领域特定的正确性标准；AI 通过 test-driven engineering 确保了软件 artifact 的一致性。</p>
+<p><strong>差异分析：</strong> Human 提供了领域特定的正确性标准；AI 通过 test-driven engineering 确保了软件 artifact 的一致性。</p>
 <h4 id="product-logic-and-ux-correction">Product Logic and UX Correction<a hidden class="anchor" aria-hidden="true" href="#product-logic-and-ux-correction">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>作为领域权威，纠正计费错误并要求使用 AI 最初认为正确的特定 UX terms（&lsquo;Free&rsquo;, &lsquo;N/A&rsquo;）。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>执行了请求的更改，但在没有用户提示的情况下，最初难以诊断数据缺失（archive override）的根本原因。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 识别了业务逻辑错误；AI 执行了技术修复，但在受到提示之前缺乏对 persistence layer 交互的上下文理解。</p>
+<p><strong>差异分析：</strong> Human 识别了业务逻辑错误；AI 执行了技术修复，但在受到提示之前缺乏对 persistence layer 交互的上下文理解。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="general-limitations">General Limitations<a hidden class="anchor" aria-hidden="true" href="#general-limitations">#</a></h3>
 <ul>

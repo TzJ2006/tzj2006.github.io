@@ -10,7 +10,7 @@
 <meta name="description" content="这一天致力于大规模的跨项目工作，包括针对 RecoverBench 的严格研究声明审计、复杂的 PhD 申请材料完善（CVs, SoPs 和 outreach）、高标准的学术论文草拟 (MIHD)、针对 OmniJev 和 W4A4 配置的闭环评估，以及对课程作业和 benchmarking pipelines 的系统性调试。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-29/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,7 +96,7 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-09-29 Daily Overview 完成工作： 对研究 claim 和 code implementation 进行了大规模审计，完善了整个 PhD application 生态系统，执行了高级 agentic manuscript drafting，并完成了 closed-loop robotics evaluations 和 quantization profiling。 执行方式： 采用了 multi-agent workflows (writer/reviewer/adversarial)，基于 Python 的文档管理自动化，基于 SSH 的远程 cluster inspection (tianhe3)，以及隔离的基于 HTTP 的 closed-loop evaluation environments。 影响： 确保了即将提交的 camera-ready submissions 的科学完整性，建立了高影响力的 PhD outreach 策略，并验证了 judgment models 和 quantization configurations 在关键性能上的提升。 今日致力于大规模的跨项目工作，包括对 RecoverBench 进行严格的研究 claim 审计，复杂的 PhD application material 完善 (CVs, SoPs, and outreach)，高风险的 academic manuscript drafting (MIHD)，OmniJev 和 W4A4 configurations 的 closed-loop evaluation，以及对 coursework 和 benchmarking pipelines 的系统性 debugging。\nTasks Architecture \u0026 Strategy 🔄 RecoverBench Claim \u0026 Code Audit — 执行大规模 workflow，针对所有研究 claim 对照 code、data 和 cluster artifacts 构建“已有/缺失/差异”账本；从 claim-compliance 转向 operational usability/pipeline gap analysis。 🔄 MIHD Manuscript Drafting \u0026 Investigation — 组建了 MIHD manuscript 的完整初稿，并启动了多阶段调查 workflow，以根据已发表的 methodology 审计当前的 implementations。 • OmniJev Closed-loop Deployment \u0026 Optimization — 建立了独立的基于 HTTP 的 evaluation architecture，并验证了 “event memory + point-wise judgment” 逻辑在 VideoPlace tasks 中的性能提升。 ✅ W4A4 Closed-Loop Evaluation — 在 CPU 上评估了 W4A4 configuration (262fdb19c)，由于显著的 backbone activation degradation，识别出成功率为 0.0%。 ✅ PhD Application Ecosystem Refinement — 更新了 application maps、research CVs (1/2 page versions)、SoPs 以及 41 封个性化 outreach emails，以反映 NeurIPS 2026 的录取情况以及仅针对 US 的战略重点。 Implementation \u0026 Fixes ✅ Camera-ready Workspace Creation — 在 tianhe3 cluster 上创建了一个隔离的 workspace 以进行有组织的开发。 ✅ ECE661 HW2 Audit — 验证了 Jupyter notebook/LaTeX 的一致性，并修复了 data/formatting 差异。 ✅ Gadget Benchmark Update — 将 GPT-6.1 Sol 集成到 benchmarking pipeline 中并重新生成了 reports。 Problems \u0026 Solutions Critical Issues 1. 研究 claim (RecoverBench/MIHD) 与实际 experimental data/code implementation 之间的差异。 Solution: 在 manuscripts 中实施了 “Claims/Evidence” 账本和 “{NEW}/[PENDING]” 标记系统，以确保透明度并为 camera-ready version 优先处理 gap。\n2. W4A4 quantization 导致严重的性能下降 (0% success rate) 以及 compiler 诱发的 FP16 fallbacks。 Solution: 确定 backbone activation 为错误源，并建议转向 W8A8 以避免无法运行的 quantization graphs。\n3. PhD outreach emails 和 manuscript drafts 缺乏叙事流，或包含不准确的技术/政策推断。 Solution: 将逻辑从 “列举细节” 重构为 “提出互补性研究”，并通过 web search 重新验证了 faculty/admission 数据。\n4. 技术瓶颈：Shell escaping 问题、simulator timeouts (latency)，以及 agentic workflows 中的大 context/token 消耗。 Solution: 切换到专门的 Python patch scripts 进行 string manipulation，针对慢速 inference 禁用了 websocket pings，并开发了 compact_evidence.py 以减少 token load。\nGeneral Issues 5. ECE661 report 不匹配以及 CV 在 Word/PDF 之间的格式不一致。 Solution: 使用修复后的 imports 重新运行 experiments，并使用 Word COM objects/build scripts 来管理 paragraph spacing 和 pagination。\nHuman vs AI Approaches Strategic Level Manuscript \u0026 Research Narrative Role Approach Human 专注于高层战略影响、“zero-shot comparability” 以及为教授创造凝聚的研究主题。 AI 强调技术完整性、统计谨慎性 (例如 “reliability axis” vs “robustness”)，并保持严格的 data-to-claim mapping。 Difference Analysis: Human 驱动战略愿景和叙事，而 AI 确保技术/统计有效性和数据完整性。\nError Definition and Strategy Role Approach Human 为 error taxonomies (例如 “true task regression”) 和 operational priorities 提供高层语义意图。 AI 提出技术实现选项，并分析定义如何影响 data generation。 Difference Analysis: AI 提供了技术可能性的频谱，而 Human 提供了科学方向。\nHardware and Quantization Constraints Role Approach Human 寻求请求的 W4A4 configuration 的具体成功率。 AI 提供了由于 compiler fallback 到 FP16 导致 W4A4 性能收益不存在的技术原因。 Difference Analysis: AI 从执行用户请求转变为解释底层的 hardware/compiler reality。\nEmail Tone and Logic Role Approach Human 坚持使用对话式的、以人为中心的语气，提出研究协同效应而非仅仅列出成就。 AI 优先考虑高信息密度和高度结构化、数据密集型的模式。 Difference Analysis: Human 优先考虑 social intelligence；AI 优先考虑技术信息密度。\nAI Limitations Critical Limitations AI 在对研究结果进行推断时倾向于 “over-certainty”，并将 “code existence” 与 “feature correctness” 混淆。 在高密度任务 (CV expansion) 中，AI 最初优先考虑 “填充页面” (volume) 而非 “strategic clarity” (impact)。 General Limitations AI 在处理复杂的 shell escaping (sed/python/bash) 时表现挣扎，并偶尔被 project security guard hooks (D21/D16) 拦截。 通过 internal browser 访问 local file paths (file://) 受限，且在 closed-loop evaluation 中的任务覆盖范围有限。 Learnings Key Learnings- 在高风险的学术/研究工作中，战略性叙事（将主题/互补解决方案联系起来）比单纯的数量或技术密度要有效得多。 结构化层级（Goals $\\rightarrow$ Sub-tasks $\\rightarrow$ Verification）对于管理复杂的、多阶段的 robotics pipelines 至关重要。 在 agentic workflows 中，严格区分 ‘Claims’ 与 ‘Evidence’ 对于防止 context overflow 并确保科学完整性至关重要。 在 offline dev sets 上优化的 Thresholds/parameters 在转移到 closed-loop online execution 时，往往会遭遇 distribution shift。 Conversation Summaries RecoverBench / ErrorRecoveryBenchmark 🔄 Claim Audit, Code Logic \u0026 Camera-Ready Prep 在 tianhe3 cluster 上执行了大规模 audit。识别了 paper claims 与 implementation 之间的关键差异，转向 code-usability/pipeline gap analysis，并为 camera-ready submission 建立了优先级 checklist。\nPhD Applications \u0026 Management ✅ Strategic Material Refinement (CV, SoP, Emails) 完善了整个申请生态系统，包括高影响力的 2-page CVs，更新了研究状态（NeurIPS acceptance），以及 41 封个性化的、以研究为驱动的 outreach emails。\nMIHD 🔄 Manuscript Drafting \u0026 Codebase Investigation 使用 multi-agent workflow 完成了 MIHD manuscript 的第一份完整草案，并启动了深度调查，以根据 paper’s outline 对 implementation 进行 audit。\nOmniJev ✅ Closed-loop Optimization \u0026 Verification 验证了 ’event memory + judgment’ 模型显著提高了 VideoPlace 的成功率。对 closed-loop integration code 进行了全面 audit，以修复安全性和可靠性问题。\nW4A4 Profile (pi05) ✅ Quantization Evaluation \u0026 Troubleshooting 为 W4A4 config 运行了基于 CPU 的 closed-loop evaluations，排查了 websocket timeouts 问题，并确定 heavy backbone degradation 是导致 0% 成功率的原因。\nECE661 Homework ✅ HW2 Report and Code Verification 通过修复 code bugs 和验证数值数据，解决了 LaTeX report 与 Jupyter notebook outputs 之间的不匹配问题。\nGadget Benchmark ✅ GPT-6.1 Sol Integration 将 GPT-6.1 Sol 集成到 testing suite 中并重新生成了 performance reports。\nRoboMemory ✅ RouteStick Failure Analysis 分析了 RouteStick 的 failure modes，发现 direction misjudgment 是导致错误的主要驱动因素。\nTokenMonitor ✅ Usage Calculation Logic Audit 调查了 usage budgets 和 remote SSH device aggregation 是如何计算的。\nToken Usage AI Usage · 2026-09-29\rClaude Code + Codex\rTotal cost$444.56\rTotal tokens1.10B\rOutput tokens2M\rCache read96.9%\rCost split\rClaude Code $432 ·\rCodex $12\rToken character\rCache reads 96.9% ·\rActive 3.1%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "articleBody": "Daily Report — 2026-09-29 Daily Overview 完成工作： 对研究 claim 和 code implementation 进行了大规模审计，完善了整个 PhD application 生态系统，执行了高级 agentic manuscript drafting，并完成了 closed-loop robotics evaluations 和 quantization profiling。 执行方式： 采用了 multi-agent workflows (writer/reviewer/adversarial)，基于 Python 的文档管理自动化，基于 SSH 的远程 cluster inspection (tianhe3)，以及隔离的基于 HTTP 的 closed-loop evaluation environments。 影响： 确保了即将提交的 camera-ready submissions 的科学完整性，建立了高影响力的 PhD outreach 策略，并验证了 judgment models 和 quantization configurations 在关键性能上的提升。 今日致力于大规模的跨项目工作，包括对 RecoverBench 进行严格的研究 claim 审计，复杂的 PhD application material 完善 (CVs, SoPs, and outreach)，高风险的 academic manuscript drafting (MIHD)，OmniJev 和 W4A4 configurations 的 closed-loop evaluation，以及对 coursework 和 benchmarking pipelines 的系统性 debugging。\nTasks Architecture \u0026 Strategy 🔄 RecoverBench Claim \u0026 Code Audit — 执行大规模 workflow，针对所有研究 claim 对照 code、data 和 cluster artifacts 构建“已有/缺失/差异”账本；从 claim-compliance 转向 operational usability/pipeline gap analysis。 🔄 MIHD Manuscript Drafting \u0026 Investigation — 组建了 MIHD manuscript 的完整初稿，并启动了多阶段调查 workflow，以根据已发表的 methodology 审计当前的 implementations。 • OmniJev Closed-loop Deployment \u0026 Optimization — 建立了独立的基于 HTTP 的 evaluation architecture，并验证了 “event memory + point-wise judgment” 逻辑在 VideoPlace tasks 中的性能提升。 ✅ W4A4 Closed-Loop Evaluation — 在 CPU 上评估了 W4A4 configuration (262fdb19c)，由于显著的 backbone activation degradation，识别出成功率为 0.0%。 ✅ PhD Application Ecosystem Refinement — 更新了 application maps、research CVs (1/2 page versions)、SoPs 以及 41 封个性化 outreach emails，以反映 NeurIPS 2026 的录取情况以及仅针对 US 的战略重点。 Implementation \u0026 Fixes ✅ Camera-ready Workspace Creation — 在 tianhe3 cluster 上创建了一个隔离的 workspace 以进行有组织的开发。 ✅ ECE661 HW2 Audit — 验证了 Jupyter notebook/LaTeX 的一致性，并修复了 data/formatting 差异。 ✅ Gadget Benchmark Update — 将 GPT-6.1 Sol 集成到 benchmarking pipeline 中并重新生成了 reports。 Problems \u0026 Solutions Critical Issues 1. 研究 claim (RecoverBench/MIHD) 与实际 experimental data/code implementation 之间的差异。 Solution: 在 manuscripts 中实施了 “Claims/Evidence” 账本和 “{NEW}/[PENDING]” 标记系统，以确保透明度并为 camera-ready version 优先处理 gap。\n2. W4A4 quantization 导致严重的性能下降 (0% success rate) 以及 compiler 诱发的 FP16 fallbacks。 Solution: 确定 backbone activation 为错误源，并建议转向 W8A8 以避免无法运行的 quantization graphs。\n3. PhD outreach emails 和 manuscript drafts 缺乏叙事流，或包含不准确的技术/政策推断。 Solution: 将逻辑从 “列举细节” 重构为 “提出互补性研究”，并通过 web search 重新验证了 faculty/admission 数据。\n4. 技术瓶颈：Shell escaping 问题、simulator timeouts (latency)，以及 agentic workflows 中的大 context/token 消耗。 Solution: 切换到专门的 Python patch scripts 进行 string manipulation，针对慢速 inference 禁用了 websocket pings，并开发了 compact_evidence.py 以减少 token load。\nGeneral Issues 5. ECE661 report 不匹配以及 CV 在 Word/PDF 之间的格式不一致。 Solution: 使用修复后的 imports 重新运行 experiments，并使用 Word COM objects/build scripts 来管理 paragraph spacing 和 pagination。\nHuman vs AI Approaches Strategic Level Manuscript \u0026 Research Narrative 角色 方法 用户 专注于高层战略影响、“zero-shot comparability” 以及为教授创造凝聚的研究主题。 AI 助手 强调技术完整性、统计谨慎性 (例如 “reliability axis” vs “robustness”)，并保持严格的 data-to-claim mapping。 差异分析： Human 驱动战略愿景和叙事，而 AI 确保技术/统计有效性和数据完整性。\nError Definition and Strategy 角色 方法 用户 为 error taxonomies (例如 “true task regression”) 和 operational priorities 提供高层语义意图。 AI 助手 提出技术实现选项，并分析定义如何影响 data generation。 差异分析： AI 提供了技术可能性的频谱，而 Human 提供了科学方向。\nHardware and Quantization Constraints 角色 方法 用户 寻求请求的 W4A4 configuration 的具体成功率。 AI 助手 提供了由于 compiler fallback 到 FP16 导致 W4A4 性能收益不存在的技术原因。 差异分析： AI 从执行用户请求转变为解释底层的 hardware/compiler reality。\nEmail Tone and Logic 角色 方法 用户 坚持使用对话式的、以人为中心的语气，提出研究协同效应而非仅仅列出成就。 AI 助手 优先考虑高信息密度和高度结构化、数据密集型的模式。 差异分析： Human 优先考虑 social intelligence；AI 优先考虑技术信息密度。\nAI Limitations Critical Limitations AI 在对研究结果进行推断时倾向于 “over-certainty”，并将 “code existence” 与 “feature correctness” 混淆。 在高密度任务 (CV expansion) 中，AI 最初优先考虑 “填充页面” (volume) 而非 “strategic clarity” (impact)。 General Limitations AI 在处理复杂的 shell escaping (sed/python/bash) 时表现挣扎，并偶尔被 project security guard hooks (D21/D16) 拦截。 通过 internal browser 访问 local file paths (file://) 受限，且在 closed-loop evaluation 中的任务覆盖范围有限。 Learnings Key Learnings- 在高风险的学术/研究工作中，战略性叙事（将主题/互补解决方案联系起来）比单纯的数量或技术密度要有效得多。 结构化层级（Goals →\\rightarrow Sub-tasks →\\rightarrow Verification）对于管理复杂的、多阶段的 robotics pipelines 至关重要。 在 agentic workflows 中，严格区分 ‘Claims’ 与 ‘Evidence’ 对于防止 context overflow 并确保科学完整性至关重要。 在 offline dev sets 上优化的 Thresholds/parameters 在转移到 closed-loop online execution 时，往往会遭遇 distribution shift。 Conversation Summaries RecoverBench / ErrorRecoveryBenchmark 🔄 Claim Audit, Code Logic \u0026 Camera-Ready Prep 在 tianhe3 cluster 上执行了大规模 audit。识别了 paper claims 与 implementation 之间的关键差异，转向 code-usability/pipeline gap analysis，并为 camera-ready submission 建立了优先级 checklist。\nPhD Applications \u0026 Management ✅ Strategic Material Refinement (CV, SoP, Emails) 完善了整个申请生态系统，包括高影响力的 2-page CVs，更新了研究状态（NeurIPS acceptance），以及 41 封个性化的、以研究为驱动的 outreach emails。\nMIHD 🔄 Manuscript Drafting \u0026 Codebase Investigation 使用 multi-agent workflow 完成了 MIHD manuscript 的第一份完整草案，并启动了深度调查，以根据 paper’s outline 对 implementation 进行 audit。\nOmniJev ✅ Closed-loop Optimization \u0026 Verification 验证了 ’event memory + judgment’ 模型显著提高了 VideoPlace 的成功率。对 closed-loop integration code 进行了全面 audit，以修复安全性和可靠性问题。\nW4A4 Profile (pi05) ✅ Quantization Evaluation \u0026 Troubleshooting 为 W4A4 config 运行了基于 CPU 的 closed-loop evaluations，排查了 websocket timeouts 问题，并确定 heavy backbone degradation 是导致 0% 成功率的原因。\nECE661 Homework ✅ HW2 Report and Code Verification 通过修复 code bugs 和验证数值数据，解决了 LaTeX report 与 Jupyter notebook outputs 之间的不匹配问题。\nGadget Benchmark ✅ GPT-6.1 Sol Integration 将 GPT-6.1 Sol 集成到 testing suite 中并重新生成了 performance reports。\nRoboMemory ✅ RouteStick Failure Analysis 分析了 RouteStick 的 failure modes，发现 direction misjudgment 是导致错误的主要驱动因素。\nTokenMonitor ✅ Usage Calculation Logic Audit 调查了 usage budgets 和 remote SSH device aggregation 是如何计算的。\nToken Usage AI Usage · 2026-09-29\rClaude Code + Codex\rTotal cost$444.56\rTotal tokens1.10B\rOutput tokens2M\rCache read96.9%\rCost split\rClaude Code $432 ·\rCodex $12\rToken character\rCache reads 96.9% ·\rActive 3.1%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
   "wordCount" : "749",
   "inLanguage": "zh",
   "datePublished": "2026-09-29T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -253,82 +253,82 @@
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>专注于高层战略影响、“zero-shot comparability” 以及为教授创造凝聚的研究主题。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>强调技术完整性、统计谨慎性 (例如 “reliability axis” vs “robustness”)，并保持严格的 data-to-claim mapping。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 驱动战略愿景和叙事，而 AI 确保技术/统计有效性和数据完整性。</p>
+<p><strong>差异分析：</strong> Human 驱动战略愿景和叙事，而 AI 确保技术/统计有效性和数据完整性。</p>
 <h4 id="error-definition-and-strategy">Error Definition and Strategy<a hidden class="anchor" aria-hidden="true" href="#error-definition-and-strategy">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>为 error taxonomies (例如 “true task regression”) 和 operational priorities 提供高层语义意图。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>提出技术实现选项，并分析定义如何影响 data generation。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> AI 提供了技术可能性的频谱，而 Human 提供了科学方向。</p>
+<p><strong>差异分析：</strong> AI 提供了技术可能性的频谱，而 Human 提供了科学方向。</p>
 <h4 id="hardware-and-quantization-constraints">Hardware and Quantization Constraints<a hidden class="anchor" aria-hidden="true" href="#hardware-and-quantization-constraints">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>寻求请求的 W4A4 configuration 的具体成功率。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>提供了由于 compiler fallback 到 FP16 导致 W4A4 性能收益不存在的技术原因。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> AI 从执行用户请求转变为解释底层的 hardware/compiler reality。</p>
+<p><strong>差异分析：</strong> AI 从执行用户请求转变为解释底层的 hardware/compiler reality。</p>
 <h4 id="email-tone-and-logic">Email Tone and Logic<a hidden class="anchor" aria-hidden="true" href="#email-tone-and-logic">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>坚持使用对话式的、以人为中心的语气，提出研究协同效应而非仅仅列出成就。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>优先考虑高信息密度和高度结构化、数据密集型的模式。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 优先考虑 social intelligence；AI 优先考虑技术信息密度。</p>
+<p><strong>差异分析：</strong> Human 优先考虑 social intelligence；AI 优先考虑技术信息密度。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
 <ul>
@@ -343,7 +343,7 @@
 <h2 id="learnings">Learnings<a hidden class="anchor" aria-hidden="true" href="#learnings">#</a></h2>
 <h3 id="key-learnings--在高风险的学术研究工作中战略性叙事将主题互补解决方案联系起来比单纯的数量或技术密度要有效得多">Key Learnings- 在高风险的学术/研究工作中，战略性叙事（将主题/互补解决方案联系起来）比单纯的数量或技术密度要有效得多。<a hidden class="anchor" aria-hidden="true" href="#key-learnings--在高风险的学术研究工作中战略性叙事将主题互补解决方案联系起来比单纯的数量或技术密度要有效得多">#</a></h3>
 <ul>
-<li>结构化层级（Goals $\rightarrow$ Sub-tasks $\rightarrow$ Verification）对于管理复杂的、多阶段的 robotics pipelines 至关重要。</li>
+<li>结构化层级（Goals <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo></mrow><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math></span></span> Sub-tasks <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo></mrow><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math></span></span> Verification）对于管理复杂的、多阶段的 robotics pipelines 至关重要。</li>
 <li>在 agentic workflows 中，严格区分 &lsquo;Claims&rsquo; 与 &lsquo;Evidence&rsquo; 对于防止 context overflow 并确保科学完整性至关重要。</li>
 <li>在 offline dev sets 上优化的 Thresholds/parameters 在转移到 closed-loop online execution 时，往往会遭遇 distribution shift。</li>
 </ul>

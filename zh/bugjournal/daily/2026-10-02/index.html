@@ -10,7 +10,7 @@
 <meta name="description" content="这一天成功为 RoboMemory 实现了 visual-only proprioception，解决了 WeAgent 中关键的 SQLite corruption 和文件读取问题，为 MihD-dev 制定了项目规范并编排了 subagents，并实现了 ECE 661 deep learning 学术作业的自动化完成。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-10-02/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,7 +96,7 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-10-02 Daily Overview 完成工作： 团队推进了多个高风险项目：在 RoboMemory 中实现了视觉 gripper/height tracking (I-172)，修复了 WeAgent 中的关键数据库完整性和文件处理 bug，为 MihD-dev 制定了 15 项战略决策并启动了并行 subagents，并为 ECE 661 自动化了 deep learning 作业 (RNNs/Transformers)。 实施方式： 技术方法包括开发带有 re-anchoring 机制的 wrist-camera event detectors，为实现稳健的 WAL 合并实施了 ‘SQLite Replay’ 策略，利用专门的 agentic protocols 进行科学记账，并使用 AI agents 执行和验证 Jupyter notebooks。 影响： 这些工作显著提高了机器人任务成功率，确保了 WeChat bot 运行的稳定可靠，将高层研究指南转化为可执行的技术规范，并交付了经过验证的学术报告。 今日完成了 RoboMemory 纯视觉 proprioception 的成功实现，解决了 WeAgent 中关键的 SQLite 损坏和文件读取问题，为 MihD-dev 制定了项目规范并编排了 subagents，并自动化完成了 ECE 661 的 deep learning 学术作业。\nTasks Architecture \u0026 Strategy ✅ Fix SQLite WAL Merge Integrity — 为解密的 WAL 文件实施了稳健的 ‘SQLite Replay’ 方法，以确保完整性并处理复杂的 checkpointing/frame validation 规则，取代了易出错的手动合并。 ✅ MihD-dev Decision Register Update — 记录了 15 项 owner 决策，更新了 decision table、specification、experiment matrix 和 implementation checklist。 ✅ Improve PDF/Image Reading — 将 PDF 处理切换至 PyMuPDF 以绕过 onnxruntime/DLL 问题，并实施了长截图 tiling 技术以防止分辨率损失。 ✅ ECE 661 HW3 Completion — 自动化实现了 LSTM 和 GPT-2/LoRA notebooks，包括训练并生成一份详尽的 PDF 报告。 🔄 MihD-dev Round 3 Agent Launch — 管理 13 个后台 agents，涵盖 NCL design、cross-patient queries 和 bug fixes。 ✅ Enhance WeChat Message Recognition — 通过改进 filename lookup 并添加 WeChat Quote/At-me 支持，修复了文件被识别为 ‘Other Messages’ 的问题。 • I-172: wrist-camera event detectors — 使用 wrist camera 视觉检测取代 arm proprioception (gripper/height)，以启用纯视觉 memory modes。 Implementation \u0026 Fixes ✅ MIHD Paper Figure Audit — 根据 6-figure manuscript plan 对现有 figure 进行了审计，并为用户进行了打包。 ✅ Instruction Injection Audit — 审计了作业文件是否存在隐藏的 model instructions 或 LLM 限制，以确保不存在非预期的 prompt injections。 Problems \u0026 Solutions Critical Issues 1. SQLite WAL merge 导致 ‘quick_check’ 失败以及由于半写 frame 或缺失 atomicity rules 导致的数据库损坏。 Solution: 使用 ‘SQLite Replay’ 方法取代了手动合并逻辑，利用官方 engine 回放解密的 WAL 文件以获得最大的稳健性。\n2. 长截图被 AstrBot 的 1280px resize limit 压缩，导致文本无法阅读。 Solution: 实现了一个 tiling system，将长图分割成多个重叠的部分（最多 8 个）以保留分辨率。\n3. AI subagent 试图取消关键的系统级 SLURM allocation (agent-zt81)。 Solution: 明确了 permission protocols，并通过 main agent 明确指示 agents 绝不允许取消 auto-provisioned sessions。\n4. ImportError: DLL load failed，在使用 MarkItDown 读取 PDF 时由于缺少 VC++ runtimes 导致。 Solution: 对 PDF 处理绕过了 MarkItDown，转而使用 PyMuPDF (fitz)，并在 VM setup script 中添加了 VC++ runtime 安装。\nGeneral Issues 5. Round 3 README 中错误的 GPU node name 导致 SLURM submission 失败。 Solution: 确定了正确的 node (dcc-gehmlab-gpu-ferc-s-z25-18) 并向所有 active agents 发布了全局修正。\n6. 由于 update script 中的 greedy regex 导致 implementation checklist 损坏。 Solution: 从 file-system snapshot 中恢复了文件，并使用修正后的 regex 重新应用了更新。\n7. 长时间执行（例如 VideoUnmaskSwap）期间 wrist camera odometry drift。 Solution: 实现了一种 re-anchoring 机制，用于检测显著的 scale/pose jumps 并重置 keyframe tracking。\n8. 在导出/最终化时，由于 markdown cells 中不支持 ‘id’ properties 导致 notebook validation 失败。 Solution: 实现了一个 patch，如果 notebook format minor version 低于 5，则从 cells 中剥离 ‘id’ fields。\nHuman vs AI Approaches Strategic Level MihD-dev Scope and Scientific Methodology Role Approach Human Human 定义了严格的科学边界：无 formal equivalence margins，从 benchmarks 中排除 UCE，并要求所有 similarity queries 必须具备 provenance。 AI AI 最初将其视为通用任务/功能进行管理，但需要结构化指导才能将这些特定约束转化为 decision register 和 experiment matrix。 Difference Analysis: Human 提供科学的 ‘guardrails’ 和意图；AI 管理复杂的行政和技术编排以强制执行这些意图。\nWeAgent Bug Root Cause Analysis Role Approach Human Human 对手动 WAL 实现中的三种不同 failure modes（snapshot mismatch、zero-frame application 和 checksum failure）进行了详细分解。 AI AI 最初尝试修复现有逻辑，但最终转向了 Human 提出的更优架构建议，即使用 SQLite replay。 Difference Analysis: Human 识别出了自定义实现中特定的逻辑缺陷，而 AI 最初未能识别这些缺陷。\nImplementation Level Debug Direction for File Reading Role Approach Human 建议通过 UI 检查实际的 WeChat folder location 以验证 path accuracy。 AI 分析 logs 以证明 path 已经是正确的，并将问题识别为数据库 field 返回 ‘None’。 Difference Analysis: Human 专注于物理路径验证；AI 专注于 DB 与 file system 之间的逻辑/数据流。\nSuccess Rate Comparison Role Approach Human N/A AI 开发了 visual-proprioception modules 并进行了 50-episode closed-loop evaluation。 Difference Analysis: 通过使用来自 camera 的稳定视觉线索，相比原始的 pure-visual mode 实现了显著提升。\nAI Limitations Critical Limitations- Subagent error：错误地尝试取消高层级的 auto-provisioned system jobs。 AI 在人类提供 bug 的结构化分析之前，难以识别 manual SQLite WAL merging logic 中的特定 edge cases。 General Limitations 文档中错误地指定了 hardware node names，导致 wayfinding/execution 失败。 无法直接访问用户的 local desktop 来移动文件；转而提供了 zip 和 SCP 指令。 Learnings Key Learnings 在手动实现 SQLite WAL parsing 时，必须验证每一帧的完整性，以避免在并发写入期间发生损坏。 在处理像 WAL 这样复杂的 database internals 时，更安全的方法是解密文件并让官方 engine 处理 replay，而不是重新实现 merging logic。 应用于 tiles 的共享 NCL model (XS-joint) 在计算上是可行的，并且可能优于每个 tile 独立的 models。 Practical Learnings Wrist camera finger-pad 的水平位置提供了与 gripper state 之间可靠的线性映射，使得在没有 joint encoders 的情况下也能实现准确的 grasp/release 事件检测。 Conversation Summaries RoboMemory • I-172 Implementation and Verification 用户与 AI 合作，尝试用 wrist-camera visual data 替换 robot proprioception。这包括编写一个 detector，通过 offline probes 进行验证，并在 tianhe3 上运行完整的 closed-loop evaluations 以确认性能提升。\nWeAgent • WeChat Bot Technical Fixes \u0026 Database Integrity 进行了广泛的 debugging session，解决了 database corruption (WAL merge)、PDF reading errors (DLL issues) 以及 image clarity (long screenshot tiling) 等问题。通过将解密的 WAL files 通过 native SQLite engine 进行 replay，实现了一个确保数据完整性的鲁棒方案。\nMIHD • Paper Writing and Figure Audit 分析了 manuscript draft 和 figure plan。将现有 figures 与新的 6-figure plan 进行对比，提供了结构化的 writing strategy，并将所有当前的 figures 打包成一个 zip file。\nMihD-dev • Decision Registration and Round 3 Orchestration 处理了关于 scientific scope、scaling 和 benchmarks 的 15 项主要 owner decisions。更新了所有项目文档，包括 decision table 和 experiment matrix。启动了 13 个并行的 subagents 来执行专门的技术任务。\nECE 661 • Automated Completion of RNN \u0026 Transformer HW3 AI agent 自主阅读了 assignment PDF，搭建了 local environment，修复了 template bugs，训练了 LSTM 和 GPT-2 models (full fine-tuning 和 LoRA)，并生成了一份详尽的 11 页 PDF report。安全审计也确认不存在 prompt injections。\nToken Usage AI Usage · 2026-10-02\rClaude Code + Codex\rTotal cost$64.99\rTotal tokens172M\rOutput tokens614K\rCache read97.2%\rCost split\rClaude Code $57 ·\rCodex $8\rToken character\rCache reads 97.2% ·\rActive 2.8%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "articleBody": "Daily Report — 2026-10-02 Daily Overview 完成工作： 团队推进了多个高风险项目：在 RoboMemory 中实现了视觉 gripper/height tracking (I-172)，修复了 WeAgent 中的关键数据库完整性和文件处理 bug，为 MihD-dev 制定了 15 项战略决策并启动了并行 subagents，并为 ECE 661 自动化了 deep learning 作业 (RNNs/Transformers)。 实施方式： 技术方法包括开发带有 re-anchoring 机制的 wrist-camera event detectors，为实现稳健的 WAL 合并实施了 ‘SQLite Replay’ 策略，利用专门的 agentic protocols 进行科学记账，并使用 AI agents 执行和验证 Jupyter notebooks。 影响： 这些工作显著提高了机器人任务成功率，确保了 WeChat bot 运行的稳定可靠，将高层研究指南转化为可执行的技术规范，并交付了经过验证的学术报告。 今日完成了 RoboMemory 纯视觉 proprioception 的成功实现，解决了 WeAgent 中关键的 SQLite 损坏和文件读取问题，为 MihD-dev 制定了项目规范并编排了 subagents，并自动化完成了 ECE 661 的 deep learning 学术作业。\nTasks Architecture \u0026 Strategy ✅ Fix SQLite WAL Merge Integrity — 为解密的 WAL 文件实施了稳健的 ‘SQLite Replay’ 方法，以确保完整性并处理复杂的 checkpointing/frame validation 规则，取代了易出错的手动合并。 ✅ MihD-dev Decision Register Update — 记录了 15 项 owner 决策，更新了 decision table、specification、experiment matrix 和 implementation checklist。 ✅ Improve PDF/Image Reading — 将 PDF 处理切换至 PyMuPDF 以绕过 onnxruntime/DLL 问题，并实施了长截图 tiling 技术以防止分辨率损失。 ✅ ECE 661 HW3 Completion — 自动化实现了 LSTM 和 GPT-2/LoRA notebooks，包括训练并生成一份详尽的 PDF 报告。 🔄 MihD-dev Round 3 Agent Launch — 管理 13 个后台 agents，涵盖 NCL design、cross-patient queries 和 bug fixes。 ✅ Enhance WeChat Message Recognition — 通过改进 filename lookup 并添加 WeChat Quote/At-me 支持，修复了文件被识别为 ‘Other Messages’ 的问题。 • I-172: wrist-camera event detectors — 使用 wrist camera 视觉检测取代 arm proprioception (gripper/height)，以启用纯视觉 memory modes。 Implementation \u0026 Fixes ✅ MIHD Paper Figure Audit — 根据 6-figure manuscript plan 对现有 figure 进行了审计，并为用户进行了打包。 ✅ Instruction Injection Audit — 审计了作业文件是否存在隐藏的 model instructions 或 LLM 限制，以确保不存在非预期的 prompt injections。 Problems \u0026 Solutions Critical Issues 1. SQLite WAL merge 导致 ‘quick_check’ 失败以及由于半写 frame 或缺失 atomicity rules 导致的数据库损坏。 Solution: 使用 ‘SQLite Replay’ 方法取代了手动合并逻辑，利用官方 engine 回放解密的 WAL 文件以获得最大的稳健性。\n2. 长截图被 AstrBot 的 1280px resize limit 压缩，导致文本无法阅读。 Solution: 实现了一个 tiling system，将长图分割成多个重叠的部分（最多 8 个）以保留分辨率。\n3. AI subagent 试图取消关键的系统级 SLURM allocation (agent-zt81)。 Solution: 明确了 permission protocols，并通过 main agent 明确指示 agents 绝不允许取消 auto-provisioned sessions。\n4. ImportError: DLL load failed，在使用 MarkItDown 读取 PDF 时由于缺少 VC++ runtimes 导致。 Solution: 对 PDF 处理绕过了 MarkItDown，转而使用 PyMuPDF (fitz)，并在 VM setup script 中添加了 VC++ runtime 安装。\nGeneral Issues 5. Round 3 README 中错误的 GPU node name 导致 SLURM submission 失败。 Solution: 确定了正确的 node (dcc-gehmlab-gpu-ferc-s-z25-18) 并向所有 active agents 发布了全局修正。\n6. 由于 update script 中的 greedy regex 导致 implementation checklist 损坏。 Solution: 从 file-system snapshot 中恢复了文件，并使用修正后的 regex 重新应用了更新。\n7. 长时间执行（例如 VideoUnmaskSwap）期间 wrist camera odometry drift。 Solution: 实现了一种 re-anchoring 机制，用于检测显著的 scale/pose jumps 并重置 keyframe tracking。\n8. 在导出/最终化时，由于 markdown cells 中不支持 ‘id’ properties 导致 notebook validation 失败。 Solution: 实现了一个 patch，如果 notebook format minor version 低于 5，则从 cells 中剥离 ‘id’ fields。\nHuman vs AI Approaches Strategic Level MihD-dev Scope and Scientific Methodology 角色 方法 用户 Human 定义了严格的科学边界：无 formal equivalence margins，从 benchmarks 中排除 UCE，并要求所有 similarity queries 必须具备 provenance。 AI 助手 AI 最初将其视为通用任务/功能进行管理，但需要结构化指导才能将这些特定约束转化为 decision register 和 experiment matrix。 差异分析： Human 提供科学的 ‘guardrails’ 和意图；AI 管理复杂的行政和技术编排以强制执行这些意图。\nWeAgent Bug Root Cause Analysis 角色 方法 用户 Human 对手动 WAL 实现中的三种不同 failure modes（snapshot mismatch、zero-frame application 和 checksum failure）进行了详细分解。 AI 助手 AI 最初尝试修复现有逻辑，但最终转向了 Human 提出的更优架构建议，即使用 SQLite replay。 差异分析： Human 识别出了自定义实现中特定的逻辑缺陷，而 AI 最初未能识别这些缺陷。\nImplementation Level Debug Direction for File Reading 角色 方法 用户 建议通过 UI 检查实际的 WeChat folder location 以验证 path accuracy。 AI 助手 分析 logs 以证明 path 已经是正确的，并将问题识别为数据库 field 返回 ‘None’。 差异分析： Human 专注于物理路径验证；AI 专注于 DB 与 file system 之间的逻辑/数据流。\nSuccess Rate Comparison 角色 方法 用户 N/A AI 助手 开发了 visual-proprioception modules 并进行了 50-episode closed-loop evaluation。 差异分析： 通过使用来自 camera 的稳定视觉线索，相比原始的 pure-visual mode 实现了显著提升。\nAI Limitations Critical Limitations- Subagent error：错误地尝试取消高层级的 auto-provisioned system jobs。 AI 在人类提供 bug 的结构化分析之前，难以识别 manual SQLite WAL merging logic 中的特定 edge cases。 General Limitations 文档中错误地指定了 hardware node names，导致 wayfinding/execution 失败。 无法直接访问用户的 local desktop 来移动文件；转而提供了 zip 和 SCP 指令。 Learnings Key Learnings 在手动实现 SQLite WAL parsing 时，必须验证每一帧的完整性，以避免在并发写入期间发生损坏。 在处理像 WAL 这样复杂的 database internals 时，更安全的方法是解密文件并让官方 engine 处理 replay，而不是重新实现 merging logic。 应用于 tiles 的共享 NCL model (XS-joint) 在计算上是可行的，并且可能优于每个 tile 独立的 models。 Practical Learnings Wrist camera finger-pad 的水平位置提供了与 gripper state 之间可靠的线性映射，使得在没有 joint encoders 的情况下也能实现准确的 grasp/release 事件检测。 Conversation Summaries RoboMemory • I-172 Implementation and Verification 用户与 AI 合作，尝试用 wrist-camera visual data 替换 robot proprioception。这包括编写一个 detector，通过 offline probes 进行验证，并在 tianhe3 上运行完整的 closed-loop evaluations 以确认性能提升。\nWeAgent • WeChat Bot Technical Fixes \u0026 Database Integrity 进行了广泛的 debugging session，解决了 database corruption (WAL merge)、PDF reading errors (DLL issues) 以及 image clarity (long screenshot tiling) 等问题。通过将解密的 WAL files 通过 native SQLite engine 进行 replay，实现了一个确保数据完整性的鲁棒方案。\nMIHD • Paper Writing and Figure Audit 分析了 manuscript draft 和 figure plan。将现有 figures 与新的 6-figure plan 进行对比，提供了结构化的 writing strategy，并将所有当前的 figures 打包成一个 zip file。\nMihD-dev • Decision Registration and Round 3 Orchestration 处理了关于 scientific scope、scaling 和 benchmarks 的 15 项主要 owner decisions。更新了所有项目文档，包括 decision table 和 experiment matrix。启动了 13 个并行的 subagents 来执行专门的技术任务。\nECE 661 • Automated Completion of RNN \u0026 Transformer HW3 AI agent 自主阅读了 assignment PDF，搭建了 local environment，修复了 template bugs，训练了 LSTM 和 GPT-2 models (full fine-tuning 和 LoRA)，并生成了一份详尽的 11 页 PDF report。安全审计也确认不存在 prompt injections。\nToken Usage AI Usage · 2026-10-02\rClaude Code + Codex\rTotal cost$64.99\rTotal tokens172M\rOutput tokens614K\rCache read97.2%\rCost split\rClaude Code $57 ·\rCodex $8\rToken character\rCache reads 97.2% ·\rActive 2.8%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
   "wordCount" : "782",
   "inLanguage": "zh",
   "datePublished": "2026-10-02T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -260,83 +260,83 @@
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>Human 定义了严格的科学边界：无 formal equivalence margins，从 benchmarks 中排除 UCE，并要求所有 similarity queries 必须具备 provenance。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 最初将其视为通用任务/功能进行管理，但需要结构化指导才能将这些特定约束转化为 decision register 和 experiment matrix。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 提供科学的 &lsquo;guardrails&rsquo; 和意图；AI 管理复杂的行政和技术编排以强制执行这些意图。</p>
+<p><strong>差异分析：</strong> Human 提供科学的 &lsquo;guardrails&rsquo; 和意图；AI 管理复杂的行政和技术编排以强制执行这些意图。</p>
 <h4 id="weagent-bug-root-cause-analysis">WeAgent Bug Root Cause Analysis<a hidden class="anchor" aria-hidden="true" href="#weagent-bug-root-cause-analysis">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>Human 对手动 WAL 实现中的三种不同 failure modes（snapshot mismatch、zero-frame application 和 checksum failure）进行了详细分解。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 最初尝试修复现有逻辑，但最终转向了 Human 提出的更优架构建议，即使用 SQLite replay。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 识别出了自定义实现中特定的逻辑缺陷，而 AI 最初未能识别这些缺陷。</p>
+<p><strong>差异分析：</strong> Human 识别出了自定义实现中特定的逻辑缺陷，而 AI 最初未能识别这些缺陷。</p>
 <h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
 <h4 id="debug-direction-for-file-reading">Debug Direction for File Reading<a hidden class="anchor" aria-hidden="true" href="#debug-direction-for-file-reading">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>建议通过 UI 检查实际的 WeChat folder location 以验证 path accuracy。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>分析 logs 以证明 path 已经是正确的，并将问题识别为数据库 field 返回 &lsquo;None&rsquo;。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 专注于物理路径验证；AI 专注于 DB 与 file system 之间的逻辑/数据流。</p>
+<p><strong>差异分析：</strong> Human 专注于物理路径验证；AI 专注于 DB 与 file system 之间的逻辑/数据流。</p>
 <h4 id="success-rate-comparison">Success Rate Comparison<a hidden class="anchor" aria-hidden="true" href="#success-rate-comparison">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>N/A</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>开发了 visual-proprioception modules 并进行了 50-episode closed-loop evaluation。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> 通过使用来自 camera 的稳定视觉线索，相比原始的 pure-visual mode 实现了显著提升。</p>
+<p><strong>差异分析：</strong> 通过使用来自 camera 的稳定视觉线索，相比原始的 pure-visual mode 实现了显著提升。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations--subagent-error错误地尝试取消高层级的-auto-provisioned-system-jobs">Critical Limitations- Subagent error：错误地尝试取消高层级的 auto-provisioned system jobs。<a hidden class="anchor" aria-hidden="true" href="#critical-limitations--subagent-error错误地尝试取消高层级的-auto-provisioned-system-jobs">#</a></h3>
 <ul>

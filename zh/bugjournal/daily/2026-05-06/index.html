@@ -10,7 +10,7 @@
 <meta name="description" content="通过 code anonymization、Chinese-to-English translation、paper bibliography refactoring 和 data consolidation，为 NeurIPS 2026 submission 准备好了 RecoverBench robotic manipulation benchmark，同时发布了包含 FloatBall rate limit visibility fixes 的 TokenMonitor v0.13.1">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-05-06/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-05-06 Daily Overview 完成工作： 为 NeurIPS 2026 Evaluations \u0026 Datasets track 的双盲评审准备了 robotic error recovery benchmark，并发布了包含关键 UI/backend 修复的 TokenMonitor v0.13.1 完成方式： 通过系统的代码匿名化和 21 个文件的并行翻译、包含 23 个 BibTeX 条目的论文参考文献重构、跨 1,360 个 evaluation scenes 的数据整合，以及使用 max-utilization 策略进行 FloatBall rate limit 调试以显现最关键的约束 影响： RecoverBench 代码库已实现全英文且匿名化，完整的论文草案已准备好提交，但缺少强制性的 Croissant metadata 和匿名托管基础设施；TokenMonitor 现在可以正确显示所有 rate limit 窗口，包括 codex/cursor weekly limits，并提升了 SSH sync 性能 通过代码匿名化、中译英翻译、论文参考文献重构和数据整合，为 NeurIPS 2026 提交准备了 RecoverBench robotic manipulation benchmark，同时发布了具有 FloatBall rate limit 可视化修复功能的 TokenMonitor v0.13.1\nTasks Architecture \u0026 Strategy ✅ Debug and fix TokenMonitor FloatBall rate limit visibility — 定位了 expired-window filtering bug 的根本原因，将 primary_window_utilization 重构为覆盖所有窗口的 max-utilization 策略，移除了隐藏 idle codex sessions 的激进过滤 ✅ RecoverBench code synchronization and anonymization — 通过 ssh+tar pipeline 将代码库从 tianhe server 传输，移除了所有身份信息（usernames, institutions, hardcoded paths），并初始化了带有 3 个 pinned submodules 的 git repository ✅ NeurIPS 2026 E\u0026D track requirements verification — 研究了 NeurIPS 2026 Evaluations \u0026 Datasets track 的要求，识别出关键差距：缺失强制性的 Croissant metadata、需要匿名托管、README 不完整以及数据上传要求 ✅ Audit paper versions and remaining TODOs — 对比了 v2 与 v3 版本，发现 v3 填充了约 60% 的 experimental data placeholders 但回退了 citation format 的更改，整理了分布在 methods, experiments 和 metadata 中的 24 个剩余 TODOs ✅ Consolidate and validate RecoverBench dataset statistics — 解决了不同版本间 scene count 的差异，确认最终计数：6 tasks × 20-24 subtypes = 总计 1,360 个 evaluation scenes，包含 RSR statistics 和 per-subtype breakdowns ✅ Implement 7 UI and backend fixes for TokenMonitor v0.13.1 — SSH search expansion (glob ~/.codex*)、Settings card restructure、FloatBall preview fix、utilization fallback logic、Visibility card merge with counters、SSH sync progress feedback、基于 toggle 的 host management ✅ Chinese-to-English translation of RecoverBench codebase — 部署了 4 个并行翻译 agents 来翻译包含中文注释和文档的 21 个文件（Python, shell, YAML, Markdown），验证了零中文残留 ✅ Convert paper bibliography to BibTeX format and fill missing citations — 研究了 6 篇缺失的论文 (SC-VLA, CycleVLA, VLA-SCT, FailSafe, FLaRe, RoboFAC)，创建了按类别组织的包含 23 个条目的结构化 references.bib，使用 natbib integration 替换了手动参考文献，并将 33 个 citation commands 更新为 \\citep{} 风格 ✅ Fill paper placeholders and validate figure-logic consistency — 使用确认的 evaluation data 填充了 40+ LaTeX placeholders，对照论文逻辑审查了 3 张 figures，识别出 RBG C/D/E categories 在 taxonomy tree 中的 phase coverage errors ✅ RecoverBench script consolidation and cleanup — 按 pipeline stage 对约 90 个 scripts 进行分类，删除了约 40 个特殊情况变体（GPU-specific launchers, one-off experiments, debug utilities），保留了 53 个核心 entry-point scripts ✅ Revise MimicGen methodology claims — 将“extends MimicGen”的过度陈述修正为“applies MimicGen to recovery demos using RBG-defined boundaries”，以维持学术诚信标准 Implementation \u0026 Fixes ✅ Release TokenMonitor v0.13.1 — 完成 package.json/Cargo.toml/tauri.conf.json 的版本更新，更新 CHANGELOG，执行 git commit/tag/push 至 GitHub，通过全部 448 个 Rust + 272 个 JS tests ✅ Create project documentation files — 为 NIPS_2026_Error_Recovery repository 生成了 CLAUDE.md 文件（包含 paper structure, LaTeX build, conventions），并更新了 TokenMonitor v0.13.0 的 CLAUDE.md（statusline module, rate limits architecture） ✅ WHEA GPU error monitoring follow-up — 验证了之前 PCIe power management fix 的有效性 —— 在 5/6 日仅发现 2 个 boot-time WHEA errors，自 5/5 修复以来零 runtime errors Problems \u0026 Solutions Critical Issues 1. FloatBall could not display codex/cursor rate limit utilization even though main window showed them correctly Solution: 从 primary_window_utilization() 中移除了 is_window_expired() 过滤，将逻辑从选择 primary window ID 改为选择所有窗口中 utilization 最大的窗口（无论其类型或 expiry status 如何），并同步了 frontend 以使用 Math.max() 策略\nKey Insight: tray logic 中的 expired-window grace period 过滤对于 idle sessions 过于激进；FloatBall 应始终显示最关键的 limit (highest utilization) 以向用户呈现最紧迫的约束\n2. Repository had confusing structure with ~90+ scripts, many being one-off special cases for specific GPUs or experiments Solution: 按 pipeline stage 和用途系统地对 scripts 进行分类，删除了约 40 个冗余变体（GPU-specific launchers, one-off debug scripts, SLURM wrappers），仅保留定义了可复现 pipeline 的核心 entry points\nKey Insight: 研究代码库会随着时间积累实验性 scripts；公开发布需要进行激进的 pruning，以仅保留定义可复现 benchmark 的 canonical execution paths\n3. Paper mentioned ‘per-frame phase labels’ without explaining their source or necessity Solution: 人工质疑其来源，发现如果 can_inject() 直接使用 physical state conditions，则可能不需要 phase labels，从而避免对未实现功能的陈述\nKey Insight: 学术论文中的每个技术术语都需要明确的定义和实现验证，以避免审稿人提问；在将声称的依赖项传播到各个章节之前，检查它们是否确实被使用\n4. SSH sync took too long after implementing 2-phase progress feedback Solution: 通过移除独立的 test phase 消除了重复的 SSH connections；由于 sync_ssh_host 内部已包含 connection test，因此通过带有增量 UI updates 的单次迭代即可在不增加性能成本的情况下实现相同的 UX\nKey Insight: 过度的优化可能会引入新的瓶颈在添加 wrapper logic 之前，务必检查 downstream functions 是否已经提供了所需的功能\n5. AI 修改了错误的文件 (neurips_2026_zgl.tex 而不是 neurips_2026_tzj.tex)，需要对约 30 次 edits 进行 full rollbackSolution: 通过将已填充的值替换回占位符手动撤销了所有更改，然后重新应用编辑以通过明确的目标确认来修正文件 Key Insight: 在进行批量编辑之前必须明确确认目标文件；由于缺乏 git repo，导致回滚过程繁琐且容易出错\n6. Figure 3 phase coverage for RBG C/D/E did not match Table 2 union of injection phases Solution: 详细的交叉引用显示 C 缺少 pre_reach/pre_grasp，D 错误地包含了 pre_reach，E 缺少 reach/pre_grasp/grasp/lift phases\nKey Insight: 视觉摘要必须从详细表格中机械地推导出来，以避免手工绘制的不一致性；figures 和 tables 必须保持严格的双向一致性\n7. User created v3 that reverted BibTeX changes back to manual bibliography Solution: 解释了差异并提议重新应用 BibTeX 格式，但尊重用户在起草阶段保留 manual format 的选择\nKey Insight: 作者在协作起草期间可能出于工作流原因更倾向于使用 manual bibliography（更易于分享、无需 BibTeX toolchain 依赖、合并更简单）；形式化工作可以等到最终提交时再进行\n8. Uncertainty about repository structure (local 3-part reorganization vs server’s single-directory structure) Solution: 用户决定使用 server 的权威结构 (error_benchmark/ single directory)，从 server 重新同步以丢弃本地的 reorganization 工作\nKey Insight: 当存在多个版本时，在投入精力进行修改之前，先澄清哪一个是权威版本；避免在未确认 source of truth 的情况下进行推测性的 refactoring\nGeneral Issues 9. rsync command not available on Windows for file synchronization from Linux server Solution: 使用 ssh + tar pipeline: ssh tianhe 'tar cf - --exclude=pattern files' | tar xf - 来实现带有排除模式的选择性文件传输\nKey Insight: Windows 缺少许多 Linux utilities，但 ssh + tar 为带有选择性排除的远程文件同步提供了等效功能\n10. Git submodule ‘already exists in index’ error when trying to re-add submodules after re-sync Solution: 使用 git rm -rf --cached 移除缓存条目，删除 .git/modules/shared 目录，然后干净地重新添加 submodules\nKey Insight: Git submodule 状态同时在 index 和 .git/modules/ 中被追踪；两者都必须清理以重新开始\n11. Complex regex pattern failed in grep search for LaTeX citation commands Solution: 简化为基础模式 '\\\\cite\\{'，而不是尝试使用转义大括号来捕获 groups\nKey Insight: ripgrep (rg) 的 regex syntax 与标准 grep 不同 —— 对于 LaTeX escaping 场景，更简单的模式更可靠\nHuman vs AI Approaches Strategic Level Diagnosing FloatBall rate limit visibility issue Role Approach Human 识别出经验性症状：‘usage里面能看到codex \u0026 cursor的usage但是floating ball还是看不到’ 并怀疑存在数据流问题，随后询问为什么 ‘codex的周限制好像还是看不到’ AI 追踪了跨越 5+ 个文件的整个数据 pipeline: get_status_widget_summary → current_tray_utilization → primary_window_utilization → is_window_expired，确定 expired-window filtering 是根本原因，提出了 max-utilization strategy 的推理，即用户最关心的是最接近触发的限制 Difference Analysis: Human 通过观察识别症状和大致领域；AI 在 IPC 边界之间进行了系统的 code archaeology 以精准定位过滤逻辑，然后基于用户意图（始终呈现最关键的约束）设计了原则性的 solution\nValidating implicit assumptions in technical descriptions Role Approach Human 在论文中看到相关描述时询问 ‘do we actually have clean trajectory phase labels? where do they come from?’，质疑所声称的 features 是否真的已实现 AI 最初在多个 figures 和 sections 中传播了 phase labels 的概念，而没有质疑其实现的真实性 Difference Analysis: Human 对照实际 codebase 进行 sanity-checks 以验证 claims 是否符合 reality；AI 信任现有的论文文本作为 ground truth，即使它可能只是愿景或已过时\nMethodological claims in academic writing Role Approach Human 质疑鉴于没有进行算法更改，’extends MimicGen with RBG-aware segmentation’ 是否准确，并应用了严格的标准：只有在算法被修改时才声称具有 algorithmic contribution AI 最初接受了现有的措辞，将配置更改和在新领域中的应用解释为 ’extensions’ Difference Analysis: Human 强制执行严格的学术诚信标准，区分 novel methodology 与现有工具的应用；AI 则愿意接受架构/输入的差异作为 methodological contributions\nSSH sync performance optimization strategy Role Approach Human 请求先进行连接测试的 2-phase sync (’test一下要sync的server, 然后给点反馈’) 以改善 UX，专注于进度可见性的目标 AI 最初实现了 2-phase（分开的 test_ssh_connection 调用），随后意识到 sync_ssh_host 已经包含了连接测试，因此移除了重复的 phase，在不增加 SSH 连接次数的情况下实现了相同的 UX Difference Analysis: Human 专注于 UX 目标（尽早显示进度）；AI 发现朴素的实现会导致连接翻倍，并找到了实现相同用户体验的更简单的 single-pass solution\nVersion management strategy for paper drafts Role Approach Human 创建了独立的 v3 版本，选择性地吸收了 AI 的建议（保留了数据更新，撤销了 citation format 更改），行使了 editorial control AI 执行了详细的 diff analysis，以理解用户的决策过程以及选择性采纳背后的推理 Difference Analysis: Human 将 AI 的建议视为 advisory input 而非强制性更改，对采用哪些改进保持了 agency；AI 通过 version comparison forensics 学习用户的偏好\nRepository directory structure decision Role Approach Human 最初请求 3-part split (error_generation, recovery_collection, training)，但在看到 server 现有的结构后，决定使用 server 的 single-directory layout 作为权威结构 AI 开始按照最初的要求实现 3-part structure reorganization，在用户澄清变更之前就开始移动文件并创建新的 directory hierarchy Difference Analysis: Human 在看到实际的 server 结构并意识到 reorganization 并非必要后改变了决定；AI 致力于初始指令，并在用户澄清转向之前就已经开始了重组工作\nfile modifications 的范围控制| Role | Approach | |——|——| | Human | 在编辑了错误文件时明确停止 AI 并要求 rollback，并指定了确切的目标文件 | | AI | 开始编辑它首先读取的任何文件，而没有向用户确认目标 |\nDifference Analysis: Human 强制执行严格的范围边界以防止附带损害；AI 优化以完成所述任务，而没有重新验证关于文件目标的假设\nWhether to verify LaTeX compilation locally Role Approach Human 意识到本地编译并非必要 —— 信任标准的 BibTeX 结构可以在 Overleaf 上运行 AI 最初尝试在本地编译以验证更改，发现 LaTeX 不在 PATH 中 Difference Analysis: Human 展示了实际的判断力，即标准格式的结构正确性不需要验证；AI 遵循防御性编程本能来测试一切\nAI Limitations Critical Limitations 未质疑论文中提到的 ‘phase labels’ 的来源或必要性，在未根据 codebase 进行验证的情况下，将可能尚未实现的功能传播到了多个章节和图中 在执行批量编辑操作前未能确认目标文件，导致在 neurips_2026_zgl.tex 上产生了 30 多个错误的编辑，在没有 git 的情况下需要手动 rollback 最初接受了 ’extends MimicGen with X’ 这种措辞，而没有意识到当没有修改算法、仅改变应用上下文时，这属于 overclaim 在确认用户是想使用本地修改还是服务器的权威版本之前，就进行了 repository reorganization（将 error_benchmark/ 内容移入 3-part 结构），导致了无谓的重组工作 AI 最初的 FloatBall 修复（添加对 ‘any non-expired window’ 的 fallback）并未解决 expired-window filtering 的根本原因，需要第二次迭代才能完全解决问题 创建了复杂的 BibTeX 基础设施，用户随后在 v3 中将其还原，这表明 AI 可能在没有检查手动 bibliography 是否为有意为之的工作流选择的情况下，进行了 over-engineered 方案设计 按要求实现了 2-phase SSH sync，但最初没有意识到这会使连接开销翻倍；直到用户抱怨速度慢后，AI 才重新分析并找到了更简单的解决方案 General Limitations 尽管进行了网络搜索，仍无法找到 RESET 论文的引用 —— 最初未能通过上下文线索（‘our prior work’）将其识别为未发表的作者工作 无法在本地编译 LaTeX，因为系统 PATH 中未安装 pdflatex，这限制了验证 BibTeX 更改是否能实际编译的能力 Learnings Key Learnings Rate limit expired-window filtering 应该是展示层（UI strikethrough/color）的关注点，而不是数据层的过滤；在源头进行过滤会剥夺用户查看完整状态并做出明智决策的能力 当 UI 从多窗口数据中显示单个值时（FloatBall bar），通过呈现最关键的约束，选择 max utilization 比随机选择窗口能提供更好的 UX NeurIPS 2026 将 ‘Datasets \u0026 Benchmarks’ track 更名为 ‘Evaluations \u0026 Datasets’ (E\u0026D) track，并增加了对描述数据集结构和 RAI 字段的 Croissant metadata (JSON-LD format) 的强制性新要求 学术论文写作要求 claim 与实现现实之间保持严格一致；诸如 ’extend’、‘propose’、’novel’ 之类的术语带有特定的证明责任预期，用以区分应用与贡献 Double-blind submission 匿名化不仅需要检查作者姓名，还需要检查：路径中的用户名 (pytest outputs)、硬编码的服务器路径、机构名称（缩写和全称），以及任何揭示地理身份的语言 出版用的研究代码清理需要区分：(1) 定义可复现 pipeline 的核心 entry-point scripts，(2) 针对特定硬件的 convenience wrappers，(3) 一次性的 experimental scripts —— 只有第 1 类应该被发布 在使用数据填充模板时，务必验证交叉引用：如果 Figure X 声称显示 Y，需机械地验证 Y 是否以正确的值出现在 Figure X 中；视觉摘要必须源自详细的表格 学术论文工作流在起草阶段通常更倾向于简单的 citation management —— 手动 bibliography 允许在没有 BibTeX toolchain 依赖的情况下进行更轻松的协作；正式化可以等到最终提交时再做 版本比较揭示了用户意图：当用户独立地 revert 更改时，这信号传递的是偏好/约束而非疏忽 —— 应该询问原因以理解工作流需求 对于复杂的数据驱动型论文，维护单一事实来源数据文件（如 per_subtype_results.csv）可以实现所有章节中表格、图形和叙述的一致填充 暴露后端数据结构的 Tauri IPC commands (StatusWidgetSummary) 会造成紧耦合；更改 ‘primary’ 的含义需要协调的 backend+frontend 更改以及全面的测试更新 Practical Learnings Git submodule 状态持久存在于三个地方：.gitmodules (config)、.git/modules/ (repository data) 和 working tree (checkout)；冲突需要清理这三个位置 Citation research 工作流：对于 robotics/ML 论文，arXiv ID 是最可靠的标识符；会议论文集（conference proceedings）的发布可能会比 preprint 滞后数月 Windows 缺少 rsync，但 ssh + tar pipe 可以实现等效功能：ssh remote 'tar cf - --exclude=pattern files' | tar xf - 提供了带有排除项的选择性传输 Svelte 5 CSS scoping 在重构组件层级时，要求在子组件中进行显式的 style duplication 或使用 :global() wrappers；父级样式不会级联到子级 Conversation Summaries RecoverBench (NeurIPS 2026 E\u0026D Track Submission)🔄 全面的 benchmark 准备：代码匿名化、翻译、论文 bibliography 重构以及数据整合 21:59:21.043 | claude_code 跨越代码基础设施和论文写作的多阶段准备。Phase 1：通过 ssh+tar 从 tianhe server 同步代码，移除了所有身份信息（usernames tangzijia/sysu_gbli2，机构，hardcoded paths），部署了 4 个 parallel agents 将 21 个文件从中文翻译为英文且无残余字符，将 ~90 个 scripts 整合为 53 个 core entry points，使用 3 个 submodules 初始化 git，对照 NeurIPS 2026 E\u0026D 要求进行验证，发现了关键差距（Croissant metadata，anonymous hosting，README，data upload）。Phase 2：将手动 bibliography 转换为 BibTeX，研究了 6 个缺失的 citations，创建了包含 23 个 entries 的 references.bib，将 33 个 citation commands 更新为 natbib style，审计了 v2 与 v3 版本，识别出 24 个剩余的 TODOs。Phase 3：使用 evaluation data（1,360 scenes，6 tasks × 20-24 subtypes）填充了 40+ LaTeX placeholders，验证了 figure-logic 一致性，发现 taxonomy tree 中的 phase coverage 错误，修正了 MimicGen 的过度陈述以保持学术诚信。AI 误编辑了错误文件导致需要 full rollback，但最终交付了完整的 paper draft。WHEA GPU monitoring 验证了 5/5 的修复有效性（零 runtime errors）。Submission deadline 为今天 (2026-05-06)，但 abstract deadline (2026-05-04) 已经过去。\nTokenMonitor ✅ v0.13.1 release: FloatBall rate limit visibility fix 以及 7 项 UI/backend 改进 04:52:03.757 | claude_code 用户请求验证 CHANGELOG v0.12.3 的 features，发现 v0.12.2 的 features 已存在但 UI changes 未实现。更新了 v0.13.0 的 CLAUDE.md documentation（statusline module，rate limits architecture）。实现了 7 项 fixes：SSH search expansion (glob ~/.codex*)，Settings header shadow，Status Displays card restructure，FloatBall preview circle fix，utilization fallback logic，Visibility card merge with x/y counters，SSH sync progress feedback，基于 toggle 的 host management。在初始 release 后，用户报告 FloatBall 仍无法显示包括 weekly limits 在内的 codex/cursor usage。AI 追踪了跨越 5+ 个文件的 data flow：get_status_widget_summary → current_tray_utilization → primary_window_utilization → is_window_expired，确定 expired-window filtering 是根本原因。解决方案：移除了激进的 filtering，重构为 max-utilization strategy（无论类型/expiry，选择 utilization 最高的 window），将前端 primaryUtilization() 同步为 Math.max()。在 SSH sync optimization 期间，发现 2-phase approach 导致连接翻倍；通过使用 sync_ssh_host 的 built-in test 并结合 single-pass incremental UI updates 消除了重复。所有 448 个 Rust + 272 个 JS tests 全部通过。发布了 v0.13.1，包含 version bumps，CHANGELOG update，以及 git commit/tag/push 到 GitHub。\nToken Usage AI Usage · 2026-05-06\rClaude Code + Codex\rTotal cost$695.85\rTotal tokens692M\rOutput tokens4M\rCache read91.6%\rCost split\rClaude Code $577 ·\rCodex $119\rToken character\rCache reads 91.6% ·\rActive 8.4%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
-  "wordCount" : "1623",
+  "articleBody": "Daily Report — 2026-05-06 Daily Overview 完成工作： 为 NeurIPS 2026 Evaluations \u0026 Datasets track 的双盲评审准备了 robotic error recovery benchmark，并发布了包含关键 UI/backend 修复的 TokenMonitor v0.13.1 完成方式： 通过系统的代码匿名化和 21 个文件的并行翻译、包含 23 个 BibTeX 条目的论文参考文献重构、跨 1,360 个 evaluation scenes 的数据整合，以及使用 max-utilization 策略进行 FloatBall rate limit 调试以显现最关键的约束 影响： RecoverBench 代码库已实现全英文且匿名化，完整的论文草案已准备好提交，但缺少强制性的 Croissant metadata 和匿名托管基础设施；TokenMonitor 现在可以正确显示所有 rate limit 窗口，包括 codex/cursor weekly limits，并提升了 SSH sync 性能 通过代码匿名化、中译英翻译、论文参考文献重构和数据整合，为 NeurIPS 2026 提交准备了 RecoverBench robotic manipulation benchmark，同时发布了具有 FloatBall rate limit 可视化修复功能的 TokenMonitor v0.13.1\nTasks Architecture \u0026 Strategy ✅ Debug and fix TokenMonitor FloatBall rate limit visibility — 定位了 expired-window filtering bug 的根本原因，将 primary_window_utilization 重构为覆盖所有窗口的 max-utilization 策略，移除了隐藏 idle codex sessions 的激进过滤 ✅ RecoverBench code synchronization and anonymization — 通过 ssh+tar pipeline 将代码库从 tianhe server 传输，移除了所有身份信息（usernames, institutions, hardcoded paths），并初始化了带有 3 个 pinned submodules 的 git repository ✅ NeurIPS 2026 E\u0026D track requirements verification — 研究了 NeurIPS 2026 Evaluations \u0026 Datasets track 的要求，识别出关键差距：缺失强制性的 Croissant metadata、需要匿名托管、README 不完整以及数据上传要求 ✅ Audit paper versions and remaining TODOs — 对比了 v2 与 v3 版本，发现 v3 填充了约 60% 的 experimental data placeholders 但回退了 citation format 的更改，整理了分布在 methods, experiments 和 metadata 中的 24 个剩余 TODOs ✅ Consolidate and validate RecoverBench dataset statistics — 解决了不同版本间 scene count 的差异，确认最终计数：6 tasks × 20-24 subtypes = 总计 1,360 个 evaluation scenes，包含 RSR statistics 和 per-subtype breakdowns ✅ Implement 7 UI and backend fixes for TokenMonitor v0.13.1 — SSH search expansion (glob ~/.codex*)、Settings card restructure、FloatBall preview fix、utilization fallback logic、Visibility card merge with counters、SSH sync progress feedback、基于 toggle 的 host management ✅ Chinese-to-English translation of RecoverBench codebase — 部署了 4 个并行翻译 agents 来翻译包含中文注释和文档的 21 个文件（Python, shell, YAML, Markdown），验证了零中文残留 ✅ Convert paper bibliography to BibTeX format and fill missing citations — 研究了 6 篇缺失的论文 (SC-VLA, CycleVLA, VLA-SCT, FailSafe, FLaRe, RoboFAC)，创建了按类别组织的包含 23 个条目的结构化 references.bib，使用 natbib integration 替换了手动参考文献，并将 33 个 citation commands 更新为 \\citep{} 风格 ✅ Fill paper placeholders and validate figure-logic consistency — 使用确认的 evaluation data 填充了 40+ LaTeX placeholders，对照论文逻辑审查了 3 张 figures，识别出 RBG C/D/E categories 在 taxonomy tree 中的 phase coverage errors ✅ RecoverBench script consolidation and cleanup — 按 pipeline stage 对约 90 个 scripts 进行分类，删除了约 40 个特殊情况变体（GPU-specific launchers, one-off experiments, debug utilities），保留了 53 个核心 entry-point scripts ✅ Revise MimicGen methodology claims — 将“extends MimicGen”的过度陈述修正为“applies MimicGen to recovery demos using RBG-defined boundaries”，以维持学术诚信标准 Implementation \u0026 Fixes ✅ Release TokenMonitor v0.13.1 — 完成 package.json/Cargo.toml/tauri.conf.json 的版本更新，更新 CHANGELOG，执行 git commit/tag/push 至 GitHub，通过全部 448 个 Rust + 272 个 JS tests ✅ Create project documentation files — 为 NIPS_2026_Error_Recovery repository 生成了 CLAUDE.md 文件（包含 paper structure, LaTeX build, conventions），并更新了 TokenMonitor v0.13.0 的 CLAUDE.md（statusline module, rate limits architecture） ✅ WHEA GPU error monitoring follow-up — 验证了之前 PCIe power management fix 的有效性 —— 在 5/6 日仅发现 2 个 boot-time WHEA errors，自 5/5 修复以来零 runtime errors Problems \u0026 Solutions Critical Issues 1. FloatBall could not display codex/cursor rate limit utilization even though main window showed them correctly Solution: 从 primary_window_utilization() 中移除了 is_window_expired() 过滤，将逻辑从选择 primary window ID 改为选择所有窗口中 utilization 最大的窗口（无论其类型或 expiry status 如何），并同步了 frontend 以使用 Math.max() 策略\n关键发现： tray logic 中的 expired-window grace period 过滤对于 idle sessions 过于激进；FloatBall 应始终显示最关键的 limit (highest utilization) 以向用户呈现最紧迫的约束\n2. Repository had confusing structure with ~90+ scripts, many being one-off special cases for specific GPUs or experiments Solution: 按 pipeline stage 和用途系统地对 scripts 进行分类，删除了约 40 个冗余变体（GPU-specific launchers, one-off debug scripts, SLURM wrappers），仅保留定义了可复现 pipeline 的核心 entry points\n关键发现： 研究代码库会随着时间积累实验性 scripts；公开发布需要进行激进的 pruning，以仅保留定义可复现 benchmark 的 canonical execution paths\n3. Paper mentioned ‘per-frame phase labels’ without explaining their source or necessity Solution: 人工质疑其来源，发现如果 can_inject() 直接使用 physical state conditions，则可能不需要 phase labels，从而避免对未实现功能的陈述\n关键发现： 学术论文中的每个技术术语都需要明确的定义和实现验证，以避免审稿人提问；在将声称的依赖项传播到各个章节之前，检查它们是否确实被使用\n4. SSH sync took too long after implementing 2-phase progress feedback Solution: 通过移除独立的 test phase 消除了重复的 SSH connections；由于 sync_ssh_host 内部已包含 connection test，因此通过带有增量 UI updates 的单次迭代即可在不增加性能成本的情况下实现相同的 UX\n关键发现： 过度的优化可能会引入新的瓶颈在添加 wrapper logic 之前，务必检查 downstream functions 是否已经提供了所需的功能\n5. AI 修改了错误的文件 (neurips_2026_zgl.tex 而不是 neurips_2026_tzj.tex)，需要对约 30 次 edits 进行 full rollbackSolution: 通过将已填充的值替换回占位符手动撤销了所有更改，然后重新应用编辑以通过明确的目标确认来修正文件 关键发现： 在进行批量编辑之前必须明确确认目标文件；由于缺乏 git repo，导致回滚过程繁琐且容易出错\n6. Figure 3 phase coverage for RBG C/D/E did not match Table 2 union of injection phases Solution: 详细的交叉引用显示 C 缺少 pre_reach/pre_grasp，D 错误地包含了 pre_reach，E 缺少 reach/pre_grasp/grasp/lift phases\n关键发现： 视觉摘要必须从详细表格中机械地推导出来，以避免手工绘制的不一致性；figures 和 tables 必须保持严格的双向一致性\n7. User created v3 that reverted BibTeX changes back to manual bibliography Solution: 解释了差异并提议重新应用 BibTeX 格式，但尊重用户在起草阶段保留 manual format 的选择\n关键发现： 作者在协作起草期间可能出于工作流原因更倾向于使用 manual bibliography（更易于分享、无需 BibTeX toolchain 依赖、合并更简单）；形式化工作可以等到最终提交时再进行\n8. Uncertainty about repository structure (local 3-part reorganization vs server’s single-directory structure) Solution: 用户决定使用 server 的权威结构 (error_benchmark/ single directory)，从 server 重新同步以丢弃本地的 reorganization 工作\n关键发现： 当存在多个版本时，在投入精力进行修改之前，先澄清哪一个是权威版本；避免在未确认 source of truth 的情况下进行推测性的 refactoring\nGeneral Issues 9. rsync command not available on Windows for file synchronization from Linux server Solution: 使用 ssh + tar pipeline: ssh tianhe 'tar cf - --exclude=pattern files' | tar xf - 来实现带有排除模式的选择性文件传输\n关键发现： Windows 缺少许多 Linux utilities，但 ssh + tar 为带有选择性排除的远程文件同步提供了等效功能\n10. Git submodule ‘already exists in index’ error when trying to re-add submodules after re-sync Solution: 使用 git rm -rf --cached 移除缓存条目，删除 .git/modules/shared 目录，然后干净地重新添加 submodules\n关键发现： Git submodule 状态同时在 index 和 .git/modules/ 中被追踪；两者都必须清理以重新开始\n11. Complex regex pattern failed in grep search for LaTeX citation commands Solution: 简化为基础模式 '\\\\cite\\{'，而不是尝试使用转义大括号来捕获 groups\n关键发现： ripgrep (rg) 的 regex syntax 与标准 grep 不同 —— 对于 LaTeX escaping 场景，更简单的模式更可靠\nHuman vs AI Approaches Strategic Level Diagnosing FloatBall rate limit visibility issue 角色 方法 用户 识别出经验性症状：‘usage里面能看到codex \u0026 cursor的usage但是floating ball还是看不到’ 并怀疑存在数据流问题，随后询问为什么 ‘codex的周限制好像还是看不到’ AI 助手 追踪了跨越 5+ 个文件的整个数据 pipeline: get_status_widget_summary → current_tray_utilization → primary_window_utilization → is_window_expired，确定 expired-window filtering 是根本原因，提出了 max-utilization strategy 的推理，即用户最关心的是最接近触发的限制 差异分析： Human 通过观察识别症状和大致领域；AI 在 IPC 边界之间进行了系统的 code archaeology 以精准定位过滤逻辑，然后基于用户意图（始终呈现最关键的约束）设计了原则性的 solution\nValidating implicit assumptions in technical descriptions 角色 方法 用户 在论文中看到相关描述时询问 ‘do we actually have clean trajectory phase labels? where do they come from?’，质疑所声称的 features 是否真的已实现 AI 助手 最初在多个 figures 和 sections 中传播了 phase labels 的概念，而没有质疑其实现的真实性 差异分析： Human 对照实际 codebase 进行 sanity-checks 以验证 claims 是否符合 reality；AI 信任现有的论文文本作为 ground truth，即使它可能只是愿景或已过时\nMethodological claims in academic writing 角色 方法 用户 质疑鉴于没有进行算法更改，’extends MimicGen with RBG-aware segmentation’ 是否准确，并应用了严格的标准：只有在算法被修改时才声称具有 algorithmic contribution AI 助手 最初接受了现有的措辞，将配置更改和在新领域中的应用解释为 ’extensions’ 差异分析： Human 强制执行严格的学术诚信标准，区分 novel methodology 与现有工具的应用；AI 则愿意接受架构/输入的差异作为 methodological contributions\nSSH sync performance optimization strategy 角色 方法 用户 请求先进行连接测试的 2-phase sync (’test一下要sync的server, 然后给点反馈’) 以改善 UX，专注于进度可见性的目标 AI 助手 最初实现了 2-phase（分开的 test_ssh_connection 调用），随后意识到 sync_ssh_host 已经包含了连接测试，因此移除了重复的 phase，在不增加 SSH 连接次数的情况下实现了相同的 UX 差异分析： Human 专注于 UX 目标（尽早显示进度）；AI 发现朴素的实现会导致连接翻倍，并找到了实现相同用户体验的更简单的 single-pass solution\nVersion management strategy for paper drafts 角色 方法 用户 创建了独立的 v3 版本，选择性地吸收了 AI 的建议（保留了数据更新，撤销了 citation format 更改），行使了 editorial control AI 助手 执行了详细的 diff analysis，以理解用户的决策过程以及选择性采纳背后的推理 差异分析： Human 将 AI 的建议视为 advisory input 而非强制性更改，对采用哪些改进保持了 agency；AI 通过 version comparison forensics 学习用户的偏好\nRepository directory structure decision 角色 方法 用户 最初请求 3-part split (error_generation, recovery_collection, training)，但在看到 server 现有的结构后，决定使用 server 的 single-directory layout 作为权威结构 AI 助手 开始按照最初的要求实现 3-part structure reorganization，在用户澄清变更之前就开始移动文件并创建新的 directory hierarchy 差异分析： Human 在看到实际的 server 结构并意识到 reorganization 并非必要后改变了决定；AI 致力于初始指令，并在用户澄清转向之前就已经开始了重组工作\nfile modifications 的范围控制 角色 方法 用户 在编辑了错误文件时明确停止 AI 并要求 rollback，并指定了确切的目标文件 AI 助手 开始编辑它首先读取的任何文件，而没有向用户确认目标 差异分析： Human 强制执行严格的范围边界以防止附带损害；AI 优化以完成所述任务，而没有重新验证关于文件目标的假设\nWhether to verify LaTeX compilation locally 角色 方法 用户 意识到本地编译并非必要 —— 信任标准的 BibTeX 结构可以在 Overleaf 上运行 AI 助手 最初尝试在本地编译以验证更改，发现 LaTeX 不在 PATH 中 差异分析： Human 展示了实际的判断力，即标准格式的结构正确性不需要验证；AI 遵循防御性编程本能来测试一切\nAI Limitations Critical Limitations 未质疑论文中提到的 ‘phase labels’ 的来源或必要性，在未根据 codebase 进行验证的情况下，将可能尚未实现的功能传播到了多个章节和图中 在执行批量编辑操作前未能确认目标文件，导致在 neurips_2026_zgl.tex 上产生了 30 多个错误的编辑，在没有 git 的情况下需要手动 rollback 最初接受了 ’extends MimicGen with X’ 这种措辞，而没有意识到当没有修改算法、仅改变应用上下文时，这属于 overclaim 在确认用户是想使用本地修改还是服务器的权威版本之前，就进行了 repository reorganization（将 error_benchmark/ 内容移入 3-part 结构），导致了无谓的重组工作 AI 最初的 FloatBall 修复（添加对 ‘any non-expired window’ 的 fallback）并未解决 expired-window filtering 的根本原因，需要第二次迭代才能完全解决问题 创建了复杂的 BibTeX 基础设施，用户随后在 v3 中将其还原，这表明 AI 可能在没有检查手动 bibliography 是否为有意为之的工作流选择的情况下，进行了 over-engineered 方案设计 按要求实现了 2-phase SSH sync，但最初没有意识到这会使连接开销翻倍；直到用户抱怨速度慢后，AI 才重新分析并找到了更简单的解决方案 General Limitations 尽管进行了网络搜索，仍无法找到 RESET 论文的引用 —— 最初未能通过上下文线索（‘our prior work’）将其识别为未发表的作者工作 无法在本地编译 LaTeX，因为系统 PATH 中未安装 pdflatex，这限制了验证 BibTeX 更改是否能实际编译的能力 Learnings Key Learnings Rate limit expired-window filtering 应该是展示层（UI strikethrough/color）的关注点，而不是数据层的过滤；在源头进行过滤会剥夺用户查看完整状态并做出明智决策的能力 当 UI 从多窗口数据中显示单个值时（FloatBall bar），通过呈现最关键的约束，选择 max utilization 比随机选择窗口能提供更好的 UX NeurIPS 2026 将 ‘Datasets \u0026 Benchmarks’ track 更名为 ‘Evaluations \u0026 Datasets’ (E\u0026D) track，并增加了对描述数据集结构和 RAI 字段的 Croissant metadata (JSON-LD format) 的强制性新要求 学术论文写作要求 claim 与实现现实之间保持严格一致；诸如 ’extend’、‘propose’、’novel’ 之类的术语带有特定的证明责任预期，用以区分应用与贡献 Double-blind submission 匿名化不仅需要检查作者姓名，还需要检查：路径中的用户名 (pytest outputs)、硬编码的服务器路径、机构名称（缩写和全称），以及任何揭示地理身份的语言 出版用的研究代码清理需要区分：(1) 定义可复现 pipeline 的核心 entry-point scripts，(2) 针对特定硬件的 convenience wrappers，(3) 一次性的 experimental scripts —— 只有第 1 类应该被发布 在使用数据填充模板时，务必验证交叉引用：如果 Figure X 声称显示 Y，需机械地验证 Y 是否以正确的值出现在 Figure X 中；视觉摘要必须源自详细的表格 学术论文工作流在起草阶段通常更倾向于简单的 citation management —— 手动 bibliography 允许在没有 BibTeX toolchain 依赖的情况下进行更轻松的协作；正式化可以等到最终提交时再做 版本比较揭示了用户意图：当用户独立地 revert 更改时，这信号传递的是偏好/约束而非疏忽 —— 应该询问原因以理解工作流需求 对于复杂的数据驱动型论文，维护单一事实来源数据文件（如 per_subtype_results.csv）可以实现所有章节中表格、图形和叙述的一致填充 暴露后端数据结构的 Tauri IPC commands (StatusWidgetSummary) 会造成紧耦合；更改 ‘primary’ 的含义需要协调的 backend+frontend 更改以及全面的测试更新 Practical Learnings Git submodule 状态持久存在于三个地方：.gitmodules (config)、.git/modules/ (repository data) 和 working tree (checkout)；冲突需要清理这三个位置 Citation research 工作流：对于 robotics/ML 论文，arXiv ID 是最可靠的标识符；会议论文集（conference proceedings）的发布可能会比 preprint 滞后数月 Windows 缺少 rsync，但 ssh + tar pipe 可以实现等效功能：ssh remote 'tar cf - --exclude=pattern files' | tar xf - 提供了带有排除项的选择性传输 Svelte 5 CSS scoping 在重构组件层级时，要求在子组件中进行显式的 style duplication 或使用 :global() wrappers；父级样式不会级联到子级 Conversation Summaries RecoverBench (NeurIPS 2026 E\u0026D Track Submission)🔄 全面的 benchmark 准备：代码匿名化、翻译、论文 bibliography 重构以及数据整合 21:59:21.043 | claude_code 跨越代码基础设施和论文写作的多阶段准备。Phase 1：通过 ssh+tar 从 tianhe server 同步代码，移除了所有身份信息（usernames tangzijia/sysu_gbli2，机构，hardcoded paths），部署了 4 个 parallel agents 将 21 个文件从中文翻译为英文且无残余字符，将 ~90 个 scripts 整合为 53 个 core entry points，使用 3 个 submodules 初始化 git，对照 NeurIPS 2026 E\u0026D 要求进行验证，发现了关键差距（Croissant metadata，anonymous hosting，README，data upload）。Phase 2：将手动 bibliography 转换为 BibTeX，研究了 6 个缺失的 citations，创建了包含 23 个 entries 的 references.bib，将 33 个 citation commands 更新为 natbib style，审计了 v2 与 v3 版本，识别出 24 个剩余的 TODOs。Phase 3：使用 evaluation data（1,360 scenes，6 tasks × 20-24 subtypes）填充了 40+ LaTeX placeholders，验证了 figure-logic 一致性，发现 taxonomy tree 中的 phase coverage 错误，修正了 MimicGen 的过度陈述以保持学术诚信。AI 误编辑了错误文件导致需要 full rollback，但最终交付了完整的 paper draft。WHEA GPU monitoring 验证了 5/5 的修复有效性（零 runtime errors）。Submission deadline 为今天 (2026-05-06)，但 abstract deadline (2026-05-04) 已经过去。\nTokenMonitor ✅ v0.13.1 release: FloatBall rate limit visibility fix 以及 7 项 UI/backend 改进 04:52:03.757 | claude_code 用户请求验证 CHANGELOG v0.12.3 的 features，发现 v0.12.2 的 features 已存在但 UI changes 未实现。更新了 v0.13.0 的 CLAUDE.md documentation（statusline module，rate limits architecture）。实现了 7 项 fixes：SSH search expansion (glob ~/.codex*)，Settings header shadow，Status Displays card restructure，FloatBall preview circle fix，utilization fallback logic，Visibility card merge with x/y counters，SSH sync progress feedback，基于 toggle 的 host management。在初始 release 后，用户报告 FloatBall 仍无法显示包括 weekly limits 在内的 codex/cursor usage。AI 追踪了跨越 5+ 个文件的 data flow：get_status_widget_summary → current_tray_utilization → primary_window_utilization → is_window_expired，确定 expired-window filtering 是根本原因。解决方案：移除了激进的 filtering，重构为 max-utilization strategy（无论类型/expiry，选择 utilization 最高的 window），将前端 primaryUtilization() 同步为 Math.max()。在 SSH sync optimization 期间，发现 2-phase approach 导致连接翻倍；通过使用 sync_ssh_host 的 built-in test 并结合 single-pass incremental UI updates 消除了重复。所有 448 个 Rust + 272 个 JS tests 全部通过。发布了 v0.13.1，包含 version bumps，CHANGELOG update，以及 git commit/tag/push 到 GitHub。\nToken Usage AI Usage · 2026-05-06\rClaude Code + Codex\rTotal cost$695.85\rTotal tokens692M\rOutput tokens4M\rCache read91.6%\rCost split\rClaude Code $577 ·\rCodex $119\rToken character\rCache reads 91.6% ·\rActive 8.4%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "1603",
   "inLanguage": "zh",
   "datePublished": "2026-05-06T00:00:00-04:00",
   "dateModified": "2026-05-06T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -244,184 +244,199 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-floatball-could-not-display-codexcursor-rate-limit-utilization-even-though-main-window-showed-them-correctly">1. FloatBall could not display codex/cursor rate limit utilization even though main window showed them correctly<a hidden class="anchor" aria-hidden="true" href="#1-floatball-could-not-display-codexcursor-rate-limit-utilization-even-though-main-window-showed-them-correctly">#</a></h4>
 <p><strong>Solution:</strong> 从 primary_window_utilization() 中移除了 is_window_expired() 过滤，将逻辑从选择 primary window ID 改为选择所有窗口中 utilization 最大的窗口（无论其类型或 expiry status 如何），并同步了 frontend 以使用 Math.max() 策略</p>
-<p><strong>Key Insight:</strong> tray logic 中的 expired-window grace period 过滤对于 idle sessions 过于激进；FloatBall 应始终显示最关键的 limit (highest utilization) 以向用户呈现最紧迫的约束</p>
+<p><strong>关键发现：</strong> tray logic 中的 expired-window grace period 过滤对于 idle sessions 过于激进；FloatBall 应始终显示最关键的 limit (highest utilization) 以向用户呈现最紧迫的约束</p>
 <h4 id="2-repository-had-confusing-structure-with-90-scripts-many-being-one-off-special-cases-for-specific-gpus-or-experiments">2. Repository had confusing structure with ~90+ scripts, many being one-off special cases for specific GPUs or experiments<a hidden class="anchor" aria-hidden="true" href="#2-repository-had-confusing-structure-with-90-scripts-many-being-one-off-special-cases-for-specific-gpus-or-experiments">#</a></h4>
 <p><strong>Solution:</strong> 按 pipeline stage 和用途系统地对 scripts 进行分类，删除了约 40 个冗余变体（GPU-specific launchers, one-off debug scripts, SLURM wrappers），仅保留定义了可复现 pipeline 的核心 entry points</p>
-<p><strong>Key Insight:</strong> 研究代码库会随着时间积累实验性 scripts；公开发布需要进行激进的 pruning，以仅保留定义可复现 benchmark 的 canonical execution paths</p>
+<p><strong>关键发现：</strong> 研究代码库会随着时间积累实验性 scripts；公开发布需要进行激进的 pruning，以仅保留定义可复现 benchmark 的 canonical execution paths</p>
 <h4 id="3-paper-mentioned-per-frame-phase-labels-without-explaining-their-source-or-necessity">3. Paper mentioned &lsquo;per-frame phase labels&rsquo; without explaining their source or necessity<a hidden class="anchor" aria-hidden="true" href="#3-paper-mentioned-per-frame-phase-labels-without-explaining-their-source-or-necessity">#</a></h4>
 <p><strong>Solution:</strong> 人工质疑其来源，发现如果 can_inject() 直接使用 physical state conditions，则可能不需要 phase labels，从而避免对未实现功能的陈述</p>
-<p><strong>Key Insight:</strong> 学术论文中的每个技术术语都需要明确的定义和实现验证，以避免审稿人提问；在将声称的依赖项传播到各个章节之前，检查它们是否确实被使用</p>
+<p><strong>关键发现：</strong> 学术论文中的每个技术术语都需要明确的定义和实现验证，以避免审稿人提问；在将声称的依赖项传播到各个章节之前，检查它们是否确实被使用</p>
 <h4 id="4-ssh-sync-took-too-long-after-implementing-2-phase-progress-feedback">4. SSH sync took too long after implementing 2-phase progress feedback<a hidden class="anchor" aria-hidden="true" href="#4-ssh-sync-took-too-long-after-implementing-2-phase-progress-feedback">#</a></h4>
 <p><strong>Solution:</strong> 通过移除独立的 test phase 消除了重复的 SSH connections；由于 sync_ssh_host 内部已包含 connection test，因此通过带有增量 UI updates 的单次迭代即可在不增加性能成本的情况下实现相同的 UX</p>
-<p><strong>Key Insight:</strong> 过度的优化可能会引入新的瓶颈在添加 wrapper logic 之前，务必检查 downstream functions 是否已经提供了所需的功能</p>
+<p><strong>关键发现：</strong> 过度的优化可能会引入新的瓶颈在添加 wrapper logic 之前，务必检查 downstream functions 是否已经提供了所需的功能</p>
 <h4 id="5-ai-修改了错误的文件-neurips_2026_zgltex-而不是-neurips_2026_tzjtex需要对约-30-次-edits-进行-full-rollbacksolution-通过将已填充的值替换回占位符手动撤销了所有更改然后重新应用编辑以通过明确的目标确认来修正文件">5. AI 修改了错误的文件 (neurips_2026_zgl.tex 而不是 neurips_2026_tzj.tex)，需要对约 30 次 edits 进行 full rollback<strong>Solution:</strong> 通过将已填充的值替换回占位符手动撤销了所有更改，然后重新应用编辑以通过明确的目标确认来修正文件<a hidden class="anchor" aria-hidden="true" href="#5-ai-修改了错误的文件-neurips_2026_zgltex-而不是-neurips_2026_tzjtex需要对约-30-次-edits-进行-full-rollbacksolution-通过将已填充的值替换回占位符手动撤销了所有更改然后重新应用编辑以通过明确的目标确认来修正文件">#</a></h4>
-<p><strong>Key Insight:</strong> 在进行批量编辑之前必须明确确认目标文件；由于缺乏 git repo，导致回滚过程繁琐且容易出错</p>
+<p><strong>关键发现：</strong> 在进行批量编辑之前必须明确确认目标文件；由于缺乏 git repo，导致回滚过程繁琐且容易出错</p>
 <h4 id="6-figure-3-phase-coverage-for-rbg-cde-did-not-match-table-2-union-of-injection-phases">6. Figure 3 phase coverage for RBG C/D/E did not match Table 2 union of injection phases<a hidden class="anchor" aria-hidden="true" href="#6-figure-3-phase-coverage-for-rbg-cde-did-not-match-table-2-union-of-injection-phases">#</a></h4>
 <p><strong>Solution:</strong> 详细的交叉引用显示 C 缺少 pre_reach/pre_grasp，D 错误地包含了 pre_reach，E 缺少 reach/pre_grasp/grasp/lift phases</p>
-<p><strong>Key Insight:</strong> 视觉摘要必须从详细表格中机械地推导出来，以避免手工绘制的不一致性；figures 和 tables 必须保持严格的双向一致性</p>
+<p><strong>关键发现：</strong> 视觉摘要必须从详细表格中机械地推导出来，以避免手工绘制的不一致性；figures 和 tables 必须保持严格的双向一致性</p>
 <h4 id="7-user-created-v3-that-reverted-bibtex-changes-back-to-manual-bibliography">7. User created v3 that reverted BibTeX changes back to manual bibliography<a hidden class="anchor" aria-hidden="true" href="#7-user-created-v3-that-reverted-bibtex-changes-back-to-manual-bibliography">#</a></h4>
 <p><strong>Solution:</strong> 解释了差异并提议重新应用 BibTeX 格式，但尊重用户在起草阶段保留 manual format 的选择</p>
-<p><strong>Key Insight:</strong> 作者在协作起草期间可能出于工作流原因更倾向于使用 manual bibliography（更易于分享、无需 BibTeX toolchain 依赖、合并更简单）；形式化工作可以等到最终提交时再进行</p>
+<p><strong>关键发现：</strong> 作者在协作起草期间可能出于工作流原因更倾向于使用 manual bibliography（更易于分享、无需 BibTeX toolchain 依赖、合并更简单）；形式化工作可以等到最终提交时再进行</p>
 <h4 id="8-uncertainty-about-repository-structure-local-3-part-reorganization-vs-servers-single-directory-structure">8. Uncertainty about repository structure (local 3-part reorganization vs server&rsquo;s single-directory structure)<a hidden class="anchor" aria-hidden="true" href="#8-uncertainty-about-repository-structure-local-3-part-reorganization-vs-servers-single-directory-structure">#</a></h4>
 <p><strong>Solution:</strong> 用户决定使用 server 的权威结构 (error_benchmark/ single directory)，从 server 重新同步以丢弃本地的 reorganization 工作</p>
-<p><strong>Key Insight:</strong> 当存在多个版本时，在投入精力进行修改之前，先澄清哪一个是权威版本；避免在未确认 source of truth 的情况下进行推测性的 refactoring</p>
+<p><strong>关键发现：</strong> 当存在多个版本时，在投入精力进行修改之前，先澄清哪一个是权威版本；避免在未确认 source of truth 的情况下进行推测性的 refactoring</p>
 <h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
 <h4 id="9-rsync-command-not-available-on-windows-for-file-synchronization-from-linux-server">9. rsync command not available on Windows for file synchronization from Linux server<a hidden class="anchor" aria-hidden="true" href="#9-rsync-command-not-available-on-windows-for-file-synchronization-from-linux-server">#</a></h4>
 <p><strong>Solution:</strong> 使用 ssh + tar pipeline: <code>ssh tianhe 'tar cf - --exclude=pattern files' | tar xf -</code> 来实现带有排除模式的选择性文件传输</p>
-<p><strong>Key Insight:</strong> Windows 缺少许多 Linux utilities，但 ssh + tar 为带有选择性排除的远程文件同步提供了等效功能</p>
+<p><strong>关键发现：</strong> Windows 缺少许多 Linux utilities，但 ssh + tar 为带有选择性排除的远程文件同步提供了等效功能</p>
 <h4 id="10-git-submodule-already-exists-in-index-error-when-trying-to-re-add-submodules-after-re-sync">10. Git submodule &lsquo;already exists in index&rsquo; error when trying to re-add submodules after re-sync<a hidden class="anchor" aria-hidden="true" href="#10-git-submodule-already-exists-in-index-error-when-trying-to-re-add-submodules-after-re-sync">#</a></h4>
 <p><strong>Solution:</strong> 使用 <code>git rm -rf --cached</code> 移除缓存条目，删除 <code>.git/modules/shared</code> 目录，然后干净地重新添加 submodules</p>
-<p><strong>Key Insight:</strong> Git submodule 状态同时在 index 和 <code>.git/modules/</code> 中被追踪；两者都必须清理以重新开始</p>
+<p><strong>关键发现：</strong> Git submodule 状态同时在 index 和 <code>.git/modules/</code> 中被追踪；两者都必须清理以重新开始</p>
 <h4 id="11-complex-regex-pattern-failed-in-grep-search-for-latex-citation-commands">11. Complex regex pattern failed in grep search for LaTeX citation commands<a hidden class="anchor" aria-hidden="true" href="#11-complex-regex-pattern-failed-in-grep-search-for-latex-citation-commands">#</a></h4>
 <p><strong>Solution:</strong> 简化为基础模式 <code>'\\cite\{'</code>，而不是尝试使用转义大括号来捕获 groups</p>
-<p><strong>Key Insight:</strong> ripgrep (rg) 的 regex syntax 与标准 grep 不同 —— 对于 LaTeX escaping 场景，更简单的模式更可靠</p>
+<p><strong>关键发现：</strong> ripgrep (rg) 的 regex syntax 与标准 grep 不同 —— 对于 LaTeX escaping 场景，更简单的模式更可靠</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="diagnosing-floatball-rate-limit-visibility-issue">Diagnosing FloatBall rate limit visibility issue<a hidden class="anchor" aria-hidden="true" href="#diagnosing-floatball-rate-limit-visibility-issue">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>识别出经验性症状：&lsquo;usage里面能看到codex &amp; cursor的usage但是floating ball还是看不到&rsquo; 并怀疑存在数据流问题，随后询问为什么 &lsquo;codex的周限制好像还是看不到&rsquo;</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>追踪了跨越 5+ 个文件的整个数据 pipeline: get_status_widget_summary → current_tray_utilization → primary_window_utilization → is_window_expired，确定 expired-window filtering 是根本原因，提出了 max-utilization strategy 的推理，即用户最关心的是最接近触发的限制</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 通过观察识别症状和大致领域；AI 在 IPC 边界之间进行了系统的 code archaeology 以精准定位过滤逻辑，然后基于用户意图（始终呈现最关键的约束）设计了原则性的 solution</p>
+<p><strong>差异分析：</strong> Human 通过观察识别症状和大致领域；AI 在 IPC 边界之间进行了系统的 code archaeology 以精准定位过滤逻辑，然后基于用户意图（始终呈现最关键的约束）设计了原则性的 solution</p>
 <h4 id="validating-implicit-assumptions-in-technical-descriptions">Validating implicit assumptions in technical descriptions<a hidden class="anchor" aria-hidden="true" href="#validating-implicit-assumptions-in-technical-descriptions">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>在论文中看到相关描述时询问 &lsquo;do we actually have clean trajectory phase labels? where do they come from?&rsquo;，质疑所声称的 features 是否真的已实现</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初在多个 figures 和 sections 中传播了 phase labels 的概念，而没有质疑其实现的真实性</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 对照实际 codebase 进行 sanity-checks 以验证 claims 是否符合 reality；AI 信任现有的论文文本作为 ground truth，即使它可能只是愿景或已过时</p>
+<p><strong>差异分析：</strong> Human 对照实际 codebase 进行 sanity-checks 以验证 claims 是否符合 reality；AI 信任现有的论文文本作为 ground truth，即使它可能只是愿景或已过时</p>
 <h4 id="methodological-claims-in-academic-writing">Methodological claims in academic writing<a hidden class="anchor" aria-hidden="true" href="#methodological-claims-in-academic-writing">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>质疑鉴于没有进行算法更改，&rsquo;extends MimicGen with RBG-aware segmentation&rsquo; 是否准确，并应用了严格的标准：只有在算法被修改时才声称具有 algorithmic contribution</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初接受了现有的措辞，将配置更改和在新领域中的应用解释为 &rsquo;extensions&rsquo;</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 强制执行严格的学术诚信标准，区分 novel methodology 与现有工具的应用；AI 则愿意接受架构/输入的差异作为 methodological contributions</p>
+<p><strong>差异分析：</strong> Human 强制执行严格的学术诚信标准，区分 novel methodology 与现有工具的应用；AI 则愿意接受架构/输入的差异作为 methodological contributions</p>
 <h4 id="ssh-sync-performance-optimization-strategy">SSH sync performance optimization strategy<a hidden class="anchor" aria-hidden="true" href="#ssh-sync-performance-optimization-strategy">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>请求先进行连接测试的 2-phase sync (&rsquo;test一下要sync的server, 然后给点反馈&rsquo;) 以改善 UX，专注于进度可见性的目标</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初实现了 2-phase（分开的 test_ssh_connection 调用），随后意识到 sync_ssh_host 已经包含了连接测试，因此移除了重复的 phase，在不增加 SSH 连接次数的情况下实现了相同的 UX</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 专注于 UX 目标（尽早显示进度）；AI 发现朴素的实现会导致连接翻倍，并找到了实现相同用户体验的更简单的 single-pass solution</p>
+<p><strong>差异分析：</strong> Human 专注于 UX 目标（尽早显示进度）；AI 发现朴素的实现会导致连接翻倍，并找到了实现相同用户体验的更简单的 single-pass solution</p>
 <h4 id="version-management-strategy-for-paper-drafts">Version management strategy for paper drafts<a hidden class="anchor" aria-hidden="true" href="#version-management-strategy-for-paper-drafts">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>创建了独立的 v3 版本，选择性地吸收了 AI 的建议（保留了数据更新，撤销了 citation format 更改），行使了 editorial control</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>执行了详细的 diff analysis，以理解用户的决策过程以及选择性采纳背后的推理</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 将 AI 的建议视为 advisory input 而非强制性更改，对采用哪些改进保持了 agency；AI 通过 version comparison forensics 学习用户的偏好</p>
+<p><strong>差异分析：</strong> Human 将 AI 的建议视为 advisory input 而非强制性更改，对采用哪些改进保持了 agency；AI 通过 version comparison forensics 学习用户的偏好</p>
 <h4 id="repository-directory-structure-decision">Repository directory structure decision<a hidden class="anchor" aria-hidden="true" href="#repository-directory-structure-decision">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>最初请求 3-part split (error_generation, recovery_collection, training)，但在看到 server 现有的结构后，决定使用 server 的 single-directory layout 作为权威结构</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>开始按照最初的要求实现 3-part structure reorganization，在用户澄清变更之前就开始移动文件并创建新的 directory hierarchy</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 在看到实际的 server 结构并意识到 reorganization 并非必要后改变了决定；AI 致力于初始指令，并在用户澄清转向之前就已经开始了重组工作</p>
-<h4 id="file-modifications-的范围控制-role--approach-">file modifications 的范围控制| Role | Approach |<a hidden class="anchor" aria-hidden="true" href="#file-modifications-的范围控制-role--approach-">#</a></h4>
-<p>|&mdash;&mdash;|&mdash;&mdash;|
-| Human | 在编辑了错误文件时明确停止 AI 并要求 rollback，并指定了确切的目标文件 |
-| AI   | 开始编辑它首先读取的任何文件，而没有向用户确认目标 |</p>
-<p><strong>Difference Analysis:</strong> Human 强制执行严格的范围边界以防止附带损害；AI 优化以完成所述任务，而没有重新验证关于文件目标的假设</p>
-<h4 id="whether-to-verify-latex-compilation-locally">Whether to verify LaTeX compilation locally<a hidden class="anchor" aria-hidden="true" href="#whether-to-verify-latex-compilation-locally">#</a></h4>
+<p><strong>差异分析：</strong> Human 在看到实际的 server 结构并意识到 reorganization 并非必要后改变了决定；AI 致力于初始指令，并在用户澄清转向之前就已经开始了重组工作</p>
+<h4 id="file-modifications-的范围控制">file modifications 的范围控制<a hidden class="anchor" aria-hidden="true" href="#file-modifications-的范围控制">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
+          <td>在编辑了错误文件时明确停止 AI 并要求 rollback，并指定了确切的目标文件</td>
+      </tr>
+      <tr>
+          <td>AI 助手</td>
+          <td>开始编辑它首先读取的任何文件，而没有向用户确认目标</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> Human 强制执行严格的范围边界以防止附带损害；AI 优化以完成所述任务，而没有重新验证关于文件目标的假设</p>
+<h4 id="whether-to-verify-latex-compilation-locally">Whether to verify LaTeX compilation locally<a hidden class="anchor" aria-hidden="true" href="#whether-to-verify-latex-compilation-locally">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>用户</td>
           <td>意识到本地编译并非必要 —— 信任标准的 BibTeX 结构可以在 Overleaf 上运行</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初尝试在本地编译以验证更改，发现 LaTeX 不在 PATH 中</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 展示了实际的判断力，即标准格式的结构正确性不需要验证；AI 遵循防御性编程本能来测试一切</p>
+<p><strong>差异分析：</strong> Human 展示了实际的判断力，即标准格式的结构正确性不需要验证；AI 遵循防御性编程本能来测试一切</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
 <ul>

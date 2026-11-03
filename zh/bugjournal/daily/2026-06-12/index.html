@@ -10,7 +10,7 @@
 <meta name="description" content="将 ErrorRecoveryBenchmark 评估协议与权威规范 (M16) 对齐，并在 Gadget 研究模块中修复了 58 个 bugs。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-06-12/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-06-12 Daily Overview 完成工作： 为 ErrorRecoveryBenchmark 实现了 sampled eval set 和 Fisher exact testing，并对 Gadget research module 应用了 58 个 bug 的修复计划。 实施方式： 使用了 Claude Code (Opus 4.8)、test-first development、multi-agent workflow orchestration 以及对关键修复进行了 manual verification。 影响： 为核心 recovery hypothesis 建立了统计学有效的评估体系，并消除了 research pipeline 中导致 crash/resilience failures 的根本原因。 使 ErrorRecoveryBenchmark 评估协议与权威 spec (M16) 保持一致，并修复了 Gadget research module 中的 58 个 bug。\nTasks Architecture \u0026 Strategy ✅ ErrorRecoveryBenchmark Eval Protocol Alignment — 构建了 eval_set_sampler.py 和 eval_metrics.py 以实现 M16：从 135k scenes 中进行 stratified sampling，针对 recovery vs normal SR 进行 Fischer exact testing，并进行 per-RBG aggregation。在无 regression 的情况下集成了 4 个现有的 eval scripts。 ✅ Gadget Research Module Bug Remediation — 执行了修复 58 个 bug (1 HIGH, 23 MEDIUM, 34 LOW) 的计划，重点在于 common/llm.py 中的 exception handling、cache poisoning 以及 configuration mismatches。 🔄 ErrorRecoveryBenchmark Tianhe2 Deployment — 提交了更改，push 到 GitHub，在 Tianhe2 上识别了约 135k 的 validation scene pool，并启动了 background sampler execution。 Implementation \u0026 Fixes ✅ Gadget Entry Point Fix (Item 18) — 通过更新 main.py 的 sys.path handling，修复了损坏的 ‘python -m research.scout’ entry point。 ✅ Documentation Sync — 更新了 docs/ecl/gadget-features.yaml 以反映强制 English system prompt 的移除，并修正了 DEFAULT_LANGUAGE notes。 Problems \u0026 Solutions Critical Issues 1. research module 中的 HIGH bug：call_llm_raw 允许 TimeoutExpired 和其他 exceptions 逃逸，导致整个 pipeline crash。 Solution: 将所有 backend calls 封装在 try/except block 中，并按照文档约定的 contract 将其转换为 RuntimeError。\nKey Insight: Shared utility functions 必须严格遵守其 error contracts；partial exception handling 是有风险的。\n2. Cache poisoning：失败的 LLM results 被保存到了没有 TTL 的 permanent caches 中，导致重新运行时出现持续性失败。 Solution: 在 cache writes 之前增加了 quality gates (_screening_is_usable/_deep_eval_is_usable) 并使错误的 entries 失效。\nKey Insight: Caches 在持久化之前必须验证数据完整性；failure states 绝不能在未经校验的情况下被缓存。\nGeneral Issues 3. 由于 sys.path resolution issues，entry point ‘python -m research.scout’ 失败。 Solution: 更新了 main.py 以显式地将 research/ 和 repo root 同时添加到 sys.path 中。\nKey Insight: 嵌套 package 中的 module entry points 通常需要显式的 path manipulation 来进行 import resolution。\n4. Gadget project logs 中显示 model selection failure ‘claude-fable-5’ not found。 Solution: 用户切换到 Opus 4.8 解决了该问题，确认了该 model name 是无效或无法访问的。\nKey Insight: 在大规模使用前通过 /model command 验证 model names；某些 preview/internal model names 可能已被弃用。\n5. Workflow 遗漏了将 Item 18 (entry point fix) 分配给一个 file-group agent。 Solution: 通过 manual override 和 direct edit 填补了 automated workflow 中的空白。\nKey Insight: Automated multi-agent workflows 需要进行 manual auditing 以确保 scope completeness；edge cases 可能会被忽略。\nHuman vs AI Approaches Strategic Level Evaluation Protocol Misalignment Role Approach Human 用户澄清了权威协议 (M16) 要求在 sampled set 上进行 SR + Fischer testing，拒绝了 AI 最初对 gap/CI 等 paper metrics 的关注。 AI AI 最初专注于来自论文的 statistical methods (Bootstrap CI, gap)，忽略了特定 sampling strategy 的 operational requirement。 Difference Analysis: Human 基于项目文档 (Panorama Spec) 提供了 strategic direction，纠正了 AI 过度依赖 academic literature 而非 internal specs 的倾向。\nImplementation Level Default Language Intent Role Approach Human 用户指定 Chinese 是预期的 default language，尽管代码默认使用 English。 AI AI 最初注意到了这种不一致，但将其作为单独的 item 来修复 code mismatch，这可能会延迟核心意图的解决。 Difference Analysis: Human 直接建立了 business rule；AI 将其视为 configuration consistency issue 而非 primary directive。\nAI Limitations Critical Limitations AI 最初通过关注 academic paper metrics 而非 internal M16 spec，误解了 evaluation protocol requirements。 General Limitations AI 在 multi-agent workflow assignment 中遗漏了 Item 18 (entry point fix)，需要 manual intervention 来完成 bug list。 Model name ‘claude-fable-5’ 是无效/未知的，导致初始 Gadget project logs 中立即发生失败。 Learnings Key Learnings Cache poisoning 是一个关键的 resilience issue；failure results 绝不能在未经验证的情况下持久化到 permanent caches 中。 Shared library functions (如 common/llm.py) 必须强制执行严格的 error contracts；partial exception handling 会导致 cascading failures。 Practical Learnings 用于 bug remediation 的 multi-agent workflows 虽然高效，但需要 manual scope auditing 来捕捉未分配的 items。 Conversation Summaries ErrorRecoveryBenchmark ✅ Eval Protocol Implementation 03:13:54.085 | claude_code 用户指示 AI 使用 Fischer exact testing 和来自 135k validation scenes 的 stratified sampling，使 evaluation metrics 与 M16 protocol 对齐。AI 实现了 eval_set_sampler.py 和 eval_metrics.py，更新了 4 个现有 scripts，并验证所有 tests 通过 (55/55)。\n• Tianhe2 Deployment and Sampling 03:20:00.994 | claude_code AI 提交了更改，push 到 GitHub，识别了 Tianhe2 上的 ~135k validation pool，并启动了 background sampling process。会话在监控 long-running sampler 时结束。\nGadget ✅ Research Module Bug Remediation 03:09:06.315 | claude_code AI 为 research module 执行了 58-bug remediation plan，包括修复 common/llm.py 中的 high-severity exception handling、解决 cache poisoning issues 以及修正 configuration mismatches。使用了 multi-agent workflow，随后进行了 manual verification 并完成了遗漏的 entry point fix。\nToken Usage AI Usage · 2026-06-12\rClaude Code + Codex\rTotal cost$91.22\rTotal tokens90M\rOutput tokens585K\rCache read92.9%\rCost split\rClaude Code $72 ·\rCodex $19\rToken character\rCache reads 92.9% ·\rActive 7.1%\rMost token volume came from cache reads.\r",
-  "wordCount" : "661",
+  "articleBody": "Daily Report — 2026-06-12 Daily Overview 完成工作： 为 ErrorRecoveryBenchmark 实现了 sampled eval set 和 Fisher exact testing，并对 Gadget research module 应用了 58 个 bug 的修复计划。 实施方式： 使用了 Claude Code (Opus 4.8)、test-first development、multi-agent workflow orchestration 以及对关键修复进行了 manual verification。 影响： 为核心 recovery hypothesis 建立了统计学有效的评估体系，并消除了 research pipeline 中导致 crash/resilience failures 的根本原因。 使 ErrorRecoveryBenchmark 评估协议与权威 spec (M16) 保持一致，并修复了 Gadget research module 中的 58 个 bug。\nTasks Architecture \u0026 Strategy ✅ ErrorRecoveryBenchmark Eval Protocol Alignment — 构建了 eval_set_sampler.py 和 eval_metrics.py 以实现 M16：从 135k scenes 中进行 stratified sampling，针对 recovery vs normal SR 进行 Fischer exact testing，并进行 per-RBG aggregation。在无 regression 的情况下集成了 4 个现有的 eval scripts。 ✅ Gadget Research Module Bug Remediation — 执行了修复 58 个 bug (1 HIGH, 23 MEDIUM, 34 LOW) 的计划，重点在于 common/llm.py 中的 exception handling、cache poisoning 以及 configuration mismatches。 🔄 ErrorRecoveryBenchmark Tianhe2 Deployment — 提交了更改，push 到 GitHub，在 Tianhe2 上识别了约 135k 的 validation scene pool，并启动了 background sampler execution。 Implementation \u0026 Fixes ✅ Gadget Entry Point Fix (Item 18) — 通过更新 main.py 的 sys.path handling，修复了损坏的 ‘python -m research.scout’ entry point。 ✅ Documentation Sync — 更新了 docs/ecl/gadget-features.yaml 以反映强制 English system prompt 的移除，并修正了 DEFAULT_LANGUAGE notes。 Problems \u0026 Solutions Critical Issues 1. research module 中的 HIGH bug：call_llm_raw 允许 TimeoutExpired 和其他 exceptions 逃逸，导致整个 pipeline crash。 Solution: 将所有 backend calls 封装在 try/except block 中，并按照文档约定的 contract 将其转换为 RuntimeError。\n关键发现： Shared utility functions 必须严格遵守其 error contracts；partial exception handling 是有风险的。\n2. Cache poisoning：失败的 LLM results 被保存到了没有 TTL 的 permanent caches 中，导致重新运行时出现持续性失败。 Solution: 在 cache writes 之前增加了 quality gates (_screening_is_usable/_deep_eval_is_usable) 并使错误的 entries 失效。\n关键发现： Caches 在持久化之前必须验证数据完整性；failure states 绝不能在未经校验的情况下被缓存。\nGeneral Issues 3. 由于 sys.path resolution issues，entry point ‘python -m research.scout’ 失败。 Solution: 更新了 main.py 以显式地将 research/ 和 repo root 同时添加到 sys.path 中。\n关键发现： 嵌套 package 中的 module entry points 通常需要显式的 path manipulation 来进行 import resolution。\n4. Gadget project logs 中显示 model selection failure ‘claude-fable-5’ not found。 Solution: 用户切换到 Opus 4.8 解决了该问题，确认了该 model name 是无效或无法访问的。\n关键发现： 在大规模使用前通过 /model command 验证 model names；某些 preview/internal model names 可能已被弃用。\n5. Workflow 遗漏了将 Item 18 (entry point fix) 分配给一个 file-group agent。 Solution: 通过 manual override 和 direct edit 填补了 automated workflow 中的空白。\n关键发现： Automated multi-agent workflows 需要进行 manual auditing 以确保 scope completeness；edge cases 可能会被忽略。\nHuman vs AI Approaches Strategic Level Evaluation Protocol Misalignment 角色 方法 用户 用户澄清了权威协议 (M16) 要求在 sampled set 上进行 SR + Fischer testing，拒绝了 AI 最初对 gap/CI 等 paper metrics 的关注。 AI 助手 AI 最初专注于来自论文的 statistical methods (Bootstrap CI, gap)，忽略了特定 sampling strategy 的 operational requirement。 差异分析： Human 基于项目文档 (Panorama Spec) 提供了 strategic direction，纠正了 AI 过度依赖 academic literature 而非 internal specs 的倾向。\nImplementation Level Default Language Intent 角色 方法 用户 用户指定 Chinese 是预期的 default language，尽管代码默认使用 English。 AI 助手 AI 最初注意到了这种不一致，但将其作为单独的 item 来修复 code mismatch，这可能会延迟核心意图的解决。 差异分析： Human 直接建立了 business rule；AI 将其视为 configuration consistency issue 而非 primary directive。\nAI Limitations Critical Limitations AI 最初通过关注 academic paper metrics 而非 internal M16 spec，误解了 evaluation protocol requirements。 General Limitations AI 在 multi-agent workflow assignment 中遗漏了 Item 18 (entry point fix)，需要 manual intervention 来完成 bug list。 Model name ‘claude-fable-5’ 是无效/未知的，导致初始 Gadget project logs 中立即发生失败。 Learnings Key Learnings Cache poisoning 是一个关键的 resilience issue；failure results 绝不能在未经验证的情况下持久化到 permanent caches 中。 Shared library functions (如 common/llm.py) 必须强制执行严格的 error contracts；partial exception handling 会导致 cascading failures。 Practical Learnings 用于 bug remediation 的 multi-agent workflows 虽然高效，但需要 manual scope auditing 来捕捉未分配的 items。 Conversation Summaries ErrorRecoveryBenchmark ✅ Eval Protocol Implementation 03:13:54.085 | claude_code 用户指示 AI 使用 Fischer exact testing 和来自 135k validation scenes 的 stratified sampling，使 evaluation metrics 与 M16 protocol 对齐。AI 实现了 eval_set_sampler.py 和 eval_metrics.py，更新了 4 个现有 scripts，并验证所有 tests 通过 (55/55)。\n• Tianhe2 Deployment and Sampling 03:20:00.994 | claude_code AI 提交了更改，push 到 GitHub，识别了 Tianhe2 上的 ~135k validation pool，并启动了 background sampling process。会话在监控 long-running sampler 时结束。\nGadget ✅ Research Module Bug Remediation 03:09:06.315 | claude_code AI 为 research module 执行了 58-bug remediation plan，包括修复 common/llm.py 中的 high-severity exception handling、解决 cache poisoning issues 以及修正 configuration mismatches。使用了 multi-agent workflow，随后进行了 manual verification 并完成了遗漏的 entry point fix。\nToken Usage AI Usage · 2026-06-12\rClaude Code + Codex\rTotal cost$91.22\rTotal tokens90M\rOutput tokens585K\rCache read92.9%\rCost split\rClaude Code $72 ·\rCodex $19\rToken character\rCache reads 92.9% ·\rActive 7.1%\rMost token volume came from cache reads.\r",
+  "wordCount" : "656",
   "inLanguage": "zh",
   "datePublished": "2026-06-12T00:00:00-04:00",
   "dateModified": "2026-06-12T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -235,63 +235,63 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-research-module-中的-high-bugcall_llm_raw-允许-timeoutexpired-和其他-exceptions-逃逸导致整个-pipeline-crash">1. research module 中的 HIGH bug：call_llm_raw 允许 TimeoutExpired 和其他 exceptions 逃逸，导致整个 pipeline crash。<a hidden class="anchor" aria-hidden="true" href="#1-research-module-中的-high-bugcall_llm_raw-允许-timeoutexpired-和其他-exceptions-逃逸导致整个-pipeline-crash">#</a></h4>
 <p><strong>Solution:</strong> 将所有 backend calls 封装在 try/except block 中，并按照文档约定的 contract 将其转换为 RuntimeError。</p>
-<p><strong>Key Insight:</strong> Shared utility functions 必须严格遵守其 error contracts；partial exception handling 是有风险的。</p>
+<p><strong>关键发现：</strong> Shared utility functions 必须严格遵守其 error contracts；partial exception handling 是有风险的。</p>
 <h4 id="2-cache-poisoning失败的-llm-results-被保存到了没有-ttl-的-permanent-caches-中导致重新运行时出现持续性失败">2. Cache poisoning：失败的 LLM results 被保存到了没有 TTL 的 permanent caches 中，导致重新运行时出现持续性失败。<a hidden class="anchor" aria-hidden="true" href="#2-cache-poisoning失败的-llm-results-被保存到了没有-ttl-的-permanent-caches-中导致重新运行时出现持续性失败">#</a></h4>
 <p><strong>Solution:</strong> 在 cache writes 之前增加了 quality gates (_screening_is_usable/_deep_eval_is_usable) 并使错误的 entries 失效。</p>
-<p><strong>Key Insight:</strong> Caches 在持久化之前必须验证数据完整性；failure states 绝不能在未经校验的情况下被缓存。</p>
+<p><strong>关键发现：</strong> Caches 在持久化之前必须验证数据完整性；failure states 绝不能在未经校验的情况下被缓存。</p>
 <h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
 <h4 id="3-由于-syspath-resolution-issuesentry-point-python--m-researchscout-失败">3. 由于 sys.path resolution issues，entry point &lsquo;python -m research.scout&rsquo; 失败。<a hidden class="anchor" aria-hidden="true" href="#3-由于-syspath-resolution-issuesentry-point-python--m-researchscout-失败">#</a></h4>
 <p><strong>Solution:</strong> 更新了 <strong>main</strong>.py 以显式地将 research/ 和 repo root 同时添加到 sys.path 中。</p>
-<p><strong>Key Insight:</strong> 嵌套 package 中的 module entry points 通常需要显式的 path manipulation 来进行 import resolution。</p>
+<p><strong>关键发现：</strong> 嵌套 package 中的 module entry points 通常需要显式的 path manipulation 来进行 import resolution。</p>
 <h4 id="4-gadget-project-logs-中显示-model-selection-failure-claude-fable-5-not-found">4. Gadget project logs 中显示 model selection failure &lsquo;claude-fable-5&rsquo; not found。<a hidden class="anchor" aria-hidden="true" href="#4-gadget-project-logs-中显示-model-selection-failure-claude-fable-5-not-found">#</a></h4>
 <p><strong>Solution:</strong> 用户切换到 Opus 4.8 解决了该问题，确认了该 model name 是无效或无法访问的。</p>
-<p><strong>Key Insight:</strong> 在大规模使用前通过 /model command 验证 model names；某些 preview/internal model names 可能已被弃用。</p>
+<p><strong>关键发现：</strong> 在大规模使用前通过 /model command 验证 model names；某些 preview/internal model names 可能已被弃用。</p>
 <h4 id="5-workflow-遗漏了将-item-18-entry-point-fix-分配给一个-file-group-agent">5. Workflow 遗漏了将 Item 18 (entry point fix) 分配给一个 file-group agent。<a hidden class="anchor" aria-hidden="true" href="#5-workflow-遗漏了将-item-18-entry-point-fix-分配给一个-file-group-agent">#</a></h4>
 <p><strong>Solution:</strong> 通过 manual override 和 direct edit 填补了 automated workflow 中的空白。</p>
-<p><strong>Key Insight:</strong> Automated multi-agent workflows 需要进行 manual auditing 以确保 scope completeness；edge cases 可能会被忽略。</p>
+<p><strong>关键发现：</strong> Automated multi-agent workflows 需要进行 manual auditing 以确保 scope completeness；edge cases 可能会被忽略。</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="evaluation-protocol-misalignment">Evaluation Protocol Misalignment<a hidden class="anchor" aria-hidden="true" href="#evaluation-protocol-misalignment">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>用户澄清了权威协议 (M16) 要求在 sampled set 上进行 SR + Fischer testing，拒绝了 AI 最初对 gap/CI 等 paper metrics 的关注。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 最初专注于来自论文的 statistical methods (Bootstrap CI, gap)，忽略了特定 sampling strategy 的 operational requirement。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 基于项目文档 (Panorama Spec) 提供了 strategic direction，纠正了 AI 过度依赖 academic literature 而非 internal specs 的倾向。</p>
+<p><strong>差异分析：</strong> Human 基于项目文档 (Panorama Spec) 提供了 strategic direction，纠正了 AI 过度依赖 academic literature 而非 internal specs 的倾向。</p>
 <h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
 <h4 id="default-language-intent">Default Language Intent<a hidden class="anchor" aria-hidden="true" href="#default-language-intent">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>用户指定 Chinese 是预期的 default language，尽管代码默认使用 English。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 最初注意到了这种不一致，但将其作为单独的 item 来修复 code mismatch，这可能会延迟核心意图的解决。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 直接建立了 business rule；AI 将其视为 configuration consistency issue 而非 primary directive。</p>
+<p><strong>差异分析：</strong> Human 直接建立了 business rule；AI 将其视为 configuration consistency issue 而非 primary directive。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
 <ul>

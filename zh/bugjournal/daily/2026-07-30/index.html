@@ -10,7 +10,7 @@
 <meta name="description" content="通过自动化工作流，在15个GitHub仓库中标准化并重构了AI配置，同时对ErrorRecoveryBenchmark项目进行了关键错误恢复分析。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-30/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "每日报告 — 2026-07-30 日常概述 已完成工作： 审核了现有配置，删除了过时的设置，并重新生成了多个项目的CLAUDE.md、AGENTS.md和.claude/settings.json文件。 实施方式： 利用并行AI代理工作流扫描代码库，提取架构信息，并编写经过验证的配置文件；同时通过有针对性的SSH评估运行进行基准测试。 影响： 确保所有仓库拥有准确、最新的指导方案，同时发现coffee_nominal模型存在因协变量偏移导致的关键结构缺陷。 通过自动化工作流对15个GitHub仓库中的AI配置进行了标准化和重建，同时对ErrorRecoveryBenchmark项目进行了关键错误恢复分析。\n任务 架构与策略 ✅ 全局仓库配置重建 — 删除了D:\\GitHub中旧的Claude/代理配置，使用14个并行子代理重新构建，并针对实际代码库验证命令。 ✅ ErrorRecoveryBenchmark咖啡策略分析 — 在远程集群上执行并分析了渲染对比，以确定为何coffee_nominal策略与coffee_recovery相比完全失败。 实施与修复 ✅ 创建ai-companion CLAUDE.md — 分析了ai-companion单仓库结构，创建了一个简洁的、针对代理的CLAUDE.md文件，该文件导入了canonical AGENTS.md，解决了文档过时问题。 ✅ gadget仓库文档更新 — 验证了并修正了gadget工具包中的CLAUDE.md，修复了过时的路径并添加了缺失的架构参考（config.py、外部依赖项）。 ✅ AI内存清理 — 识别并删除了gadget项目中过时的内存注释，这些注释错误地指出了不再存在的路径遮蔽问题。 问题与解决方案 关键问题 1. coffee_nominal策略在0/1734个任务中失败，尽管其训练损失与恢复策略相似且训练数据更多。 解决方案： 进行了相同种子下的配对渲染测试；发现直接不干预时nominal策略立即失败，而恢复策略则成功。得出结论：训练中4%的恢复数据是导致协变量偏移失效的唯一原因。\n关键洞察： 仅使用nominal数据的教师强制训练会产生脆弱的 manifold；推理过程中的任何偏差（即使很小）都会导致无法恢复的状态，除非明确进行错误恢复训练。\n2. 旧的CLAUDE.md文件过时，重复了AGENTS.md内容或包含错误的路径/命令。 解决方案： 采用“精简适配器”策略：将核心逻辑保留在代理中立的AGENTS.md中，仅使用CLAUDE.md用于工具特定的注释（例如vitest watch-mode陷阱、CLI调用差异）。\n关键洞察： 通用AI指南与工具特定执行细节之间的分离可以防止文档漂移。\n一般问题 3. gadget项目中的过时内存注释引用了不存在的路径（根目录遮蔽工具）。 解决方案： 验证当前导入解析（python -m summarize）确认了遮蔽问题已解决，然后删除了过时的内存文件。\n关键洞察： 当底层基础设施发生变化时，必须主动否定AI生成的上下文/内存，而不是积累误报。\n人类与AI方法 战略层面 策略失败的根本原因分析 角色 方法 人类 无 AI AI专注于验证技术一致性（损失、配置、数据），排除简单错误，然后执行昂贵的远程渲染比较以隔离行为差异。 差异分析： 人类推动了科学假设测试框架；AI提供了强大的计算验证能力。人类正确识别出“0个成功”是结构问题，而非超参数调整问题。\n配置策略设计 角色 方法 人类 人类坚持删除旧文件并从头重建以消除技术债务，而不是逐步修补。 AI AI最初建议在删除前分析现有文件；人类转向“全新开始”方法，这更有助于标准化。 差异分析： 人类意识到逐步修复会导致漂移；AI倾向于保留和优化。人类的果断使得15个仓库都能获得更干净、更统一的结果。\nAI限制 关键限制 AI最初难以区分coffee_nominal的“不良训练种子”和“数据引起的失败”，除非人类明确说明协变量偏移假设。 一般限制 AI工作流在settings.json中的合法权限/连接文件中标记出安全问题，需要手动审查以解除阻碍。 经验教训 关键经验 在强化学习/模仿学习中，即使只有4%的错误恢复轨迹也能成为功能正常与损坏策略之间的区别，如果nominal数据缺乏任何恢复示例。 实践经验 自动化配置生成最有效地与独立审核代理结合使用，该代理针对实际代码库验证命令，而不是依赖编写器的假设。 对话总结 D-GitHub标准化 ✅ 在15个仓库中重建CLAUDE.md和AGENTS.md 21:34:40.866 | claude_code 在D:\\GitHub下协调了全局清理和AI配置文件重建。备份了139个旧文件，删除了所有CLAUDE.md/AGENTS.md/.claude/settings.json实例，并通过14个并行代理部署了新版本。结果针对实际代码库进行了验证，发现Action-Sketcher（缺少测试环境）和BetterSSH（缺少根工作空间文件）存在文档过时问题。\nai-companion ✅ 创建代理中立的CLAUDE.md适配器 21:25:35.038 | claude_code 为ai-companion单仓库创建了简洁的CLAUDE.md，该文件导入了AGENTS.md。修复了AGENTS.md中的五个过时项，包括vitest watch-mode陷阱、缺失的安装生命周期脚本以及未记录的技能（/ccoverview, /ccaudit）。确保了Claude Code和Codex指导的一致性。\nErrorRecoveryBenchmark ✅ 分析coffee_nominal策略失败 21:23:35.454 | claude_code 调查了为何coffee_nominal策略完全失败（0%成功）。在远程HPC集群上进行了相同种子下的配对渲染测试。发现恢复策略成功，而nominal策略立即失败。得出结论：问题是由于训练中缺乏恢复示例导致的协变量偏移，而非模型架构或超参数问题。\ngadget ✅ 分析咖啡_nominal策略失败 21:23:35.454 | claude_code✅ 验证并更新小工具文档 21:27:19.121 | claude_code 对小工具工具包的 CLAUDE.md 文件与当前代码进行了核对。修正了过时的路径（website/ -\u003e tools/website/），补充了 config.py 架构说明，并记录了外部依赖项。删除了之前重构后已不存在的关于路径遮蔽的过时内存说明。\n令牌使用 AI Usage · 2026-07-30\rClaude Code + Codex\rTotal cost$75.39\rTotal tokens68M\rOutput tokens351K\rCache read95.9%\rCost split\rClaude Code $42 ·\rCodex $33\rToken character\rCache reads 95.9% ·\rActive 4.1%\rMost token volume came from cache reads.\r",
-  "wordCount" : "173",
+  "articleBody": "每日报告 — 2026-07-30 日常概述 已完成工作： 审核了现有配置，删除了过时的设置，并重新生成了多个项目的CLAUDE.md、AGENTS.md和.claude/settings.json文件。 实施方式： 利用并行AI代理工作流扫描代码库，提取架构信息，并编写经过验证的配置文件；同时通过有针对性的SSH评估运行进行基准测试。 影响： 确保所有仓库拥有准确、最新的指导方案，同时发现coffee_nominal模型存在因协变量偏移导致的关键结构缺陷。 通过自动化工作流对15个GitHub仓库中的AI配置进行了标准化和重建，同时对ErrorRecoveryBenchmark项目进行了关键错误恢复分析。\n任务 架构与策略 ✅ 全局仓库配置重建 — 删除了D:\\GitHub中旧的Claude/代理配置，使用14个并行子代理重新构建，并针对实际代码库验证命令。 ✅ ErrorRecoveryBenchmark咖啡策略分析 — 在远程集群上执行并分析了渲染对比，以确定为何coffee_nominal策略与coffee_recovery相比完全失败。 实施与修复 ✅ 创建ai-companion CLAUDE.md — 分析了ai-companion单仓库结构，创建了一个简洁的、针对代理的CLAUDE.md文件，该文件导入了canonical AGENTS.md，解决了文档过时问题。 ✅ gadget仓库文档更新 — 验证了并修正了gadget工具包中的CLAUDE.md，修复了过时的路径并添加了缺失的架构参考（config.py、外部依赖项）。 ✅ AI内存清理 — 识别并删除了gadget项目中过时的内存注释，这些注释错误地指出了不再存在的路径遮蔽问题。 问题与解决方案 关键问题 1. coffee_nominal策略在0/1734个任务中失败，尽管其训练损失与恢复策略相似且训练数据更多。 解决方案： 进行了相同种子下的配对渲染测试；发现直接不干预时nominal策略立即失败，而恢复策略则成功。得出结论：训练中4%的恢复数据是导致协变量偏移失效的唯一原因。\n关键洞察： 仅使用nominal数据的教师强制训练会产生脆弱的 manifold；推理过程中的任何偏差（即使很小）都会导致无法恢复的状态，除非明确进行错误恢复训练。\n2. 旧的CLAUDE.md文件过时，重复了AGENTS.md内容或包含错误的路径/命令。 解决方案： 采用“精简适配器”策略：将核心逻辑保留在代理中立的AGENTS.md中，仅使用CLAUDE.md用于工具特定的注释（例如vitest watch-mode陷阱、CLI调用差异）。\n关键洞察： 通用AI指南与工具特定执行细节之间的分离可以防止文档漂移。\n一般问题 3. gadget项目中的过时内存注释引用了不存在的路径（根目录遮蔽工具）。 解决方案： 验证当前导入解析（python -m summarize）确认了遮蔽问题已解决，然后删除了过时的内存文件。\n关键洞察： 当底层基础设施发生变化时，必须主动否定AI生成的上下文/内存，而不是积累误报。\n人类与AI方法 战略层面 策略失败的根本原因分析 角色 方法 人类 无 AI 助手 AI专注于验证技术一致性（损失、配置、数据），排除简单错误，然后执行昂贵的远程渲染比较以隔离行为差异。 差异分析： 人类推动了科学假设测试框架；AI提供了强大的计算验证能力。人类正确识别出“0个成功”是结构问题，而非超参数调整问题。\n配置策略设计 角色 方法 人类 人类坚持删除旧文件并从头重建以消除技术债务，而不是逐步修补。 AI 助手 AI最初建议在删除前分析现有文件；人类转向“全新开始”方法，这更有助于标准化。 差异分析： 人类意识到逐步修复会导致漂移；AI倾向于保留和优化。人类的果断使得15个仓库都能获得更干净、更统一的结果。\nAI限制 关键限制 AI最初难以区分coffee_nominal的“不良训练种子”和“数据引起的失败”，除非人类明确说明协变量偏移假设。 一般限制 AI工作流在settings.json中的合法权限/连接文件中标记出安全问题，需要手动审查以解除阻碍。 经验教训 关键经验 在强化学习/模仿学习中，即使只有4%的错误恢复轨迹也能成为功能正常与损坏策略之间的区别，如果nominal数据缺乏任何恢复示例。 实践经验 自动化配置生成最有效地与独立审核代理结合使用，该代理针对实际代码库验证命令，而不是依赖编写器的假设。 对话总结 D-GitHub标准化 ✅ 在15个仓库中重建CLAUDE.md和AGENTS.md 21:34:40.866 | claude_code 在D:\\GitHub下协调了全局清理和AI配置文件重建。备份了139个旧文件，删除了所有CLAUDE.md/AGENTS.md/.claude/settings.json实例，并通过14个并行代理部署了新版本。结果针对实际代码库进行了验证，发现Action-Sketcher（缺少测试环境）和BetterSSH（缺少根工作空间文件）存在文档过时问题。\nai-companion ✅ 创建代理中立的CLAUDE.md适配器 21:25:35.038 | claude_code 为ai-companion单仓库创建了简洁的CLAUDE.md，该文件导入了AGENTS.md。修复了AGENTS.md中的五个过时项，包括vitest watch-mode陷阱、缺失的安装生命周期脚本以及未记录的技能（/ccoverview, /ccaudit）。确保了Claude Code和Codex指导的一致性。\nErrorRecoveryBenchmark ✅ 分析coffee_nominal策略失败 21:23:35.454 | claude_code 调查了为何coffee_nominal策略完全失败（0%成功）。在远程HPC集群上进行了相同种子下的配对渲染测试。发现恢复策略成功，而nominal策略立即失败。得出结论：问题是由于训练中缺乏恢复示例导致的协变量偏移，而非模型架构或超参数问题。\ngadget ✅ 分析咖啡_nominal策略失败 21:23:35.454 | claude_code✅ 验证并更新小工具文档 21:27:19.121 | claude_code 对小工具工具包的 CLAUDE.md 文件与当前代码进行了核对。修正了过时的路径（website/ -\u003e tools/website/），补充了 config.py 架构说明，并记录了外部依赖项。删除了之前重构后已不存在的关于路径遮蔽的过时内存说明。\n令牌使用 AI Usage · 2026-07-30\rClaude Code + Codex\rTotal cost$75.39\rTotal tokens68M\rOutput tokens351K\rCache read95.9%\rCost split\rClaude Code $42 ·\rCodex $33\rToken character\rCache reads 95.9% ·\rActive 4.1%\rMost token volume came from cache reads.\r",
+  "wordCount" : "175",
   "inLanguage": "zh",
   "datePublished": "2026-07-30T00:00:00-05:00",
   "dateModified": "2026-07-30T00:00:00-05:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -259,7 +259,7 @@
           <td>无</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI专注于验证技术一致性（损失、配置、数据），排除简单错误，然后执行昂贵的远程渲染比较以隔离行为差异。</td>
       </tr>
   </tbody>
@@ -279,7 +279,7 @@
           <td>人类坚持删除旧文件并从头重建以消除技术债务，而不是逐步修补。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI最初建议在删除前分析现有文件；人类转向“全新开始”方法，这更有助于标准化。</td>
       </tr>
   </tbody>

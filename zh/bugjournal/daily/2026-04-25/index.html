@@ -10,7 +10,7 @@
 <meta name="description" content="修复了 TokenMonitor 开发环境，并生成了 4 月 13 日至 19 日包含 cache 分析的全面 token 使用统计数据">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-04-25/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-04-25 Daily Overview 完成工作： 解决了 TokenMonitor 开发阻碍，并对多个 Claude 模型进行了详细的 token 使用情况分析 实现方式： 使用 git rebase 进行分支同步，使用 npm 进行依赖管理，并使用 Node.js 脚本进行 JSONL 日志聚合 影响： 实现了开发的持续进行，并揭示了 cache reads (277M tokens) 占总 token 使用量的 85%，其中 Opus 4.6 是主要的 cache 消耗者 修复了 TokenMonitor 开发环境，并生成了包含 cache 分析的 4 月 13 日至 19 日全面 token 使用统计数据\nTasks Architecture \u0026 Strategy ✅ 生成 4 月 13 日至 19 日的 token 使用统计数据 — 提取并聚合了 225 个 session 中的 326M tokens，并按天、模型和 cache 使用模式进行了细分 Implementation \u0026 Fixes ✅ 修复 TokenMonitor dev server 启动问题 — 解决了 port 1420 冲突问题，并在安装崩溃后安装了缺失的 @tauri-apps/plugin-opener 依赖 ✅ 将 feat/fast-mode-support 分支与 main 同步 — 在 PR #7 合并后，将本地 feature 分支 rebase 到 origin/main 以消除分叉 ❌ 测试 rate limit 状态 — 多次尝试验证 Claude Code 的可用性均触发了 rate limits（将在下午 5:10 重置） Problems \u0026 Solutions Critical Issues 1. 初始 token 统计数据缺乏 cache 指标，而这些指标占实际 token 消耗的 85% 解决方案： 扩展了 Node.js 聚合脚本，以解析 JSONL 条目中的 cache_read 和 cache_write 字段\n核心洞察： Prompt caching 极大地改变了 token 的经济性 —— cache reads (277M) 比常规 I/O (5M) 高出 55 倍\nGeneral Issues 2. PR 合并后 Git 分支与 main 分叉，导致对 upstream 状态的困惑 解决方案： 使用 git rebase origin/main 将 feature 分支 fast-forward，使其与远程 main 完全匹配\n核心洞察： 当 feature 分支的更改被合并到 upstream 时，使用 rebasing（而非 merging）是同步最干净的方式\n3. Dev server 在安装崩溃后因 port 1420 冲突和缺失 plugin-opener 依赖而失败 解决方案： 确认端口处于 TIME_WAIT 状态（自动释放），然后通过 npm 安装了缺失的 Tauri plugin 包\n核心洞察： TIME_WAIT 连接不会阻塞新的 listeners；崩溃的 npm 安装可能会导致依赖树不完整\nHuman vs AI Approaches Strategic Level token 统计请求的范围 Role Approach Human Human 明确表示需要“本地”机器数据，并明确要求包含 cache 指标 AI AI 最初仅提供了基础的 input/output 统计，直到被明确要求才添加了 cache 分析 差异分析： Human 对全面 token 分析应包含的内容有更清晰的理解（cache 是主要的成本因素）\nImplementation Level Windows 上的 Python 命令 Role Approach Human Human 根据经验知道此 Windows 安装使用的是 ‘python’ 而非 ‘python3’ AI AI 默认使用 ‘python3’（Linux/macOS 的标准），需要被纠正 差异分析： Human 对特定环境的知识避免了浪费调试时间\nAI Limitations Critical Limitations 尽管 cache 指标占消耗量的 85%，但未能主动在 token 使用报告中包含这些指标；需要 human 进行提示 General Limitations 在连续 6 个 session 中（20:23-20:39）反复触发 rate limits，导致该时间段内所有工作停滞 基于跨平台规范而非 Windows 默认设置，对 Python 命令做出了错误的假设（‘python3’ vs ‘python’） Learnings Key Learnings Prompt caching 主导了 Claude Code 的 token 经济性：277M cache reads 对比 4.5M output tokens（比例为 61x），其中 Opus 4.6 占 cache 使用量的 76% TokenMonitor 将 session 日志以 JSONL 文件形式存储在 ~/.claude/projects/ 中，每个 turn 都有包含 cache_read/cache_write 字段的使用元数据 Practical Learnings TIME_WAIT TCP 连接 (PID 0) 表示等待清理的已关闭 socket，而非活跃的端口冲突；它们会在约 30 秒内自动释放 Conversation Summaries ✅ Comprehensive token usage analysis for Apr 13-19 20:21:07.219 | claude_code 从 JSONL session 日志中生成了详细统计数据，显示 225 个 session 中共有 326M total tokens。探索了 TokenMonitor 的数据发现逻辑以定位 ~/.claude/projects/，编写了 Node.js 聚合脚本，并在被要求时将其扩展以包含 cache 指标。揭示了 cache reads (277M) 占使用量的 85%，Opus 4.6 是主要消耗者 (212M cache reads)。同时将 Windows Python 命令的差异作为反馈记录下来。\n✅ Fix Tauri dev server startup after crash 20:17:36.222 | claude_code Dev server 因 port 1420 冲突和 @tauri-apps/plugin-opener 的模块解析错误而失败。诊断出之前的 npm install 在执行中途崩溃，导致依赖树不完整。确认端口实际上是空闲的（TIME_WAIT 连接不会阻塞），然后安装了缺失的 plugin 包以解决 import 错误。\n✅ Sync feature branch with main after upstream merge 20:13:36.927 | claude_code 用户的 feat/fast-mode-support 分支已通过 PR #7 合并到 origin/main，导致对分支状态的困惑。调查了 commit history 以确认 feature 更改已在 upstream，然后将本地分支 rebase 到 origin/main，实现了完美的同步且没有重复的 commits。\n❌ Rate limit check (first attempt) 20:23:39.148 | claude_code 用户请求最简响应以检查可用性。触发了 rate limit，重置时间为 ET 下午 5:10。\n❌ Rate limit check (second attempt) 20:26:14.299 | claude_code 另一次可用性检查。仍处于 rate limited 状态。\n❌ Rate limit check (third attempt) 20:31:02.416 | claude_code 持续处于 rate limit 状态。相同的重置时间。\n❌ Rate limit check (fourth attempt) 20:33:35.824 | claude_code 持续的 rate limit 阻塞。\n❌ Rate limit check (fifth attempt) 20:36:31.803 | claude_code 持续的 rate limit。\n❌ Rate limit check (sixth attempt) 20:39:04.665 | claude_code 放弃前的最后一次 rate limit 检查。\nToken Usage AI Usage · 2026-04-25\rClaude Code + Codex\rTotal cost$60.90\rTotal tokens64M\rOutput tokens535K\rCache read92.3%\rCost split\rClaude Code $53 ·\rCodex $8\rToken character\rCache reads 92.3% ·\rActive 7.7%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
-  "wordCount" : "571",
+  "articleBody": "Daily Report — 2026-04-25 Daily Overview 完成工作： 解决了 TokenMonitor 开发阻碍，并对多个 Claude 模型进行了详细的 token 使用情况分析 实现方式： 使用 git rebase 进行分支同步，使用 npm 进行依赖管理，并使用 Node.js 脚本进行 JSONL 日志聚合 影响： 实现了开发的持续进行，并揭示了 cache reads (277M tokens) 占总 token 使用量的 85%，其中 Opus 4.6 是主要的 cache 消耗者 修复了 TokenMonitor 开发环境，并生成了包含 cache 分析的 4 月 13 日至 19 日全面 token 使用统计数据\nTasks Architecture \u0026 Strategy ✅ 生成 4 月 13 日至 19 日的 token 使用统计数据 — 提取并聚合了 225 个 session 中的 326M tokens，并按天、模型和 cache 使用模式进行了细分 Implementation \u0026 Fixes ✅ 修复 TokenMonitor dev server 启动问题 — 解决了 port 1420 冲突问题，并在安装崩溃后安装了缺失的 @tauri-apps/plugin-opener 依赖 ✅ 将 feat/fast-mode-support 分支与 main 同步 — 在 PR #7 合并后，将本地 feature 分支 rebase 到 origin/main 以消除分叉 ❌ 测试 rate limit 状态 — 多次尝试验证 Claude Code 的可用性均触发了 rate limits（将在下午 5:10 重置） Problems \u0026 Solutions Critical Issues 1. 初始 token 统计数据缺乏 cache 指标，而这些指标占实际 token 消耗的 85% 解决方案： 扩展了 Node.js 聚合脚本，以解析 JSONL 条目中的 cache_read 和 cache_write 字段\n核心洞察： Prompt caching 极大地改变了 token 的经济性 —— cache reads (277M) 比常规 I/O (5M) 高出 55 倍\nGeneral Issues 2. PR 合并后 Git 分支与 main 分叉，导致对 upstream 状态的困惑 解决方案： 使用 git rebase origin/main 将 feature 分支 fast-forward，使其与远程 main 完全匹配\n核心洞察： 当 feature 分支的更改被合并到 upstream 时，使用 rebasing（而非 merging）是同步最干净的方式\n3. Dev server 在安装崩溃后因 port 1420 冲突和缺失 plugin-opener 依赖而失败 解决方案： 确认端口处于 TIME_WAIT 状态（自动释放），然后通过 npm 安装了缺失的 Tauri plugin 包\n核心洞察： TIME_WAIT 连接不会阻塞新的 listeners；崩溃的 npm 安装可能会导致依赖树不完整\nHuman vs AI Approaches Strategic Level token 统计请求的范围 角色 方法 用户 Human 明确表示需要“本地”机器数据，并明确要求包含 cache 指标 AI 助手 AI 最初仅提供了基础的 input/output 统计，直到被明确要求才添加了 cache 分析 差异分析： Human 对全面 token 分析应包含的内容有更清晰的理解（cache 是主要的成本因素）\nImplementation Level Windows 上的 Python 命令 角色 方法 用户 Human 根据经验知道此 Windows 安装使用的是 ‘python’ 而非 ‘python3’ AI 助手 AI 默认使用 ‘python3’（Linux/macOS 的标准），需要被纠正 差异分析： Human 对特定环境的知识避免了浪费调试时间\nAI Limitations Critical Limitations 尽管 cache 指标占消耗量的 85%，但未能主动在 token 使用报告中包含这些指标；需要 human 进行提示 General Limitations 在连续 6 个 session 中（20:23-20:39）反复触发 rate limits，导致该时间段内所有工作停滞 基于跨平台规范而非 Windows 默认设置，对 Python 命令做出了错误的假设（‘python3’ vs ‘python’） Learnings Key Learnings Prompt caching 主导了 Claude Code 的 token 经济性：277M cache reads 对比 4.5M output tokens（比例为 61x），其中 Opus 4.6 占 cache 使用量的 76% TokenMonitor 将 session 日志以 JSONL 文件形式存储在 ~/.claude/projects/ 中，每个 turn 都有包含 cache_read/cache_write 字段的使用元数据 Practical Learnings TIME_WAIT TCP 连接 (PID 0) 表示等待清理的已关闭 socket，而非活跃的端口冲突；它们会在约 30 秒内自动释放 Conversation Summaries ✅ Comprehensive token usage analysis for Apr 13-19 20:21:07.219 | claude_code 从 JSONL session 日志中生成了详细统计数据，显示 225 个 session 中共有 326M total tokens。探索了 TokenMonitor 的数据发现逻辑以定位 ~/.claude/projects/，编写了 Node.js 聚合脚本，并在被要求时将其扩展以包含 cache 指标。揭示了 cache reads (277M) 占使用量的 85%，Opus 4.6 是主要消耗者 (212M cache reads)。同时将 Windows Python 命令的差异作为反馈记录下来。\n✅ Fix Tauri dev server startup after crash 20:17:36.222 | claude_code Dev server 因 port 1420 冲突和 @tauri-apps/plugin-opener 的模块解析错误而失败。诊断出之前的 npm install 在执行中途崩溃，导致依赖树不完整。确认端口实际上是空闲的（TIME_WAIT 连接不会阻塞），然后安装了缺失的 plugin 包以解决 import 错误。\n✅ Sync feature branch with main after upstream merge 20:13:36.927 | claude_code 用户的 feat/fast-mode-support 分支已通过 PR #7 合并到 origin/main，导致对分支状态的困惑。调查了 commit history 以确认 feature 更改已在 upstream，然后将本地分支 rebase 到 origin/main，实现了完美的同步且没有重复的 commits。\n❌ Rate limit check (first attempt) 20:23:39.148 | claude_code 用户请求最简响应以检查可用性。触发了 rate limit，重置时间为 ET 下午 5:10。\n❌ Rate limit check (second attempt) 20:26:14.299 | claude_code 另一次可用性检查。仍处于 rate limited 状态。\n❌ Rate limit check (third attempt) 20:31:02.416 | claude_code 持续处于 rate limit 状态。相同的重置时间。\n❌ Rate limit check (fourth attempt) 20:33:35.824 | claude_code 持续的 rate limit 阻塞。\n❌ Rate limit check (fifth attempt) 20:36:31.803 | claude_code 持续的 rate limit。\n❌ Rate limit check (sixth attempt) 20:39:04.665 | claude_code 放弃前的最后一次 rate limit 检查。\nToken Usage AI Usage · 2026-04-25\rClaude Code + Codex\rTotal cost$60.90\rTotal tokens64M\rOutput tokens535K\rCache read92.3%\rCost split\rClaude Code $53 ·\rCodex $8\rToken character\rCache reads 92.3% ·\rActive 7.7%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "573",
   "inLanguage": "zh",
   "datePublished": "2026-04-25T00:00:00-04:00",
   "dateModified": "2026-04-25T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -248,17 +248,17 @@
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>Human 明确表示需要“本地”机器数据，并明确要求包含 cache 指标</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 最初仅提供了基础的 input/output 统计，直到被明确要求才添加了 cache 分析</td>
       </tr>
   </tbody>
@@ -269,17 +269,17 @@
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>Human 根据经验知道此 Windows 安装使用的是 &lsquo;python&rsquo; 而非 &lsquo;python3&rsquo;</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 默认使用 &lsquo;python3&rsquo;（Linux/macOS 的标准），需要被纠正</td>
       </tr>
   </tbody>

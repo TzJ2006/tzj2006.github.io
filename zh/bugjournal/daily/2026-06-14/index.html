@@ -10,7 +10,7 @@
 <meta name="description" content="解决了包括 NVIDIA driver 故障和 Vite cache desyncs 在内的关键基础设施问题，完成了 Gadget 项目的 ccusage 20.x 迁移，通过 STAIG fusion 验证了 UNI2 在 spatial transcriptomics clustering 任务上优于 scGPT/TEDDY，并为 Desktop Video 交付了显著的功能扩展和 UI stability fixes。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-06-14/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-06-14 Daily Overview 工作内容: 处理了 Linux 和 macOS 环境下的高优先级 infrastructure 故障；执行了项目依赖的战略性架构迁移；在生物信息学背景下对 foundation models 进行了严格的 benchmarking；并为 consumer applications 交付了具有稳定性改进的主要功能集。 实施方式: 通过 dmesg 诊断了 DockerLinux 上的 Secure Boot kernel module 冲突；清理了 NTFS mount 上的 Vite optimize-deps caches；分析了 ccusage v20 CLI 的 output schemas 以实现 per-source token tracking；运行了 100-seed mclust sweeps 以反驳 STAIG 的 reproducibility 声称；并为 SwiftUI apps 实现了带有 synchronous cache seeding 的 per-screen history 逻辑。 影响: 恢复了 GPU 计算能力和 build 稳定性；建立了一个可扩展的、独立于 legacy split dependencies 的 multi-agent token tracking 架构；提供了确凿证据证明 UNI2 embeddings 在 spatial clustering 中优于 gene FMs；并增强了 Desktop Video 的 robust slideshow/folder 支持，同时消除了 UI flickering 和 history filtering bugs。 DCC 工作内容: 审计了 MIHD Task 3 benchmarks (QueST-style niche query)；对 Gadget 的 ccusage 迁移进行了深度 security review；执行了用于 STAIG fusion 验证的 parallel seed-sweep experiments。 实施方式: 检查了 benchmark_rm_ideal.py 和 niche utilities；追踪了 save_usage_file 中的 taint paths；利用 SLURM 配合 32-worker processes 对 clustering ARI scores 进行统计分析。 影响: 定义了 MIHD 的 shared-space embedding 策略；识别并拦截了代码迁移中的 path traversal vulnerabilities；证明了 UNI2 + staig_fusion 相比原始 STAIG (0.68) 和 collapsed scGPT 性能，实现了更优的 ARI (0.703)。 DesktopLinux 工作内容: 解决了主要工作站上关键的 NVIDIA RTX 5090 driver failure；实施了 ccusage 20.x 迁移的 Phase 1-2。 实施方式: 通过 depmod 移除了 self-signed DKMS modules，转而使用 Canonical-signed kernel modules；迭代重构了 daily/monthly report generators 中的 JSON parsing 和 per-source discovery 逻辑。 影响: 恢复了计算工作流的全量 CUDA acceleration；成功将 token usage tracking 迁移到统一的 ccusage 20.x 架构，支持 15+ coding agents 而不会发生 silent data breaks。 MacBook 工作内容: 通过 export/import tagging 为 TokenMonitor 实现了 cross-machine usage sync；修复了 FloatBall Vite CSS module loading errors；为 Desktop Video 开发了七项核心功能，包括 auto-slideshow 和 per-screen history。 实施方式: 分析 .vite-temp artifacts 以诊断 NTFS 引起的 cache desync；修改 Rust backend 以实现 hostname-tag exports；在 SwiftUI view init 中实现 NSCache synchronization，以消除 tab switches 期间的 flicker。 影响: 在无需 cloud dependencies 的情况下实现了无缝的 multi-device usage tracking；恢复了外部驱动器上的开发稳定性；交付了 v5.0 hot-fixes，确保了复杂 media workflows 的 sandbox compliance 和 robust state management。 解决了包括 NVIDIA driver failures 和 Vite cache desyncs 在内的关键 infrastructure issues，完成了 Gadget 项目的 ccusage 20.x 迁移，通过 STAIG fusion 验证了 UNI2 在 spatial transcriptomics clustering 中优于 scGPT/TEDDY，并为 Desktop Video 交付了显著的功能扩展和 UI stability fixes。\nTasks Architecture \u0026 Strategy ✅ Gadget 项目的 ccusage 20.x 迁移 — 设计并执行了从 legacy @ccusage/codex split 到统一 ccusage 20.x 的迁移。实现了 per-source discovery、JSON schema normalization 以及支持 N 个 source 而非固定 Claude/Codex pairs 的 dynamic report/chart generation。 ✅ STAIG Fusion Benchmarking \u0026 Encoder Evaluation — 验证了 STAIG 等效性，发现了导致 non-reproducible ARI scores 的 mclust seed sensitivity。运行了 100-seed sweeps，证明 UNI2 (0.703 ARI) 优于原始 STAIG (0.68 ARI)，而 scGPT/TEDDY 在 GCN fusion 下发生 collapse。 ✅ Desktop Video 功能扩展与稳定性修复 — 开发了 7 项新功能，包括 auto-slideshow、folder support 和 Web URL preview restoration。修复了关键的 regressions：per-screen history tracking、用于消除 preview flicker 的 synchronous cache seeding，以及 gallery thumbnails 的 secure bookmark resolution。 ✅ TokenMonitor Cross-Machine Sync \u0026 Vite Fix — 实现了 hostname-tagged export/import 以进行 cross-device usage sync。诊断并修复了由 NTFS mounts 上过时的 Vite optimize-deps cache 导致的 FloatBall Virtual CSS loading failure。 ✅ DesktopLinux 上的 NVIDIA Driver Recovery — 解决了由 Secure Boot 拦截 DKMS modules 引起的 ‘Key was rejected by service’ 错误。通过移除 self-signed packages 并加载 Canonical-signed modules 完成修复。 ✅ MIHD Task 3 Benchmark Audit \u0026 GCD Alignment — 审计了 MIHD codebase，确认了 QueST-style niche query 的实现。澄清了 MIHD 的 ‘retrieval’ 与 OmniGCD 的 ‘discovery’ 任务之间的战略区别，将 shared-space embedding 确立为理论联系。 Implementation \u0026 Fixes ✅ Desktop Video Console Log Triage \u0026 Asset Robustness — 过滤 macOS system logs 以区分良性的 CoreMedia/WebKit noise 与可操作的 defects。修复了 screensaver clock 中的 layout recursion，并确保 AVDataAsset 在 file write failure 时抛出异常以保证 reliability。 Problems \u0026 Solutions Critical Issues 1. STAIG 报告的 0.68 ARI 是不可复现的，且依赖于 mclust initialization seeds；scGPT/TEDDY embeddings 在 spatial clustering 中发生 collapse。 Solution: 执行了 100-seed statistical sweeps，揭示了高 variance (0.49-0.64) 并确认了 UNI2 的优越性 (max 0.703 ARI)。识别出了 ‘gene-FM paradox’，即 gene foundation models 与 HVG 相比会丢失 spatial discriminative signal。\nKey Insight: 为 stochastic algorithms 发布 benchmarks 需要进行 statistical validation；通用型的 gene encoders 可能与用于 spatial domains 的 graph contrastive learning 不兼容。\n2. ccusage 20.x 统一输出合并了所有 agent sources，导致丢失了 dual-track reporting 所需的 per-source granularity。 Solution: 发现 ccusage daily 允许 namespaced queries。通过 metadata 实现 per-source discovery，并通过 schema normalization 进行 individual fetching，确保了 backward compatibility 和未来的 scalability。\nKey Insight: CLI dependency upgrades 经常会静默更改 JSON schemas；在进行架构变更之前，对新 output formats 进行即时的 local testing 至关重要。\n3. 由于 sandbox bookmark scope mismatches 和缺失 cache keys，Desktop Video gallery thumbnails 显示为空白。Solution: 实现了双分支 bookmark resolution (scoped + fallback)，并更新了 cache keys 以包含内容修改日期。在 SwiftUI views 中添加了同步 state seeding，以防止导航过程中的闪烁。 Key Insight: Async failures 经常会损坏 state machines；sandboxed macOS apps 需要显式的 non-scoped fallbacks 来保证 legacy data 的完整性。\n4. NVIDIA RTX 5090 driver failed due to Secure Boot rejecting self-signed DKMS modules. Solution: 移除了 nvidia-dkms package 并加载了 Canonical 的 pre-signed kernel module，在不禁用 Secure Boot 的情况下解决了 ‘Key was rejected’ 错误。\nKey Insight: 在开启 Secure Boot 的现代 Ubuntu 上，由 distribution 管理的 signed modules 比自定义的 DKMS builds 更安全、更可靠。\n5. Vite dev-server failed to load FloatBall CSS module on NTFS-mounted drives due to stale .vite-temp caches. Solution: 终止 dev server，清理了 node_modules/.vite 和 .vite-temp，然后重启。根本原因是 Vite 在不稳定的 FUSE mounts 上发生了 atomic rename 失败。\nKey Insight: Vite 的 dependency optimization 对文件系统稳定性非常敏感；过时的 temp artifacts 会导致 lazily-loaded components 中的 module graph 不同步。\n6. History view showed identical lists across different screens due to global filtering and missing screen attribution. Solution: 重构了 data model，在 WallpaperHistoryEntry 中加入了 ‘playedScreens’ mapping。为没有 screen IDs 的 legacy items 实现了 per-screen trimming 和 migration logic。\nKey Insight: Global data structures 无法支持 multi-tenant 或 multi-display contexts；schema migrations 必须显式处理 backward compatibility 和 dimension-aware limits。\n7. Security vulnerability: Path traversal possible in workflow hook exemption checks and usage file saving during ccusage migration. Solution: 在 check_spec.py 中标记了 exemption bypasses（需要 canonical path resolution），并建议为 save_usage_file filename sanitization 采用 defense-in-depth 策略，尽管 upstream ccusage validation 提供了缓解措施。\nKey Insight: 基于字符串的 path checks (startswith) 容易受到 traversal 攻击；外部工具的 exit codes 不应成为文件系统操作的唯一安全关口。\nHuman vs AI Approaches Strategic Level Statistical Validation vs. Single-Point Debugging (STAIG) Role Approach Human 用户拒绝了单次运行的 ARI claims，要求进行 100-seed sweep 以表征 mclust variance，从而正确识别了 baseline 的 stochastic nature。 AI 最初专注于 deterministic debugging (implementation errors)，在用户坚持进行 statistical distribution analysis 后才转向 experimental design。 Difference Analysis: Human 通过战略性的 experimental validation 来揭示不可复现性，而 AI 则为 sweeps 提供计算执行。\nArchitectural Constraints in ccusage Migration Role Approach Human 用户坚持 ’local-first’、zero-friction sync 策略和最大兼容性，拒绝了 AI 最初提出的 cloud APIs 或 hybrid approaches 方案。 AI 最初探索了 external APIs 和 defensive hybrid designs，随后适应了用户利用带有 hostname tagging 的 internal export/import structures 的约束。 Difference Analysis: Human 维持了严格的项目身份约束 (open-source/local)，引导 AI 从过度设计的 cloud solutions 转向稳健的 internal refactoring。\nVisual Consistency vs. Logical Throttling (Desktop Video) Role Approach Human 用户要求在标签页切换时实现 instant thumbnail rendering 且无闪烁，拒绝了 AI 最初提出的 task suppression/throttling 方案。 AI 从基于逻辑的 throttling 转向了 structural synchronization，通过在 view initialization 中实现同步的 NSCache lookups 来保证渲染前的数据可用性。 Difference Analysis: Human 关注感知结果 (no flicker)，迫使 AI 从逻辑延迟转向数据结构保障。\nImplementation Level Manual Code Verification vs. Static Analysis (Desktop Video Logs) Role Approach Human 手动追踪 AVFoundation reference chains，以纠正 AI 关于 AVDataAsset deallocation 的 false positive warning。 AI Autonomous agents 根据通用的 Swift patterns 推测 scope-based deallocation，未能考虑到 AppKit/AVFoundation 特有的 strong reference semantics。 Difference Analysis: Human 展示了卓越的领域特定 context awareness，通过具体的代码证据推翻了 AI 的泛化 static analysis。\nAI Limitations Critical Limitations 由于对 AppKit reference semantics 的 context 理解有限，初始的 workflow agents 错误地将 AVDataAsset memory retention 标记为 bug。 General Limitations AI 最初假设 MIHD 需要从头构建 niche sampling，未能立即识别出 niche_utils.py 中已有的 infrastructure。 AI 在没有 experimental verification 的情况下难以解释 STAIG 的 ARI discrepancy，在转向 code execution 之前过度依赖 textual analysis。 AI 最初假设 Vite 失败是由于 CRLF line endings 或 syntax errors 引起的，需要进一步证据才能识别出实际的 NTFS cache desync 问题。 AI 试图为 TokenMonitor 提出 cloud-based sync solutions，在被明确纠正之前忽略了用户隐含的 ’local-first’ 约束。 Learnings Key Learnings mclust EM clustering 对 initialization basins 非常敏感 (n\u003e2000)；如果没有 multi-seed validation，单次运行的 ARI scores 是不可靠的基准。 在 Linux 的 NTFS/FUSE mounts 上，Vite 的 atomic dependency optimization 可能会静默失败，留下 .vite-temp artifacts，导致 lazy-loaded components 的 dev-server module graph 不同步。 CoreMedia 和 WebKit sandbox logs 通常是无害的噪声；如果不理解 framework semantics，在 log triage 中的 false positives 可能会导致追踪虚假 bug。 Practical Learnings Per-source token tracking 需要稳健的 schema normalization (_normalize_usage)，因为不同的 agent CLIs 经常使用不兼容的 JSON field names。 Global data limits 在 multi-display environments 中会失效；history/tracking systems 必须是 dimension-aware 且通过唯一标识符（如 screen UUID）进行 keying。 Conversation Summaries MIHD Task 3 \u0026 OmniGCD **✅ ** 审计了 MIHD 的 benchmark_rm_ideal 并确认了 QueST-style niche query infrastructure。分析了 embeddings 以表明 shared-space (scGPT/UNI2) 在 cross-section retrieval 方面优于 PCA。澄清了 MIHD 的 ‘retrieval’ 与 OmniGCD 的 ‘discovery’ 任务之间的战略区别，并为 GCD evaluation 提出了 synthetic classes。\nSTAIG \u0026 Spatial Transcriptomics**✅ ** 验证了 STAIG fusion equivalence，但通过 100-seed sweeps 证明其 0.68 ARI 的说法无法复现。证明了 UNI2 实现了更优的 clustering (0.703 ARI)，而 gene FMs (scGPT/TEDDY) 在 GCN 下失效，证实了 spatial domain 任务中的 ‘gene-FM paradox’。\nGadget (ccusage Migration) **✅ ** 执行了向 ccusage 20.x unified architecture 的全面 migration。通过实现 per-source discovery 和 normalization 解决了 schema breaking changes。进行了 security reviews，识别出 workflow hooks 中的 path traversal 风险，并通过 canonical path logic 予以解决。\nDesktop Video **✅ ** 交付了 7 个核心 features，包括 auto-slideshow 和 folder support。修复了关键的 UI regressions：实现了 per-screen history tracking，通过 synchronous cache seeding 消除了 preview flicker，并为 thumbnails 实现了 robust sandbox bookmark resolution。验证了 AVDataAsset 的完整性并过滤了 benign system logs。\nTokenMonitor **✅ ** 通过 hostname-tagged export/import files 实现了 cross-machine usage synchronization，避免了 cloud dependencies。修复了由于 NTFS mounts 上 Vite cache desync 导致的 FloatBall virtual CSS module loading errors。\nToken Usage AI Usage · 2026-06-14\rClaude Code\rTotal cost$215.96\rTotal tokens287M\rOutput tokens3M\rCache read93.8%\rToken character\rCache reads 93.8% ·\rActive 6.2%\rMost token volume came from cache reads.\r",
-  "wordCount" : "1404",
+  "articleBody": "Daily Report — 2026-06-14 Daily Overview 工作内容: 处理了 Linux 和 macOS 环境下的高优先级 infrastructure 故障；执行了项目依赖的战略性架构迁移；在生物信息学背景下对 foundation models 进行了严格的 benchmarking；并为 consumer applications 交付了具有稳定性改进的主要功能集。 实施方式: 通过 dmesg 诊断了 DockerLinux 上的 Secure Boot kernel module 冲突；清理了 NTFS mount 上的 Vite optimize-deps caches；分析了 ccusage v20 CLI 的 output schemas 以实现 per-source token tracking；运行了 100-seed mclust sweeps 以反驳 STAIG 的 reproducibility 声称；并为 SwiftUI apps 实现了带有 synchronous cache seeding 的 per-screen history 逻辑。 影响: 恢复了 GPU 计算能力和 build 稳定性；建立了一个可扩展的、独立于 legacy split dependencies 的 multi-agent token tracking 架构；提供了确凿证据证明 UNI2 embeddings 在 spatial clustering 中优于 gene FMs；并增强了 Desktop Video 的 robust slideshow/folder 支持，同时消除了 UI flickering 和 history filtering bugs。 DCC 工作内容: 审计了 MIHD Task 3 benchmarks (QueST-style niche query)；对 Gadget 的 ccusage 迁移进行了深度 security review；执行了用于 STAIG fusion 验证的 parallel seed-sweep experiments。 实施方式: 检查了 benchmark_rm_ideal.py 和 niche utilities；追踪了 save_usage_file 中的 taint paths；利用 SLURM 配合 32-worker processes 对 clustering ARI scores 进行统计分析。 影响: 定义了 MIHD 的 shared-space embedding 策略；识别并拦截了代码迁移中的 path traversal vulnerabilities；证明了 UNI2 + staig_fusion 相比原始 STAIG (0.68) 和 collapsed scGPT 性能，实现了更优的 ARI (0.703)。 DesktopLinux 工作内容: 解决了主要工作站上关键的 NVIDIA RTX 5090 driver failure；实施了 ccusage 20.x 迁移的 Phase 1-2。 实施方式: 通过 depmod 移除了 self-signed DKMS modules，转而使用 Canonical-signed kernel modules；迭代重构了 daily/monthly report generators 中的 JSON parsing 和 per-source discovery 逻辑。 影响: 恢复了计算工作流的全量 CUDA acceleration；成功将 token usage tracking 迁移到统一的 ccusage 20.x 架构，支持 15+ coding agents 而不会发生 silent data breaks。 MacBook 工作内容: 通过 export/import tagging 为 TokenMonitor 实现了 cross-machine usage sync；修复了 FloatBall Vite CSS module loading errors；为 Desktop Video 开发了七项核心功能，包括 auto-slideshow 和 per-screen history。 实施方式: 分析 .vite-temp artifacts 以诊断 NTFS 引起的 cache desync；修改 Rust backend 以实现 hostname-tag exports；在 SwiftUI view init 中实现 NSCache synchronization，以消除 tab switches 期间的 flicker。 影响: 在无需 cloud dependencies 的情况下实现了无缝的 multi-device usage tracking；恢复了外部驱动器上的开发稳定性；交付了 v5.0 hot-fixes，确保了复杂 media workflows 的 sandbox compliance 和 robust state management。 解决了包括 NVIDIA driver failures 和 Vite cache desyncs 在内的关键 infrastructure issues，完成了 Gadget 项目的 ccusage 20.x 迁移，通过 STAIG fusion 验证了 UNI2 在 spatial transcriptomics clustering 中优于 scGPT/TEDDY，并为 Desktop Video 交付了显著的功能扩展和 UI stability fixes。\nTasks Architecture \u0026 Strategy ✅ Gadget 项目的 ccusage 20.x 迁移 — 设计并执行了从 legacy @ccusage/codex split 到统一 ccusage 20.x 的迁移。实现了 per-source discovery、JSON schema normalization 以及支持 N 个 source 而非固定 Claude/Codex pairs 的 dynamic report/chart generation。 ✅ STAIG Fusion Benchmarking \u0026 Encoder Evaluation — 验证了 STAIG 等效性，发现了导致 non-reproducible ARI scores 的 mclust seed sensitivity。运行了 100-seed sweeps，证明 UNI2 (0.703 ARI) 优于原始 STAIG (0.68 ARI)，而 scGPT/TEDDY 在 GCN fusion 下发生 collapse。 ✅ Desktop Video 功能扩展与稳定性修复 — 开发了 7 项新功能，包括 auto-slideshow、folder support 和 Web URL preview restoration。修复了关键的 regressions：per-screen history tracking、用于消除 preview flicker 的 synchronous cache seeding，以及 gallery thumbnails 的 secure bookmark resolution。 ✅ TokenMonitor Cross-Machine Sync \u0026 Vite Fix — 实现了 hostname-tagged export/import 以进行 cross-device usage sync。诊断并修复了由 NTFS mounts 上过时的 Vite optimize-deps cache 导致的 FloatBall Virtual CSS loading failure。 ✅ DesktopLinux 上的 NVIDIA Driver Recovery — 解决了由 Secure Boot 拦截 DKMS modules 引起的 ‘Key was rejected by service’ 错误。通过移除 self-signed packages 并加载 Canonical-signed modules 完成修复。 ✅ MIHD Task 3 Benchmark Audit \u0026 GCD Alignment — 审计了 MIHD codebase，确认了 QueST-style niche query 的实现。澄清了 MIHD 的 ‘retrieval’ 与 OmniGCD 的 ‘discovery’ 任务之间的战略区别，将 shared-space embedding 确立为理论联系。 Implementation \u0026 Fixes ✅ Desktop Video Console Log Triage \u0026 Asset Robustness — 过滤 macOS system logs 以区分良性的 CoreMedia/WebKit noise 与可操作的 defects。修复了 screensaver clock 中的 layout recursion，并确保 AVDataAsset 在 file write failure 时抛出异常以保证 reliability。 Problems \u0026 Solutions Critical Issues 1. STAIG 报告的 0.68 ARI 是不可复现的，且依赖于 mclust initialization seeds；scGPT/TEDDY embeddings 在 spatial clustering 中发生 collapse。 Solution: 执行了 100-seed statistical sweeps，揭示了高 variance (0.49-0.64) 并确认了 UNI2 的优越性 (max 0.703 ARI)。识别出了 ‘gene-FM paradox’，即 gene foundation models 与 HVG 相比会丢失 spatial discriminative signal。\n关键发现： 为 stochastic algorithms 发布 benchmarks 需要进行 statistical validation；通用型的 gene encoders 可能与用于 spatial domains 的 graph contrastive learning 不兼容。\n2. ccusage 20.x 统一输出合并了所有 agent sources，导致丢失了 dual-track reporting 所需的 per-source granularity。 Solution: 发现 ccusage daily 允许 namespaced queries。通过 metadata 实现 per-source discovery，并通过 schema normalization 进行 individual fetching，确保了 backward compatibility 和未来的 scalability。\n关键发现： CLI dependency upgrades 经常会静默更改 JSON schemas；在进行架构变更之前，对新 output formats 进行即时的 local testing 至关重要。\n3. 由于 sandbox bookmark scope mismatches 和缺失 cache keys，Desktop Video gallery thumbnails 显示为空白。Solution: 实现了双分支 bookmark resolution (scoped + fallback)，并更新了 cache keys 以包含内容修改日期。在 SwiftUI views 中添加了同步 state seeding，以防止导航过程中的闪烁。 关键发现： Async failures 经常会损坏 state machines；sandboxed macOS apps 需要显式的 non-scoped fallbacks 来保证 legacy data 的完整性。\n4. NVIDIA RTX 5090 driver failed due to Secure Boot rejecting self-signed DKMS modules. Solution: 移除了 nvidia-dkms package 并加载了 Canonical 的 pre-signed kernel module，在不禁用 Secure Boot 的情况下解决了 ‘Key was rejected’ 错误。\n关键发现： 在开启 Secure Boot 的现代 Ubuntu 上，由 distribution 管理的 signed modules 比自定义的 DKMS builds 更安全、更可靠。\n5. Vite dev-server failed to load FloatBall CSS module on NTFS-mounted drives due to stale .vite-temp caches. Solution: 终止 dev server，清理了 node_modules/.vite 和 .vite-temp，然后重启。根本原因是 Vite 在不稳定的 FUSE mounts 上发生了 atomic rename 失败。\n关键发现： Vite 的 dependency optimization 对文件系统稳定性非常敏感；过时的 temp artifacts 会导致 lazily-loaded components 中的 module graph 不同步。\n6. History view showed identical lists across different screens due to global filtering and missing screen attribution. Solution: 重构了 data model，在 WallpaperHistoryEntry 中加入了 ‘playedScreens’ mapping。为没有 screen IDs 的 legacy items 实现了 per-screen trimming 和 migration logic。\n关键发现： Global data structures 无法支持 multi-tenant 或 multi-display contexts；schema migrations 必须显式处理 backward compatibility 和 dimension-aware limits。\n7. Security vulnerability: Path traversal possible in workflow hook exemption checks and usage file saving during ccusage migration. Solution: 在 check_spec.py 中标记了 exemption bypasses（需要 canonical path resolution），并建议为 save_usage_file filename sanitization 采用 defense-in-depth 策略，尽管 upstream ccusage validation 提供了缓解措施。\n关键发现： 基于字符串的 path checks (startswith) 容易受到 traversal 攻击；外部工具的 exit codes 不应成为文件系统操作的唯一安全关口。\nHuman vs AI Approaches Strategic Level Statistical Validation vs. Single-Point Debugging (STAIG) 角色 方法 用户 用户拒绝了单次运行的 ARI claims，要求进行 100-seed sweep 以表征 mclust variance，从而正确识别了 baseline 的 stochastic nature。 AI 助手 最初专注于 deterministic debugging (implementation errors)，在用户坚持进行 statistical distribution analysis 后才转向 experimental design。 差异分析： Human 通过战略性的 experimental validation 来揭示不可复现性，而 AI 则为 sweeps 提供计算执行。\nArchitectural Constraints in ccusage Migration 角色 方法 用户 用户坚持 ’local-first’、zero-friction sync 策略和最大兼容性，拒绝了 AI 最初提出的 cloud APIs 或 hybrid approaches 方案。 AI 助手 最初探索了 external APIs 和 defensive hybrid designs，随后适应了用户利用带有 hostname tagging 的 internal export/import structures 的约束。 差异分析： Human 维持了严格的项目身份约束 (open-source/local)，引导 AI 从过度设计的 cloud solutions 转向稳健的 internal refactoring。\nVisual Consistency vs. Logical Throttling (Desktop Video) 角色 方法 用户 用户要求在标签页切换时实现 instant thumbnail rendering 且无闪烁，拒绝了 AI 最初提出的 task suppression/throttling 方案。 AI 助手 从基于逻辑的 throttling 转向了 structural synchronization，通过在 view initialization 中实现同步的 NSCache lookups 来保证渲染前的数据可用性。 差异分析： Human 关注感知结果 (no flicker)，迫使 AI 从逻辑延迟转向数据结构保障。\nImplementation Level Manual Code Verification vs. Static Analysis (Desktop Video Logs) 角色 方法 用户 手动追踪 AVFoundation reference chains，以纠正 AI 关于 AVDataAsset deallocation 的 false positive warning。 AI 助手 Autonomous agents 根据通用的 Swift patterns 推测 scope-based deallocation，未能考虑到 AppKit/AVFoundation 特有的 strong reference semantics。 差异分析： Human 展示了卓越的领域特定 context awareness，通过具体的代码证据推翻了 AI 的泛化 static analysis。\nAI Limitations Critical Limitations 由于对 AppKit reference semantics 的 context 理解有限，初始的 workflow agents 错误地将 AVDataAsset memory retention 标记为 bug。 General Limitations AI 最初假设 MIHD 需要从头构建 niche sampling，未能立即识别出 niche_utils.py 中已有的 infrastructure。 AI 在没有 experimental verification 的情况下难以解释 STAIG 的 ARI discrepancy，在转向 code execution 之前过度依赖 textual analysis。 AI 最初假设 Vite 失败是由于 CRLF line endings 或 syntax errors 引起的，需要进一步证据才能识别出实际的 NTFS cache desync 问题。 AI 试图为 TokenMonitor 提出 cloud-based sync solutions，在被明确纠正之前忽略了用户隐含的 ’local-first’ 约束。 Learnings Key Learnings mclust EM clustering 对 initialization basins 非常敏感 (n\u003e2000)；如果没有 multi-seed validation，单次运行的 ARI scores 是不可靠的基准。 在 Linux 的 NTFS/FUSE mounts 上，Vite 的 atomic dependency optimization 可能会静默失败，留下 .vite-temp artifacts，导致 lazy-loaded components 的 dev-server module graph 不同步。 CoreMedia 和 WebKit sandbox logs 通常是无害的噪声；如果不理解 framework semantics，在 log triage 中的 false positives 可能会导致追踪虚假 bug。 Practical Learnings Per-source token tracking 需要稳健的 schema normalization (_normalize_usage)，因为不同的 agent CLIs 经常使用不兼容的 JSON field names。 Global data limits 在 multi-display environments 中会失效；history/tracking systems 必须是 dimension-aware 且通过唯一标识符（如 screen UUID）进行 keying。 Conversation Summaries MIHD Task 3 \u0026 OmniGCD **✅ ** 审计了 MIHD 的 benchmark_rm_ideal 并确认了 QueST-style niche query infrastructure。分析了 embeddings 以表明 shared-space (scGPT/UNI2) 在 cross-section retrieval 方面优于 PCA。澄清了 MIHD 的 ‘retrieval’ 与 OmniGCD 的 ‘discovery’ 任务之间的战略区别，并为 GCD evaluation 提出了 synthetic classes。\nSTAIG \u0026 Spatial Transcriptomics**✅ ** 验证了 STAIG fusion equivalence，但通过 100-seed sweeps 证明其 0.68 ARI 的说法无法复现。证明了 UNI2 实现了更优的 clustering (0.703 ARI)，而 gene FMs (scGPT/TEDDY) 在 GCN 下失效，证实了 spatial domain 任务中的 ‘gene-FM paradox’。\nGadget (ccusage Migration) **✅ ** 执行了向 ccusage 20.x unified architecture 的全面 migration。通过实现 per-source discovery 和 normalization 解决了 schema breaking changes。进行了 security reviews，识别出 workflow hooks 中的 path traversal 风险，并通过 canonical path logic 予以解决。\nDesktop Video **✅ ** 交付了 7 个核心 features，包括 auto-slideshow 和 folder support。修复了关键的 UI regressions：实现了 per-screen history tracking，通过 synchronous cache seeding 消除了 preview flicker，并为 thumbnails 实现了 robust sandbox bookmark resolution。验证了 AVDataAsset 的完整性并过滤了 benign system logs。\nTokenMonitor **✅ ** 通过 hostname-tagged export/import files 实现了 cross-machine usage synchronization，避免了 cloud dependencies。修复了由于 NTFS mounts 上 Vite cache desync 导致的 FloatBall virtual CSS module loading errors。\nToken Usage AI Usage · 2026-06-14\rClaude Code\rTotal cost$215.96\rTotal tokens287M\rOutput tokens3M\rCache read93.8%\rToken character\rCache reads 93.8% ·\rActive 6.2%\rMost token volume came from cache reads.\r",
+  "wordCount" : "1397",
   "inLanguage": "zh",
   "datePublished": "2026-06-14T00:00:00-04:00",
   "dateModified": "2026-06-14T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -255,107 +255,107 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-staig-报告的-068-ari-是不可复现的且依赖于-mclust-initialization-seedsscgptteddy-embeddings-在-spatial-clustering-中发生-collapse">1. STAIG 报告的 0.68 ARI 是不可复现的，且依赖于 mclust initialization seeds；scGPT/TEDDY embeddings 在 spatial clustering 中发生 collapse。<a hidden class="anchor" aria-hidden="true" href="#1-staig-报告的-068-ari-是不可复现的且依赖于-mclust-initialization-seedsscgptteddy-embeddings-在-spatial-clustering-中发生-collapse">#</a></h4>
 <p><strong>Solution:</strong> 执行了 100-seed statistical sweeps，揭示了高 variance (0.49-0.64) 并确认了 UNI2 的优越性 (max 0.703 ARI)。识别出了 &lsquo;gene-FM paradox&rsquo;，即 gene foundation models 与 HVG 相比会丢失 spatial discriminative signal。</p>
-<p><strong>Key Insight:</strong> 为 stochastic algorithms 发布 benchmarks 需要进行 statistical validation；通用型的 gene encoders 可能与用于 spatial domains 的 graph contrastive learning 不兼容。</p>
+<p><strong>关键发现：</strong> 为 stochastic algorithms 发布 benchmarks 需要进行 statistical validation；通用型的 gene encoders 可能与用于 spatial domains 的 graph contrastive learning 不兼容。</p>
 <h4 id="2-ccusage-20x-统一输出合并了所有-agent-sources导致丢失了-dual-track-reporting-所需的-per-source-granularity">2. ccusage 20.x 统一输出合并了所有 agent sources，导致丢失了 dual-track reporting 所需的 per-source granularity。<a hidden class="anchor" aria-hidden="true" href="#2-ccusage-20x-统一输出合并了所有-agent-sources导致丢失了-dual-track-reporting-所需的-per-source-granularity">#</a></h4>
 <p><strong>Solution:</strong> 发现 <code>ccusage &lt;source&gt; daily</code> 允许 namespaced queries。通过 metadata 实现 per-source discovery，并通过 schema normalization 进行 individual fetching，确保了 backward compatibility 和未来的 scalability。</p>
-<p><strong>Key Insight:</strong> CLI dependency upgrades 经常会静默更改 JSON schemas；在进行架构变更之前，对新 output formats 进行即时的 local testing 至关重要。</p>
+<p><strong>关键发现：</strong> CLI dependency upgrades 经常会静默更改 JSON schemas；在进行架构变更之前，对新 output formats 进行即时的 local testing 至关重要。</p>
 <h4 id="3-由于-sandbox-bookmark-scope-mismatches-和缺失-cache-keysdesktop-video-gallery-thumbnails-显示为空白solution-实现了双分支-bookmark-resolution-scoped--fallback并更新了-cache-keys-以包含内容修改日期在-swiftui-views-中添加了同步-state-seeding以防止导航过程中的闪烁">3. 由于 sandbox bookmark scope mismatches 和缺失 cache keys，Desktop Video gallery thumbnails 显示为空白。<strong>Solution:</strong> 实现了双分支 bookmark resolution (scoped + fallback)，并更新了 cache keys 以包含内容修改日期。在 SwiftUI views 中添加了同步 state seeding，以防止导航过程中的闪烁。<a hidden class="anchor" aria-hidden="true" href="#3-由于-sandbox-bookmark-scope-mismatches-和缺失-cache-keysdesktop-video-gallery-thumbnails-显示为空白solution-实现了双分支-bookmark-resolution-scoped--fallback并更新了-cache-keys-以包含内容修改日期在-swiftui-views-中添加了同步-state-seeding以防止导航过程中的闪烁">#</a></h4>
-<p><strong>Key Insight:</strong> Async failures 经常会损坏 state machines；sandboxed macOS apps 需要显式的 non-scoped fallbacks 来保证 legacy data 的完整性。</p>
+<p><strong>关键发现：</strong> Async failures 经常会损坏 state machines；sandboxed macOS apps 需要显式的 non-scoped fallbacks 来保证 legacy data 的完整性。</p>
 <h4 id="4-nvidia-rtx-5090-driver-failed-due-to-secure-boot-rejecting-self-signed-dkms-modules">4. NVIDIA RTX 5090 driver failed due to Secure Boot rejecting self-signed DKMS modules.<a hidden class="anchor" aria-hidden="true" href="#4-nvidia-rtx-5090-driver-failed-due-to-secure-boot-rejecting-self-signed-dkms-modules">#</a></h4>
 <p><strong>Solution:</strong> 移除了 <code>nvidia-dkms</code> package 并加载了 Canonical 的 pre-signed kernel module，在不禁用 Secure Boot 的情况下解决了 &lsquo;Key was rejected&rsquo; 错误。</p>
-<p><strong>Key Insight:</strong> 在开启 Secure Boot 的现代 Ubuntu 上，由 distribution 管理的 signed modules 比自定义的 DKMS builds 更安全、更可靠。</p>
+<p><strong>关键发现：</strong> 在开启 Secure Boot 的现代 Ubuntu 上，由 distribution 管理的 signed modules 比自定义的 DKMS builds 更安全、更可靠。</p>
 <h4 id="5-vite-dev-server-failed-to-load-floatball-css-module-on-ntfs-mounted-drives-due-to-stale-vite-temp-caches">5. Vite dev-server failed to load FloatBall CSS module on NTFS-mounted drives due to stale <code>.vite-temp</code> caches.<a hidden class="anchor" aria-hidden="true" href="#5-vite-dev-server-failed-to-load-floatball-css-module-on-ntfs-mounted-drives-due-to-stale-vite-temp-caches">#</a></h4>
 <p><strong>Solution:</strong> 终止 dev server，清理了 <code>node_modules/.vite</code> 和 <code>.vite-temp</code>，然后重启。根本原因是 Vite 在不稳定的 FUSE mounts 上发生了 atomic rename 失败。</p>
-<p><strong>Key Insight:</strong> Vite 的 dependency optimization 对文件系统稳定性非常敏感；过时的 temp artifacts 会导致 lazily-loaded components 中的 module graph 不同步。</p>
+<p><strong>关键发现：</strong> Vite 的 dependency optimization 对文件系统稳定性非常敏感；过时的 temp artifacts 会导致 lazily-loaded components 中的 module graph 不同步。</p>
 <h4 id="6-history-view-showed-identical-lists-across-different-screens-due-to-global-filtering-and-missing-screen-attribution">6. History view showed identical lists across different screens due to global filtering and missing screen attribution.<a hidden class="anchor" aria-hidden="true" href="#6-history-view-showed-identical-lists-across-different-screens-due-to-global-filtering-and-missing-screen-attribution">#</a></h4>
 <p><strong>Solution:</strong> 重构了 data model，在 <code>WallpaperHistoryEntry</code> 中加入了 &lsquo;playedScreens&rsquo; mapping。为没有 screen IDs 的 legacy items 实现了 per-screen trimming 和 migration logic。</p>
-<p><strong>Key Insight:</strong> Global data structures 无法支持 multi-tenant 或 multi-display contexts；schema migrations 必须显式处理 backward compatibility 和 dimension-aware limits。</p>
+<p><strong>关键发现：</strong> Global data structures 无法支持 multi-tenant 或 multi-display contexts；schema migrations 必须显式处理 backward compatibility 和 dimension-aware limits。</p>
 <h4 id="7-security-vulnerability-path-traversal-possible-in-workflow-hook-exemption-checks-and-usage-file-saving-during-ccusage-migration">7. Security vulnerability: Path traversal possible in workflow hook exemption checks and usage file saving during ccusage migration.<a hidden class="anchor" aria-hidden="true" href="#7-security-vulnerability-path-traversal-possible-in-workflow-hook-exemption-checks-and-usage-file-saving-during-ccusage-migration">#</a></h4>
 <p><strong>Solution:</strong> 在 <code>check_spec.py</code> 中标记了 exemption bypasses（需要 canonical path resolution），并建议为 <code>save_usage_file</code> filename sanitization 采用 defense-in-depth 策略，尽管 upstream ccusage validation 提供了缓解措施。</p>
-<p><strong>Key Insight:</strong> 基于字符串的 path checks (<code>startswith</code>) 容易受到 traversal 攻击；外部工具的 exit codes 不应成为文件系统操作的唯一安全关口。</p>
+<p><strong>关键发现：</strong> 基于字符串的 path checks (<code>startswith</code>) 容易受到 traversal 攻击；外部工具的 exit codes 不应成为文件系统操作的唯一安全关口。</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="statistical-validation-vs-single-point-debugging-staig">Statistical Validation vs. Single-Point Debugging (STAIG)<a hidden class="anchor" aria-hidden="true" href="#statistical-validation-vs-single-point-debugging-staig">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>用户拒绝了单次运行的 ARI claims，要求进行 100-seed sweep 以表征 mclust variance，从而正确识别了 baseline 的 stochastic nature。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初专注于 deterministic debugging (implementation errors)，在用户坚持进行 statistical distribution analysis 后才转向 experimental design。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 通过战略性的 experimental validation 来揭示不可复现性，而 AI 则为 sweeps 提供计算执行。</p>
+<p><strong>差异分析：</strong> Human 通过战略性的 experimental validation 来揭示不可复现性，而 AI 则为 sweeps 提供计算执行。</p>
 <h4 id="architectural-constraints-in-ccusage-migration">Architectural Constraints in ccusage Migration<a hidden class="anchor" aria-hidden="true" href="#architectural-constraints-in-ccusage-migration">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>用户坚持 &rsquo;local-first&rsquo;、zero-friction sync 策略和最大兼容性，拒绝了 AI 最初提出的 cloud APIs 或 hybrid approaches 方案。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初探索了 external APIs 和 defensive hybrid designs，随后适应了用户利用带有 hostname tagging 的 internal export/import structures 的约束。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 维持了严格的项目身份约束 (open-source/local)，引导 AI 从过度设计的 cloud solutions 转向稳健的 internal refactoring。</p>
+<p><strong>差异分析：</strong> Human 维持了严格的项目身份约束 (open-source/local)，引导 AI 从过度设计的 cloud solutions 转向稳健的 internal refactoring。</p>
 <h4 id="visual-consistency-vs-logical-throttling-desktop-video">Visual Consistency vs. Logical Throttling (Desktop Video)<a hidden class="anchor" aria-hidden="true" href="#visual-consistency-vs-logical-throttling-desktop-video">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>用户要求在标签页切换时实现 instant thumbnail rendering 且无闪烁，拒绝了 AI 最初提出的 task suppression/throttling 方案。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>从基于逻辑的 throttling 转向了 structural synchronization，通过在 view initialization 中实现同步的 NSCache lookups 来保证渲染前的数据可用性。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 关注感知结果 (no flicker)，迫使 AI 从逻辑延迟转向数据结构保障。</p>
+<p><strong>差异分析：</strong> Human 关注感知结果 (no flicker)，迫使 AI 从逻辑延迟转向数据结构保障。</p>
 <h3 id="implementation-level">Implementation Level<a hidden class="anchor" aria-hidden="true" href="#implementation-level">#</a></h3>
 <h4 id="manual-code-verification-vs-static-analysis-desktop-video-logs">Manual Code Verification vs. Static Analysis (Desktop Video Logs)<a hidden class="anchor" aria-hidden="true" href="#manual-code-verification-vs-static-analysis-desktop-video-logs">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>手动追踪 AVFoundation reference chains，以纠正 AI 关于 <code>AVDataAsset</code> deallocation 的 false positive warning。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>Autonomous agents 根据通用的 Swift patterns 推测 scope-based deallocation，未能考虑到 AppKit/AVFoundation 特有的 strong reference semantics。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 展示了卓越的领域特定 context awareness，通过具体的代码证据推翻了 AI 的泛化 static analysis。</p>
+<p><strong>差异分析：</strong> Human 展示了卓越的领域特定 context awareness，通过具体的代码证据推翻了 AI 的泛化 static analysis。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
 <ul>

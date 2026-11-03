@@ -10,7 +10,7 @@
 <meta name="description" content="修复了 MIHD spatial transcriptomics pipeline 中的一个关键 coordinate extraction bug 并分析了 benchmark 结果，同时审计了 VLA/BC-RNN checkpoint 的可用性，构建了 policy rollout visualization tools，并梳理了用于 robot imitation learning 的 MimicGen 数据需求。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-02-18/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-02-18 Daily Overview 完成工作： 调试了 spatial-omics benchmarks 中的 vision encoder 坐标交换问题，并审计了两个 machine 环境下的多用户 model checkpoint 仓库。 实施方式： 自动化 cache 清理、长时运行进程轮询、生成用于 rollout rendering 的 Python script、递归文件系统审计，并通过集成的 web tools 进行学术文献交叉引用。 影响： 恢复了显著的 benchmark metrics (+86% ARI)，建立了用于 policy comparison 的可复现 visualization pipeline，并精确识别了在进行 VLA fine-tuning 之前所需的数据 expansion gap。 DCC 完成工作： 修复了 MIHD pipeline 中 tissue_positions_list.csv 的 column mapping 错误，并监控了 extended STAIG fusion training runs。 实施方式： 修补了 run_benchmark.py 和 data_loader.py 中的 coordinate ordering，清除了损坏的 embeddings，实现了用于进度跟踪的 background polling，并查询了关于 UNI/UNI2 patch extraction 的文献标准。 影响： 恢复了几何准确的 visual patches，验证了 fusion strategies 下一致的 ARI/NMI 增益，并将 pipeline preprocessing 与既定的 pathology foundation model 实践对齐。 tianhe 完成工作： 清查了 VLA/BC-RNN weights，创建了一个 MuJoCo policy rollout visualization tool，并评估了 MimicGen dataset 对 Pi0 fine-tuning 的就绪情况。 实施方式： 执行针对性的文件搜索以编目 checkpoints，编写了 visualize_policy_rollout.py，更新了 configuration paths 和 Makefile targets，验证了 GPU rendering pipelines，并分析了 shared storage 中的 HDF5 demo distributions。 影响： 通过 symlinks 统一了 checkpoint 访问，实现了 policy behaviors 的 visual baseline evaluation，并明确了目前仅存在 10 个 source demos，从而确立了 fine-tuning 开始前所需的精确 MimicGen expansion threshold。 解决了 MIHD spatial transcriptomics pipeline 中的一个关键 coordinate extraction bug 并分析了 benchmark 结果，同时审计了 VLA/BC-RNN checkpoint 的可用性，构建了 policy rollout visualization tools，并为 robot imitation learning 映射了 MimicGen 数据需求。\nTasks Architecture \u0026 Strategy ✅ MIHD Coordinate Bug Fix \u0026 Experiment Monitoring — 识别并修正了 spatial omics pipeline 中交换的 X/Y coordinate mapping，清理了损坏的 cache，监控了长时运行的 STAIG fusion experiments，并分析了中间 benchmark metrics。 🔄 MimicGen Data Readiness Assessment for Pi0 Fine-Tuning — 审计了 HDF5 demo 数量，映射了现有的 conversion pipelines，并确定了在进行 LeRobot format conversion 和 LoRA tuning 之前所需的 ~500 demo expansion threshold。 Implementation \u0026 Fixes ✅ VLA/BC-RNN Checkpoint Inventory \u0026 Symlink Management — 编录了跨 shared HDD pools 的所有可用 model weights，创建了统一的 symlink structure，验证了文件 formats/sizes，并记录了缺失的 task-specific checkpoints。 ✅ Policy Rollout Visualization \u0026 Config Sync — 开发了 policy rendering script，使用正确的 paths 更新了 benchmark configs/Makefile，同步了 project documentation，并验证了 GPU rollout generation。 Problems \u0026 Solutions Critical Issues 1. tissue_positions_list.csv 中的关键 coordinate swap 导致了转置的 vision patch extraction，从而降低了 UNI2 embeddings 和 benchmark metrics。 Solution: 将 column mapping 修正为 pxl_col/pxl_row，重新排序了 coordinate tuples，清除了损坏的 caches，并重新运行了 baseline experiments 以验证修复效果。\nKey Insight: Foundation model embedding quality 对 raw pixel-to-spot alignment 极其敏感；在开始 feature extraction 之前必须验证 metadata 的正确性。\n2. 预训练的 VLA model (Pi0 LIBERO) 在 Robosuite PickPlace 上表现出 zero-shot failure，且项目缺乏 task-specific fine-tuned checkpoints。 Solution: 构建了 visualization workflow 以检查 failure patterns，审计了存储中现有的 weights，并使用现有的 repo scripts 映射了 MimicGen 10-to-500 demo expansion pipeline。\nKey Insight: VLA policies 在 fine-tuning 之前需要广泛的 source behavioral diversity；如果不进行 task-specific data collection 而直接进行 environment transfers，将会持续失败。\nHuman vs AI Approaches Strategic Level 对于 UNI/UNI2 preprocessing standards 的文献验证 versus 基于假设的优化。 Role Approach Human 要求与已发表的 pathology foundation model guidelines 进行交叉引用，以在信任 pipeline outputs 之前验证 patch sizes、normalization 和 coordinate alignment methods。 AI 执行了自动化的 web searches 和 PDF fetches，综合了 technical specifications，但最初将所有发现视为直接的 implementation rules，而未标记潜在的版本不匹配问题。 Difference Analysis: Human 通过强制外部验证来防止 silent configuration drift，而 AI 虽然高效地聚合了 documentation，但缺乏对 source reliability 和 version compatibility 的批判性评估。\n从详尽的 checkpoint 搜索向 training pipeline readiness 的战略转向。 Role Approach Human 明确停止了深度文件搜索，并将重点转向评估 MimicGen data availability，直接询问 source demo counts 和 fine-tuning prerequisites。 AI 专注于彻底的 automation、recursive directory scanning 以及编录所有可用 assets，在被中断之前，并未质疑每一步的即时效用或 compute implications。 Difference Analysis: Human 提供了关键的 strategic boundaries 和 domain constraints（优先考虑 training feasibility 而非详尽的 inventory），而 AI 则是在单个 context window 内优化 completeness。\nAI Limitations Critical Limitations 提议执行一个多步 pipeline (MimicGen expansion → LeRobot conversion → LoRA fine-tuning)，但未明确标记 prerequisite storage approvals、network constraints 或 A800 queue dependencies。 General Limitations 未能通过 WebFetch tool 可靠地获取 full-text PDFs/arXiv papers，反复返回 303/403 和 ECONNREFUSED 错误，迫使人工进行 fallback workarounds。 缺乏对 project-specific data silos 的感知（例如，忽略了 PickPlace training data 是在单独的 MimicGen temp directory 中离线生成的），导致了冗余的 cross-account searches。 Learnings Key Learnings- 在 spatial transcriptomics benchmarking 中，修正 coordinate extraction metadata 带来了 86% 的 ARI 提升，证明了 foundation model embeddings 在 feature extraction 之前对原始 pixel alignment 高度敏感。 像 Pi0 这样的 Vision-Language-Action models 无法在 simulation environments 之间进行 zero-shot 迁移 (LIBERO → Robosuite)；要在新任务上实现可靠的 imitation learning，需要在任何 fine-tuning 成功之前，通过 MimicGen 将 source demos 扩展至 \u003e500。 Conversation Summaries MIHD Spatial Benchmark ✅ Coordinate Bug Fix \u0026 STAIG Fusion Experiment Monitoring 00:01:02.520 | claude_code 在 tissue coordinate CSV processing 中发现了一个关键的 coordinate swap bug，该 bug 会损坏 vision patches 并降低 embeddings 的质量。修复了两个 downstream files，清理了损坏的 caches，并通过 background polling 监控了长时间运行的 STAIG pipeline。分析了中间结果，显示修复后 ARI/NMI 有显著提升，同时通过 web search 研究了标准的 UNI/UNI2 patch extraction 实践，以验证 pipeline configuration。\nError Recovery Benchmark 🔍 MimicGen Data Readiness \u0026 Pi0 Fine-Tuning Assessment 00:26:49.679 | claude_code 调查了在 PickPlace task 上训练 Pi0/Pi0.5 的数据集可用性，发现仅有 10 个 source demos，且没有生成的 variants 或 fine-tuned checkpoints。梳理了现有的 conversion scripts，并指出在开始 LoRA fine-tuning 之前大约需要 500 个 expanded demos。概述了一旦数据生成获得授权后所需的精确 pipeline 步骤。\n✅ VLA \u0026 BC-RNN Checkpoint Inventory 05:32:29.978 | claude_code 审计了跨目录的 HDD pools，以编目 BC-RNN、Robomimic 以及 OpenPI/VLA variants 中可用的 model weights。创建了用于统一访问的 symlinked checkpoint structure，验证了文件格式和大小，并确认不存在 task-specific fine-tuned weights。提供了可用目录与空目录的清晰映射，并强调了共享账户中的存储分布情况。\n✅ Policy Rollout Visualization \u0026 Config Sync 04:52:08.850 | claude_code 开发了 policy rendering script，将 Robosuite MuJoCo rollouts 可视化为带有 HUD overlays 以及 success/failure metadata 的 MP4 视频。更新了 configuration paths 以使用新的 checksum symlinks，在 Makefile 中扩展了 visualization targets，并在 project summary markdown 中记录了变更。成功验证了 GPU availability，并生成了 baseline random policy rollouts 以供检查。\nToken Usage AI Usage · 2026-02-18\rClaude Code\rTotal cost$0.62\rTotal tokens3M\rOutput tokens176\rCache read90.5%\rToken character\rCache reads 90.5% ·\rActive 9.5%\rMost token volume came from cache reads.\r",
-  "wordCount" : "766",
+  "articleBody": "Daily Report — 2026-02-18 Daily Overview 完成工作： 调试了 spatial-omics benchmarks 中的 vision encoder 坐标交换问题，并审计了两个 machine 环境下的多用户 model checkpoint 仓库。 实施方式： 自动化 cache 清理、长时运行进程轮询、生成用于 rollout rendering 的 Python script、递归文件系统审计，并通过集成的 web tools 进行学术文献交叉引用。 影响： 恢复了显著的 benchmark metrics (+86% ARI)，建立了用于 policy comparison 的可复现 visualization pipeline，并精确识别了在进行 VLA fine-tuning 之前所需的数据 expansion gap。 DCC 完成工作： 修复了 MIHD pipeline 中 tissue_positions_list.csv 的 column mapping 错误，并监控了 extended STAIG fusion training runs。 实施方式： 修补了 run_benchmark.py 和 data_loader.py 中的 coordinate ordering，清除了损坏的 embeddings，实现了用于进度跟踪的 background polling，并查询了关于 UNI/UNI2 patch extraction 的文献标准。 影响： 恢复了几何准确的 visual patches，验证了 fusion strategies 下一致的 ARI/NMI 增益，并将 pipeline preprocessing 与既定的 pathology foundation model 实践对齐。 tianhe 完成工作： 清查了 VLA/BC-RNN weights，创建了一个 MuJoCo policy rollout visualization tool，并评估了 MimicGen dataset 对 Pi0 fine-tuning 的就绪情况。 实施方式： 执行针对性的文件搜索以编目 checkpoints，编写了 visualize_policy_rollout.py，更新了 configuration paths 和 Makefile targets，验证了 GPU rendering pipelines，并分析了 shared storage 中的 HDF5 demo distributions。 影响： 通过 symlinks 统一了 checkpoint 访问，实现了 policy behaviors 的 visual baseline evaluation，并明确了目前仅存在 10 个 source demos，从而确立了 fine-tuning 开始前所需的精确 MimicGen expansion threshold。 解决了 MIHD spatial transcriptomics pipeline 中的一个关键 coordinate extraction bug 并分析了 benchmark 结果，同时审计了 VLA/BC-RNN checkpoint 的可用性，构建了 policy rollout visualization tools，并为 robot imitation learning 映射了 MimicGen 数据需求。\nTasks Architecture \u0026 Strategy ✅ MIHD Coordinate Bug Fix \u0026 Experiment Monitoring — 识别并修正了 spatial omics pipeline 中交换的 X/Y coordinate mapping，清理了损坏的 cache，监控了长时运行的 STAIG fusion experiments，并分析了中间 benchmark metrics。 🔄 MimicGen Data Readiness Assessment for Pi0 Fine-Tuning — 审计了 HDF5 demo 数量，映射了现有的 conversion pipelines，并确定了在进行 LeRobot format conversion 和 LoRA tuning 之前所需的 ~500 demo expansion threshold。 Implementation \u0026 Fixes ✅ VLA/BC-RNN Checkpoint Inventory \u0026 Symlink Management — 编录了跨 shared HDD pools 的所有可用 model weights，创建了统一的 symlink structure，验证了文件 formats/sizes，并记录了缺失的 task-specific checkpoints。 ✅ Policy Rollout Visualization \u0026 Config Sync — 开发了 policy rendering script，使用正确的 paths 更新了 benchmark configs/Makefile，同步了 project documentation，并验证了 GPU rollout generation。 Problems \u0026 Solutions Critical Issues 1. tissue_positions_list.csv 中的关键 coordinate swap 导致了转置的 vision patch extraction，从而降低了 UNI2 embeddings 和 benchmark metrics。 Solution: 将 column mapping 修正为 pxl_col/pxl_row，重新排序了 coordinate tuples，清除了损坏的 caches，并重新运行了 baseline experiments 以验证修复效果。\n关键发现： Foundation model embedding quality 对 raw pixel-to-spot alignment 极其敏感；在开始 feature extraction 之前必须验证 metadata 的正确性。\n2. 预训练的 VLA model (Pi0 LIBERO) 在 Robosuite PickPlace 上表现出 zero-shot failure，且项目缺乏 task-specific fine-tuned checkpoints。 Solution: 构建了 visualization workflow 以检查 failure patterns，审计了存储中现有的 weights，并使用现有的 repo scripts 映射了 MimicGen 10-to-500 demo expansion pipeline。\n关键发现： VLA policies 在 fine-tuning 之前需要广泛的 source behavioral diversity；如果不进行 task-specific data collection 而直接进行 environment transfers，将会持续失败。\nHuman vs AI Approaches Strategic Level 对于 UNI/UNI2 preprocessing standards 的文献验证 versus 基于假设的优化。 角色 方法 用户 要求与已发表的 pathology foundation model guidelines 进行交叉引用，以在信任 pipeline outputs 之前验证 patch sizes、normalization 和 coordinate alignment methods。 AI 助手 执行了自动化的 web searches 和 PDF fetches，综合了 technical specifications，但最初将所有发现视为直接的 implementation rules，而未标记潜在的版本不匹配问题。 差异分析： Human 通过强制外部验证来防止 silent configuration drift，而 AI 虽然高效地聚合了 documentation，但缺乏对 source reliability 和 version compatibility 的批判性评估。\n从详尽的 checkpoint 搜索向 training pipeline readiness 的战略转向。 角色 方法 用户 明确停止了深度文件搜索，并将重点转向评估 MimicGen data availability，直接询问 source demo counts 和 fine-tuning prerequisites。 AI 助手 专注于彻底的 automation、recursive directory scanning 以及编录所有可用 assets，在被中断之前，并未质疑每一步的即时效用或 compute implications。 差异分析： Human 提供了关键的 strategic boundaries 和 domain constraints（优先考虑 training feasibility 而非详尽的 inventory），而 AI 则是在单个 context window 内优化 completeness。\nAI Limitations Critical Limitations 提议执行一个多步 pipeline (MimicGen expansion → LeRobot conversion → LoRA fine-tuning)，但未明确标记 prerequisite storage approvals、network constraints 或 A800 queue dependencies。 General Limitations 未能通过 WebFetch tool 可靠地获取 full-text PDFs/arXiv papers，反复返回 303/403 和 ECONNREFUSED 错误，迫使人工进行 fallback workarounds。 缺乏对 project-specific data silos 的感知（例如，忽略了 PickPlace training data 是在单独的 MimicGen temp directory 中离线生成的），导致了冗余的 cross-account searches。 Learnings Key Learnings- 在 spatial transcriptomics benchmarking 中，修正 coordinate extraction metadata 带来了 86% 的 ARI 提升，证明了 foundation model embeddings 在 feature extraction 之前对原始 pixel alignment 高度敏感。 像 Pi0 这样的 Vision-Language-Action models 无法在 simulation environments 之间进行 zero-shot 迁移 (LIBERO → Robosuite)；要在新任务上实现可靠的 imitation learning，需要在任何 fine-tuning 成功之前，通过 MimicGen 将 source demos 扩展至 \u003e500。 Conversation Summaries MIHD Spatial Benchmark ✅ Coordinate Bug Fix \u0026 STAIG Fusion Experiment Monitoring 00:01:02.520 | claude_code 在 tissue coordinate CSV processing 中发现了一个关键的 coordinate swap bug，该 bug 会损坏 vision patches 并降低 embeddings 的质量。修复了两个 downstream files，清理了损坏的 caches，并通过 background polling 监控了长时间运行的 STAIG pipeline。分析了中间结果，显示修复后 ARI/NMI 有显著提升，同时通过 web search 研究了标准的 UNI/UNI2 patch extraction 实践，以验证 pipeline configuration。\nError Recovery Benchmark 🔍 MimicGen Data Readiness \u0026 Pi0 Fine-Tuning Assessment 00:26:49.679 | claude_code 调查了在 PickPlace task 上训练 Pi0/Pi0.5 的数据集可用性，发现仅有 10 个 source demos，且没有生成的 variants 或 fine-tuned checkpoints。梳理了现有的 conversion scripts，并指出在开始 LoRA fine-tuning 之前大约需要 500 个 expanded demos。概述了一旦数据生成获得授权后所需的精确 pipeline 步骤。\n✅ VLA \u0026 BC-RNN Checkpoint Inventory 05:32:29.978 | claude_code 审计了跨目录的 HDD pools，以编目 BC-RNN、Robomimic 以及 OpenPI/VLA variants 中可用的 model weights。创建了用于统一访问的 symlinked checkpoint structure，验证了文件格式和大小，并确认不存在 task-specific fine-tuned weights。提供了可用目录与空目录的清晰映射，并强调了共享账户中的存储分布情况。\n✅ Policy Rollout Visualization \u0026 Config Sync 04:52:08.850 | claude_code 开发了 policy rendering script，将 Robosuite MuJoCo rollouts 可视化为带有 HUD overlays 以及 success/failure metadata 的 MP4 视频。更新了 configuration paths 以使用新的 checksum symlinks，在 Makefile 中扩展了 visualization targets，并在 project summary markdown 中记录了变更。成功验证了 GPU availability，并生成了 baseline random policy rollouts 以供检查。\nToken Usage AI Usage · 2026-02-18\rClaude Code\rTotal cost$0.62\rTotal tokens3M\rOutput tokens176\rCache read90.5%\rToken character\rCache reads 90.5% ·\rActive 9.5%\rMost token volume came from cache reads.\r",
+  "wordCount" : "764",
   "inLanguage": "zh",
   "datePublished": "2026-02-18T00:00:00-05:00",
   "dateModified": "2026-02-18T00:00:00-05:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -246,52 +246,52 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-tissue_positions_listcsv-中的关键-coordinate-swap-导致了转置的-vision-patch-extraction从而降低了-uni2-embeddings-和-benchmark-metrics">1. <code>tissue_positions_list.csv</code> 中的关键 coordinate swap 导致了转置的 vision patch extraction，从而降低了 UNI2 embeddings 和 benchmark metrics。<a hidden class="anchor" aria-hidden="true" href="#1-tissue_positions_listcsv-中的关键-coordinate-swap-导致了转置的-vision-patch-extraction从而降低了-uni2-embeddings-和-benchmark-metrics">#</a></h4>
 <p><strong>Solution:</strong> 将 column mapping 修正为 <code>pxl_col/pxl_row</code>，重新排序了 coordinate tuples，清除了损坏的 caches，并重新运行了 baseline experiments 以验证修复效果。</p>
-<p><strong>Key Insight:</strong> Foundation model embedding quality 对 raw pixel-to-spot alignment 极其敏感；在开始 feature extraction 之前必须验证 metadata 的正确性。</p>
+<p><strong>关键发现：</strong> Foundation model embedding quality 对 raw pixel-to-spot alignment 极其敏感；在开始 feature extraction 之前必须验证 metadata 的正确性。</p>
 <h4 id="2-预训练的-vla-model-pi0-libero-在-robosuite-pickplace-上表现出-zero-shot-failure且项目缺乏-task-specific-fine-tuned-checkpoints">2. 预训练的 VLA model (Pi0 LIBERO) 在 Robosuite PickPlace 上表现出 zero-shot failure，且项目缺乏 task-specific fine-tuned checkpoints。<a hidden class="anchor" aria-hidden="true" href="#2-预训练的-vla-model-pi0-libero-在-robosuite-pickplace-上表现出-zero-shot-failure且项目缺乏-task-specific-fine-tuned-checkpoints">#</a></h4>
 <p><strong>Solution:</strong> 构建了 visualization workflow 以检查 failure patterns，审计了存储中现有的 weights，并使用现有的 repo scripts 映射了 MimicGen 10-to-500 demo expansion pipeline。</p>
-<p><strong>Key Insight:</strong> VLA policies 在 fine-tuning 之前需要广泛的 source behavioral diversity；如果不进行 task-specific data collection 而直接进行 environment transfers，将会持续失败。</p>
+<p><strong>关键发现：</strong> VLA policies 在 fine-tuning 之前需要广泛的 source behavioral diversity；如果不进行 task-specific data collection 而直接进行 environment transfers，将会持续失败。</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="对于-uniuni2-preprocessing-standards-的文献验证-versus-基于假设的优化">对于 UNI/UNI2 preprocessing standards 的文献验证 versus 基于假设的优化。<a hidden class="anchor" aria-hidden="true" href="#对于-uniuni2-preprocessing-standards-的文献验证-versus-基于假设的优化">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>要求与已发表的 pathology foundation model guidelines 进行交叉引用，以在信任 pipeline outputs 之前验证 patch sizes、normalization 和 coordinate alignment methods。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>执行了自动化的 web searches 和 PDF fetches，综合了 technical specifications，但最初将所有发现视为直接的 implementation rules，而未标记潜在的版本不匹配问题。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 通过强制外部验证来防止 silent configuration drift，而 AI 虽然高效地聚合了 documentation，但缺乏对 source reliability 和 version compatibility 的批判性评估。</p>
+<p><strong>差异分析：</strong> Human 通过强制外部验证来防止 silent configuration drift，而 AI 虽然高效地聚合了 documentation，但缺乏对 source reliability 和 version compatibility 的批判性评估。</p>
 <h4 id="从详尽的-checkpoint-搜索向-training-pipeline-readiness-的战略转向">从详尽的 checkpoint 搜索向 training pipeline readiness 的战略转向。<a hidden class="anchor" aria-hidden="true" href="#从详尽的-checkpoint-搜索向-training-pipeline-readiness-的战略转向">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>明确停止了深度文件搜索，并将重点转向评估 MimicGen data availability，直接询问 source demo counts 和 fine-tuning prerequisites。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>专注于彻底的 automation、recursive directory scanning 以及编录所有可用 assets，在被中断之前，并未质疑每一步的即时效用或 compute implications。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 提供了关键的 strategic boundaries 和 domain constraints（优先考虑 training feasibility 而非详尽的 inventory），而 AI 则是在单个 context window 内优化 completeness。</p>
+<p><strong>差异分析：</strong> Human 提供了关键的 strategic boundaries 和 domain constraints（优先考虑 training feasibility 而非详尽的 inventory），而 AI 则是在单个 context window 内优化 completeness。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
 <ul>

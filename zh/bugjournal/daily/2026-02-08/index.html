@@ -10,7 +10,7 @@
 <meta name="description" content="将 Integrated ground-truth RM-Ideal spatial niche comparison 集成到 QueST 的原生代码中，并开发了一个新的 MIHD 框架，用于根据该结构化指标对 embedding accuracy 进行基准测试。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-02-08/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-02-08 Daily Overview 完成工作： 将外部 RM-Ideal 算法从 pseudo-code 直接移植到 QueST 源码文件中，在 MIHD 中构建了独立的 evaluation modules，并针对 graph-kernel similarity metrics 对 spatial embeddings 进行了 benchmark。 实现方式： 在纯 Python/graph networks 上实现了带有 optimal transport solvers 的 Wasserstein Weisfeiler-Lehman message passing，构建了用于算法验证的 isolated test scripts，并修正了用于 structural retrieval metrics 的 evaluation mask 逻辑。 影响： 为 MIHD embeddings 建立了一套严谨的 ground-truth evaluation paradigm，用于验证其 spatial niche capture 能力，同时将其 precomputed metrics 统一集成到了 QueST 的 executable pipeline 中。 将 ground-truth RM-Ideal spatial niche comparison 集成到 QueST 的 native code 中，并开发了一个新的 MIHD framework，用于根据该 structural metric 对 embedding accuracy 进行 benchmark。\nTasks Architecture \u0026 Strategy ✅ Build MIHD RM-Ideal Evaluation Framework — 创建 utilities/rm_ideal.py 和 scripts/evaluate_rm_ideal.py，使用 WWL graph kernels 将 MIHD embeddings 与 ground-truth spatial structure 进行 benchmark。 ✅ Implement RM-Ideal Score in QueST — 在 QueST utils.py 中添加 wwl_node_features、_wasserstein_distance 和 rm_score 函数；在 trainer.py 中实现 compute_rm_scores。 ✅ Debug \u0026 Fix SameLabel@K Metric Logic — 识别并修正了一个逻辑缺陷，即 target patch spots 被排除在 evaluation mask 之外，导致 type-level retrieval metrics 被人为地归零。 Implementation \u0026 Fixes ✅ Execute Layer_3 Niche Benchmark on Section 151508 — 运行了 RM-Ideal evaluation，对比了 RMA-Ideal scores 与 uni_staig_fusion embedding cosine similarities，并生成了 spatial visualization heatmaps。 Problems \u0026 Solutions Critical Issues 1. 在进行 niche retrieval benchmarking 时，“SameLabel@50” metric 返回结果恰好为 0.0，因为在 mask filtering 后没有剩余的 target spots 可供排序。 Solution: 修改了 evaluation 逻辑，允许从同一个 label set 内查询 patches（例如，将 Layer_3 与 Layer_3 进行比较），仅在进行 Precision@K structural ranking comparisons 时显式排除 self-matches。\nKey Insight: Type-level retrieval accuracy 和 structure-level rank agreement 必须使用不同的 evaluation masks；如果将 target classes 完全从 candidate pool 中移除，会使 type-matching metrics 失去意义。\n2. 在核心算法测试期间，由于沉重的环境依赖（例如缺失 ‘umap’ module），Python 执行失败。 Solution: 将目标函数提取为 standalone 形式，并通过 isolated scripts 或 conda run 进行执行，在验证数学正确性（相同 self-matches 的 RM=1.0）的同时，成功绕过了 framework-level 的 import overhead。\nKey Insight: 在与 scanpy/scikit learn 等重型 framework 集成之前，应首先在独立的 environments 中对算法逻辑进行 structural 验证。\nHuman vs AI Approaches Strategic Level Cross-Project RM-Ideal Benchmark Design and Metric Definitions Role Approach Human 定义了将 QueST 的 graph-kernel RM evaluation 移植到 MIHD 的需求，以直接 benchmark embedding fidelity。关键性地识别并纠正了一个根本性的 evaluation bias，即 niche targets 被错误地排除在 retrieval candidates 之外，这从根本上改变了 benchmark 的有效性。 AI 将架构需求转化为多文件代码实现（utils/rm_ideal.py, spatial_utils），通过编写 test harness scripts 处理复杂的 dependency isolation，生成对比 structural ground truths 与 embedding gradients 的 spatial visualizations，并为 legacy environments 执行 path resolution。 Difference Analysis: 人类驱动了战略性的 evaluation design，捕捉到了 AI 忽略的 metric masking 中的细微逻辑缺陷，并规定了项目间精确的 porting scope；AI 则处理了复杂的数学 graph implementations (Wasserstein distance optimization)、环境隔离以及 code scaffolding。\nAI Limitations Critical Limitations 最初在评估 SameLabel retrieval rates 时使用了僵化的 spatial exclusion masks，这会移除所有与 query type 匹配的 candidate niches，表明其在处理 graph queries 中 edge-case metric behaviors 时缺乏 semantic awareness。 General Limitations 在配置繁重或不匹配的 conda environments（例如缺失 umap 等核心 libraries）中进行直接 Python 执行时，遇到了持续性的失败，导致不得不使用低效的 fallback 方案，即使用 isolated scripts 和复杂的 environment activation loops。 Learnings Key Learnings 在对 space-aware models 进行 benchmark 时，structural similarity metrics (RM-Ideal) 和 cell-type matching metrics (SameLabel@K) 评估的是正交的能力；type-matching 必须严格允许检索 target-class spots，以避免 trivial zero-out scenarios。 Conversation Summaries QueST ✅ Internal RM-Ideal Integration and Verification 04:42:56 | claude_code 本次会话重点是将外部预计算的 RM-Ideal score 算法直接移植到 QueST 的源码中 (src/utils.py 和 trainer.py)。尽管初步探索发现已存在部分涵盖 WWL message passing 和 Wasserstein optimal transport solvers 的实现，但仍编写了全面的 standalone unit tests 以从数学上验证其正确性。AI 成功验证了 self-similarity scores 可达到 1.0，且 structural dissimilarities 会降至 0.0，确认了其与项目 pseudo-code 规范在数学上的一致性。\nMIHD ✅ MIHD Embedding Framework using RM-Ideal Ground Truth 05:36:39 | claude_code 用户指示在 MIHD 内部开发一套全新的 evaluation pipeline，用于根据 ground-truth spatial structures 对 embedding capabilities 进行 benchmark。AI 实现了移植模块 (utils/rm_ideal.py)，在不依赖外部 framework (squidpy-free) 的情况下扩展了 spatial utilities，并创建了一个用于 niche query retrieval 的 CLI tool。在对 section 151508 执行 benchmark 时，用户发现由于 restrictive masking logic，在查询 single-class niches 时 SameLabel@K metric 会被错误地 nullified。AI 修正了 candidate pool inclusion strategy，重新运行了 benchmark，并生成了对比 visualizations，展示了 embedding gradients 与实际 structural ground truths 之间存在中度的 rank agreement (Spearman r=0.42)。\nToken Usage AI Usage · 2026-02-08\rClaude Code\rTotal cost$1.59\rTotal tokens3M\rOutput tokens546\rCache read89.5%\rToken character\rCache reads 89.5% ·\rActive 10.5%\rMost token volume came from cache reads.\r",
-  "wordCount" : "569",
+  "articleBody": "Daily Report — 2026-02-08 Daily Overview 完成工作： 将外部 RM-Ideal 算法从 pseudo-code 直接移植到 QueST 源码文件中，在 MIHD 中构建了独立的 evaluation modules，并针对 graph-kernel similarity metrics 对 spatial embeddings 进行了 benchmark。 实现方式： 在纯 Python/graph networks 上实现了带有 optimal transport solvers 的 Wasserstein Weisfeiler-Lehman message passing，构建了用于算法验证的 isolated test scripts，并修正了用于 structural retrieval metrics 的 evaluation mask 逻辑。 影响： 为 MIHD embeddings 建立了一套严谨的 ground-truth evaluation paradigm，用于验证其 spatial niche capture 能力，同时将其 precomputed metrics 统一集成到了 QueST 的 executable pipeline 中。 将 ground-truth RM-Ideal spatial niche comparison 集成到 QueST 的 native code 中，并开发了一个新的 MIHD framework，用于根据该 structural metric 对 embedding accuracy 进行 benchmark。\nTasks Architecture \u0026 Strategy ✅ Build MIHD RM-Ideal Evaluation Framework — 创建 utilities/rm_ideal.py 和 scripts/evaluate_rm_ideal.py，使用 WWL graph kernels 将 MIHD embeddings 与 ground-truth spatial structure 进行 benchmark。 ✅ Implement RM-Ideal Score in QueST — 在 QueST utils.py 中添加 wwl_node_features、_wasserstein_distance 和 rm_score 函数；在 trainer.py 中实现 compute_rm_scores。 ✅ Debug \u0026 Fix SameLabel@K Metric Logic — 识别并修正了一个逻辑缺陷，即 target patch spots 被排除在 evaluation mask 之外，导致 type-level retrieval metrics 被人为地归零。 Implementation \u0026 Fixes ✅ Execute Layer_3 Niche Benchmark on Section 151508 — 运行了 RM-Ideal evaluation，对比了 RMA-Ideal scores 与 uni_staig_fusion embedding cosine similarities，并生成了 spatial visualization heatmaps。 Problems \u0026 Solutions Critical Issues 1. 在进行 niche retrieval benchmarking 时，“SameLabel@50” metric 返回结果恰好为 0.0，因为在 mask filtering 后没有剩余的 target spots 可供排序。 Solution: 修改了 evaluation 逻辑，允许从同一个 label set 内查询 patches（例如，将 Layer_3 与 Layer_3 进行比较），仅在进行 Precision@K structural ranking comparisons 时显式排除 self-matches。\n关键发现： Type-level retrieval accuracy 和 structure-level rank agreement 必须使用不同的 evaluation masks；如果将 target classes 完全从 candidate pool 中移除，会使 type-matching metrics 失去意义。\n2. 在核心算法测试期间，由于沉重的环境依赖（例如缺失 ‘umap’ module），Python 执行失败。 Solution: 将目标函数提取为 standalone 形式，并通过 isolated scripts 或 conda run 进行执行，在验证数学正确性（相同 self-matches 的 RM=1.0）的同时，成功绕过了 framework-level 的 import overhead。\n关键发现： 在与 scanpy/scikit learn 等重型 framework 集成之前，应首先在独立的 environments 中对算法逻辑进行 structural 验证。\nHuman vs AI Approaches Strategic Level Cross-Project RM-Ideal Benchmark Design and Metric Definitions 角色 方法 用户 定义了将 QueST 的 graph-kernel RM evaluation 移植到 MIHD 的需求，以直接 benchmark embedding fidelity。关键性地识别并纠正了一个根本性的 evaluation bias，即 niche targets 被错误地排除在 retrieval candidates 之外，这从根本上改变了 benchmark 的有效性。 AI 助手 将架构需求转化为多文件代码实现（utils/rm_ideal.py, spatial_utils），通过编写 test harness scripts 处理复杂的 dependency isolation，生成对比 structural ground truths 与 embedding gradients 的 spatial visualizations，并为 legacy environments 执行 path resolution。 差异分析： 人类驱动了战略性的 evaluation design，捕捉到了 AI 忽略的 metric masking 中的细微逻辑缺陷，并规定了项目间精确的 porting scope；AI 则处理了复杂的数学 graph implementations (Wasserstein distance optimization)、环境隔离以及 code scaffolding。\nAI Limitations Critical Limitations 最初在评估 SameLabel retrieval rates 时使用了僵化的 spatial exclusion masks，这会移除所有与 query type 匹配的 candidate niches，表明其在处理 graph queries 中 edge-case metric behaviors 时缺乏 semantic awareness。 General Limitations 在配置繁重或不匹配的 conda environments（例如缺失 umap 等核心 libraries）中进行直接 Python 执行时，遇到了持续性的失败，导致不得不使用低效的 fallback 方案，即使用 isolated scripts 和复杂的 environment activation loops。 Learnings Key Learnings 在对 space-aware models 进行 benchmark 时，structural similarity metrics (RM-Ideal) 和 cell-type matching metrics (SameLabel@K) 评估的是正交的能力；type-matching 必须严格允许检索 target-class spots，以避免 trivial zero-out scenarios。 Conversation Summaries QueST ✅ Internal RM-Ideal Integration and Verification 04:42:56 | claude_code 本次会话重点是将外部预计算的 RM-Ideal score 算法直接移植到 QueST 的源码中 (src/utils.py 和 trainer.py)。尽管初步探索发现已存在部分涵盖 WWL message passing 和 Wasserstein optimal transport solvers 的实现，但仍编写了全面的 standalone unit tests 以从数学上验证其正确性。AI 成功验证了 self-similarity scores 可达到 1.0，且 structural dissimilarities 会降至 0.0，确认了其与项目 pseudo-code 规范在数学上的一致性。\nMIHD ✅ MIHD Embedding Framework using RM-Ideal Ground Truth 05:36:39 | claude_code 用户指示在 MIHD 内部开发一套全新的 evaluation pipeline，用于根据 ground-truth spatial structures 对 embedding capabilities 进行 benchmark。AI 实现了移植模块 (utils/rm_ideal.py)，在不依赖外部 framework (squidpy-free) 的情况下扩展了 spatial utilities，并创建了一个用于 niche query retrieval 的 CLI tool。在对 section 151508 执行 benchmark 时，用户发现由于 restrictive masking logic，在查询 single-class niches 时 SameLabel@K metric 会被错误地 nullified。AI 修正了 candidate pool inclusion strategy，重新运行了 benchmark，并生成了对比 visualizations，展示了 embedding gradients 与实际 structural ground truths 之间存在中度的 rank agreement (Spearman r=0.42)。\nToken Usage AI Usage · 2026-02-08\rClaude Code\rTotal cost$1.59\rTotal tokens3M\rOutput tokens546\rCache read89.5%\rToken character\rCache reads 89.5% ·\rActive 10.5%\rMost token volume came from cache reads.\r",
+  "wordCount" : "567",
   "inLanguage": "zh",
   "datePublished": "2026-02-08T00:00:00-05:00",
   "dateModified": "2026-02-08T00:00:00-05:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -234,32 +234,32 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-在进行-niche-retrieval-benchmarking-时samelabel50-metric-返回结果恰好为-00因为在-mask-filtering-后没有剩余的-target-spots-可供排序">1. 在进行 niche retrieval benchmarking 时，&ldquo;SameLabel@50&rdquo; metric 返回结果恰好为 0.0，因为在 mask filtering 后没有剩余的 target spots 可供排序。<a hidden class="anchor" aria-hidden="true" href="#1-在进行-niche-retrieval-benchmarking-时samelabel50-metric-返回结果恰好为-00因为在-mask-filtering-后没有剩余的-target-spots-可供排序">#</a></h4>
 <p><strong>Solution:</strong> 修改了 evaluation 逻辑，允许从同一个 label set 内查询 patches（例如，将 Layer_3 与 Layer_3 进行比较），仅在进行 Precision@K structural ranking comparisons 时显式排除 self-matches。</p>
-<p><strong>Key Insight:</strong> Type-level retrieval accuracy 和 structure-level rank agreement 必须使用不同的 evaluation masks；如果将 target classes 完全从 candidate pool 中移除，会使 type-matching metrics 失去意义。</p>
+<p><strong>关键发现：</strong> Type-level retrieval accuracy 和 structure-level rank agreement 必须使用不同的 evaluation masks；如果将 target classes 完全从 candidate pool 中移除，会使 type-matching metrics 失去意义。</p>
 <h4 id="2-在核心算法测试期间由于沉重的环境依赖例如缺失-umap-modulepython-执行失败">2. 在核心算法测试期间，由于沉重的环境依赖（例如缺失 &lsquo;umap&rsquo; module），Python 执行失败。<a hidden class="anchor" aria-hidden="true" href="#2-在核心算法测试期间由于沉重的环境依赖例如缺失-umap-modulepython-执行失败">#</a></h4>
 <p><strong>Solution:</strong> 将目标函数提取为 standalone 形式，并通过 isolated scripts 或 <code>conda run</code> 进行执行，在验证数学正确性（相同 self-matches 的 RM=1.0）的同时，成功绕过了 framework-level 的 import overhead。</p>
-<p><strong>Key Insight:</strong> 在与 scanpy/scikit learn 等重型 framework 集成之前，应首先在独立的 environments 中对算法逻辑进行 structural 验证。</p>
+<p><strong>关键发现：</strong> 在与 scanpy/scikit learn 等重型 framework 集成之前，应首先在独立的 environments 中对算法逻辑进行 structural 验证。</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="cross-project-rm-ideal-benchmark-design-and-metric-definitions">Cross-Project RM-Ideal Benchmark Design and Metric Definitions<a hidden class="anchor" aria-hidden="true" href="#cross-project-rm-ideal-benchmark-design-and-metric-definitions">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>定义了将 QueST 的 graph-kernel RM evaluation 移植到 MIHD 的需求，以直接 benchmark embedding fidelity。关键性地识别并纠正了一个根本性的 evaluation bias，即 niche targets 被错误地排除在 retrieval candidates 之外，这从根本上改变了 benchmark 的有效性。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>将架构需求转化为多文件代码实现（utils/rm_ideal.py, spatial_utils），通过编写 test harness scripts 处理复杂的 dependency isolation，生成对比 structural ground truths 与 embedding gradients 的 spatial visualizations，并为 legacy environments 执行 path resolution。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> 人类驱动了战略性的 evaluation design，捕捉到了 AI 忽略的 metric masking 中的细微逻辑缺陷，并规定了项目间精确的 porting scope；AI 则处理了复杂的数学 graph implementations (Wasserstein distance optimization)、环境隔离以及 code scaffolding。</p>
+<p><strong>差异分析：</strong> 人类驱动了战略性的 evaluation design，捕捉到了 AI 忽略的 metric masking 中的细微逻辑缺陷，并规定了项目间精确的 porting scope；AI 则处理了复杂的数学 graph implementations (Wasserstein distance optimization)、环境隔离以及 code scaffolding。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
 <ul>

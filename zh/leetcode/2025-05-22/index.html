@@ -10,7 +10,7 @@
 <meta name="description" content="3362. 零数组变换 III 的解题思路">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/leetcode/2025-05-22/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -45,18 +45,6 @@
     if (alt && alt.href && alt.href !== window.location.href) window.location.replace(alt.href);
 })();
 </script>
-<script>
-  MathJax = {
-    tex: {
-      displayMath: [['\\[', '\\]'], ['$$', '$$']],
-      inlineMath: [['\\(', '\\)'], ['$', '$']]
-    },
-    loader: {
-      load: ['ui/safe']
-    }
-  };
-</script>
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
 <meta property="og:url" content="https://tzj2006.github.io/zh/leetcode/2025-05-22/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="LeetCode 每日一题 2025-05-22">
@@ -80,7 +68,7 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Leetcodes",
+      "name": "算法笔记",
       "item": "https://tzj2006.github.io/zh/leetcode/"
     }, 
     {
@@ -102,7 +90,7 @@
   "keywords": [
     "LeetCode", "Daily Question", "Solution", "python", "Greedy", "Priority queue"
   ],
-  "articleBody": "今日题目 https://leetcode.com/problems/zero-array-transformation-iii/\n思路 本题要求我们找到\"有用\"的区间数量，换句话说，即使数组变为零数组所需的最少区间数。\n解题的关键在于转换视角：如果我们单独看待数组中的每个元素，就可以用贪心算法来解决这个问题。\n道理很简单——要使整个数组变为零数组，必须让每个元素都变为零。\n对于每个元素，最优的策略是选择覆盖该元素且右端点尽可能靠右的区间。因为右端点越远，未来能覆盖的元素就越多，相比右端点较短的区间总是更优的选择。\n因此，我们需要一个数据结构来动态维护当前\"最远右端点\"。这个数据结构需要支持动态插入和删除最大值，堆（优先队列）正是存储\"右端点\"的最佳选择。\n算法 基于上述分析，我们可以构建以下算法：\n首先，以查询的左端点为关键字对查询数组排序，这样就能快速找到左端点不大于当前下标的所有查询。 创建一个差分数组来处理区间叠加操作；一个大根堆来存储查询的右端点；一个索引记录遍历查询时的当前位置。 遍历数字数组：对于每个元素，先将所有左端点不大于当前下标的查询入堆，堆中的所有元素均有可能用于减少当前元素的值。 然后处理当前元素，从堆中贪心地选取可用查询并执行区间减操作。（通过验证堆顶右端点大于等于当前下标来保证操作的合法性——此时左端点必然不大于当前下标，右端点也必然不小于当前下标，从而确保每次操作均有效。） 最后，若当前元素仍大于 0，则返回 -1；否则返回堆 h 中剩余元素的数量，即所有未被使用的查询数。 复杂度 时间复杂度： $O(N \\times log(m))$\n空间复杂度： $O(N + M)$\n代码 class Solution: def maxRemoval(self, nums: List[int], queries: List[List[int]]) -\u003e int: queries.sort(key = lambda x: x[0]) diff = [0] * (len(nums) + 1) h = [] idx, now = 0,0 for i in range(len(nums)): while idx \u003c len(queries) and queries[idx][0] \u003c= i: heappush(h, -queries[idx][1]) idx += 1 now += diff[i] while h and now \u003c nums[i] and -h[0] \u003e= i: now += 1 diff[-heappop(h) + 1] -= 1 if now \u003c nums[i]: return -1 return len(h) 更多题解请访问 我的博客\n",
+  "articleBody": "今日题目 https://leetcode.com/problems/zero-array-transformation-iii/\n思路 本题要求我们找到\"有用\"的区间数量，换句话说，即使数组变为零数组所需的最少区间数。\n解题的关键在于转换视角：如果我们单独看待数组中的每个元素，就可以用贪心算法来解决这个问题。\n道理很简单——要使整个数组变为零数组，必须让每个元素都变为零。\n对于每个元素，最优的策略是选择覆盖该元素且右端点尽可能靠右的区间。因为右端点越远，未来能覆盖的元素就越多，相比右端点较短的区间总是更优的选择。\n因此，我们需要一个数据结构来动态维护当前\"最远右端点\"。这个数据结构需要支持动态插入和删除最大值，堆（优先队列）正是存储\"右端点\"的最佳选择。\n算法 基于上述分析，我们可以构建以下算法：\n首先，以查询的左端点为关键字对查询数组排序，这样就能快速找到左端点不大于当前下标的所有查询。 创建一个差分数组来处理区间叠加操作；一个大根堆来存储查询的右端点；一个索引记录遍历查询时的当前位置。 遍历数字数组：对于每个元素，先将所有左端点不大于当前下标的查询入堆，堆中的所有元素均有可能用于减少当前元素的值。 然后处理当前元素，从堆中贪心地选取可用查询并执行区间减操作。（通过验证堆顶右端点大于等于当前下标来保证操作的合法性——此时左端点必然不大于当前下标，右端点也必然不小于当前下标，从而确保每次操作均有效。） 最后，若当前元素仍大于 0，则返回 -1；否则返回堆 h 中剩余元素的数量，即所有未被使用的查询数。 复杂度 时间复杂度： O(N×log(m))O(N \\times log(m))\n空间复杂度： O(N+M)O(N + M)\n代码 class Solution: def maxRemoval(self, nums: List[int], queries: List[List[int]]) -\u003e int: queries.sort(key = lambda x: x[0]) diff = [0] * (len(nums) + 1) h = [] idx, now = 0,0 for i in range(len(nums)): while idx \u003c len(queries) and queries[idx][0] \u003c= i: heappush(h, -queries[idx][1]) idx += 1 now += diff[i] while h and now \u003c nums[i] and -h[0] \u003e= i: now += 1 diff[-heappop(h) + 1] -= 1 if now \u003c nums[i]: return -1 return len(h) 更多题解请访问 我的博客\n",
   "wordCount" : "106",
   "inLanguage": "zh",
   "datePublished": "2025-05-22T22:33:45+08:00",
@@ -195,7 +183,7 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/leetcode/">Leetcodes</a>
+            <a href="https://tzj2006.github.io/zh/leetcode/">算法笔记</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -236,13 +224,13 @@
 <ul>
 <li>时间复杂度：</li>
 </ul>
-<!-- Add your time complexity here, e.g. $$O(n)$$ -->
-<p>$O(N \times log(m))$</p>
+<!-- Add your time complexity here, e.g. $\(O(n)\)$ -->
+<p><span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo>×</mo><mi>l</mi><mi>o</mi><mi>g</mi><mo stretchy="false">(</mo><mi>m</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N \times log(m))</annotation></semantics></math></span></span></p>
 <ul>
 <li>空间复杂度：</li>
 </ul>
-<!-- Add your space complexity here, e.g. $$O(n)$$ -->
-<p>$O(N + M)$</p>
+<!-- Add your space complexity here, e.g. $\(O(n)\)$ -->
+<p><span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo>+</mo><mi>M</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N + M)</annotation></semantics></math></span></span></p>
 <h1 id="代码">代码<a hidden class="anchor" aria-hidden="true" href="#代码">#</a></h1>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python3" data-lang="python3"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Solution</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">maxRemoval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nums</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">queries</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>

@@ -10,7 +10,7 @@
 <meta name="description" content="通过转向 task-specific Gemini protocols 优化了 robotic memory system，通过严格的 benchmarking 验证了高成功率，并完成了正式审计，为 I-169 large-scale validation launch 做好了准备。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-09-26/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-09-26 Daily Overview 完成工作： 今日重点通过任务特定的 Gemini protocols 优化了机器人的“书写记忆”系统，并对 I-169 validation environment 进行了全面的审计与冻结。 实施方式： 通过从通用视觉生成转向混合系统（Gemini + code/proprioception）实现了性能提升，并通过对抗性脚本审计和资源优化的 rollout planning 确保了就绪状态。 影响： 实现了显著的成功率提升（79.4% vs 47.5% FrameSamp baseline），并为即将进行的大规模 validation run 建立了万无一失的、冻结的启动配置。 通过转向任务特定的 Gemini protocols 优化了机器人记忆系统，通过严格的 benchmarking 验证了高成功率，并完成了正式审计以准备 I-169 大规模 validation launch。\nTasks Architecture \u0026 Strategy ✅ Gemini/RoboMemory Protocol Optimization — 迭代了 Gemini visual prompting 的四个阶段，从通用 prompting 演进为混合系统：由 Gemini 回答狭窄的视觉问题，而由确定性的 code 和 proprioception 处理时序逻辑（计数、追踪、计时），达到了 79.4% 的成功率。 ✅ Benchmarking and Result Verification — 验证了性能指标（127/160 成功率），并将新的混合方法与 FrameSamp 以及 “Oracle” 记忆上限（80.0%）进行了对比。 🔄 Validation Framework Preparation — 准备了 ‘val’ 数据集切换和基础设施，以便在每个任务的 50 个 episodes 上运行干净、无偏的评估，以防止 development-set 污染。 ✅ I-169: Val Run Pre-flight (Freeze \u0026 Audit) — 对 16 个任务 x 50 个 episodes 的 validation run 的启动环境、脚本和设置进行了正式审计，以确保配置万无一失且处于冻结状态。 Implementation \u0026 Fixes ✅ PPT Production and Visualization Asset Creation — 创建了包含 33 页内容的完整幻灯片，并渲染了对比视频/海报，用以记录 Gemini prompting 各阶段的演进以及特定任务的成功/失败案例。 Problems \u0026 Solutions Critical Issues 1. 使用通用 visual prompting 时，Gemini 在精确的时序任务（计数、计时和事件检测）方面表现挣扎，导致性能进入平台期并出现 policy 失败。 Solution: 实施了“任务特定重新设计”（Hybrid Logic）：仅使用 Gemini 回答简单的视觉问题，而将计数、轨迹追踪和计时任务卸载给确定性的 code 和机器人 proprioception。\nKey Insight: 将时序和重逻辑任务从 LLMs 卸载到 code 中，可以显著提升机器人操控的可靠性。\n2. 由于参数调优/校准，可能存在评估偏差以及测试集（episodes 10-49）的“污染”。 Solution: 提出使用未使用的 RoboMME ‘val’ 分区进行正式的 validation workflow，以确保真正的泛化能力。\nKey Insight: 科学的严谨性要求在真正未见的 validation set 上进行测试，而不是依赖 development episodes。\n3. 审计发现启动脚本中存在 bug（case-sensitive env scrubbing、launch_i168_val.sh 中的 broken retry logic，以及 eval_batch_all16.sh 中的 silent exits），且 tianhe3 pod 存在资源超额订阅问题。 Solution: 实施了 v2 版启动脚本，改进了数据清洗、可靠的 process-group retry 机制，并制定了分阶段 rollout plan 以优化 CPU 利用率。\nKey Insight: 大规模 batch jobs 需要能够区分单个 client 退出与整个 process group 完成的 retry logic。\nGeneral Issues 4. 评估循环中的机器人状态滞后导致 VideoRepick 失败。 Solution: 修复了一个闭环 bug，即 state buffer 清除过于频繁，导致 writer 落后于实际情况。\n5. 早期 Gemini 版本在前提条件（例如按钮按下）未满足前就绘制视觉线索，导致因序列错误引发 policy 失败。 Solution: 实施了基于规则的 latch 机制，要求 Gemini 在绘制 prompt 之前必须确认前提事件已发生。\nKey Insight: 对序列敏感的任务需要为视觉反馈设置时序门控（temporal gating）。\nHuman vs AI Approaches Strategic Level Research Narrative and Logic Role Approach Human 人类坚持区分“LLM as a Prompt Writer”研究路线（Stages 1-3）与“Hybrid System”工程解决方案（Stage 4），并由于潜在的数据污染，要求在“接近极限”这一说法上具备更高的科学严谨性。 AI AI 最初将 Stage 4 视为相同 prompting 方法论的延续，并过早地得出 writer 不再是瓶颈的结论。 Difference Analysis: 人类的方法保留了研究的完整性，并执行了更具科学性、基于证据的验证标准。\nAudit Control Role Approach Human 定义了严格的 “freeze and audit” 协议以防止 development-set 污染。 AI 编排了 39 个 adversarial agents 来识别并反驳潜在的配置泄露和脚本 bug。 Difference Analysis: N/A\nAI Limitations Critical Limitations AI 在未考虑 statistical noise 和 development episodes 中潜在污染的情况下，过早地得出 writer 不再是瓶颈的结论。 General Limitations AI 在尝试于 Bash 中使用重定向（’\u003e’）或特定的文件写入命令时，由于 security guardrails 遇到了 shell execution blocks。 AI 在视频渲染期间最初在正确的 file pathing 以及 local 与 remote 环境同步方面遇到困难。 检测到由于 client layout order 导致的 policy noise variance 风险；确认在 policy server 层级进行 re-seeding 可以缓解但不能完全消除此问题。 Learnings Key Learnings 通过从“要求 LLM 决定一切”转向“向 LLM 提问简单问题并使用 code 处理逻辑”，可以缩小 “Oracle Memory” 与 “Gemini Prompting” 之间的差距。 对于机器人记忆而言，混合方法（Vision + Proprioception + Rules）比单纯依赖 Large Multimodal Model 的生成能力要健壮得多。 大规模 batch jobs 的 retry logic 必须意识到单个 client 退出与整个 process group (arm) 完成之间的区别，否则它会尝试重启正在运行的任务。 Conversation Summaries RoboMemory**✅ Weekly Progress Report \u0026 Protocol Optimization** 分析了 Pi0.5 和基于 Gemini 的 visual prompting 的性能数据。成功从通用的 Gemini memory generation 过渡到任务特定的 hybrid protocols (Gemini + Rules)，将成功率从 27% 提高到 79.4%。解决了 dataset contamination 的担忧，并准备了一份包含对比视频资产的多阶段 PPT。\nI-169 Val Run Preparation ✅ 在部署约 $200 的 Gemini writer run 之前，审计并修复了 frozen launch 状态。 完成了大规模的 adversarial audit。修复了 deployment scripts 以确保 local 和 remote 环境之间的绝对一致性。所有 sidecars 已构建、验证并上传。目前的计划是进行分阶段、受监控的 40 小时执行。\nTokenMonitor ✅ Claude Code Reset Investigation 调查了 Claude Code 如何通过 ‘cedar_ember’ 接口处理 usage resets。确定数据仅能通过带有特定 headers 的特定 API call 获取。决定不实现此功能，以避免冒充 Claude client。\nMinecraft Server ✅ EC2 Instance Optimization 分析了当前 r7a.large instance 的性能数据。将其与 r8a.large 和 m8a.xlarge 进行了比较。结论是 r7a.large 足以应对当前的负载，但建议升级到 r8a.large 以获得更好的 price/performance ratio。\nToken Usage AI Usage · 2026-09-26\rClaude Code + Codex\rTotal cost$126.22\rTotal tokens278M\rOutput tokens74K\rCache read95.9%\rCost split\rClaude Code $111 ·\rCodex $15\rToken character\rCache reads 95.9% ·\rActive 4.1%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
-  "wordCount" : "541",
+  "articleBody": "Daily Report — 2026-09-26 Daily Overview 完成工作： 今日重点通过任务特定的 Gemini protocols 优化了机器人的“书写记忆”系统，并对 I-169 validation environment 进行了全面的审计与冻结。 实施方式： 通过从通用视觉生成转向混合系统（Gemini + code/proprioception）实现了性能提升，并通过对抗性脚本审计和资源优化的 rollout planning 确保了就绪状态。 影响： 实现了显著的成功率提升（79.4% vs 47.5% FrameSamp baseline），并为即将进行的大规模 validation run 建立了万无一失的、冻结的启动配置。 通过转向任务特定的 Gemini protocols 优化了机器人记忆系统，通过严格的 benchmarking 验证了高成功率，并完成了正式审计以准备 I-169 大规模 validation launch。\nTasks Architecture \u0026 Strategy ✅ Gemini/RoboMemory Protocol Optimization — 迭代了 Gemini visual prompting 的四个阶段，从通用 prompting 演进为混合系统：由 Gemini 回答狭窄的视觉问题，而由确定性的 code 和 proprioception 处理时序逻辑（计数、追踪、计时），达到了 79.4% 的成功率。 ✅ Benchmarking and Result Verification — 验证了性能指标（127/160 成功率），并将新的混合方法与 FrameSamp 以及 “Oracle” 记忆上限（80.0%）进行了对比。 🔄 Validation Framework Preparation — 准备了 ‘val’ 数据集切换和基础设施，以便在每个任务的 50 个 episodes 上运行干净、无偏的评估，以防止 development-set 污染。 ✅ I-169: Val Run Pre-flight (Freeze \u0026 Audit) — 对 16 个任务 x 50 个 episodes 的 validation run 的启动环境、脚本和设置进行了正式审计，以确保配置万无一失且处于冻结状态。 Implementation \u0026 Fixes ✅ PPT Production and Visualization Asset Creation — 创建了包含 33 页内容的完整幻灯片，并渲染了对比视频/海报，用以记录 Gemini prompting 各阶段的演进以及特定任务的成功/失败案例。 Problems \u0026 Solutions Critical Issues 1. 使用通用 visual prompting 时，Gemini 在精确的时序任务（计数、计时和事件检测）方面表现挣扎，导致性能进入平台期并出现 policy 失败。 Solution: 实施了“任务特定重新设计”（Hybrid Logic）：仅使用 Gemini 回答简单的视觉问题，而将计数、轨迹追踪和计时任务卸载给确定性的 code 和机器人 proprioception。\n关键发现： 将时序和重逻辑任务从 LLMs 卸载到 code 中，可以显著提升机器人操控的可靠性。\n2. 由于参数调优/校准，可能存在评估偏差以及测试集（episodes 10-49）的“污染”。 Solution: 提出使用未使用的 RoboMME ‘val’ 分区进行正式的 validation workflow，以确保真正的泛化能力。\n关键发现： 科学的严谨性要求在真正未见的 validation set 上进行测试，而不是依赖 development episodes。\n3. 审计发现启动脚本中存在 bug（case-sensitive env scrubbing、launch_i168_val.sh 中的 broken retry logic，以及 eval_batch_all16.sh 中的 silent exits），且 tianhe3 pod 存在资源超额订阅问题。 Solution: 实施了 v2 版启动脚本，改进了数据清洗、可靠的 process-group retry 机制，并制定了分阶段 rollout plan 以优化 CPU 利用率。\n关键发现： 大规模 batch jobs 需要能够区分单个 client 退出与整个 process group 完成的 retry logic。\nGeneral Issues 4. 评估循环中的机器人状态滞后导致 VideoRepick 失败。 Solution: 修复了一个闭环 bug，即 state buffer 清除过于频繁，导致 writer 落后于实际情况。\n5. 早期 Gemini 版本在前提条件（例如按钮按下）未满足前就绘制视觉线索，导致因序列错误引发 policy 失败。 Solution: 实施了基于规则的 latch 机制，要求 Gemini 在绘制 prompt 之前必须确认前提事件已发生。\n关键发现： 对序列敏感的任务需要为视觉反馈设置时序门控（temporal gating）。\nHuman vs AI Approaches Strategic Level Research Narrative and Logic 角色 方法 用户 人类坚持区分“LLM as a Prompt Writer”研究路线（Stages 1-3）与“Hybrid System”工程解决方案（Stage 4），并由于潜在的数据污染，要求在“接近极限”这一说法上具备更高的科学严谨性。 AI 助手 AI 最初将 Stage 4 视为相同 prompting 方法论的延续，并过早地得出 writer 不再是瓶颈的结论。 差异分析： 人类的方法保留了研究的完整性，并执行了更具科学性、基于证据的验证标准。\nAudit Control 角色 方法 用户 定义了严格的 “freeze and audit” 协议以防止 development-set 污染。 AI 助手 编排了 39 个 adversarial agents 来识别并反驳潜在的配置泄露和脚本 bug。 差异分析： N/A\nAI Limitations Critical Limitations AI 在未考虑 statistical noise 和 development episodes 中潜在污染的情况下，过早地得出 writer 不再是瓶颈的结论。 General Limitations AI 在尝试于 Bash 中使用重定向（’\u003e’）或特定的文件写入命令时，由于 security guardrails 遇到了 shell execution blocks。 AI 在视频渲染期间最初在正确的 file pathing 以及 local 与 remote 环境同步方面遇到困难。 检测到由于 client layout order 导致的 policy noise variance 风险；确认在 policy server 层级进行 re-seeding 可以缓解但不能完全消除此问题。 Learnings Key Learnings 通过从“要求 LLM 决定一切”转向“向 LLM 提问简单问题并使用 code 处理逻辑”，可以缩小 “Oracle Memory” 与 “Gemini Prompting” 之间的差距。 对于机器人记忆而言，混合方法（Vision + Proprioception + Rules）比单纯依赖 Large Multimodal Model 的生成能力要健壮得多。 大规模 batch jobs 的 retry logic 必须意识到单个 client 退出与整个 process group (arm) 完成之间的区别，否则它会尝试重启正在运行的任务。 Conversation Summaries RoboMemory**✅ Weekly Progress Report \u0026 Protocol Optimization** 分析了 Pi0.5 和基于 Gemini 的 visual prompting 的性能数据。成功从通用的 Gemini memory generation 过渡到任务特定的 hybrid protocols (Gemini + Rules)，将成功率从 27% 提高到 79.4%。解决了 dataset contamination 的担忧，并准备了一份包含对比视频资产的多阶段 PPT。\nI-169 Val Run Preparation ✅ 在部署约 $200 的 Gemini writer run 之前，审计并修复了 frozen launch 状态。 完成了大规模的 adversarial audit。修复了 deployment scripts 以确保 local 和 remote 环境之间的绝对一致性。所有 sidecars 已构建、验证并上传。目前的计划是进行分阶段、受监控的 40 小时执行。\nTokenMonitor ✅ Claude Code Reset Investigation 调查了 Claude Code 如何通过 ‘cedar_ember’ 接口处理 usage resets。确定数据仅能通过带有特定 headers 的特定 API call 获取。决定不实现此功能，以避免冒充 Claude client。\nMinecraft Server ✅ EC2 Instance Optimization 分析了当前 r7a.large instance 的性能数据。将其与 r8a.large 和 m8a.xlarge 进行了比较。结论是 r7a.large 足以应对当前的负载，但建议升级到 r8a.large 以获得更好的 price/performance ratio。\nToken Usage AI Usage · 2026-09-26\rClaude Code + Codex\rTotal cost$126.22\rTotal tokens278M\rOutput tokens74K\rCache read95.9%\rCost split\rClaude Code $111 ·\rCodex $15\rToken character\rCache reads 95.9% ·\rActive 4.1%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "537",
   "inLanguage": "zh",
   "datePublished": "2026-09-26T00:00:00-04:00",
   "dateModified": "2026-09-26T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -235,61 +235,61 @@
 <h3 id="critical-issues">Critical Issues<a hidden class="anchor" aria-hidden="true" href="#critical-issues">#</a></h3>
 <h4 id="1-使用通用-visual-prompting-时gemini-在精确的时序任务计数计时和事件检测方面表现挣扎导致性能进入平台期并出现-policy-失败">1. 使用通用 visual prompting 时，Gemini 在精确的时序任务（计数、计时和事件检测）方面表现挣扎，导致性能进入平台期并出现 policy 失败。<a hidden class="anchor" aria-hidden="true" href="#1-使用通用-visual-prompting-时gemini-在精确的时序任务计数计时和事件检测方面表现挣扎导致性能进入平台期并出现-policy-失败">#</a></h4>
 <p><strong>Solution:</strong> 实施了“任务特定重新设计”（Hybrid Logic）：仅使用 Gemini 回答简单的视觉问题，而将计数、轨迹追踪和计时任务卸载给确定性的 code 和机器人 proprioception。</p>
-<p><strong>Key Insight:</strong> 将时序和重逻辑任务从 LLMs 卸载到 code 中，可以显著提升机器人操控的可靠性。</p>
+<p><strong>关键发现：</strong> 将时序和重逻辑任务从 LLMs 卸载到 code 中，可以显著提升机器人操控的可靠性。</p>
 <h4 id="2-由于参数调优校准可能存在评估偏差以及测试集episodes-10-49的污染">2. 由于参数调优/校准，可能存在评估偏差以及测试集（episodes 10-49）的“污染”。<a hidden class="anchor" aria-hidden="true" href="#2-由于参数调优校准可能存在评估偏差以及测试集episodes-10-49的污染">#</a></h4>
 <p><strong>Solution:</strong> 提出使用未使用的 RoboMME &lsquo;val&rsquo; 分区进行正式的 validation workflow，以确保真正的泛化能力。</p>
-<p><strong>Key Insight:</strong> 科学的严谨性要求在真正未见的 validation set 上进行测试，而不是依赖 development episodes。</p>
+<p><strong>关键发现：</strong> 科学的严谨性要求在真正未见的 validation set 上进行测试，而不是依赖 development episodes。</p>
 <h4 id="3-审计发现启动脚本中存在-bugcase-sensitive-env-scrubbinglaunch_i168_valsh-中的-broken-retry-logic以及-eval_batch_all16sh-中的-silent-exits且-tianhe3-pod-存在资源超额订阅问题">3. 审计发现启动脚本中存在 bug（case-sensitive env scrubbing、<code>launch_i168_val.sh</code> 中的 broken retry logic，以及 <code>eval_batch_all16.sh</code> 中的 silent exits），且 tianhe3 pod 存在资源超额订阅问题。<a hidden class="anchor" aria-hidden="true" href="#3-审计发现启动脚本中存在-bugcase-sensitive-env-scrubbinglaunch_i168_valsh-中的-broken-retry-logic以及-eval_batch_all16sh-中的-silent-exits且-tianhe3-pod-存在资源超额订阅问题">#</a></h4>
 <p><strong>Solution:</strong> 实施了 v2 版启动脚本，改进了数据清洗、可靠的 process-group retry 机制，并制定了分阶段 rollout plan 以优化 CPU 利用率。</p>
-<p><strong>Key Insight:</strong> 大规模 batch jobs 需要能够区分单个 client 退出与整个 process group 完成的 retry logic。</p>
+<p><strong>关键发现：</strong> 大规模 batch jobs 需要能够区分单个 client 退出与整个 process group 完成的 retry logic。</p>
 <h3 id="general-issues">General Issues<a hidden class="anchor" aria-hidden="true" href="#general-issues">#</a></h3>
 <h4 id="4-评估循环中的机器人状态滞后导致-videorepick-失败">4. 评估循环中的机器人状态滞后导致 VideoRepick 失败。<a hidden class="anchor" aria-hidden="true" href="#4-评估循环中的机器人状态滞后导致-videorepick-失败">#</a></h4>
 <p><strong>Solution:</strong> 修复了一个闭环 bug，即 state buffer 清除过于频繁，导致 writer 落后于实际情况。</p>
 <h4 id="5-早期-gemini-版本在前提条件例如按钮按下未满足前就绘制视觉线索导致因序列错误引发-policy-失败">5. 早期 Gemini 版本在前提条件（例如按钮按下）未满足前就绘制视觉线索，导致因序列错误引发 policy 失败。<a hidden class="anchor" aria-hidden="true" href="#5-早期-gemini-版本在前提条件例如按钮按下未满足前就绘制视觉线索导致因序列错误引发-policy-失败">#</a></h4>
 <p><strong>Solution:</strong> 实施了基于规则的 latch 机制，要求 Gemini 在绘制 prompt 之前必须确认前提事件已发生。</p>
-<p><strong>Key Insight:</strong> 对序列敏感的任务需要为视觉反馈设置时序门控（temporal gating）。</p>
+<p><strong>关键发现：</strong> 对序列敏感的任务需要为视觉反馈设置时序门控（temporal gating）。</p>
 <h2 id="human-vs-ai-approaches">Human vs AI Approaches<a hidden class="anchor" aria-hidden="true" href="#human-vs-ai-approaches">#</a></h2>
 <h3 id="strategic-level">Strategic Level<a hidden class="anchor" aria-hidden="true" href="#strategic-level">#</a></h3>
 <h4 id="research-narrative-and-logic">Research Narrative and Logic<a hidden class="anchor" aria-hidden="true" href="#research-narrative-and-logic">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>人类坚持区分“LLM as a Prompt Writer”研究路线（Stages 1-3）与“Hybrid System”工程解决方案（Stage 4），并由于潜在的数据污染，要求在“接近极限”这一说法上具备更高的科学严谨性。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 最初将 Stage 4 视为相同 prompting 方法论的延续，并过早地得出 writer 不再是瓶颈的结论。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> 人类的方法保留了研究的完整性，并执行了更具科学性、基于证据的验证标准。</p>
+<p><strong>差异分析：</strong> 人类的方法保留了研究的完整性，并执行了更具科学性、基于证据的验证标准。</p>
 <h4 id="audit-control">Audit Control<a hidden class="anchor" aria-hidden="true" href="#audit-control">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>定义了严格的 “freeze and audit” 协议以防止 development-set 污染。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>编排了 39 个 adversarial agents 来识别并反驳潜在的配置泄露和脚本 bug。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> N/A</p>
+<p><strong>差异分析：</strong> N/A</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
 <ul>

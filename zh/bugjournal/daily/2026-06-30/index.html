@@ -10,7 +10,7 @@
 <meta name="description" content="通过实施一种弹性强的入门系统、修复关键的并行化与网络故障，并配置适用于AWS的LLM路由机制，该工具包得到了显著改进。然而，由于Claude Code的持续认证失败，操作过程中出现了严重延迟。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-06-30/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "每日报告 — 2026-06-30 日常概述 已完成工作： 为 Gadget 项目开发了全仓库范围的引导机制；解决了 summarize CLI 并行工作器配置中的硬编码问题；修复了 SSH 代理和 rclone 同步冲突问题；在 AWS 上实现了 Claude 平台的支持。 实现方式： 使用 YAML 驱动的步骤注册表进行引导；重构了多个 Python 模块中的 CLI 参数传递机制，以实现动态工作器数量调整；修补了 remote.py 的批量上传功能；验证了 LLM 提供商的配置路径。这些工作经常因会话认证错误而中断，需要人工干预。 影响： 实现了 summarize 管道的灵活、并行执行方式；简化了新设备或环境的设置流程；纠正了关键的数据传输故障；但工具可用性问题部分影响了生产力。 通过实施弹性引导系统、修复关键的并行化与网络错误，并配置 AWS 特定的 LLM 路由，显著提升了 Gadget 工具包的功能；但由于 Claude Code 的持续认证失败，出现了严重的操作延迟。\n任务 架构与策略 ✅ 构建全仓库范围的引导系统 — 创建了 scripts/onboard.py 中的 YAML 驱动步骤注册表，以自动化 SSH、认证（包括 AWS 上的 Claude 平台）和插件安装。添加了每步开关功能并编写了单元测试。 ✅ 实现 summarize 的预飞行引导模块 — 创建了 tools/summarize/onboarding.py 来检查前置条件（rclone、API 密钥、Hugo），并将检查机制集成到 auto.py 中，以在缺少要求时阻止执行。 ✅ 解决 SSH 代理端口冲突和网络设置问题 — 发现孤立会话阻塞了 7890/18080 端口，切换至免费端口 10087，更新了 net.sh，并为隔离 Pod 中的 GitHub 访问配置了 DNS/代理桥接。 ✅ 重构 summarize CLI 的工作器数量机制 — 将硬编码的 os.cpu_count() 替换为 args.workers 在 daily.py 中，更新了 __main__.py 以接受该参数，并确保 auto.py 能正确转发该参数。 ✅ 实现弹性的 rclone 批量上传 — 在 remote.py 中重构了 _rclone_upload，使用目录批量传输并重试；修补了 scripts/sync.py，在初始化过程中优雅地跳过缺失的远程目录。 ✅ 配置 AWS 上的 Claude 平台提供商的路由 — 明确了 Bedrock 与 AWS 上的 Claude 平台之间的区别，设置了正确的环境变量 CLAUDE_CODE_USE_ANTHROPIC_AWS，并更新了文档。 🔄 调查 summarize 批量合并失败问题 — 诊断出 43 个日常合并子进程中的系统级 LLM 块超时问题；探索使用本地 HuggingFace 模型作为降低延迟的策略。 ❌ 登录 Claude Code 被阻止 — 多次尝试认证和启动 Claude Code 均失败；这些会话期间无法进行任何开发工作。 实施与修复 ✅ 修复过期的可编辑安装和部署网站 — 重新生成了 summarize CLI 的可编辑安装查找器，将 GitHub Pages 仓库克隆到 public/ 中，并更新了 LLM 模型配置（Sonnet 5/Opus 4.8）。 ✅ 将文档整合为双语格式 — 使用并行提取代理和机械组装将分散的 README 和教程文件合并成标准化的双语 zh/en 根目录 README 和 TUTORIAL 文件。 问题与解决方案 关键问题 1. SSH 远程端口转发因“地址已被占用”错误而失败；后续的 rclone 上传在空目录上超时或失败。 解决方案： 将 SSH 配置改为动态高端口（10087）而非硬编码的低端口。重构了 _rclone_upload 以进行目录批量复制，并修补了 sync.py 以将缺失源视为跳过而非致命错误。\n关键洞察： 在共享集群环境中，动态端口选择比静态映射更安全；与单独文件传输相比，批量 I/O 减少了不稳定的隧道开销。\n2. Claude Code 在 TzJsDesktop 上的多个会话中反复返回“未登录”状态，导致无法处理任何提示。 解决方案： 多次登录尝试失败；这需要人工 CLI 干预或在自动化日志范围之外刷新凭证。会话日志中未找到有效的技术解决方案。\n关键洞察： 持续的认证错误会阻碍所有人工智能辅助工作流；复杂任务自动化前必须手动验证状态管理。\n3. summarize CLI 忽略用户指定的工作数量，将其硬编码为 os.cpu_count()；此外，rclone sync 因本地与全局配置路径配置错误而失败。 解决方案： 在解析器中暴露 --workers 参数，并通过 auto.py 转发至 daily.py。创建了应用程序特定的 ~/.config/summarize/config.json 以正确路由 LLM 和 rclone_remote 设置。\n关键洞察： CLI 重构需要验证所有中间脚本层中的参数传播；应用配置通常需要与系统级工具配置不同的明确覆盖。\n4. summarize 中的所有 43 个批量合并子进程因 LLM 块限制和高并发下的 API 速率限制而超时；大文件导致文档组装停滞。 解决方案： 确定超时是根本原因，并开始探索本地开放权重模型（如 Qwen2.5）以降低延迟。将文档整合改为“提取后组装”的机械流程，而非单次生成。\n关键洞察： 高并发并行化暴露了 API 瓶颈；将语义提取与结构组装分离可防止 LLM 上下文限制破坏批量文档工作流。\n一般问题 5. AI 在 Windows PowerShell shell 命令中无法找到使用相对路径的文件，并假设“AWS 集成”意味着 Bedrock SDK。 解决方案： 在调试期间将所有文件操作改为绝对路径。通过确认“AWS 上的 Claude 平台”在标准 CLI 中使用环境变量，而非新的 SDK 后端来纠正架构理解。\n关键洞察： 相对路径在 AI-代理 shell 环境中是易变的；需要精确的术语以防止 AI 混淆类似的云提供商服务。\n6. 可编辑安装查找器 __editable___... 映射了旧版路径，导致 python -m summarize 在仓库根目录失败；同时混淆了全局 rclone 配置与应用特定配置。 解决方案： 通过 pip install -e . 重构包后重新生成可编辑查找器。为用户创建了“填空式”配置模板，以明确设备名称和远程路径。\nNote: 由于文本中包含大量技术细节和修复方案，部分内容已转化为解释性描述，未保留原文格式。关键洞察： 目录结构变更要求可编辑的安装重建；区分全局工具配置与应用特定的 JSON Schema，对正确路由至关重要。\n人类与 AI 方法对比 战略层面 AWS 云架构与提示工程策略 角色 方法 人类 用户将 “AWS 上的 Claude 平台” 与 Bedrock 区分开来，并要求一种“填空式”的单页引导用户体验。用户还分析了 LLM 的权衡（Opus 与 Sonnet），以适配特定的任务量。 AI AI 验证了架构差异，实现了基于 YAML 的注册表引导方式，并优化了用于大规模文档组装的提示拆分策略。 差异分析： 人类约束推动了用户体验理念与架构精度；AI 则执行了实现过程，并提供了平衡可行性与用户目标的技术优化。\n并行瓶颈诊断 角色 方法 人类 用户发现瓶颈在于 CLI 参数暴露，而不仅仅是Worker数量问题，需要直接解决 --workers 问题。 AI AI 追踪了 daily.py、__main__.py 和 auto.py 中的代码路径，识别了 os.cpu_count() 硬编码问题，并应用补丁以正确传递参数。 差异分析： 人类提供了关于“哪里出错”的战略方向；AI 则提供了所需的详细架构追踪和代码修正，以便高效解决问题。\n实施层面 文档合成工作流 角色 方法 人类 无 AI AI 协调了多代理提取过程，并使用确定性机械拼接技术完成最终组装，因为单遍生成陷入停滞。 差异分析： 人类定义了输出标准；AI 确定语义提取与结构组装必须分离，以应对文件大小和 LLM 上下文限制。\nAI 限制 关键限制 Claude Code 会话令牌无效时无法执行任何任务，导致整个工作流陷入瘫痪，直到进行手动认证。 一般限制 倾向于将 “AWS 上的 Claude 平台” 与 Bedrock 混为一谈，在 Windows PowerShell 环境中使用相对路径难以解决，需要明确修正。 由于依赖缺失，无法运行原生 pytest 套件，不得不依赖手动运行时 monkey patching 来验证。 学习成果 关键学习点 重构 CLI 工具时，务必验证中间编排脚本是否明确传递参数，而不是依赖默认值或硬编码值。 在启动批量处理之前，确保 CLI 会话已认证且具有状态，因为 AI 工具在没有活跃会话的情况下会静默失败。 实际学习点 Python 中的可编辑安装在目录结构变更时不会自动更新映射文件；重构后必须运行 pip install -e .。 使用注册表模式处理引导脚本比单体程序化代码具有更大的可扩展性，将文档提取与组装分离可避免上下文限制导致的停滞。 平台级提供者路由（如 AWS 与 Direct）通常通过环境变量在包装器/CLI 层面处理，而非需要新的 SDK 后端实现。 对话总结 Gadget Toolkit 开发与引导 ✅ 完整的引导实施与管道优化 claude_code / codex 专注于构建 Gadget toolkit 的稳健设置体验。使用 YAML 注册表开发了 scripts/onboard.py，以自动化环境检查（SSH、Claude Auth、Hugo）并将预飞行检查集成到 Summarize 管道中。同时，修复了关键 CLI 缺陷，其中 Worker 数量被硬编码，导致 --workers 参数在 daily merge 和 summarize auto 中暴露。当天还使用分割提取-组装策略将大量文档合并为双语格式，以绕过上下文限制。\n网络、部署与 LLM 配置 ✅ 解决代理冲突、同步错误和 AWS 提供者路由问题 claude_code / codex 解决了深层基础设施问题，包括孤立会话导致的 SSH 端口阻塞（通过动态端口 10087 解决）以及 rclone 因本地特定配置与全局配置不匹配而产生的失败。建立了与 Bedrock 不同的 “AWS 上的 Claude 平台” 正确路由，创建了必要的配置文件，并修复了旧的可编辑安装，以实现无缝网站部署。\nClaude Code 认证失败 ❌ 持续的登录会话阻碍工作流 claude_code 全天在 TzJsDesktop 上尝试启动 Claude Code 会话多次，均返回 “未登录” 错误。这导致无法执行日常报告分析或基于提示的自动化。该问题在不同设备和时间戳下持续存在，是 AI 辅助开发中的关键障碍。\nSummarize 工具性能分析 • 调查批量合并超时和本地模型替代方案 codex 诊断出系统性故障：43 个每日合并子进程因 LLM 块限制而超时。虽然已部署 CLI 参数修复，但根本原因分析导致评估了本地开放权重模型（如 Qwen2.5）作为降低延迟和成本的可行替代方案，用于结构化提取任务。\n令牌使用 AI Usage · 2026-06-30\rClaude Code + Codex\rTotal cost$83.77\rTotal tokens69M\rOutput tokens836K\rCache read90.1%\rCost split\rClaude Code $81 ·\rCodex $2\rToken character\rCache reads 90.1% ·\rActive 9.9%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
-  "wordCount" : "542",
+  "articleBody": "每日报告 — 2026-06-30 日常概述 已完成工作： 为 Gadget 项目开发了全仓库范围的引导机制；解决了 summarize CLI 并行工作器配置中的硬编码问题；修复了 SSH 代理和 rclone 同步冲突问题；在 AWS 上实现了 Claude 平台的支持。 实现方式： 使用 YAML 驱动的步骤注册表进行引导；重构了多个 Python 模块中的 CLI 参数传递机制，以实现动态工作器数量调整；修补了 remote.py 的批量上传功能；验证了 LLM 提供商的配置路径。这些工作经常因会话认证错误而中断，需要人工干预。 影响： 实现了 summarize 管道的灵活、并行执行方式；简化了新设备或环境的设置流程；纠正了关键的数据传输故障；但工具可用性问题部分影响了生产力。 通过实施弹性引导系统、修复关键的并行化与网络错误，并配置 AWS 特定的 LLM 路由，显著提升了 Gadget 工具包的功能；但由于 Claude Code 的持续认证失败，出现了严重的操作延迟。\n任务 架构与策略 ✅ 构建全仓库范围的引导系统 — 创建了 scripts/onboard.py 中的 YAML 驱动步骤注册表，以自动化 SSH、认证（包括 AWS 上的 Claude 平台）和插件安装。添加了每步开关功能并编写了单元测试。 ✅ 实现 summarize 的预飞行引导模块 — 创建了 tools/summarize/onboarding.py 来检查前置条件（rclone、API 密钥、Hugo），并将检查机制集成到 auto.py 中，以在缺少要求时阻止执行。 ✅ 解决 SSH 代理端口冲突和网络设置问题 — 发现孤立会话阻塞了 7890/18080 端口，切换至免费端口 10087，更新了 net.sh，并为隔离 Pod 中的 GitHub 访问配置了 DNS/代理桥接。 ✅ 重构 summarize CLI 的工作器数量机制 — 将硬编码的 os.cpu_count() 替换为 args.workers 在 daily.py 中，更新了 __main__.py 以接受该参数，并确保 auto.py 能正确转发该参数。 ✅ 实现弹性的 rclone 批量上传 — 在 remote.py 中重构了 _rclone_upload，使用目录批量传输并重试；修补了 scripts/sync.py，在初始化过程中优雅地跳过缺失的远程目录。 ✅ 配置 AWS 上的 Claude 平台提供商的路由 — 明确了 Bedrock 与 AWS 上的 Claude 平台之间的区别，设置了正确的环境变量 CLAUDE_CODE_USE_ANTHROPIC_AWS，并更新了文档。 🔄 调查 summarize 批量合并失败问题 — 诊断出 43 个日常合并子进程中的系统级 LLM 块超时问题；探索使用本地 HuggingFace 模型作为降低延迟的策略。 ❌ 登录 Claude Code 被阻止 — 多次尝试认证和启动 Claude Code 均失败；这些会话期间无法进行任何开发工作。 实施与修复 ✅ 修复过期的可编辑安装和部署网站 — 重新生成了 summarize CLI 的可编辑安装查找器，将 GitHub Pages 仓库克隆到 public/ 中，并更新了 LLM 模型配置（Sonnet 5/Opus 4.8）。 ✅ 将文档整合为双语格式 — 使用并行提取代理和机械组装将分散的 README 和教程文件合并成标准化的双语 zh/en 根目录 README 和 TUTORIAL 文件。 问题与解决方案 关键问题 1. SSH 远程端口转发因“地址已被占用”错误而失败；后续的 rclone 上传在空目录上超时或失败。 解决方案： 将 SSH 配置改为动态高端口（10087）而非硬编码的低端口。重构了 _rclone_upload 以进行目录批量复制，并修补了 sync.py 以将缺失源视为跳过而非致命错误。\n关键洞察： 在共享集群环境中，动态端口选择比静态映射更安全；与单独文件传输相比，批量 I/O 减少了不稳定的隧道开销。\n2. Claude Code 在 TzJsDesktop 上的多个会话中反复返回“未登录”状态，导致无法处理任何提示。 解决方案： 多次登录尝试失败；这需要人工 CLI 干预或在自动化日志范围之外刷新凭证。会话日志中未找到有效的技术解决方案。\n关键洞察： 持续的认证错误会阻碍所有人工智能辅助工作流；复杂任务自动化前必须手动验证状态管理。\n3. summarize CLI 忽略用户指定的工作数量，将其硬编码为 os.cpu_count()；此外，rclone sync 因本地与全局配置路径配置错误而失败。 解决方案： 在解析器中暴露 --workers 参数，并通过 auto.py 转发至 daily.py。创建了应用程序特定的 ~/.config/summarize/config.json 以正确路由 LLM 和 rclone_remote 设置。\n关键洞察： CLI 重构需要验证所有中间脚本层中的参数传播；应用配置通常需要与系统级工具配置不同的明确覆盖。\n4. summarize 中的所有 43 个批量合并子进程因 LLM 块限制和高并发下的 API 速率限制而超时；大文件导致文档组装停滞。 解决方案： 确定超时是根本原因，并开始探索本地开放权重模型（如 Qwen2.5）以降低延迟。将文档整合改为“提取后组装”的机械流程，而非单次生成。\n关键洞察： 高并发并行化暴露了 API 瓶颈；将语义提取与结构组装分离可防止 LLM 上下文限制破坏批量文档工作流。\n一般问题 5. AI 在 Windows PowerShell shell 命令中无法找到使用相对路径的文件，并假设“AWS 集成”意味着 Bedrock SDK。 解决方案： 在调试期间将所有文件操作改为绝对路径。通过确认“AWS 上的 Claude 平台”在标准 CLI 中使用环境变量，而非新的 SDK 后端来纠正架构理解。\n关键洞察： 相对路径在 AI-代理 shell 环境中是易变的；需要精确的术语以防止 AI 混淆类似的云提供商服务。\n6. 可编辑安装查找器 __editable___... 映射了旧版路径，导致 python -m summarize 在仓库根目录失败；同时混淆了全局 rclone 配置与应用特定配置。 解决方案： 通过 pip install -e . 重构包后重新生成可编辑查找器。为用户创建了“填空式”配置模板，以明确设备名称和远程路径。\nNote: 由于文本中包含大量技术细节和修复方案，部分内容已转化为解释性描述，未保留原文格式。关键洞察： 目录结构变更要求可编辑的安装重建；区分全局工具配置与应用特定的 JSON Schema，对正确路由至关重要。\n人类与 AI 方法对比 战略层面 AWS 云架构与提示工程策略 角色 方法 人类 用户将 “AWS 上的 Claude 平台” 与 Bedrock 区分开来，并要求一种“填空式”的单页引导用户体验。用户还分析了 LLM 的权衡（Opus 与 Sonnet），以适配特定的任务量。 AI 助手 AI 验证了架构差异，实现了基于 YAML 的注册表引导方式，并优化了用于大规模文档组装的提示拆分策略。 差异分析： 人类约束推动了用户体验理念与架构精度；AI 则执行了实现过程，并提供了平衡可行性与用户目标的技术优化。\n并行瓶颈诊断 角色 方法 人类 用户发现瓶颈在于 CLI 参数暴露，而不仅仅是Worker数量问题，需要直接解决 --workers 问题。 AI 助手 AI 追踪了 daily.py、__main__.py 和 auto.py 中的代码路径，识别了 os.cpu_count() 硬编码问题，并应用补丁以正确传递参数。 差异分析： 人类提供了关于“哪里出错”的战略方向；AI 则提供了所需的详细架构追踪和代码修正，以便高效解决问题。\n实施层面 文档合成工作流 角色 方法 人类 无 AI 助手 AI 协调了多代理提取过程，并使用确定性机械拼接技术完成最终组装，因为单遍生成陷入停滞。 差异分析： 人类定义了输出标准；AI 确定语义提取与结构组装必须分离，以应对文件大小和 LLM 上下文限制。\nAI 限制 关键限制 Claude Code 会话令牌无效时无法执行任何任务，导致整个工作流陷入瘫痪，直到进行手动认证。 一般限制 倾向于将 “AWS 上的 Claude 平台” 与 Bedrock 混为一谈，在 Windows PowerShell 环境中使用相对路径难以解决，需要明确修正。 由于依赖缺失，无法运行原生 pytest 套件，不得不依赖手动运行时 monkey patching 来验证。 学习成果 关键学习点 重构 CLI 工具时，务必验证中间编排脚本是否明确传递参数，而不是依赖默认值或硬编码值。 在启动批量处理之前，确保 CLI 会话已认证且具有状态，因为 AI 工具在没有活跃会话的情况下会静默失败。 实际学习点 Python 中的可编辑安装在目录结构变更时不会自动更新映射文件；重构后必须运行 pip install -e .。 使用注册表模式处理引导脚本比单体程序化代码具有更大的可扩展性，将文档提取与组装分离可避免上下文限制导致的停滞。 平台级提供者路由（如 AWS 与 Direct）通常通过环境变量在包装器/CLI 层面处理，而非需要新的 SDK 后端实现。 对话总结 Gadget Toolkit 开发与引导 ✅ 完整的引导实施与管道优化 claude_code / codex 专注于构建 Gadget toolkit 的稳健设置体验。使用 YAML 注册表开发了 scripts/onboard.py，以自动化环境检查（SSH、Claude Auth、Hugo）并将预飞行检查集成到 Summarize 管道中。同时，修复了关键 CLI 缺陷，其中 Worker 数量被硬编码，导致 --workers 参数在 daily merge 和 summarize auto 中暴露。当天还使用分割提取-组装策略将大量文档合并为双语格式，以绕过上下文限制。\n网络、部署与 LLM 配置 ✅ 解决代理冲突、同步错误和 AWS 提供者路由问题 claude_code / codex 解决了深层基础设施问题，包括孤立会话导致的 SSH 端口阻塞（通过动态端口 10087 解决）以及 rclone 因本地特定配置与全局配置不匹配而产生的失败。建立了与 Bedrock 不同的 “AWS 上的 Claude 平台” 正确路由，创建了必要的配置文件，并修复了旧的可编辑安装，以实现无缝网站部署。\nClaude Code 认证失败 ❌ 持续的登录会话阻碍工作流 claude_code 全天在 TzJsDesktop 上尝试启动 Claude Code 会话多次，均返回 “未登录” 错误。这导致无法执行日常报告分析或基于提示的自动化。该问题在不同设备和时间戳下持续存在，是 AI 辅助开发中的关键障碍。\nSummarize 工具性能分析 • 调查批量合并超时和本地模型替代方案 codex 诊断出系统性故障：43 个每日合并子进程因 LLM 块限制而超时。虽然已部署 CLI 参数修复，但根本原因分析导致评估了本地开放权重模型（如 Qwen2.5）作为降低延迟和成本的可行替代方案，用于结构化提取任务。\n令牌使用 AI Usage · 2026-06-30\rClaude Code + Codex\rTotal cost$83.77\rTotal tokens69M\rOutput tokens836K\rCache read90.1%\rCost split\rClaude Code $81 ·\rCodex $2\rToken character\rCache reads 90.1% ·\rActive 9.9%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "545",
   "inLanguage": "zh",
   "datePublished": "2026-06-30T00:00:00-05:00",
   "dateModified": "2026-06-30T00:00:00-05:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -276,7 +276,7 @@
           <td>用户将 “AWS 上的 Claude 平台” 与 Bedrock 区分开来，并要求一种“填空式”的单页引导用户体验。用户还分析了 LLM 的权衡（Opus 与 Sonnet），以适配特定的任务量。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 验证了架构差异，实现了基于 YAML 的注册表引导方式，并优化了用于大规模文档组装的提示拆分策略。</td>
       </tr>
   </tbody>
@@ -296,7 +296,7 @@
           <td>用户发现瓶颈在于 CLI 参数暴露，而不仅仅是Worker数量问题，需要直接解决 <code>--workers</code> 问题。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 追踪了 <code>daily.py</code>、<code>__main__.py</code> 和 <code>auto.py</code> 中的代码路径，识别了 <code>os.cpu_count()</code> 硬编码问题，并应用补丁以正确传递参数。</td>
       </tr>
   </tbody>
@@ -317,7 +317,7 @@
           <td>无</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 协调了多代理提取过程，并使用确定性机械拼接技术完成最终组装，因为单遍生成陷入停滞。</td>
       </tr>
   </tbody>

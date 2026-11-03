@@ -10,7 +10,7 @@
 <meta name="description" content="完成了多个高价值项目，包括将模块化的 PersonalAgent 框架与 WeChat 自动化进行整合，为 CVPR/NeurIPS 投稿执行严格的机器人评估协议，以及完成对 PhD 申请材料的大规模、非破坏性审计。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-10-20/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "Daily Report — 2026-10-20 Daily Overview 工作内容： 今日工作包括将分散的 AI repositories 重构为统一的 PersonalAgent 架构，完善 SPOT 和 RoboMME 机器人论文的科学叙述与评估 pipeline，并对 PhD outreach profiles 及相关材料进行了广泛且多阶段的审计。 实施方式： 开发采用了基于 MCP 标准的模块化 “core + plugin” 架构，在远程集群上实现了自动化的 GPU 加速 simulation rendering，并使用了复杂的基于 Python 的 web-scraping 和非破坏性数据验证协议。 影响： 这些工作为个人 AI 助手建立了可扩展的基础，确保了即将发表的高影响力学术论文的科学严谨性与辩护力，并保证了关键 PhD 申请沟通的精准度。 推进了多个高风险项目，包括将模块化 PersonalAgent 框架与 WeChat automation 进行整合，为 CVPR/NeurIPS 投稿执行严格的机器人评估协议，以及完成了一项大规模、非破坏性的 PhD 申请材料审计。\nTasks Architecture \u0026 Strategy ✅ RoboMME/SPOT Paper Storyline \u0026 Readiness Assessment — 开发了侧重于 “visual memory interfaces” 和 “local event verification” 的详细 storyline，以实现研究与现有工作的差异化，并评估了 CVPR readiness。 🔄 SPOT System Evaluation (Baseline, Val, Ablations) — 正在使用 tianhe3 集群上的 GPU 加速 rendering 执行多阶段协议 (Baseline $\\to$ Val $\\to$ Tuning $\\to$ Test)。 ✅ PhD Advisor Discovery \u0026 Audit — 审查了 344 名潜在的 PhD advisors，并对 182 份 profiles 进行了三轮非破坏性审计，验证了研究匹配度、联系政策以及推荐信的准确性。 ✅ PhD Letter Generation \u0026 Verification — 重写了 86 封现有信件，并生成了 95 封与研究方向一致的新信件，同时对 87 封信件进行了语法正确性和研究课题准确性的审计。 ✅ PersonalAgent Architecture Consolidation — 使用 “one process, one database” 架构和 MCP 标准，将八个 legacy repositories 合并为一个单一的模块化 “personalAgents/” 框架。 ✅ WeChat Bot Integration \u0026 Multi-modal Support — 实现了一个具有身份/记忆绑定、多模型切换、@mention 识别以及媒体 fallback 机制（针对 GIFs/MP4s 的 frame-sampling）的 WeChat bridge。 ✅ Gemma 4 Reasoning Recovery Implementation — 实现了一个两阶段恢复路径，以处理长时 “thinking” 过程中出现的 token exhaustion 和 silent failures。 🔄 CVPR Paper Drafting — 使用新的评估协议、GPU 结果、real-robot 章节以及完善后的科学叙述来更新 manuscript。 Implementation \u0026 Fixes ✅ NeurIPS Camera-Ready Refinement — 修正了 trajectory counts、dataset split descriptions 以及 NSR rollout settings，以确保与 rebuttal 和 MimicGen settings 的一致性。 ✅ Figure 4 Heatmap Redrawing — 使用 Python 重绘了 Error Skill heatmap，以修正 axis labels、policy names 和 legend details。 Problems \u0026 Solutions Critical Issues 1. 由于使用基于 CPU 的 lavapipe rendering 以及 compute-only containers 中缺失 NVIDIA graphics capabilities 导致的 simulation speeds 过低。 Solution: 提取了 user-space NVIDIA graphics libraries (libGLX, libEGL, Vulkan ICD) 并配置了环境变量，以便在无需 root access 的情况下启用基于 GPU 的 Vulkan rendering。\n2. 审稿人可能针对 RoboMME 的 baseline consistency 以及缺乏 mechanistic novelty 提出的质疑。 Solution: 主动调整论文结构以包含 real-world experiments，并将叙述重心从 “planning” 转向 “local visual event verification”，从而提供清晰的 “why”。\n3. 使用 test set 进行 parameter tuning 导致的数据泄露风险。 Solution: 实施了严格的评估协议：在 validation set 上进行参数微调，并在 test set 上报告最终结果。\n4. Astra 和 Claude 模型无法原生处理 temporal media (GIFs/MP4s) 或处理特定的 WeChat integration nuances (identity parsing, @mentions)。 Solution: 为媒体分析实现了 frame-sampling fallback，更新了用于 @mentions 的 bridge protocol，并为 sender ID index 添加了定期刷新机制。\n5. Gemma 4 reasoning processes 耗尽 token window，导致 empty replies 或 timeouts。 Solution: 开发了一种恢复策略：如果初始尝试失败或达到 context limits，则触发一个禁用 “thinking” 的重试。\n6. Rebuttal 数字与发布的 dataset counts 之间存在差异，以及特定研究人员数据的不准确。 Solution: 将正文中的文本转为定性描述，将具体计数移至 Appendix，并使用 deep-web evidence (YouTube/landing pages) 来验证细节。\n7. 最初的 AI skill recommendations 缺乏社区验证和可靠性。 Solution: 通过优先考虑 GitHub star counts、forks 和 active maintenance records 来重新评估所有候选对象。\nHuman vs AI Approaches Strategic Level Project Architecture (Modularization) Role Approach Human 提出了一个轻量级的、模块化的 “core + plugin” 架构，其中独立的 repositories 作为 tools 运行，以避免复杂性和重写。 AI 最初专注于单个 features，随后转向使用 Model Context Protocol (MCP) 作为插件互换性的标准化 interface。 Difference Analysis: Human 优先考虑长期可维护性和解耦，而 AI 通过 MCP 专注于技术标准化。\nResearch Storytelling Strategy Role Approach Human 提供高层级的 objectives，并授权使用特定的 research-architecting skillsets (例如 sci-story-skill)。 AI 将经验证据 (success rates, ablation results) 与 formal frameworks 相结合，提出了一个具有辩护力的、经过架构设计的科学主张。 Difference Analysis: Human 驱动了 tool/method 的选择和战略方向，而 AI 提供了结构严谨性和竞争定位。\nEvaluation Methodology \u0026 Statistical Rigor Role Approach Human 强制执行严格的 split，即使用 validation set 进行 tuning，而 test set 保持不动用于最终报告，以防止数据泄露。 AI 最初建议在 test set 上运行 evaluation，以便与已发布的 benchmarks 进行即时比较。 Difference Analysis: Human 优先考虑统计严谨性和防止数据泄露，而 AI 优先考虑比较的便捷性。\nNon-destructive Audit Protocol| Role | Approach | |——|——| | Human | Mandated that the audit must not modify any existing files, instead requiring all findings to be written to a separate, dedicated audit file. | | AI | Implemented a strict verification protocol by calculating and comparing SHA-256 hashes of all protected files to guarantee zero modification. |\nDifference Analysis: Human 设置了数据完整性的战略约束，而 AI 开发了技术验证机制（hash checking）来执行该约束。\nScientific Integrity vs. Aesthetic Simplicity Role Approach Human Suggested changing trajectory counts to cleaner numbers (e.g., 109 to 110) for aesthetic/numerical simplicity. AI Argued against changing the evaluation set to avoid invalidating results, suggesting instead to redefine the count based on the source pool. Difference Analysis: AI 将 Scientific Integrity 和实验一致性置于 Human 提出的数值简洁性之上。\nAI Limitations Critical Limitations 最初未能考虑到在 Deep Reasoning 过程中 context window exhaustion 的问题，也未能考虑到像 Astra/Claude 这样的模型缺乏原生的 temporal-media 支持。 General Limitations Web search budget exhaustion 以及 403 Forbidden/bot challenges 阻碍了对某些第三方 reputation/academic URLs 的彻底检查。 在尝试修改 shared nodes 上的资源时触发了 security classifiers，并且在旧架构与新架构之间的 persona transitions 管理上存在困难。 由于 real-robot experiments 尚未进行，无法对其进行验证；此外，在建议 niche tools 时，最初未能考虑到 community popularity。 Learnings Key Learnings 对于一篇具有公信力的 CVPR 级别 robotics 论文，严格分离 development, validation, 和 testing sets 是必不可少的。 可以通过经由 environment variables 手动提供 graphics libraries 和 ICD files，在 compute-only containers 中启用 NVIDIA GPU rendering。 Robotics 中的 scientific novelty 通常在于 perception 与 action 之间的 interface 设计（例如 visual memory tokens），而不仅仅是 raw success rates。 LLMs 中的 extended reasoning/thinking processes 可能导致 ‘silent’ failures，即在生成任何 response 之前就达到了 token limit。 在未经验证的领域选择 agentic scientific skills 时，High star counts 和 active maintenance 是衡量 reliability 的重要指标。 在描述涉及 minor versioning 的 datasets 时，专注于 generation methodology 和 source pools 比在正文中引用 absolute counts 更安全。 使用 MCP 作为 plugin standard 可以使 central orchestrator 具有可互换性，并降低 custom tools 的 integration complexity。 Conversation Summaries ErrorRecoveryBenchmark ✅ NeurIPS Camera-Ready Refinements 解决了 camera-ready paper 中关于 trajectory counts, dataset splits, 和 figure labels 的不一致问题。重新绘制了 heatmap 并更新了 LaTeX files，以确保与 rebuttal 和 publication standards 一致。\nPhD Application Research ✅ Automated Advisor Discovery and Letter Writing 运行了大规模 workflow 来审核 344 名 advisors，构建了 95 份 new dossiers，并重写了 86 封 existing letters。系统成功将 research lines, citation data, 和 lab resource info 聚合到了一个更新后的 dashboard 中。\nRoboMME Paper Writing ✅ Drafting paper outline and storyline User 与 AI 协作构建了 RoboMME paper 的详细 outline。AI 提出了分章节的 logic flow，强调了 VLM reasoning 与 code-based memory 的分离。User 要求增加 real-world experiment sections，AI 成功将其整合进结构中，同时识别了潜在的技术与结构挑战。\nSPOT Robotics 🔄 System evaluation and CVPR paper drafting 当天的重点是执行 baseline benchmark, 进行 ablations, 并开始 validation run。投入了大量精力用于完善 evaluation protocol 并更新 CVPR paper，以反映新的严谨 methodology。\nRoboMemory ✅ GPU Rendering Implementation and Result Synthesis User 与 AI 通过在 tianhe3 上设置 user-space NVIDIA graphics libraries 解决了 simulation bottleneck。在验证了 GPU rendering 的 fidelity 和 speedup 后，AI 重新运行了 test baseline 和 validation sets。最后，使用一个 subagent 更新了 CVPR paper，加入了新的 results 和 resource statistics。\nPhD Outreach Audit ✅ Comprehensive Audit of Advisor Database and Cover Letters 对 182 名 faculty members 进行了广泛的三轮 audit。过程包括验证 research alignment, paper citations, 和 contact policies。结果是一份详细的 supplementary audit report，包含已验证的 evidence, 已识别的 errors, 以及需要进一步验证的 items，同时保持了 original files 的完整性。\nPersonalAgent ✅ Unified Architecture and Media Integration User 与 AI 讨论了将多个 AI repositories 合并为一个 single modular project 的方案。关键的 architectural decisions 包括使用 centralized SQLite DB, 一个 lightweight process structure, 以及用于 modularity 的 MCP。AI 为不支持的 video/GIF formats 实现了 media fallback，并修复了 message queue issues，尽管 end-to-end video reception 仍需等待 VM restart。\nRoboMME JEV ✅ CVPR Readiness \u0026 Research Storyline User 要求评估项目对于 CVPR submission 的 readiness。AI 对 local files 和 remote experiment results 进行了全面 audit，识别了与近期工作的 competitive gaps，并使用 ‘sci-story-skill’ 提出了一个新的、具有防御性的 scientific narrative，专注于 local event verification。\nAcademic Research Support ✅ Selection of AI skills for CVPR papers and PhD applications User 要求为 academic workflows 提供专门的 AI skills，包括 CVPR paper writing 和 PhD outreach。AI 搜索了 GitHub，分析了 repository metrics，并提供了分层级的 recommendation，例如用于写作的 Orchestra Research 和用于 visualization 的 K-Dense-AI 等 high-popularity tools。\nToken Usage AI Usage · 2026-10-20\rClaude Code + Codex\rTotal cost$730.93\rTotal tokens3.95B\rOutput tokens2M\rCache read97.6%\rCost split\rClaude Code $653 ·\rCodex $78\rToken character\rCache reads 97.6% ·\rActive 2.4%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
-  "wordCount" : "1109",
+  "articleBody": "Daily Report — 2026-10-20 Daily Overview 工作内容： 今日工作包括将分散的 AI repositories 重构为统一的 PersonalAgent 架构，完善 SPOT 和 RoboMME 机器人论文的科学叙述与评估 pipeline，并对 PhD outreach profiles 及相关材料进行了广泛且多阶段的审计。 实施方式： 开发采用了基于 MCP 标准的模块化 “core + plugin” 架构，在远程集群上实现了自动化的 GPU 加速 simulation rendering，并使用了复杂的基于 Python 的 web-scraping 和非破坏性数据验证协议。 影响： 这些工作为个人 AI 助手建立了可扩展的基础，确保了即将发表的高影响力学术论文的科学严谨性与辩护力，并保证了关键 PhD 申请沟通的精准度。 推进了多个高风险项目，包括将模块化 PersonalAgent 框架与 WeChat automation 进行整合，为 CVPR/NeurIPS 投稿执行严格的机器人评估协议，以及完成了一项大规模、非破坏性的 PhD 申请材料审计。\nTasks Architecture \u0026 Strategy ✅ RoboMME/SPOT Paper Storyline \u0026 Readiness Assessment — 开发了侧重于 “visual memory interfaces” 和 “local event verification” 的详细 storyline，以实现研究与现有工作的差异化，并评估了 CVPR readiness。 🔄 SPOT System Evaluation (Baseline, Val, Ablations) — 正在使用 tianhe3 集群上的 GPU 加速 rendering 执行多阶段协议 (Baseline $\\to$ Val $\\to$ Tuning $\\to$ Test)。 ✅ PhD Advisor Discovery \u0026 Audit — 审查了 344 名潜在的 PhD advisors，并对 182 份 profiles 进行了三轮非破坏性审计，验证了研究匹配度、联系政策以及推荐信的准确性。 ✅ PhD Letter Generation \u0026 Verification — 重写了 86 封现有信件，并生成了 95 封与研究方向一致的新信件，同时对 87 封信件进行了语法正确性和研究课题准确性的审计。 ✅ PersonalAgent Architecture Consolidation — 使用 “one process, one database” 架构和 MCP 标准，将八个 legacy repositories 合并为一个单一的模块化 “personalAgents/” 框架。 ✅ WeChat Bot Integration \u0026 Multi-modal Support — 实现了一个具有身份/记忆绑定、多模型切换、@mention 识别以及媒体 fallback 机制（针对 GIFs/MP4s 的 frame-sampling）的 WeChat bridge。 ✅ Gemma 4 Reasoning Recovery Implementation — 实现了一个两阶段恢复路径，以处理长时 “thinking” 过程中出现的 token exhaustion 和 silent failures。 🔄 CVPR Paper Drafting — 使用新的评估协议、GPU 结果、real-robot 章节以及完善后的科学叙述来更新 manuscript。 Implementation \u0026 Fixes ✅ NeurIPS Camera-Ready Refinement — 修正了 trajectory counts、dataset split descriptions 以及 NSR rollout settings，以确保与 rebuttal 和 MimicGen settings 的一致性。 ✅ Figure 4 Heatmap Redrawing — 使用 Python 重绘了 Error Skill heatmap，以修正 axis labels、policy names 和 legend details。 Problems \u0026 Solutions Critical Issues 1. 由于使用基于 CPU 的 lavapipe rendering 以及 compute-only containers 中缺失 NVIDIA graphics capabilities 导致的 simulation speeds 过低。 Solution: 提取了 user-space NVIDIA graphics libraries (libGLX, libEGL, Vulkan ICD) 并配置了环境变量，以便在无需 root access 的情况下启用基于 GPU 的 Vulkan rendering。\n2. 审稿人可能针对 RoboMME 的 baseline consistency 以及缺乏 mechanistic novelty 提出的质疑。 Solution: 主动调整论文结构以包含 real-world experiments，并将叙述重心从 “planning” 转向 “local visual event verification”，从而提供清晰的 “why”。\n3. 使用 test set 进行 parameter tuning 导致的数据泄露风险。 Solution: 实施了严格的评估协议：在 validation set 上进行参数微调，并在 test set 上报告最终结果。\n4. Astra 和 Claude 模型无法原生处理 temporal media (GIFs/MP4s) 或处理特定的 WeChat integration nuances (identity parsing, @mentions)。 Solution: 为媒体分析实现了 frame-sampling fallback，更新了用于 @mentions 的 bridge protocol，并为 sender ID index 添加了定期刷新机制。\n5. Gemma 4 reasoning processes 耗尽 token window，导致 empty replies 或 timeouts。 Solution: 开发了一种恢复策略：如果初始尝试失败或达到 context limits，则触发一个禁用 “thinking” 的重试。\n6. Rebuttal 数字与发布的 dataset counts 之间存在差异，以及特定研究人员数据的不准确。 Solution: 将正文中的文本转为定性描述，将具体计数移至 Appendix，并使用 deep-web evidence (YouTube/landing pages) 来验证细节。\n7. 最初的 AI skill recommendations 缺乏社区验证和可靠性。 Solution: 通过优先考虑 GitHub star counts、forks 和 active maintenance records 来重新评估所有候选对象。\nHuman vs AI Approaches Strategic Level Project Architecture (Modularization) 角色 方法 用户 提出了一个轻量级的、模块化的 “core + plugin” 架构，其中独立的 repositories 作为 tools 运行，以避免复杂性和重写。 AI 助手 最初专注于单个 features，随后转向使用 Model Context Protocol (MCP) 作为插件互换性的标准化 interface。 差异分析： Human 优先考虑长期可维护性和解耦，而 AI 通过 MCP 专注于技术标准化。\nResearch Storytelling Strategy 角色 方法 用户 提供高层级的 objectives，并授权使用特定的 research-architecting skillsets (例如 sci-story-skill)。 AI 助手 将经验证据 (success rates, ablation results) 与 formal frameworks 相结合，提出了一个具有辩护力的、经过架构设计的科学主张。 差异分析： Human 驱动了 tool/method 的选择和战略方向，而 AI 提供了结构严谨性和竞争定位。\nEvaluation Methodology \u0026 Statistical Rigor 角色 方法 用户 强制执行严格的 split，即使用 validation set 进行 tuning，而 test set 保持不动用于最终报告，以防止数据泄露。 AI 助手 最初建议在 test set 上运行 evaluation，以便与已发布的 benchmarks 进行即时比较。 差异分析： Human 优先考虑统计严谨性和防止数据泄露，而 AI 优先考虑比较的便捷性。\nNon-destructive Audit Protocol 角色 方法 用户 Mandated that the audit must not modify any existing files, instead requiring all findings to be written to a separate, dedicated audit file. AI 助手 Implemented a strict verification protocol by calculating and comparing SHA-256 hashes of all protected files to guarantee zero modification. 差异分析： Human 设置了数据完整性的战略约束，而 AI 开发了技术验证机制（hash checking）来执行该约束。\nScientific Integrity vs. Aesthetic Simplicity 角色 方法 用户 Suggested changing trajectory counts to cleaner numbers (e.g., 109 to 110) for aesthetic/numerical simplicity. AI 助手 Argued against changing the evaluation set to avoid invalidating results, suggesting instead to redefine the count based on the source pool. 差异分析： AI 将 Scientific Integrity 和实验一致性置于 Human 提出的数值简洁性之上。\nAI Limitations Critical Limitations 最初未能考虑到在 Deep Reasoning 过程中 context window exhaustion 的问题，也未能考虑到像 Astra/Claude 这样的模型缺乏原生的 temporal-media 支持。 General Limitations Web search budget exhaustion 以及 403 Forbidden/bot challenges 阻碍了对某些第三方 reputation/academic URLs 的彻底检查。 在尝试修改 shared nodes 上的资源时触发了 security classifiers，并且在旧架构与新架构之间的 persona transitions 管理上存在困难。 由于 real-robot experiments 尚未进行，无法对其进行验证；此外，在建议 niche tools 时，最初未能考虑到 community popularity。 Learnings Key Learnings 对于一篇具有公信力的 CVPR 级别 robotics 论文，严格分离 development, validation, 和 testing sets 是必不可少的。 可以通过经由 environment variables 手动提供 graphics libraries 和 ICD files，在 compute-only containers 中启用 NVIDIA GPU rendering。 Robotics 中的 scientific novelty 通常在于 perception 与 action 之间的 interface 设计（例如 visual memory tokens），而不仅仅是 raw success rates。 LLMs 中的 extended reasoning/thinking processes 可能导致 ‘silent’ failures，即在生成任何 response 之前就达到了 token limit。 在未经验证的领域选择 agentic scientific skills 时，High star counts 和 active maintenance 是衡量 reliability 的重要指标。 在描述涉及 minor versioning 的 datasets 时，专注于 generation methodology 和 source pools 比在正文中引用 absolute counts 更安全。 使用 MCP 作为 plugin standard 可以使 central orchestrator 具有可互换性，并降低 custom tools 的 integration complexity。 Conversation Summaries ErrorRecoveryBenchmark ✅ NeurIPS Camera-Ready Refinements 解决了 camera-ready paper 中关于 trajectory counts, dataset splits, 和 figure labels 的不一致问题。重新绘制了 heatmap 并更新了 LaTeX files，以确保与 rebuttal 和 publication standards 一致。\nPhD Application Research ✅ Automated Advisor Discovery and Letter Writing 运行了大规模 workflow 来审核 344 名 advisors，构建了 95 份 new dossiers，并重写了 86 封 existing letters。系统成功将 research lines, citation data, 和 lab resource info 聚合到了一个更新后的 dashboard 中。\nRoboMME Paper Writing ✅ Drafting paper outline and storyline User 与 AI 协作构建了 RoboMME paper 的详细 outline。AI 提出了分章节的 logic flow，强调了 VLM reasoning 与 code-based memory 的分离。User 要求增加 real-world experiment sections，AI 成功将其整合进结构中，同时识别了潜在的技术与结构挑战。\nSPOT Robotics 🔄 System evaluation and CVPR paper drafting 当天的重点是执行 baseline benchmark, 进行 ablations, 并开始 validation run。投入了大量精力用于完善 evaluation protocol 并更新 CVPR paper，以反映新的严谨 methodology。\nRoboMemory ✅ GPU Rendering Implementation and Result Synthesis User 与 AI 通过在 tianhe3 上设置 user-space NVIDIA graphics libraries 解决了 simulation bottleneck。在验证了 GPU rendering 的 fidelity 和 speedup 后，AI 重新运行了 test baseline 和 validation sets。最后，使用一个 subagent 更新了 CVPR paper，加入了新的 results 和 resource statistics。\nPhD Outreach Audit ✅ Comprehensive Audit of Advisor Database and Cover Letters 对 182 名 faculty members 进行了广泛的三轮 audit。过程包括验证 research alignment, paper citations, 和 contact policies。结果是一份详细的 supplementary audit report，包含已验证的 evidence, 已识别的 errors, 以及需要进一步验证的 items，同时保持了 original files 的完整性。\nPersonalAgent ✅ Unified Architecture and Media Integration User 与 AI 讨论了将多个 AI repositories 合并为一个 single modular project 的方案。关键的 architectural decisions 包括使用 centralized SQLite DB, 一个 lightweight process structure, 以及用于 modularity 的 MCP。AI 为不支持的 video/GIF formats 实现了 media fallback，并修复了 message queue issues，尽管 end-to-end video reception 仍需等待 VM restart。\nRoboMME JEV ✅ CVPR Readiness \u0026 Research Storyline User 要求评估项目对于 CVPR submission 的 readiness。AI 对 local files 和 remote experiment results 进行了全面 audit，识别了与近期工作的 competitive gaps，并使用 ‘sci-story-skill’ 提出了一个新的、具有防御性的 scientific narrative，专注于 local event verification。\nAcademic Research Support ✅ Selection of AI skills for CVPR papers and PhD applications User 要求为 academic workflows 提供专门的 AI skills，包括 CVPR paper writing 和 PhD outreach。AI 搜索了 GitHub，分析了 repository metrics，并提供了分层级的 recommendation，例如用于写作的 Orchestra Research 和用于 visualization 的 K-Dense-AI 等 high-popularity tools。\nToken Usage AI Usage · 2026-10-20\rClaude Code + Codex\rTotal cost$730.93\rTotal tokens3.95B\rOutput tokens2M\rCache read97.6%\rCost split\rClaude Code $653 ·\rCodex $78\rToken character\rCache reads 97.6% ·\rActive 2.4%\rMost token volume came from cache reads; Claude Code drove nearly all cost.\r",
+  "wordCount" : "1100",
   "inLanguage": "zh",
   "datePublished": "2026-10-20T00:00:00-04:00",
   "dateModified": "2026-10-20T00:00:00-04:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -258,87 +258,102 @@
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>提出了一个轻量级的、模块化的 “core + plugin” 架构，其中独立的 repositories 作为 tools 运行，以避免复杂性和重写。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初专注于单个 features，随后转向使用 Model Context Protocol (MCP) 作为插件互换性的标准化 interface。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 优先考虑长期可维护性和解耦，而 AI 通过 MCP 专注于技术标准化。</p>
+<p><strong>差异分析：</strong> Human 优先考虑长期可维护性和解耦，而 AI 通过 MCP 专注于技术标准化。</p>
 <h4 id="research-storytelling-strategy">Research Storytelling Strategy<a hidden class="anchor" aria-hidden="true" href="#research-storytelling-strategy">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>提供高层级的 objectives，并授权使用特定的 research-architecting skillsets (例如 sci-story-skill)。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>将经验证据 (success rates, ablation results) 与 formal frameworks 相结合，提出了一个具有辩护力的、经过架构设计的科学主张。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 驱动了 tool/method 的选择和战略方向，而 AI 提供了结构严谨性和竞争定位。</p>
+<p><strong>差异分析：</strong> Human 驱动了 tool/method 的选择和战略方向，而 AI 提供了结构严谨性和竞争定位。</p>
 <h4 id="evaluation-methodology--statistical-rigor">Evaluation Methodology &amp; Statistical Rigor<a hidden class="anchor" aria-hidden="true" href="#evaluation-methodology--statistical-rigor">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
           <td>强制执行严格的 split，即使用 validation set 进行 tuning，而 test set 保持不动用于最终报告，以防止数据泄露。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>最初建议在 test set 上运行 evaluation，以便与已发布的 benchmarks 进行即时比较。</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> Human 优先考虑统计严谨性和防止数据泄露，而 AI 优先考虑比较的便捷性。</p>
-<h4 id="non-destructive-audit-protocol-role--approach-">Non-destructive Audit Protocol| Role | Approach |<a hidden class="anchor" aria-hidden="true" href="#non-destructive-audit-protocol-role--approach-">#</a></h4>
-<p>|&mdash;&mdash;|&mdash;&mdash;|
-| Human | Mandated that the audit must not modify any existing files, instead requiring all findings to be written to a separate, dedicated audit file. |
-| AI   | Implemented a strict verification protocol by calculating and comparing SHA-256 hashes of all protected files to guarantee zero modification. |</p>
-<p><strong>Difference Analysis:</strong> Human 设置了数据完整性的战略约束，而 AI 开发了技术验证机制（hash checking）来执行该约束。</p>
-<h4 id="scientific-integrity-vs-aesthetic-simplicity">Scientific Integrity vs. Aesthetic Simplicity<a hidden class="anchor" aria-hidden="true" href="#scientific-integrity-vs-aesthetic-simplicity">#</a></h4>
+<p><strong>差异分析：</strong> Human 优先考虑统计严谨性和防止数据泄露，而 AI 优先考虑比较的便捷性。</p>
+<h4 id="non-destructive-audit-protocol">Non-destructive Audit Protocol<a hidden class="anchor" aria-hidden="true" href="#non-destructive-audit-protocol">#</a></h4>
 <table>
   <thead>
       <tr>
-          <th>Role</th>
-          <th>Approach</th>
+          <th>角色</th>
+          <th>方法</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Human</td>
+          <td>用户</td>
+          <td>Mandated that the audit must not modify any existing files, instead requiring all findings to be written to a separate, dedicated audit file.</td>
+      </tr>
+      <tr>
+          <td>AI 助手</td>
+          <td>Implemented a strict verification protocol by calculating and comparing SHA-256 hashes of all protected files to guarantee zero modification.</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>差异分析：</strong> Human 设置了数据完整性的战略约束，而 AI 开发了技术验证机制（hash checking）来执行该约束。</p>
+<h4 id="scientific-integrity-vs-aesthetic-simplicity">Scientific Integrity vs. Aesthetic Simplicity<a hidden class="anchor" aria-hidden="true" href="#scientific-integrity-vs-aesthetic-simplicity">#</a></h4>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>方法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>用户</td>
           <td>Suggested changing trajectory counts to cleaner numbers (e.g., 109 to 110) for aesthetic/numerical simplicity.</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>Argued against changing the evaluation set to avoid invalidating results, suggesting instead to redefine the count based on the source pool.</td>
       </tr>
   </tbody>
 </table>
-<p><strong>Difference Analysis:</strong> AI 将 Scientific Integrity 和实验一致性置于 Human 提出的数值简洁性之上。</p>
+<p><strong>差异分析：</strong> AI 将 Scientific Integrity 和实验一致性置于 Human 提出的数值简洁性之上。</p>
 <h2 id="ai-limitations">AI Limitations<a hidden class="anchor" aria-hidden="true" href="#ai-limitations">#</a></h2>
 <h3 id="critical-limitations">Critical Limitations<a hidden class="anchor" aria-hidden="true" href="#critical-limitations">#</a></h3>
 <ul>

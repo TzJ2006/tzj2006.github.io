@@ -10,7 +10,7 @@
 <meta name="description" content="通过严格的配对评估和权重验证，确定闭环协变量偏移是仅使用名义数据的策略无法取得成功的根本原因，同时为六个Robosuite任务建立了稳健的Stack Three基础设施和并行训练流程。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/bugjournal/daily/2026-07-28/">
-<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a9cf84404b92ca1405edd694e02b0db53c4e65274f010ff52d6190d12cb1750b.css" integrity="sha256-qc&#43;EQEuSyhQF7daU4CsNtTxOZSdPAQ/1LWGQ0SyxdQs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.76812f221d8dbd505b8b8e29ff68f6a7fd884e29ec57928dd5caeb76e9c035b8.css" integrity="sha256-doEvIh2NvVBbi44p/2j2p/2ITinsV5KN1crrdunANbg=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tzj2006.github.io/images/icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://tzj2006.github.io/images/icon.png">
@@ -68,13 +68,13 @@
     {
       "@type": "ListItem",
       "position":  1 ,
-      "name": "Bug Journal",
+      "name": "工作日志",
       "item": "https://tzj2006.github.io/zh/bugjournal/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "Daily Summaries",
+      "name": "工作日报",
       "item": "https://tzj2006.github.io/zh/bugjournal/daily/"
     }, 
     {
@@ -96,8 +96,8 @@
   "keywords": [
     "Bug Journal"
   ],
-  "articleBody": "每日报告 — 2026-07-28 日常概述 已完成工作： 诊断了在仅名义数据上训练的 OpenVLA-LoRA 策略中的关键故障模式，并针对 Coffee 和 Stack Three 任务进行了全面评估。 实施方法： 通过配对部署对比、权重差异验证以及远程 GPU 调度（Tianhe3）来识别协变量偏移；开发了自动化的 JSON 验证脚本以确保并行基准测试的完整性。 影响： 证明低训练损失并不能保证闭环成功，因为偏离流形状态时的累积错误会导致失败，从而确立了恢复增强数据对鲁棒性的重要性，并验证了评估基础设施。 通过严格的配对评估和权重验证，确定闭环协变量偏移是仅名义数据策略零成功的核心原因，同时建立了稳健的 Stack Three 基础设施和六项 Robosuite 任务的并行训练流程。\n任务 架构与策略 ✅ Coffee 名义数据零成功根本原因分析 — 调查了 Coffee Nominal 策略的 0% 成功率，排除管道漏洞，并确定闭环协变量偏移是主要故障模式。 ✅ OpenVLA-LoRA 训练与 Stack Three 评估基础设施 — 启动了六项 Robosuite 任务的并行训练；合并并部署了 Stack Three Nominal/Recovery（step-7000）检查点，在 Tianhe3 上启动双评估服务器。 实施与修复 ✅ 自动验证与远程环境管理 — 开发了 Python 脚本来验证 JSON 输出完整性（场景计数、种子唯一性），并解决了无头服务器执行的远程环境依赖问题（PYTHONPATH、scipy、OpenGL）。 问题与解决方案 关键问题 1. Coffee Nominal 策略尽管训练损失较低（约 0.13），但成功率为 0%，最初怀疑是管道漏洞或检查点损坏。 解决方案： 对恢复数据进行对称配对评估并验证权重差异；识别出“闭环协变量偏移”，即微小的初始偏差累积导致模型偏离其训练分布。确认名义数据缺乏用于描述偏离流形情况的恢复示例。\n关键洞察： 最小化训练损失掩盖了关键的帧失败；逐步概率下降的指数级累积会导致即使指标看似良好，也会造成灾难性的闭环失败。\n一般问题 2. 远程评估脚本因缺少依赖项（PYTHONPATH、scipy）和非诊断性种子选择而失败。 解决方案： 为远程代理明确配置 PYTHONPATH；通过直接加载 vla_server.py 绕过重型框架导入；将诊断种子改为恢复成功的种子，以隔离模型差异。\n关键洞察： 诊断必须使用能够隔离感兴趣变量的种子；最小化包初始化副作用对于共享/远程环境中的高效调试至关重要。\n人类与 AI 方法 战略层面 诊断零成功率与故障模式识别 角色 方法 人类 用户排除表面假设（损坏/日志），并战略性地引导调查方向，关注损失曲线和名义与恢复对比，确定协变量偏移的概念性问题。 AI AI 最初专注于程序性检查（完整性、库），在缺乏人类干预的情况下未能将症状与因果机制联系起来；仅在用户提示后提供错误累积的数学推导。 差异分析： 人类通过识别概念性故障模式（分布差距）展示了高级战略调试能力，而 AI 仅限于程序性修复，需要指导才能理解故障的物理学原理。\n实施层面 资源管理与任务调度 角色 方法 人类 用户根据实时实验反馈和优先级变化动态重新分配 GPU 资源（例如将 Coffee 评估转移到 Stack Three）。 AI AI 维持静态计划或建议标准队列，缺乏适应资源分配的上下文意识，需要明确指示。 差异分析： 人类通过实验结果表现出适应性调度能力；AI 提供被动执行，未评估动态重新分配的战略价值。\nAI 限制 关键限制 AI 最初缺乏从零成功指标诊断协变量偏移的上下文推理能力，默认认为问题是环境/配置错误，直到人类假设明确指导。 一般限制 自动化脚本因客户端配置路径问题（PowerShell）和非诊断性种子选择而遇到噪声，浪费了初始诊断资源。 学习成果 关键学习点 仅名义数据的模仿学习策略在闭环环境中本质上不稳定，因为轨迹误差累积；鲁棒性需要明确的错误状态（恢复）训练或在线修正。 实用学习点 配对评估（共享种子/状态）对于将模型性能与环境随机性分离至关重要；自动化的 JSON 完整性检查对于可信的并行基准测试至关重要。 对话总结 ✅ Coffee Nominal 故障诊断与 Stack Three 基础设施搭建 04:12:13.526 | claude_code, codex 对 Coffee Nominal 策略 0% 成功率进行了端到端调查，确定闭环协变量偏移和数据不足是根本原因。同时通过合并检查点（step-7000）和启动并行服务器建立了 Stack Three 评估基础设施。通过系统性消除技术漏洞和数学分析错误累积，验证了管道完整性。\n令牌使用 AI Usage · 2026-07-28\rClaude Code + Codex\rTotal cost$30.38\rTotal tokens36M\rOutput tokens126K\rCache read94.9%\rCost split\rClaude Code $12 ·\rCodex $18\rToken character\rCache reads 94.9% ·\rActive 5.1%\rMost token volume came from cache reads.\r",
-  "wordCount" : "194",
+  "articleBody": "每日报告 — 2026-07-28 日常概述 已完成工作： 诊断了在仅名义数据上训练的 OpenVLA-LoRA 策略中的关键故障模式，并针对 Coffee 和 Stack Three 任务进行了全面评估。 实施方法： 通过配对部署对比、权重差异验证以及远程 GPU 调度（Tianhe3）来识别协变量偏移；开发了自动化的 JSON 验证脚本以确保并行基准测试的完整性。 影响： 证明低训练损失并不能保证闭环成功，因为偏离流形状态时的累积错误会导致失败，从而确立了恢复增强数据对鲁棒性的重要性，并验证了评估基础设施。 通过严格的配对评估和权重验证，确定闭环协变量偏移是仅名义数据策略零成功的核心原因，同时建立了稳健的 Stack Three 基础设施和六项 Robosuite 任务的并行训练流程。\n任务 架构与策略 ✅ Coffee 名义数据零成功根本原因分析 — 调查了 Coffee Nominal 策略的 0% 成功率，排除管道漏洞，并确定闭环协变量偏移是主要故障模式。 ✅ OpenVLA-LoRA 训练与 Stack Three 评估基础设施 — 启动了六项 Robosuite 任务的并行训练；合并并部署了 Stack Three Nominal/Recovery（step-7000）检查点，在 Tianhe3 上启动双评估服务器。 实施与修复 ✅ 自动验证与远程环境管理 — 开发了 Python 脚本来验证 JSON 输出完整性（场景计数、种子唯一性），并解决了无头服务器执行的远程环境依赖问题（PYTHONPATH、scipy、OpenGL）。 问题与解决方案 关键问题 1. Coffee Nominal 策略尽管训练损失较低（约 0.13），但成功率为 0%，最初怀疑是管道漏洞或检查点损坏。 解决方案： 对恢复数据进行对称配对评估并验证权重差异；识别出“闭环协变量偏移”，即微小的初始偏差累积导致模型偏离其训练分布。确认名义数据缺乏用于描述偏离流形情况的恢复示例。\n关键洞察： 最小化训练损失掩盖了关键的帧失败；逐步概率下降的指数级累积会导致即使指标看似良好，也会造成灾难性的闭环失败。\n一般问题 2. 远程评估脚本因缺少依赖项（PYTHONPATH、scipy）和非诊断性种子选择而失败。 解决方案： 为远程代理明确配置 PYTHONPATH；通过直接加载 vla_server.py 绕过重型框架导入；将诊断种子改为恢复成功的种子，以隔离模型差异。\n关键洞察： 诊断必须使用能够隔离感兴趣变量的种子；最小化包初始化副作用对于共享/远程环境中的高效调试至关重要。\n人类与 AI 方法 战略层面 诊断零成功率与故障模式识别 角色 方法 人类 用户排除表面假设（损坏/日志），并战略性地引导调查方向，关注损失曲线和名义与恢复对比，确定协变量偏移的概念性问题。 AI 助手 AI 最初专注于程序性检查（完整性、库），在缺乏人类干预的情况下未能将症状与因果机制联系起来；仅在用户提示后提供错误累积的数学推导。 差异分析： 人类通过识别概念性故障模式（分布差距）展示了高级战略调试能力，而 AI 仅限于程序性修复，需要指导才能理解故障的物理学原理。\n实施层面 资源管理与任务调度 角色 方法 人类 用户根据实时实验反馈和优先级变化动态重新分配 GPU 资源（例如将 Coffee 评估转移到 Stack Three）。 AI 助手 AI 维持静态计划或建议标准队列，缺乏适应资源分配的上下文意识，需要明确指示。 差异分析： 人类通过实验结果表现出适应性调度能力；AI 提供被动执行，未评估动态重新分配的战略价值。\nAI 限制 关键限制 AI 最初缺乏从零成功指标诊断协变量偏移的上下文推理能力，默认认为问题是环境/配置错误，直到人类假设明确指导。 一般限制 自动化脚本因客户端配置路径问题（PowerShell）和非诊断性种子选择而遇到噪声，浪费了初始诊断资源。 学习成果 关键学习点 仅名义数据的模仿学习策略在闭环环境中本质上不稳定，因为轨迹误差累积；鲁棒性需要明确的错误状态（恢复）训练或在线修正。 实用学习点 配对评估（共享种子/状态）对于将模型性能与环境随机性分离至关重要；自动化的 JSON 完整性检查对于可信的并行基准测试至关重要。 对话总结 ✅ Coffee Nominal 故障诊断与 Stack Three 基础设施搭建 04:12:13.526 | claude_code, codex 对 Coffee Nominal 策略 0% 成功率进行了端到端调查，确定闭环协变量偏移和数据不足是根本原因。同时通过合并检查点（step-7000）和启动并行服务器建立了 Stack Three 评估基础设施。通过系统性消除技术漏洞和数学分析错误累积，验证了管道完整性。\n令牌使用 AI Usage · 2026-07-28\rClaude Code + Codex\rTotal cost$30.38\rTotal tokens36M\rOutput tokens126K\rCache read94.9%\rCost split\rClaude Code $12 ·\rCodex $18\rToken character\rCache reads 94.9% ·\rActive 5.1%\rMost token volume came from cache reads.\r",
+  "wordCount" : "196",
   "inLanguage": "zh",
   "datePublished": "2026-07-28T00:00:00-05:00",
   "dateModified": "2026-07-28T00:00:00-05:00",
@@ -189,12 +189,12 @@
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/">Bug Journal</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/">工作日志</a>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
-            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">Daily Summaries</a>
+            <a href="https://tzj2006.github.io/zh/bugjournal/daily/">工作日报</a>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -254,7 +254,7 @@
           <td>用户排除表面假设（损坏/日志），并战略性地引导调查方向，关注损失曲线和名义与恢复对比，确定协变量偏移的概念性问题。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 最初专注于程序性检查（完整性、库），在缺乏人类干预的情况下未能将症状与因果机制联系起来；仅在用户提示后提供错误累积的数学推导。</td>
       </tr>
   </tbody>
@@ -275,7 +275,7 @@
           <td>用户根据实时实验反馈和优先级变化动态重新分配 GPU 资源（例如将 Coffee 评估转移到 Stack Three）。</td>
       </tr>
       <tr>
-          <td>AI</td>
+          <td>AI 助手</td>
           <td>AI 维持静态计划或建议标准队列，缺乏适应资源分配的上下文意识，需要明确指示。</td>
       </tr>
   </tbody>
