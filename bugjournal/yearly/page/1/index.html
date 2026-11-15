@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>需要密码 · Password required</title>
+<style>body{font:16px system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0;background:#f5f5f7;color:#1d1d1f}
+form{background:#fff;padding:32px;border-radius:16px;box-shadow:0 2px 16px #0001;max-width:320px;width:calc(100% - 96px)}
+input,button{font:inherit;box-sizing:border-box;width:100%;padding:10px 12px;margin-top:12px;border-radius:8px;border:1px solid #c7c7cc}
+button{background:#1d1d1f;color:#fff;border:0;cursor:pointer}#e{color:#c00;min-height:1.4em;margin:12px 0 0}
+@media(prefers-color-scheme:dark){body{background:#1d1d1f;color:#f5f5f7}form{background:#2c2c2e}button{background:#f5f5f7;color:#1d1d1f}}</style></head>
+<body><form id="f"><label for="p">这页内容需要密码<br>This page needs a password</label>
+<input id="p" type="password" autocomplete="current-password" autofocus required>
+<button>打开 · Open</button><p id="e" role="alert"></p></form>
+<script>
+const DATA="+gFkoUn3cz7mxfCOHAq4dpMa8AR5hZczXozvnw5YLTSKAxS5BpERTQd3f77cKCNkRxwU6ve5KLZsdNRxmnsfyioHcMyha1wdlaUWQ7WS9nqv7qio886jtNLvT9fxrqvWhqOEmSniZe3EgCyR3li8D/14/Tb12981wGxNYKELz5dK7fowhelrXDumKdpe3QuR3s5nrryNXRgxwCL3QMPq4FD55/G1tQdMzebhxaFTx7lriZaIB+arwMG0y6/YxyOv+Pq9+w0z3K4aMqIxqo3+2cvSqwIy5/iDObkaoTB7R7UUE2NPd0vh0wSa760S25ISvGlUttzWEUl+W1sMkfMi30MMmUbiQURgbNmN05YmCP9iJLjN2XNHQTADDhVlzZyhAFbmohXejHvCidCQnVtkMt6UYeY5fy6JD9Y6cl6O3qKzNhza/89rHlkAUm6YeSTbItN11v2xP03nArLlum7DXGicfA==",SALT="Z2FkZ2V0LXNpdGUtcmVwb3J0cy12MQ==",ITER=600000,SLOT="report-key";
+const bytes=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function decrypt(raw){const key=await crypto.subtle.importKey("raw",raw,"AES-GCM",false,["decrypt"]);const d=bytes(DATA);
+return new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:d.slice(0,12)},key,d.slice(12)))}
+async function derive(password){const m=await crypto.subtle.importKey("raw",new TextEncoder().encode(password),"PBKDF2",false,["deriveBits"]);
+return new Uint8Array(await crypto.subtle.deriveBits({name:"PBKDF2",hash:"SHA-256",salt:bytes(SALT),iterations:ITER},m,256))}
+// Writing before this page has finished loading would append to it instead of replacing it.
+async function show(html){if(document.readyState!=="complete")await new Promise(r=>addEventListener("load",r));document.open();document.write(html);document.close()}
+function saved(){try{return localStorage.getItem(SLOT)}catch{return null}}
+(async()=>{const k=saved();if(!k)return;try{await show(await decrypt(bytes(k)))}catch{try{localStorage.removeItem(SLOT)}catch{}}})();
+document.getElementById("f").onsubmit=async e=>{e.preventDefault();const note=document.getElementById("e");note.textContent="";
+try{const raw=await derive(document.getElementById("p").value),html=await decrypt(raw);
+try{localStorage.setItem(SLOT,btoa(String.fromCharCode(...raw)))}catch{}await show(html)}
+catch{note.textContent="密码不对 · Wrong password"}};
+</script></body></html>
