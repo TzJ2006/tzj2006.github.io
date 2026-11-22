@@ -8,7 +8,7 @@
 <title>LeetCode Daily Question 2025-01-12 | TzJ&#39;s Net</title>
 <meta name="keywords" content="">
 <meta name="description" content="
-Check if a Parentheses String Can Be Valid
+Determine whether a bracket string is valid
 
 ">
 <meta name="author" content="">
@@ -82,7 +82,7 @@ Check if a Parentheses String Can Be Valid
 <meta property="og:url" content="https://tzj2006.github.io/leetcode/2025-01-12/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="LeetCode Daily Question 2025-01-12">
-  <meta property="og:description" content="Check if a Parentheses String Can Be Valid">
+  <meta property="og:description" content="Determine whether a bracket string is valid">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="leetcode">
@@ -91,7 +91,7 @@ Check if a Parentheses String Can Be Valid
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="LeetCode Daily Question 2025-01-12">
-  <meta name="twitter:description" content="Check if a Parentheses String Can Be Valid">
+  <meta name="twitter:description" content="Determine whether a bracket string is valid">
 
 
 <script type="application/ld+json">
@@ -120,12 +120,12 @@ Check if a Parentheses String Can Be Valid
   "@type": "BlogPosting",
   "headline": "LeetCode Daily Question 2025-01-12",
   "name": "LeetCode Daily Question 2025-01-12",
-  "description": " Check if a Parentheses String Can Be Valid ",
+  "description": " Determine whether a bracket string is valid ",
   "keywords": [
     
   ],
-  "articleBody": "Today’s problem https://leetcode.com/problems/check-if-a-parentheses-string-can-be-valid/\nIntuition To make a parentheses string, we need to find a ‘(’ for every ‘)’ on its left side, and a ‘)’ for every ‘(’ on its right hand side. We can fulfill the first requirement first as we are iterating from left to right.\nWhen we encounter a ‘)’, there are three ways to find him a ‘(’, one is a ‘(’ that is already existing, another is to find him a ‘)’ that is unlocked, and the last way is to turn him into a ‘(’ if it is unlocked itself.\nNow, assume that we have find all ‘)’ a ‘(’, then we now need to find all ‘(’ a ‘)’. Now, the only way to find a ‘(’ on its right side is to find a ‘(’ that is unlocked, because all ‘)’ is matched with a ‘(’.\nApproach First of all, not that is the length is odd, then it could never be a parentheses string, so please just return False.\nWe can store two arrays, one anyBracketanyBracket that stores the index all unlocked brackets, and another openBracketopenBracket stroing all ‘(’.\nNow we iterate the whole string from left to right, here are some situations we would meet:\nThis is a unlocked bracket: Then we could put it into our anyBracketanyBracket stack. This is a ‘(’: Then we could put it into our openBracketopenBracket stack. This is a ‘)’: Then we need to find him a ‘(’. First we would like to find him a ‘(’ in our openBracketopenBracket stack, which will also finish the task that helps a ‘(’ to find a ‘)’. Then if our openBracketopenBracket stack is empty, then we will find him a ‘(’ in our anyBracketanyBracket stack by either a ‘(’ or a ‘)’ that is unlocked. If both our openBracketopenBracket stack and our anyBracketanyBracket stack are empty, then return False, because we cannot find a ‘(’ for him. Now we might left some ‘(’ that is unmatched.\nThen we can iterate every ‘(’ in our openBracketopenBracket stack to find whether there is a ‘(’ or ‘)’ in our anyBracketanyBracket stack that has a larger index than our current ‘(’.\nIf there is, then we successfully find him a ‘)’, congratulations! Otherwise we cannot find him a ‘)’, which leads to return False Now if there are even number in our anyBracketanyBracket stack (which will always be the case because we have already did the singularity test above), please return True, then you are all set!\nImportant Trick Why we need a stack for openBracketopenBracket and anyBracketanyBracket? Because in this situation, a ‘)’ will always match to the nearest ‘(’ on its left hand site, which means we need a FIFO (First in First out) data structure to get “the nearest object”. Complexity Time complexity: O(N)O(N), N is the length of the string.\nSpace complexity: O(N)O(N), we stored the indexs of the brackets.\nCode class Solution: def canBeValid(self, s: str, locked: str) -\u003e bool: if len(s) % 2 == 1: return False openBracket = [] anyBracket = [] for i in range(len(s)): if locked[i] == '0': anyBracket.append(i) else: if s[i] == '(': openBracket.append(i) else: if len(openBracket) \u003e 0: openBracket.pop() elif len(anyBracket) \u003e 0: anyBracket.pop() else: return False if len(anyBracket) \u003c len(openBracket): return False idx = len(anyBracket) - 1 for i in range(len(openBracket) - 1, -1, -1): if anyBracket[idx] \u003c openBracket[i]: return False idx -= 1 return idx % 2 == 1 ",
-  "wordCount" : "573",
+  "articleBody": "Today’s Problem https://leetcode.com/problems/check-if-a-parentheses-string-can-be-valid/\nSolution Approach To construct a valid parenthesis string, one needs to find a corresponding ‘(’ to the left of each ‘)’ and a corresponding ‘)’ to the right of each ‘(’. When traversing from left to right, we can satisfy the first condition first.\nWhen encountering a ‘)’, there are three ways to match it with a ‘(’: first, an existing ‘(’, second, finding an unlocked ‘)’, or third, if the ‘)’ itself is unlocked, it can be converted into a ‘(’.\nAssuming we have found a matching ‘(’ for all ‘)’, we then need to find a corresponding ‘)’ for the remaining ‘(’. At this point, the only way is to find an unlocked bracket, because all ‘)’ have already been matched.\nSolution Scheme First, if the string length is odd, it can never form a valid parenthesis string, so directly return False.\nMaintain two arrays: anyBracketanyBracket stores the indices of all unlocked brackets, and openBracketopenBracket stores the indices of all ‘(’.\nTraversing the entire string from left to right, the following situations will be encountered:\nThe current character is an unlocked bracket: push its index into the anyBracketanyBracket stack. The current character is ‘(’: push its index into the openBracketopenBracket stack. The current character is ‘)’: a ‘(’ needs to be found for it. Prioritize popping a ‘(’ from the openBracketopenBracket stack, which simultaneously completes the task of finding a ‘)’ for that ‘(’. If the openBracketopenBracket stack is empty, take an unlocked bracket from the anyBracketanyBracket stack (to act as ‘(’). If both stacks are empty, then return False, because no matching ‘(’ can be found for the current ‘)’. After the traversal, there may still be unmatched ‘(’ left in openBracketopenBracket.\nAt this point, traverse each unmatched ‘(’ in openBracketopenBracket and check if there exists a bracket with a larger index in anyBracketanyBracket (i.e., an unlocked bracket located to its right).\nIf it exists, it means a ‘)’ has been successfully found for it, matching successful! Otherwise, it cannot be matched, return False. If the number of remaining elements in anyBracketanyBracket is even (which must hold true here due to the parity check performed earlier), then return True, mission accomplished!\nImportant Tips Why use stacks for both openBracketopenBracket and anyBracketanyBracket? Because a ‘)’ always prioritizes matching with the nearest ‘(’ to its left, therefore a Last-In-First-Out (LIFO) data structure is needed to retrieve the “nearest element”. Complexity Analysis Time Complexity: O(N)O(N), where N is the length of the string.\nSpace Complexity: O(N)O(N), to store the indices of the brackets.\nCode class Solution: def canBeValid(self, s: str, locked: str) -\u003e bool: if len(s) % 2 == 1: return False openBracket = [] anyBracket = [] for i in range(len(s)): if locked[i] == '0': anyBracket.append(i) else: if s[i] == '(': openBracket.append(i) else: if len(openBracket) \u003e 0: openBracket.pop() elif len(anyBracket) \u003e 0: anyBracket.pop() else: return False if len(anyBracket) \u003c len(openBracket): return False idx = len(anyBracket) - 1 for i in range(len(openBracket) - 1, -1, -1): if anyBracket[idx] \u003c openBracket[i]: return False idx -= 1 return idx % 2 == 1 ",
+  "wordCount" : "514",
   "inLanguage": "en",
   "datePublished": "2025-01-11T23:33:48-05:00",
   "dateModified": "2025-01-11T23:33:48-05:00",
@@ -232,47 +232,47 @@ Check if a Parentheses String Can Be Valid
 
 </div>
   </header> 
-  <div class="post-content md-content"><h1 id="todays-problem">Today&rsquo;s problem<a hidden class="anchor" aria-hidden="true" href="#todays-problem">#</a></h1>
+  <div class="post-content md-content"><h1 id="todays-problem">Today&rsquo;s Problem<a hidden class="anchor" aria-hidden="true" href="#todays-problem">#</a></h1>
 <p><a href="https://leetcode.com/problems/check-if-a-parentheses-string-can-be-valid/">https://leetcode.com/problems/check-if-a-parentheses-string-can-be-valid/</a></p>
-<h1 id="intuition">Intuition<a hidden class="anchor" aria-hidden="true" href="#intuition">#</a></h1>
-<p>To make a parentheses string, we need to find a &lsquo;(&rsquo; for every &lsquo;)&rsquo; on its left side, and a &lsquo;)&rsquo; for every &lsquo;(&rsquo; on its right hand side.
-We can fulfill the first requirement first as we are iterating from left to right.</p>
-<p>When we encounter a &lsquo;)&rsquo;, there are three ways to find him a &lsquo;(&rsquo;, one is a &lsquo;(&rsquo; that is already existing, another is to find him a &lsquo;)&rsquo; that is <em>unlocked</em>, and the last way is to turn him into a &lsquo;(&rsquo; if it is <em>unlocked</em> itself.</p>
-<p>Now, assume that we have find all &lsquo;)&rsquo; a &lsquo;(&rsquo;, then we now need to find all &lsquo;(&rsquo; a &lsquo;)&rsquo;. Now, the only way to find a &lsquo;(&rsquo; on its right side is to find a &lsquo;(&rsquo; that is <em>unlocked</em>, because all &lsquo;)&rsquo; is matched with a &lsquo;(&rsquo;.</p>
-<h1 id="approach">Approach<a hidden class="anchor" aria-hidden="true" href="#approach">#</a></h1>
-<p>First of all, not that is the length is odd, then it could never be a parentheses string, so please just <code>return False</code>.</p>
-<p>We can store two arrays, one <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>n</mi><mi>y</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">anyBracket</annotation></semantics></math></span></span> that stores the index all <em>unlocked</em> brackets, and another <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>o</mi><mi>p</mi><mi>e</mi><mi>n</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">openBracket</annotation></semantics></math></span></span> stroing all &lsquo;(&rsquo;.</p>
-<p>Now we iterate the whole string from left to right, here are some situations we would meet:</p>
+<h1 id="solution-approach">Solution Approach<a hidden class="anchor" aria-hidden="true" href="#solution-approach">#</a></h1>
+<p>To construct a valid parenthesis string, one needs to find a corresponding &lsquo;(&rsquo; to the left of each &lsquo;)&rsquo; and a corresponding &lsquo;)&rsquo; to the right of each &lsquo;(&rsquo;.
+When traversing from left to right, we can satisfy the first condition first.</p>
+<p>When encountering a &lsquo;)&rsquo;, there are three ways to match it with a &lsquo;(&rsquo;: first, an existing &lsquo;(&rsquo;, second, finding an <em>unlocked</em> &lsquo;)&rsquo;, or third, if the &lsquo;)&rsquo; itself is <em>unlocked</em>, it can be converted into a &lsquo;(&rsquo;.</p>
+<p>Assuming we have found a matching &lsquo;(&rsquo; for all &lsquo;)&rsquo;, we then need to find a corresponding &lsquo;)&rsquo; for the remaining &lsquo;(&rsquo;. At this point, the only way is to find an <em>unlocked</em> bracket, because all &lsquo;)&rsquo; have already been matched.</p>
+<h1 id="solution-scheme">Solution Scheme<a hidden class="anchor" aria-hidden="true" href="#solution-scheme">#</a></h1>
+<p>First, if the string length is odd, it can never form a valid parenthesis string, so directly <code>return False</code>.</p>
+<p>Maintain two arrays: <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>n</mi><mi>y</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">anyBracket</annotation></semantics></math></span></span> stores the indices of all <em>unlocked</em> brackets, and <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>o</mi><mi>p</mi><mi>e</mi><mi>n</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">openBracket</annotation></semantics></math></span></span> stores the indices of all &lsquo;(&rsquo;.</p>
+<p>Traversing the entire string from left to right, the following situations will be encountered:</p>
 <ol>
-<li>This is a <em>unlocked</em> bracket: Then we could put it into our <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>n</mi><mi>y</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">anyBracket</annotation></semantics></math></span></span> stack.</li>
-<li>This is a &lsquo;(&rsquo;: Then we could put it into our <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>o</mi><mi>p</mi><mi>e</mi><mi>n</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">openBracket</annotation></semantics></math></span></span> stack.</li>
-<li>This is a &lsquo;)&rsquo;: Then we need to find him a &lsquo;(&rsquo;.
+<li>The current character is an <em>unlocked</em> bracket: push its index into the <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>n</mi><mi>y</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">anyBracket</annotation></semantics></math></span></span> stack.</li>
+<li>The current character is &lsquo;(&rsquo;: push its index into the <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>o</mi><mi>p</mi><mi>e</mi><mi>n</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">openBracket</annotation></semantics></math></span></span> stack.</li>
+<li>The current character is &lsquo;)&rsquo;: a &lsquo;(&rsquo; needs to be found for it.
 <ul>
-<li>First we would like to find him a &lsquo;(&rsquo; in our <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>o</mi><mi>p</mi><mi>e</mi><mi>n</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">openBracket</annotation></semantics></math></span></span> stack, which will also finish the task that helps a &lsquo;(&rsquo; to find a &lsquo;)&rsquo;.</li>
-<li>Then if our <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>o</mi><mi>p</mi><mi>e</mi><mi>n</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">openBracket</annotation></semantics></math></span></span> stack is empty, then we will find him a &lsquo;(&rsquo; in our <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>n</mi><mi>y</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">anyBracket</annotation></semantics></math></span></span> stack by either a &lsquo;(&rsquo; or a &lsquo;)&rsquo; that is <em>unlocked</em>.</li>
-<li>If both our <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>o</mi><mi>p</mi><mi>e</mi><mi>n</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">openBracket</annotation></semantics></math></span></span> stack and our <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>n</mi><mi>y</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">anyBracket</annotation></semantics></math></span></span> stack are empty, then <code>return False</code>, because we cannot find a &lsquo;(&rsquo; for him.</li>
+<li>Prioritize popping a &lsquo;(&rsquo; from the <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>o</mi><mi>p</mi><mi>e</mi><mi>n</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">openBracket</annotation></semantics></math></span></span> stack, which simultaneously completes the task of finding a &lsquo;)&rsquo; for that &lsquo;(&rsquo;.</li>
+<li>If the <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>o</mi><mi>p</mi><mi>e</mi><mi>n</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">openBracket</annotation></semantics></math></span></span> stack is empty, take an <em>unlocked</em> bracket from the <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>n</mi><mi>y</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">anyBracket</annotation></semantics></math></span></span> stack (to act as &lsquo;(&rsquo;).</li>
+<li>If both stacks are empty, then <code>return False</code>, because no matching &lsquo;(&rsquo; can be found for the current &lsquo;)&rsquo;.</li>
 </ul>
 </li>
 </ol>
-<p>Now we might left some &lsquo;(&rsquo; that is unmatched.</p>
-<p>Then we can iterate every &lsquo;(&rsquo; in our <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>o</mi><mi>p</mi><mi>e</mi><mi>n</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">openBracket</annotation></semantics></math></span></span> stack to find whether there is a &lsquo;(&rsquo; or &lsquo;)&rsquo; in our <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>n</mi><mi>y</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">anyBracket</annotation></semantics></math></span></span> stack that has a larger index than our current &lsquo;(&rsquo;.</p>
+<p>After the traversal, there may still be unmatched &lsquo;(&rsquo; left in <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>o</mi><mi>p</mi><mi>e</mi><mi>n</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">openBracket</annotation></semantics></math></span></span>.</p>
+<p>At this point, traverse each unmatched &lsquo;(&rsquo; in <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>o</mi><mi>p</mi><mi>e</mi><mi>n</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">openBracket</annotation></semantics></math></span></span> and check if there exists a bracket with a larger index in <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>n</mi><mi>y</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">anyBracket</annotation></semantics></math></span></span> (i.e., an <em>unlocked</em> bracket located to its right).</p>
 <ul>
-<li>If there is, then we successfully find him a &lsquo;)&rsquo;, congratulations!</li>
-<li>Otherwise we cannot find him a &lsquo;)&rsquo;, which leads to <code>return False</code></li>
+<li>If it exists, it means a &lsquo;)&rsquo; has been successfully found for it, matching successful!</li>
+<li>Otherwise, it cannot be matched, <code>return False</code>.</li>
 </ul>
-<p>Now if there are even number in our <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>n</mi><mi>y</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">anyBracket</annotation></semantics></math></span></span> stack (which will always be the case because we have already did the singularity test above), please <code>return True</code>, then you are all set!</p>
-<h1 id="important-trick">Important Trick<a hidden class="anchor" aria-hidden="true" href="#important-trick">#</a></h1>
+<p>If the number of remaining elements in <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>n</mi><mi>y</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">anyBracket</annotation></semantics></math></span></span> is even (which must hold true here due to the parity check performed earlier), then <code>return True</code>, mission accomplished!</p>
+<h1 id="important-tips">Important Tips<a hidden class="anchor" aria-hidden="true" href="#important-tips">#</a></h1>
 <ul>
-<li>Why we need a <strong>stack</strong> for <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>o</mi><mi>p</mi><mi>e</mi><mi>n</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">openBracket</annotation></semantics></math></span></span> and <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>n</mi><mi>y</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">anyBracket</annotation></semantics></math></span></span>?</li>
-<li>Because in this situation, a &lsquo;)&rsquo; will always match to the nearest &lsquo;(&rsquo; on its left hand site, which means we need a FIFO (First in First out) data structure to get &ldquo;the nearest object&rdquo;.</li>
+<li>Why use <strong>stacks</strong> for both <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>o</mi><mi>p</mi><mi>e</mi><mi>n</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">openBracket</annotation></semantics></math></span></span> and <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>n</mi><mi>y</mi><mi>B</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>k</mi><mi>e</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">anyBracket</annotation></semantics></math></span></span>?</li>
+<li>Because a &lsquo;)&rsquo; always prioritizes matching with the nearest &lsquo;(&rsquo; to its left, therefore a Last-In-First-Out (LIFO) data structure is needed to retrieve the &ldquo;nearest element&rdquo;.</li>
 </ul>
-<h1 id="complexity">Complexity<a hidden class="anchor" aria-hidden="true" href="#complexity">#</a></h1>
+<h1 id="complexity-analysis">Complexity Analysis<a hidden class="anchor" aria-hidden="true" href="#complexity-analysis">#</a></h1>
 <ul>
 <li>
-<p>Time complexity: <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span></span>, N is the length of the string.</p>
+<p>Time Complexity: <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span></span>, where N is the length of the string.</p>
 </li>
 <li>
-<p>Space complexity: <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span></span>, we stored the indexs of the brackets.</p>
+<p>Space Complexity: <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span></span>, to store the indices of the brackets.</p>
 </li>
 </ul>
 <h1 id="code">Code<a hidden class="anchor" aria-hidden="true" href="#code">#</a></h1>
@@ -317,6 +317,17 @@ We can fulfill the first requirement first as we are iterating from left to righ
   <footer class="post-footer">
     <ul class="post-tags">
     </ul>
+<nav class="paginav">
+  <a class="prev" href="https://tzj2006.github.io/leetcode/2025-01-13/">
+    <span class="title">« Prev</span>
+    <span>LeetCode Daily Question 2025-01-13</span>
+  </a>
+  <a class="next" href="https://tzj2006.github.io/leetcode/2025-01-11/">
+    <span class="title">Next »</span>
+    <span>LeetCode Daily Question 2025-01-11</span>
+  </a>
+</nav>
+
   </footer>
 </article>
     </main>
