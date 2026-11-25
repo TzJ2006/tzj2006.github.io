@@ -7,7 +7,7 @@
 <meta name="robots" content="index, follow">
 <title>LeetCode Daily Question: 2025-02-16 | TzJ&#39;s Net</title>
 <meta name="keywords" content="LeetCode, Daily Question, Solution, python, Brute search, DFS, Medium">
-<meta name="description" content="使用 depth-first search 构建满足距离约束的最大序列。">
+<meta name="description" content="使用 depth-first search 来构建满足距离约束的最大序列。">
 <meta name="author" content="">
 <link rel="canonical" href="https://tzj2006.github.io/zh/leetcode/2025-02-16/">
 <link crossorigin="anonymous" href="https://tzj2006.github.io/assets/css/stylesheet.a2055e4b5fa7538bc2f39f8134bf69866de6f39c2d0d283d21be327b6a27ba91.css" integrity="sha256-ogVeS1&#43;nU4vC85&#43;BNL9phm3m85wtDSg9Ib4ye2onupE=" rel="preload stylesheet" as="style">
@@ -79,7 +79,7 @@
 <meta property="og:url" content="https://tzj2006.github.io/zh/leetcode/2025-02-16/">
   <meta property="og:site_name" content="TzJ&#39;s Net">
   <meta property="og:title" content="LeetCode Daily Question: 2025-02-16">
-  <meta property="og:description" content="使用 depth-first search 构建满足距离约束的最大序列。">
+  <meta property="og:description" content="使用 depth-first search 来构建满足距离约束的最大序列。">
   <meta property="og:locale" content="zh_cn">
   <meta property="og:type" content="article">
     <meta property="article:section" content="leetcode">
@@ -88,7 +88,7 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="LeetCode Daily Question: 2025-02-16">
-  <meta name="twitter:description" content="使用 depth-first search 构建满足距离约束的最大序列。">
+  <meta name="twitter:description" content="使用 depth-first search 来构建满足距离约束的最大序列。">
 
 
 <script type="application/ld+json">
@@ -117,11 +117,11 @@
   "@type": "BlogPosting",
   "headline": "LeetCode Daily Question: 2025-02-16",
   "name": "LeetCode Daily Question: 2025-02-16",
-  "description": "使用 depth-first search 构建满足距离约束的最大序列。",
+  "description": "使用 depth-first search 来构建满足距离约束的最大序列。",
   "keywords": [
     "LeetCode", "Daily Question", "Solution", "python", "Brute search", "DFS", "Medium"
   ],
-  "articleBody": "Today’s Problem https://leetcode.com/problems/construct-the-lexicographically-largest-valid-sequence/description/\nIntuitive Analysis 这个问题需要构造一个满足距离约束并使字典序最大化的序列。因此，我们应该优先尝试在每个位置填充较大的数字。\nSolution 注意 N≤20N \\le 20，因此可以使用 backtracking search：从左到右搜索空槽，将数字 ii 放置在两个距离为 ii 的位置，而数字 1 仅放置一次。按降序尝试；找到的第一个可行解即为字典序最大的序列。\nComplexity Analysis Time Complexity: O(NN)O(N^N)，其中 N 是问题描述中定义的数值。 Space Complexity: O(N)O(N)，其中 N 是问题描述中定义的数值。 Code Implementation Standard Depth First Search Solution class Solution: def dfs(self, pos, n, vis, pls): if pos == 2 * n - 1: return pls # if we enumerate to the end of the sequence, then we can return the answer. if pls[pos] != 0: return self.dfs(pos + 1, n, vis, pls) # if we place a number in the current position, then we can move to the next position. for i in range(n, 1, -1): # we enumerate from large to small so that we can get the largest sequence. if vis[i]: continue # if we use this number, then pass. if pos + i \u003c 2 * n - 1 and pls[pos + i] == 0: pls[pos] = i pls[pos + i] = i vis[i] = True # put the number into the slot if it is available. ret = self.dfs(pos + 1, n, vis, pls) if ret is not None: return ret vis[i] = False pls[pos] = 0 pls[pos + i] = 0 if vis[1]: return None vis[1] = True pls[pos] = 1 ret = self.dfs(pos + 1, n, vis, pls) if ret is not None: return ret vis[1] = False pls[pos] = 0 # special check for 1 becuase 1 only puts into one slot. return None def constructDistancedSequence(self, n: int) -\u003e List[int]: pls = [0] * (2 * n - 1) # pls is the sequence that we place numbers vis = [0] * (n+1) # visit is the sequence we test whether a number exists in the current sequence or not. return self.dfs(0, n, vis, pls) Precomputing Answers 相同的输入对应相同的答案。因此，我们可以预先存储每个输入的答案，并在查询期间直接读取。\nclass Solution: def constructDistancedSequence(self, n: int) -\u003e List[int]: ans = [ [1], [2,1,2], [3,1,2,3,2], [4,2,3,2,4,3,1], [5,3,1,4,3,5,2,4,2], [6,4,2,5,2,4,6,3,5,1,3], [7,5,3,6,4,3,5,7,4,6,2,1,2], [8,6,4,2,7,2,4,6,8,5,3,7,1,3,5], [9,7,5,3,8,6,3,5,7,9,4,6,8,2,4,2,1], [10,8,6,9,3,1,7,3,6,8,10,5,9,7,4,2,5,2,4], [11,9,10,6,4,1,7,8,4,6,9,11,10,7,5,8,2,3,2,5,3], [12,10,11,7,5,3,8,9,3,5,7,10,12,11,8,6,9,2,4,2,1,6,4], [13,11,12,8,6,4,9,10,1,4,6,8,11,13,12,9,7,10,3,5,2,3,2,7,5], [14,12,13,9,7,11,4,1,10,8,4,7,9,12,14,13,11,8,10,6,3,5,2,3,2,6,5], [15,13,14,10,8,12,5,3,11,9,3,5,8,10,13,15,14,12,9,11,7,4,6,1,2,4,2,7,6], [16,14,15,11,9,13,6,4,12,10,1,4,6,9,11,14,16,15,13,10,12,8,5,7,2,3,2,5,3,8,7], [17,15,16,12,10,14,7,5,3,13,11,3,5,7,10,12,15,17,16,14,9,11,13,8,6,2,1,2,4,9,6,8,4], [18,16,17,13,11,15,8,14,4,2,12,2,4,10,8,11,13,16,18,17,15,14,12,10,9,7,5,3,6,1,3,5,7,9,6], [19,17,18,14,12,16,9,15,6,3,13,1,3,11,6,9,12,14,17,19,18,16,15,13,11,10,8,4,5,7,2,4,2,5,8,10,7], [20,18,19,15,13,17,10,16,7,5,3,14,12,3,5,7,10,13,15,18,20,19,17,16,12,14,11,9,4,6,8,2,4,2,1,6,9,11,8] ] return ans[n - 1] ",
+  "articleBody": "Today’s Problem https://leetcode.com/problems/construct-the-lexicographically-largest-valid-sequence/description/\nIntuitive Analysis 这个问题需要构造一个满足距离约束并使字典序最大化的序列。因此，我们应该优先尝试在每个位置填充较大的数字。\nSolution 注意 N≤20N \\le 20，因此可以使用 backtracking search：从左到右搜索空槽，将数字 ii 放置在距离为 ii 的两个位置，而数字 1 仅放置一次。按降序尝试；找到的第一个可行解即为字典序最大的序列。\nComplexity Analysis Time Complexity: O(NN)O(N^N)，其中 N 是问题描述中定义的数值。 Space Complexity: O(N)O(N)，其中 N 是问题描述中定义的数值。 Code Implementation Standard Depth First Search Solution class Solution: def dfs(self, pos, n, vis, pls): if pos == 2 * n - 1: return pls # if we enumerate to the end of the sequence, then we can return the answer. if pls[pos] != 0: return self.dfs(pos + 1, n, vis, pls) # if we place a number in the current position, then we can move to the next position. for i in range(n, 1, -1): # we enumerate from large to small so that we can get the largest sequence. if vis[i]: continue # if we use this number, then pass. if pos + i \u003c 2 * n - 1 and pls[pos + i] == 0: pls[pos] = i pls[pos + i] = i vis[i] = True # put the number into the slot if it is available. ret = self.dfs(pos + 1, n, vis, pls) if ret is not None: return ret vis[i] = False pls[pos] = 0 pls[pos + i] = 0 if vis[1]: return None vis[1] = True pls[pos] = 1 ret = self.dfs(pos + 1, n, vis, pls) if ret is not None: return ret vis[1] = False pls[pos] = 0 # special check for 1 becuase 1 only puts into one slot. return None def constructDistancedSequence(self, n: int) -\u003e List[int]: pls = [0] * (2 * n - 1) # pls is the sequence that we place numbers vis = [0] * (n+1) # visit is the sequence we test whether a number exists in the current sequence or not. return self.dfs(0, n, vis, pls) Precomputing Answers 相同的输入对应相同的答案。因此，我们可以预先存储每个输入的答案，并在查询期间直接读取。\nclass Solution: def constructDistancedSequence(self, n: int) -\u003e List[int]: ans = [ [1], [2,1,2], [3,1,2,3,2], [4,2,3,2,4,3,1], [5,3,1,4,3,5,2,4,2], [6,4,2,5,2,4,6,3,5,1,3], [7,5,3,6,4,3,5,7,4,6,2,1,2], [8,6,4,2,7,2,4,6,8,5,3,7,1,3,5], [9,7,5,3,8,6,3,5,7,9,4,6,8,2,4,2,1], [10,8,6,9,3,1,7,3,6,8,10,5,9,7,4,2,5,2,4], [11,9,10,6,4,1,7,8,4,6,9,11,10,7,5,8,2,3,2,5,3], [12,10,11,7,5,3,8,9,3,5,7,10,12,11,8,6,9,2,4,2,1,6,4], [13,11,12,8,6,4,9,10,1,4,6,8,11,13,12,9,7,10,3,5,2,3,2,7,5], [14,12,13,9,7,11,4,1,10,8,4,7,9,12,14,13,11,8,10,6,3,5,2,3,2,6,5], [15,13,14,10,8,12,5,3,11,9,3,5,8,10,13,15,14,12,9,11,7,4,6,1,2,4,2,7,6], [16,14,15,11,9,13,6,4,12,10,1,4,6,9,11,14,16,15,13,10,12,8,5,7,2,3,2,5,3,8,7], [17,15,16,12,10,14,7,5,3,13,11,3,5,7,10,12,15,17,16,14,9,11,13,8,6,2,1,2,4,9,6,8,4], [18,16,17,13,11,15,8,14,4,2,12,2,4,10,8,11,13,16,18,17,15,14,12,10,9,7,5,3,6,1,3,5,7,9,6], [19,17,18,14,12,16,9,15,6,3,13,1,3,11,6,9,12,14,17,19,18,16,15,13,11,10,8,4,5,7,2,4,2,5,8,10,7], [20,18,19,15,13,17,10,16,7,5,3,14,12,3,5,7,10,13,15,18,20,19,17,16,12,14,11,9,4,6,8,2,4,2,1,6,9,11,8] ] return ans[n - 1] ",
   "wordCount" : "332",
   "inLanguage": "zh",
   "datePublished": "2025-05-17T14:50:49+08:00",
@@ -224,7 +224,7 @@
       LeetCode Daily Question: 2025-02-16
     </h1>
     <div class="post-description">
-      使用 depth-first search 构建满足距离约束的最大序列。
+      使用 depth-first search 来构建满足距离约束的最大序列。
     </div>
     <div class="post-meta">
 
@@ -237,7 +237,7 @@
 <h1 id="intuitive-analysis">Intuitive Analysis<a hidden class="anchor" aria-hidden="true" href="#intuitive-analysis">#</a></h1>
 <p>这个问题需要构造一个满足距离约束并使字典序最大化的序列。因此，我们应该优先尝试在每个位置填充较大的数字。</p>
 <h1 id="solution">Solution<a hidden class="anchor" aria-hidden="true" href="#solution">#</a></h1>
-<p>注意 <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>≤</mo><mn>20</mn></mrow><annotation encoding="application/x-tex">N \le 20</annotation></semantics></math></span></span>，因此可以使用 backtracking search：从左到右搜索空槽，将数字 <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span></span> 放置在两个距离为 <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span></span> 的位置，而数字 1 仅放置一次。按降序尝试；找到的第一个可行解即为字典序最大的序列。</p>
+<p>注意 <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>≤</mo><mn>20</mn></mrow><annotation encoding="application/x-tex">N \le 20</annotation></semantics></math></span></span>，因此可以使用 backtracking search：从左到右搜索空槽，将数字 <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span></span> 放置在距离为 <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span></span> 的两个位置，而数字 1 仅放置一次。按降序尝试；找到的第一个可行解即为字典序最大的序列。</p>
 <h1 id="complexity-analysis">Complexity Analysis<a hidden class="anchor" aria-hidden="true" href="#complexity-analysis">#</a></h1>
 <ul>
 <li>Time Complexity: <span class="math-inline"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>N</mi><mi>N</mi></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N^N)</annotation></semantics></math></span></span>，其中 N 是问题描述中定义的数值。</li>
